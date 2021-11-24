@@ -1,5 +1,6 @@
-**/results
-**/logs
+**/results/
+**/logs/
+**/mock_data/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
