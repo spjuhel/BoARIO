@@ -29,7 +29,7 @@ class Simulation(object):
             if not params.is_dir():
                 raise FileNotFoundError("This file should be a directory containing the different simulation parameters files:", params)
 
-            mrio_params_path = params / 'exio_sectors_params.json'
+            mrio_params_path = params / 'mrio_sectors_params.json'
             if not mrio_params_path.exists():
                 raise FileNotFoundError("MRIO parameters file not found, it should be here: ",mrio_params_path)
             else:
@@ -44,7 +44,7 @@ class Simulation(object):
                     simulation_params = json.load(f)
         else:
             simulation_params = params
-            mrio_params_path = pathlib.Path(simulation_params['exio_params_file'])
+            mrio_params_path = pathlib.Path(simulation_params['mrio_params_file'])
             if not mrio_params_path.exists():
                 raise FileNotFoundError("MRIO parameters file not found, it should be here: ",mrio_params_path)
             else:
@@ -63,17 +63,6 @@ class Simulation(object):
         self.detailled = False
         self.scheme = 'proportional'
 
-    #Not so much actually
-    def loop_fast(self):
-        widgets = [
-            'Processed: ', progressbar.Counter('Year: %(value)d '), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
-        ]
-        bar = progressbar.ProgressBar(widgets=widgets)
-        for t in bar(range(self.n_timesteps_to_sim)):
-            assert self.current_t == t
-            self.next_step_fast()
-        bar.finish()
-
     def loop(self):
         widgets = [
             'Processed: ', progressbar.Counter('Year: %(value)d '), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
@@ -83,53 +72,6 @@ class Simulation(object):
             assert self.current_t == t
             self.next_step()
         bar.finish()
-
-    def loop_test(self):
-        widgets = [
-            'Processed: ', progressbar.Counter('Year: %(value)d '), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
-        ]
-        bar = progressbar.ProgressBar(widgets=widgets)
-        for t in bar(range(self.n_timesteps_to_sim)):
-            assert self.current_t == t
-            self.next_step_test()
-        bar.finish()
-
-
-    def next_step_fast(self):
-        if self.current_t in self.events_timings:
-            current_events = [e for e in self.events if e.occurence_time==self.current_t]
-            for e in current_events:
-                self.shock(e)
-        self.mrio.write_overproduction(self.current_t)
-        self.mrio.write_rebuild_demand(self.current_t)
-        self.mrio.write_classic_demand(self.current_t)
-        self.mrio.calc_production_cap_fast()
-        self.mrio.calc_production_fast()
-        self.mrio.write_production(self.current_t)
-        self.mrio.write_production_max(self.current_t)
-        self.mrio.calc_orders_fast()
-
-        self.mrio.distribute_production(self.current_t, self.scheme)
-        self.mrio.calc_overproduction_fast()
-        self.current_t+=1
-
-    def next_step_test(self):
-        if self.current_t in self.events_timings:
-            current_events = [e for e in self.events if e.occurence_time==self.current_t]
-            for e in current_events:
-                self.shock(e)
-        self.mrio.write_overproduction(self.current_t)
-        self.mrio.write_rebuild_demand(self.current_t)
-        self.mrio.write_classic_demand(self.current_t)
-        self.mrio.calc_production_cap()
-        self.mrio.calc_production()
-        self.mrio.write_production(self.current_t)
-        self.mrio.write_production_max(self.current_t)
-        self.mrio.calc_orders()
-
-        self.mrio.distribute_production(self.current_t, self.scheme)
-        self.mrio.calc_overproduction()
-        self.current_t+=1
 
     def next_step(self):
         if self.current_t in self.events_timings:
@@ -145,11 +87,11 @@ class Simulation(object):
         self.mrio.write_limiting_stocks(self.current_t, constraints)
         self.mrio.write_production(self.current_t)
         self.mrio.write_production_max(self.current_t)
-        self.mrio.calc_orders(constraints)
-
         self.mrio.distribute_production(self.current_t, self.scheme)
+        self.mrio.calc_orders(constraints)
         self.mrio.calc_overproduction()
         self.current_t+=1
+
 
     def read_events_from_list(self, events_list):
         for ev_dic in events_list:
@@ -237,3 +179,6 @@ class Simulation(object):
             self.mrio.prod_max_toward_rebuilding = new_prod_max_toward_rebuilding[np.newaxis,:]
 
         self.mrio.update_kapital_lost()
+
+    def write_index(self, index_file):
+        self.mrio.write_index(index_file)
