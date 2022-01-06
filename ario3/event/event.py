@@ -15,6 +15,7 @@ class Event(object):
             self.aff_sectors = [self.aff_sectors]
         self.duration = event['duration']
         self.dmg_distrib_across_regions = event['dmg-distrib-regions']
+        self.dmg_distrib_across_sectors_type = event['dmg-distrib-sectors-custom']
         self.dmg_distrib_across_sectors = event['dmg-distrib-sectors']
         self.rebuilding_sectors = event['rebuilding-sectors']
 
