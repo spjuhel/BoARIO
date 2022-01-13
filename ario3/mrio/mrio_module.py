@@ -72,7 +72,7 @@ class Mrio_System(object):
         self.Z_0 = (pym_mrio.Z.to_numpy() / self.timestep_dividing_factor)
         self.Y_0 = (pym_mrio.Y.to_numpy() / self.timestep_dividing_factor)
         self.X_0 = (pym_mrio.x.T.to_numpy().flatten() / self.timestep_dividing_factor) #type: ignore
-        self.classic_demand_evolution = (pym_mrio.x.T.to_numpy().flatten() / self.timestep_dividing_factor) #type: ignore
+        #self.classic_demand_evolution = (pym_mrio.x.T.to_numpy().flatten() / self.timestep_dividing_factor) #type: ignore
 
         exts_names, exts = pym_mrio.get_extensions(), pym_mrio.get_extensions(True)
         tmp_chk = False
@@ -104,7 +104,7 @@ class Mrio_System(object):
         self.rebuilding_demand = None
         self.prod_max_toward_rebuilding = None
         self.kapital_lost = np.zeros(self.production.shape)
-        self.impacts_to_rebuild = [] # deprecated ?
+        #self.impacts_to_rebuild = [] # deprecated ?
         if value_added.ndim > 1:
             self.gdp_share_sector = (self.VA_0 / value_added.sum(axis=0).groupby('region').transform('sum').to_numpy())
         else:
@@ -114,7 +114,7 @@ class Mrio_System(object):
         kratio_ordered = [kratio[k] for k in sorted(kratio.keys())]
         self.kstock_ratio_to_VA = np.tile(np.array(kratio_ordered),self.n_regions)
 
-        self.matrix_share_thresh = self.Z_C > np.tile(self.classic_demand_evolution, (self.n_sectors, 1)) * 0.00001 # [n_sectors, n_regions*n_sectors]
+        self.matrix_share_thresh = self.Z_C > np.tile(self.X_0, (self.n_sectors, 1)) * 0.00001 # [n_sectors, n_regions*n_sectors]
         result_storage = result_storage.absolute()
 
         self.production_evolution = np.memmap(result_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
@@ -124,7 +124,8 @@ class Mrio_System(object):
         self.overproduction_evolution = np.memmap(result_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
         self.final_demand_unmet_evolution = np.memmap(result_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
         self.rebuild_production_evolution = np.memmap(result_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.stocks_evolution = np.memmap(result_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
+        if simulation_params['register_stocks']:
+            self.stocks_evolution = np.memmap(result_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
         self.limiting_stocks_evolution = np.memmap(result_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
 
     def calc_production_cap(self):
@@ -293,7 +294,50 @@ class Mrio_System(object):
         self.overprod[self.overprod < 1.] = 1.
 
     def check_equilibrium(self):
-        return (np.allclose(self.production, self.classic_demand_evolution) and np.allclose(self.matrix_stock, self.matrix_stock_0))
+        return (np.allclose(self.production, self.X_0) and np.allclose(self.matrix_stock, self.matrix_stock_0))
+
+    def reset_module(self,
+                 simulation_params: dict,
+                 result_storage: Path
+                 ) -> None:
+        # Reset OUTPUTS
+        result_storage = result_storage.absolute()
+        self.production_evolution = np.memmap(result_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.production_cap_evolution = np.memmap(result_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.classic_demand_evolution = np.memmap(result_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.rebuild_demand_evolution = np.memmap(result_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.overproduction_evolution = np.memmap(result_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.final_demand_unmet_evolution = np.memmap(result_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.rebuild_production_evolution = np.memmap(result_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        if simulation_params['register_stocks']:
+            self.stocks_evolution = np.memmap(result_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
+        self.limiting_stocks_evolution = np.memmap(result_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
+
+        # Reset variable attributes
+        self.kapital_lost = np.zeros(self.production.shape)
+        self.overprod = np.full((self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64)
+        with np.errstate(divide='ignore',invalid='ignore'):
+            self.matrix_stock = ((np.tile(self.X_0, (self.n_sectors, 1)) * self.tech_mat) * self.inv_duration[:,np.newaxis])
+        self.matrix_stock = np.nan_to_num(self.matrix_stock,nan=np.inf, posinf=np.inf)
+        self.matrix_stock_0 = self.matrix_stock.copy()
+        self.matrix_orders = self.Z_0.copy()
+        self.production = self.X_0.copy()
+        self.production_cap = self.X_0.copy()
+        self.intmd_demand = self.Z_0.copy()
+        self.final_demand = self.Y_0.copy()
+        self.rebuilding_demand = None
+        self.prod_max_toward_rebuilding = None
+
+    def update_params(self, new_params):
+        self.psi = new_params['psi_param']
+        self.model_timestep = new_params['model_time_step']
+        self.timestep_dividing_factor = new_params['timestep_dividing_factor']
+        self.rebuild_tau = new_params['rebuild_tau']
+        self.overprod_max = new_params['alpha_max']
+        self.overprod_tau = new_params['alpha_tau']
+        self.overprod_base = new_params['alpha_base']
+        self.restoration_tau = np.full(self.n_sectors, new_params['inventory_restoration_time'])
+
 
     def write_production(self, t:int):
         self.production_evolution[t] = self.production
@@ -338,56 +382,3 @@ class Mrio_System(object):
         }
         with index_file.open('w') as f:
             json.dump(indexes,f)
-
-    def calc_production_cap_fast(self):
-        self.production_cap = fast.calc_production_cap(self.kapital_lost.astype(np.float64), self.VA_0, self.kstock_ratio_to_VA, self.production_cap, self.overprod, self.production)
-
-    def distribute_production_fast(self, t:int, scheme="proportional"):
-        if scheme != 'proportional':
-            raise ValueError("Scheme %s not implemented"% scheme)
-        rebuild_production, non_rebuild_production, self.prod_max_toward_rebuilding = self.calc_rebuilding_production_fast()
-        if self.prod_max_toward_rebuilding is not None:
-            self.prod_max_toward_rebuilding = self.prod_max_toward_rebuilding.round(10)
-
-        # Non rebuild
-        self.write_rebuild_prod(t,rebuild_production.sum(axis=0)) #type: ignore
-        self.matrix_stock, final_demand_not_met = fast.distribute_nr_production(self.production, np.ascontiguousarray(non_rebuild_production), np.ascontiguousarray(self.matrix_orders), np.ascontiguousarray(self.final_demand), self.n_sectors, self.n_regions, np.ascontiguousarray(self.tech_mat), np.ascontiguousarray(self.matrix_stock), self.n_fd_cat)
-        self.write_final_demand_unmet(t, final_demand_not_met)
-
-        # Rebuild
-        if self.rebuilding_demand is not None:
-            tot_rebuilding_demand = np.broadcast_to(np.sum(self.rebuilding_demand, axis=2)[:,:,np.newaxis],self.rebuilding_demand.shape)
-            self.rebuilding_demand = fast.distribute_r_production(np.ascontiguousarray(self.rebuilding_demand), np.ascontiguousarray(rebuild_production), np.ascontiguousarray(tot_rebuilding_demand))
-            self.__update_kapital_lost()
-
-    def calc_rebuilding_production_fast(self):
-        if self.rebuilding_demand is None:
-            return np.full(self.production.shape, 0.0), self.production_cap, self.prod_max_toward_rebuilding
-        elif self.prod_max_toward_rebuilding is not None:
-            return fast.calc_rebuilding_production(np.ascontiguousarray(self.rebuilding_demand), self.production, np.ascontiguousarray(self.prod_max_toward_rebuilding), self.model_timestep, self.rebuild_tau)
-        else:
-            raise ValueError("Attempt to compute prod_max_toward_rebuilding_chg while prod_max_toward_rebuilding is None")
-
-    def calc_overproduction_fast(self):
-        dmg_demand = fast.aggregate_rebuild_demand(self.rebuilding_demand)
-        if dmg_demand is None:
-            dmg_demand = np.full(self.matrix_orders.shape,0.0)
-        self.overprod = fast.calc_overproduction(np.ascontiguousarray(dmg_demand).astype(np.float64), np.ascontiguousarray(self.matrix_orders), np.ascontiguousarray(self.final_demand), self.production, self.overprod_max, self.overprod, self.model_timestep, np.float64(self.overprod_tau), np.float64(self.overprod_base))
-
-    def calc_prod_reqby_demand_fast(self):
-        return fast.calc_prod_reqby_demand(np.ascontiguousarray(self.rebuilding_demand), np.ascontiguousarray(self.matrix_orders), np.ascontiguousarray(self.final_demand))
-
-    def calc_orders_fast(self):
-        inv_duration = np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis]
-        dmg_demand = fast.aggregate_rebuild_demand(self.rebuilding_demand)
-        if dmg_demand is None:
-            dmg_demand = np.full(self.matrix_orders.shape,0.0)
-        self.matrix_orders = fast.calc_orders(np.ascontiguousarray(dmg_demand).astype(np.float64), np.ascontiguousarray(self.matrix_orders), np.ascontiguousarray(self.final_demand), self.production_cap, self.n_sectors, np.ascontiguousarray(self.tech_mat), inv_duration.astype(np.float64), np.ascontiguousarray(self.matrix_stock).astype(np.float64), self.model_timestep, self.restoration_tau, self.production, self.n_regions, np.ascontiguousarray(self.Z_distrib).astype(np.float64))
-
-    def calc_production_fast(self):
-        inv_duration = np.nan_to_num(self.inv_duration, posinf=0.)
-        dmg_demand = fast.aggregate_rebuild_demand(self.rebuilding_demand)
-        if dmg_demand is None:
-            dmg_demand = np.full(self.matrix_orders.shape,0.0)
-        self.production, stock_constraint = fast.calc_production(np.ascontiguousarray(dmg_demand).astype(np.float64), np.ascontiguousarray(self.matrix_orders), np.ascontiguousarray(self.final_demand), self.production_cap, self.n_sectors, np.ascontiguousarray(self.tech_mat), np.float64(self.psi), inv_duration.astype(np.float64), self.n_regions, np.ascontiguousarray(self.matrix_stock).astype(np.float64), np.ascontiguousarray(self.matrix_share_thresh))
-        return stock_constraint
