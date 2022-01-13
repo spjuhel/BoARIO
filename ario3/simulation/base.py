@@ -71,6 +71,16 @@ class Simulation(object):
         for t in bar(range(self.n_timesteps_to_sim)):
             assert self.current_t == t
             self.next_step()
+
+        self.mrio.rebuild_demand_evolution.flush()
+        self.mrio.final_demand_unmet_evolution.flush()
+        self.mrio.classic_demand_evolution.flush()
+        self.mrio.production_evolution.flush()
+        self.mrio.limiting_stocks_evolution.flush()
+        self.mrio.rebuild_production_evolution.flush()
+        self.mrio.stocks_evolution.flush()
+        self.mrio.overproduction_evolution.flush()
+        self.mrio.production_cap_evolution.flush()
         bar.finish()
 
     def next_step(self):
@@ -78,7 +88,8 @@ class Simulation(object):
             current_events = [e for e in self.events if e.occurence_time==self.current_t]
             for e in current_events:
                 self.shock(e)
-        self.mrio.write_stocks(self.current_t)
+        if self.params['register_stocks']:
+            self.mrio.write_stocks(self.current_t)
         self.mrio.write_overproduction(self.current_t)
         self.mrio.write_rebuild_demand(self.current_t)
         self.mrio.write_classic_demand(self.current_t)
@@ -95,10 +106,14 @@ class Simulation(object):
 
     def read_events_from_list(self, events_list):
         for ev_dic in events_list:
+            if ev_dic['aff-sectors'] == 'all':
+                ev_dic['aff-sectors'] = list(self.mrio.sectors)
             ev = event_module.Event(ev_dic)
             ev.check_values(self)
             self.events.append(ev)
             self.events_timings.add(ev_dic['occur'])
+        with (pathlib.Path(self.params['results_storage'])/"simulated_events.json").open('w') as f:
+            json.dump(events_list, f, indent=4)
 
     def read_events(self, events_file):
         if not events_file.exists():
@@ -108,6 +123,8 @@ class Simulation(object):
                 events = json.load(f)
         if events['events']:
             for event in events['events']:
+                if event['aff-sectors'] == 'all':
+                    event['aff-sectors'] = self.mrio.sectors
                 ev=event_module.Event(event)
                 ev.check_values(self)
                 self.events.append(ev)
@@ -148,7 +165,10 @@ class Simulation(object):
 
         #TODO: Check this one !
         # DAMAGE DISTRIBUTION ACROSS SECTORS
-        if event_to_add.dmg_distrib_across_sectors is None:
+        if event_to_add.dmg_distrib_across_sectors_type == "gdp":
+            shares = self.mrio.gdp_share_sector.reshape((self.mrio.n_regions,self.mrio.n_sectors))
+            q_dmg_regions_sectors = q_dmg_regions * (shares[aff_regions_idx][:,aff_sectors_idx]/shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[:,np.newaxis])
+        elif event_to_add.dmg_distrib_across_sectors is None:
             q_dmg_regions_sectors = q_dmg_regions
         elif type(event_to_add.dmg_distrib_across_sectors) == list:
             q_dmg_regions_sectors = q_dmg_regions * np.array(event_to_add.dmg_distrib_across_sectors)
@@ -179,6 +199,19 @@ class Simulation(object):
             self.mrio.prod_max_toward_rebuilding = new_prod_max_toward_rebuilding[np.newaxis,:]
 
         self.mrio.update_kapital_lost()
+
+    def reset_sim_with_same_events(self):
+        self.current_t = 0
+        self.mrio.reset_module(self.params, pathlib.Path(self.params['results_storage']))
+
+    def reset_sim_full(self):
+        self.reset_sim_with_same_events()
+        self.events = []
+        self.events_timings = set()
+
+    def update_params(self, new_params):
+        self.params = new_params
+        self.mrio.update_params(self.params)
 
     def write_index(self, index_file):
         self.mrio.write_index(index_file)
