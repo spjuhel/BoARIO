@@ -15,7 +15,7 @@ class Event(object):
             self.aff_sectors = [self.aff_sectors]
         self.duration = event['duration']
         self.dmg_distrib_across_regions = event['dmg-distrib-regions']
-        self.dmg_distrib_across_sectors_type = event['dmg-distrib-sectors-custom']
+        self.dmg_distrib_across_sectors_type = event['dmg-distrib-sectors-type']
         self.dmg_distrib_across_sectors = event['dmg-distrib-sectors']
         self.rebuilding_sectors = event['rebuilding-sectors']
 
@@ -51,16 +51,17 @@ class Event(object):
         else:
             raise TypeError("'dmg-distrib-regions' is of type %s, possible types are str or list[float]", type(self.dmg_distrib_across_regions))
 
-        if self.dmg_distrib_across_sectors is None:
-            if not len(self.aff_sectors) == 1:
-                raise ValueError("Parameter 'dmg-distrib-across_sectors' is None yet there are more than one sector affected")
-        elif type(self.dmg_distrib_across_sectors) == str:
-            if self.dmg_distrib_across_sectors !=  "GDP":
-                raise ValueError("damage <-> sectors distribution %s not implemented",self.dmg_distrib_across_sectors)
-        elif type(self.dmg_distrib_across_sectors) == list:
-            if len(self.dmg_distrib_across_sectors) != len(self.aff_sectors):
-                raise ValueError("Number of affected sectors and size of damage distribution list are not equal")
-            if sum(self.dmg_distrib_across_sectors) != 1.0:
-                warnings.warn("The total distribution of damage across sectors is not 1.0")
-        else:
-            raise TypeError("'dmg-distrib-sectors' is of type %s, possible types are str or list[float]", type(self.dmg_distrib_across_sectors))
+        if self.dmg_distrib_across_sectors_type != 'gdp':
+            if self.dmg_distrib_across_sectors is None:
+                if not len(self.aff_sectors) == 1:
+                    raise ValueError("Parameter 'dmg-distrib-across_sectors' is None yet there are more than one sector affected")
+            elif type(self.dmg_distrib_across_sectors) == str:
+                if self.dmg_distrib_across_sectors !=  "GDP":
+                    raise ValueError("damage <-> sectors distribution %s not implemented",self.dmg_distrib_across_sectors)
+            elif type(self.dmg_distrib_across_sectors) == list:
+                if len(self.dmg_distrib_across_sectors) != len(self.aff_sectors):
+                    raise ValueError("Number of affected sectors and size of damage distribution list are not equal")
+                if sum(self.dmg_distrib_across_sectors) != 1.0:
+                    warnings.warn("The total distribution of damage across sectors is not 1.0")
+            else:
+                raise TypeError("'dmg-distrib-sectors' is of type %s, possible types are str or list[float]", type(self.dmg_distrib_across_sectors))
