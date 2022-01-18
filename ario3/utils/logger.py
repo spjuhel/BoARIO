@@ -1,53 +1,22 @@
+import pathlib
 import sys
 import logging
-from logging.config import dictConfig
+from typing import Union
 
-logging_config = dict(
-    version=1,
-    formatters={
-        'verbose': {
-            'format': ("[%(asctime)s] %(levelname)s "
-                       "[%(name)s:%(lineno)s] %(message)s"),
-            'datefmt': "%d/%b/%Y %H:%M:%S",
-        },
-        'simple': {
-            'format': ("[%(asctime)s] %(levelname)s "
-                       "[%(name)s:%(lineno)s] %(message)s"),
-        },
-    },
-    handlers={
-        'debug-logger': {'class': 'logging.handlers.RotatingFileHandler',
-                           'formatter': 'verbose',
-                           'level': logging.DEBUG,
-                           'filename': 'logs/execution_debug.log',
-                           'maxBytes': 52428800,
-                           'backupCount': 7},
-        'run-logger': {'class': 'logging.handlers.RotatingFileHandler',
-                             'formatter': 'verbose',
-                             'level': logging.INFO,
-                             'filename': 'logs/batch.log',
-                             'maxBytes': 52428800,
-                             'backupCount': 7},
-        'console': {
-            'class': 'logging.StreamHandler',
-            'level': 'DEBUG',
-            'formatter': 'simple',
-            'stream': sys.stdout,
-        },
-    },
-    loggers={
-        'debug-logger': {
-            'handlers': ['debug-logger'],
-            'level': logging.DEBUG
-        },
-        'run-logger': {
-            'handlers': ['run-logger', 'console'],
-            'level': logging.INFO
-        }
-    }
-)
+FORMATTER = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
 
-dictConfig(logging_config)
-
-debug_logger = logging.getLogger('debug-logger')
-run_logger = logging.getLogger('run-logger')
+def init_logger(name: str, filename: Union[str, pathlib.Path, None]=None) -> logging.Logger:
+    logger = logging.getLogger(name)  #1
+    logger.setLevel(logging.INFO)  #2
+    formatter = logging.Formatter(
+           '%(created)f:%(levelname)s:%(name)s:%(module)s:%(message)s') #5
+    handler_std = logging.StreamHandler(sys.stdout)  #3
+    handler_std.setLevel(logging.INFO)  #4
+    handler_std.setFormatter(formatter)  #6
+    logger.addHandler(handler_std)  #7
+    if filename is not None:
+        handler_file = logging.FileHandler(filename)  #3
+        handler_file.setLevel(logging.DEBUG)  #4
+        handler_file.setFormatter(formatter)  #6
+        logger.addHandler(handler_file)  #7
+    return logger

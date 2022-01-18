@@ -1,5 +1,7 @@
 import warnings
 
+__all__ = ['Event']
+
 class Event(object):
     def __init__(self, event:dict) -> None:
         super().__init__()
@@ -18,6 +20,19 @@ class Event(object):
         self.dmg_distrib_across_sectors_type = event['dmg-distrib-sectors-type']
         self.dmg_distrib_across_sectors = event['dmg-distrib-sectors']
         self.rebuilding_sectors = event['rebuilding-sectors']
+
+    def __repr__(self):
+        #TODO: find ways to represent long lists
+        return f'''
+        Event(
+              name = {self.name},
+              occurence_time = {self.occurence_time},
+              q_damages = {self.q_damages},
+              aff_regions = {self.aff_regions},
+              duration = {self.duration},
+              dmg_distrib_across_sectors_type = {self.dmg_distrib_across_sectors_type}
+             )
+        '''
 
     def check_values(self, model):
         if self.occurence_time < 0:
