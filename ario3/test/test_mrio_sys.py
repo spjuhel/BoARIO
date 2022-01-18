@@ -1,5 +1,5 @@
 import numpy as np
-from ario3.mrio import MrioSystem
+from ario3.mriosystem import MrioSystem
 import pytest
 import pickle
 import pymrio as pym

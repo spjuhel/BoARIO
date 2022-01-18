@@ -13,7 +13,7 @@ import pymrio as pym
 from pymrio.core.mriosystem import IOSystem
 
 from ario3.event import Event
-from ario3.mrio import MrioSystem
+from ario3.mriosystem import MrioSystem
 from ario3.utils.logger import init_logger
 
 __all__=['Simulation']
@@ -36,7 +36,7 @@ class Simulation(object):
         if isinstance(params, pathlib.Path):
             params_path=params
             if not params_path.is_dir():
-                raise FileNotFoundError("This file should be a directory containing the different simulation parameters files:", params)
+                raise FileNotFoundError("This path should be a directory containing the different simulation parameters files:", params)
             simulation_params_path = params_path / 'params.json'
             if not simulation_params_path.exists():
                 raise FileNotFoundError("Simulation parameters file not found, it should be here: ",simulation_params_path.absolute())
@@ -143,7 +143,7 @@ class Simulation(object):
         self.mrio.distribute_production(self.current_t, self.scheme)
         self.mrio.calc_orders(constraints)
         self.mrio.calc_overproduction()
-        if self.current_t > (self.n_timesteps_to_sim // 4):
+        if self.current_t > (self.n_timesteps_to_sim // 5):
             if self.mrio.check_crash() > ((self.mrio.n_sectors*self.mrio.n_regions) / 3):
                 return False
         self.current_t+=1
