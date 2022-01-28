@@ -358,6 +358,9 @@ class MrioSystem(object):
         self.overprod += overprod_chg
         self.overprod[self.overprod < 1.] = 1.
 
+    def check_stock_increasing(self):
+        pass
+
     def check_equilibrium(self):
         return (np.allclose(self.production, self.X_0) and np.allclose(self.matrix_stock, self.matrix_stock_0))
 
