@@ -167,6 +167,28 @@ class Simulation(object):
         bar.finish()
 
     def next_step(self):
+        """Advance the model run by one step.
+
+        This method wraps all computations and logging to proceed to the next
+        step of the simulation run. First it checks if an event is planned to
+        occur at the current step and if so, shock the model with the
+        corresponding event. Then it 1) computes the production capacity vector
+        of the current step (using calc_production_cap()) 2) Computes the
+        actual production vector for the step. 3) Distribute the actual
+        production towards the different demands (intermediate, final,
+        rebuilding) and the changes in the stocks matrix. 4) Computes the
+        orders matrix for the next step. 5) Computes the new overproduction
+        vector for the next step. 6) If at least a fifth of the simulation
+        steps was run, it checks for a possible crash of the economy in the
+        model (a crash being defined by more than a third of all industries
+        having close to null production)
+
+        Examples
+        --------
+        FIXME: Add docs.
+
+        """
+
         if self.current_t in self.events_timings:
             current_events = [e for e in self.events if e.occurence_time==self.current_t]
             for e in current_events:
