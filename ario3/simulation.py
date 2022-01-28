@@ -23,12 +23,39 @@ logger = init_logger(__name__,pathlib.Path.cwd()/"run.log")
 class Simulation(object):
     '''Simulation instance'''
     def __init__(self, params: Union[dict, str, pathlib.Path], mrio_system: Union[IOSystem, str, pathlib.Path, None] = None) -> None:
-        """Initiate a simulation with an MRIO pickle file.
+        """Initiate a simulation object with given parameters and IOSystem
 
-        :param params:
-        :param mrio_system:
+        This Class wraps a MRIO System, simulation and execution parameters as
+        well as events perturbing the model in the perspective of running a
+        full ARIO simulation.
+
+        Parameters
+        ----------
+        params : Union[dict, str, pathlib.Path]
+            Parameters to run the simulation with. If str or Path, it must lead
+            to a json file containing a dictionary of the parameters.
+        mrio_system : Union[IOSystem, str, pathlib.Path, None]
+            pymrio.IOSystem to run the simulation with. If str or Path, it must
+            lead to either 1) a pickle file of an IOSystem that was previously
+            generated with the pymrio package (be careful that such files are
+            not cross-system compatible) or 2) a directory loadable with
+            pymrio.load_all().
+
+        Raises
+        ------
+        TypeError
+
+        FileNotFoundError
+            This error is raised when one of the required file to initialize
+            the simulation was not found.
+
+        Examples
+        --------
+        FIXME: Add docs.
+
 
         """
+
         logger.debug("Initializing Simulation instance")
         super().__init__()
         if isinstance(params, str):
