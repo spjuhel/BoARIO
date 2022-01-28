@@ -22,7 +22,7 @@ help:
 
 github:
 	@rm -rf "$(BUILDDIR)"
-	@rm -rf "$(DOCS)/html"
+	@rm -rf "$(DOCS)/"*
 	@make html
-	@mv "$(BUILDDIR)/html" "$(DOCS)"
+	@mv -v "$(BUILDDIR)/html/"* "$(DOCS)"
 	@touch "$(DOCS)/.nojekyll"
