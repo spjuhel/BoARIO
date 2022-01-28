@@ -1,2 +1,0 @@
-Detailled examples
--------------------
