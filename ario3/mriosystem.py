@@ -16,6 +16,16 @@ VALUE_ADDED_NAMES = ['VA', 'Value Added', 'value added',
                         'Satellite Accounts', 'satellite accounts', 'satellite_accounts',
                      'satellite']
 
+VA_idx = np.array(['Taxes less subsidies on products purchased: Total',
+       'Other net taxes on production',
+       "Compensation of employees; wages, salaries, & employers' social contributions: Low-skilled",
+       "Compensation of employees; wages, salaries, & employers' social contributions: Medium-skilled",
+       "Compensation of employees; wages, salaries, & employers' social contributions: High-skilled",
+       'Operating surplus: Consumption of fixed capital',
+       'Operating surplus: Rents on land',
+       'Operating surplus: Royalties on resources',
+       'Operating surplus: Remaining net operating surplus'], dtype=object)
+
 def lexico_reindex(mrio: pym.IOSystem) -> pym.IOSystem:
 
     mrio.Z = mrio.Z.reindex(sorted(mrio.Z.index), axis=0)
@@ -103,12 +113,14 @@ class MrioSystem(object):
                 tmp_chk = True
         if not tmp_chk:
             raise NotImplementedError('Value added table not found in given MRIO, contact the dev !')
-
+        value_added = value_added.loc[VA_idx]
         value_added = value_added.reindex(sorted(value_added.index), axis=0) #type: ignore
         value_added = value_added.reindex(sorted(value_added.columns), axis=1)
         if value_added.ndim > 1:
+            self.gdp_df = value_added.sum(axis=0).groupby('region').sum()
             self.VA_0 = (value_added.sum(axis=0).to_numpy())
         else:
+            self.gdp_df = value_added.groupby('region').sum()
             self.VA_0 = (value_added.to_numpy())
         self.tech_mat = ((self.matrix_I_sum @ pym_mrio.A).to_numpy())
         self.overprod = np.full((self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64)
