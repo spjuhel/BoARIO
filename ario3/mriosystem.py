@@ -43,7 +43,7 @@ class MrioSystem(object):
                  pym_mrio: IOSystem,
                  mrio_params: dict,
                  simulation_params: dict,
-                 result_storage: pathlib.Path
+                 results_storage: pathlib.Path
                  ) -> None:
 
         """TODO describe function
@@ -54,13 +54,15 @@ class MrioSystem(object):
         :type mrio_params: dict
         :param simulation_params:
         :type simulation_params: dict
-        :param result_storage:
-        :type result_storage: pathlib.Path
+        :param results_storage:
+        :type results_storage: pathlib.Path
         :returns:
 
         """
         logger.debug("Initiating new MrioSystem instance")
         super().__init__()
+
+        self.results_storage = results_storage
         self.regions = np.array(sorted(list(pym_mrio.get_regions()))) #type: ignore
         self.n_regions = len(pym_mrio.get_regions()) #type: ignore
         self.sectors = np.array(sorted(list(pym_mrio.get_sectors()))) #type: ignore
@@ -146,19 +148,19 @@ class MrioSystem(object):
         self.kstock_ratio_to_VA = np.tile(np.array(kratio_ordered),self.n_regions)
 
         self.matrix_share_thresh = self.Z_C > np.tile(self.X_0, (self.n_sectors, 1)) * 0.00001 # [n_sectors, n_regions*n_sectors]
-        result_storage = result_storage.absolute()
-        self.result_storage = result_storage
+        results_storage = results_storage.absolute()
+        self.results_storage = results_storage
 
-        self.production_evolution = np.memmap(result_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.production_cap_evolution = np.memmap(result_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.classic_demand_evolution = np.memmap(result_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.rebuild_demand_evolution = np.memmap(result_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.overproduction_evolution = np.memmap(result_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.final_demand_unmet_evolution = np.memmap(result_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.rebuild_production_evolution = np.memmap(result_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.production_evolution = np.memmap(results_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.production_cap_evolution = np.memmap(results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.classic_demand_evolution = np.memmap(results_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.rebuild_demand_evolution = np.memmap(results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.overproduction_evolution = np.memmap(results_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.final_demand_unmet_evolution = np.memmap(results_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.rebuild_production_evolution = np.memmap(results_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
         if simulation_params['register_stocks']:
-            self.stocks_evolution = np.memmap(result_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
-        self.limiting_stocks_evolution = np.memmap(result_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
+            self.stocks_evolution = np.memmap(results_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
+        self.limiting_stocks_evolution = np.memmap(results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
 
     def calc_production_cap(self):
         """TODO describe function
@@ -330,7 +332,7 @@ class MrioSystem(object):
             assert not (self.matrix_stock < 0).any()
             self.matrix_stock = self.matrix_stock - stock_use + stock_add
             if (self.matrix_stock < 0).any():
-                self.matrix_stock.dump(self.result_storage/"matrix_stock_dump.pkl")
+                self.matrix_stock.dump(self.results_storage/"matrix_stock_dump.pkl")
                 assert False, "Errors in the stocks, matrix has been dumped in the results dir"
 
         final_demand_not_met = self.final_demand - distributed_non_rebuild_production[:,self.n_sectors*self.n_regions:]#(self.n_sectors*self.n_regions + self.n_fd_cat*self.n_regions)]
@@ -358,13 +360,29 @@ class MrioSystem(object):
         self.overprod += overprod_chg
         self.overprod[self.overprod < 1.] = 1.
 
-    def check_stock_increasing(self):
-        pass
+    def check_stock_increasing(self, t:int):
+        tmp = np.full(self.matrix_stock.shape,0.0)
+        mask = np.isfinite(self.matrix_stock_0)
+        np.subtract(self.matrix_stock,self.matrix_stock_0, out=tmp, where=mask)
+        check_1 = tmp > 0.0
+        tmp = np.full(self.matrix_stock.shape,0.0)
+        np.subtract(self.stocks_evolution[t], self.stocks_evolution[t-1], out=tmp, where=mask)
+        check_2 = (tmp >= 0.0)
+        return (check_1 & check_2).all()
 
-    def check_equilibrium(self):
+    def check_production_eq_strict(self):
+        return ((np.isclose(self.production, self.X_0)) | np.greater(self.production, self.X_0)).all()
+
+    def check_production_eq_soft(self, t:int, period:int = 10):
+        return np.allclose(self.production_evolution[t], self.production_evolution[t-period])
+
+    def check_equilibrium_strict(self):
         return (np.allclose(self.production, self.X_0) and np.allclose(self.matrix_stock, self.matrix_stock_0))
 
-    def check_crash(self, prod_threshold : float=0.95):
+    def check_equilibrium_soft(self, t:int):
+        return (self.check_stock_increasing(t) and self.check_production_eq_strict)
+
+    def check_crash(self, prod_threshold : float=0.80):
         tmp = np.full(self.production.shape, 0.0)
         checker = np.full(self.production.shape, 0.0)
         mask = self.X_0 != 0
@@ -374,21 +392,9 @@ class MrioSystem(object):
 
     def reset_module(self,
                  simulation_params: dict,
-                 result_storage: pathlib.Path
                  ) -> None:
         # Reset OUTPUTS
-        result_storage = result_storage.absolute()
-        self.production_evolution = np.memmap(result_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.production_cap_evolution = np.memmap(result_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.classic_demand_evolution = np.memmap(result_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.rebuild_demand_evolution = np.memmap(result_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.overproduction_evolution = np.memmap(result_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.final_demand_unmet_evolution = np.memmap(result_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        self.rebuild_production_evolution = np.memmap(result_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
-        if simulation_params['register_stocks']:
-            self.stocks_evolution = np.memmap(result_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
-        self.limiting_stocks_evolution = np.memmap(result_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
-
+        self.reset_record_files(simulation_params['n_timesteps'], simulation_params['register_stocks'])
         # Reset variable attributes
         self.kapital_lost = np.zeros(self.production.shape)
         self.overprod = np.full((self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64)
@@ -413,6 +419,21 @@ class MrioSystem(object):
         self.overprod_tau = new_params['alpha_tau']
         self.overprod_base = new_params['alpha_base']
         self.restoration_tau = np.full(self.n_sectors, new_params['inventory_restoration_time'])
+        if self.results_storage != pathlib.Path(new_params['storage_dir']+"/"+new_params['results_storage']):
+            self.results_storage = pathlib.Path(new_params['storage_dir']+"/"+new_params['results_storage'])
+            self.reset_record_files(new_params['n_timesteps'], new_params['register_stocks'])
+
+    def reset_record_files(self, n_steps:int, reg_stocks: bool):
+        self.production_evolution = np.memmap(self.results_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
+        self.production_cap_evolution = np.memmap(self.results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
+        self.classic_demand_evolution = np.memmap(self.results_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
+        self.rebuild_demand_evolution = np.memmap(self.results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
+        self.overproduction_evolution = np.memmap(self.results_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
+        self.final_demand_unmet_evolution = np.memmap(self.results_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
+        self.rebuild_production_evolution = np.memmap(self.results_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
+        if reg_stocks:
+            self.stocks_evolution = np.memmap(self.results_storage/"stocks_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors, self.n_sectors*self.n_regions))
+            self.limiting_stocks_evolution = np.memmap(self.results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(n_steps, self.n_sectors, self.n_sectors*self.n_regions))
 
 
     def write_production(self, t:int):

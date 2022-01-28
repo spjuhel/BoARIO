@@ -124,6 +124,7 @@ class Simulation(object):
         self.events_timings = set()
         self.n_timesteps_to_sim = simulation_params['n_timesteps']
         self.current_t = 0
+        self.n_steps_simulated = 0
         self.detailled = False
         self.scheme = 'proportional'
 
@@ -150,8 +151,13 @@ class Simulation(object):
         print(json.dumps(self.params, indent=4))
         for t in bar(range(self.n_timesteps_to_sim)):
             assert self.current_t == t
-            if not self.next_step():
-                logger.warning("Production seems to have crashed, ending simulation")
+            step_res = self.next_step()
+            self.n_steps_simulated = self.current_t
+            if step_res == 1:
+                logger.warning("Economy seems to have crashed")
+                break
+            elif step_res == 2:
+                logger.warning("Economy seems to have found an equilibrium")
                 break
 
         self.mrio.rebuild_demand_evolution.flush()
@@ -166,29 +172,36 @@ class Simulation(object):
         self.mrio.production_cap_evolution.flush()
         bar.finish()
 
-    def next_step(self):
+    def next_step(self, check_period : int = 15, min_steps_check : int = None, min_failling_regions = None):
         """Advance the model run by one step.
 
         This method wraps all computations and logging to proceed to the next
         step of the simulation run. First it checks if an event is planned to
         occur at the current step and if so, shock the model with the
-        corresponding event. Then it 1) computes the production capacity vector
-        of the current step (using calc_production_cap()) 2) Computes the
-        actual production vector for the step. 3) Distribute the actual
-        production towards the different demands (intermediate, final,
-        rebuilding) and the changes in the stocks matrix. 4) Computes the
-        orders matrix for the next step. 5) Computes the new overproduction
-        vector for the next step. 6) If at least a fifth of the simulation
-        steps was run, it checks for a possible crash of the economy in the
-        model (a crash being defined by more than a third of all industries
-        having close to null production)
+        corresponding event. Then it :
+
+        1) computes the production capacity vector of the current step (using calc_production_cap())
+
+        2) Computes the actual production vector for the step.
+
+        3) Distribute the actual production towards the different demands (intermediate, final, rebuilding) and the changes in the stocks matrix.
+
+        4) Computes the orders matrix for the next step.
+
+        5) Computes the new overproduction vector for the next step.
+
+        6) If at least a fifth of the simulation steps was run, it checks for a possible crash of the economy in the model
+        (a crash being defined by more than a third of all industries having close to null production)
 
         Examples
         --------
         FIXME: Add docs.
 
         """
-
+        if min_steps_check is None:
+            min_steps_check = self.n_timesteps_to_sim // 5
+        if min_failling_regions is None:
+            min_failling_regions = self.mrio.n_regions*self.mrio.n_sectors // 3
         if self.current_t in self.events_timings:
             current_events = [e for e in self.events if e.occurence_time==self.current_t]
             for e in current_events:
@@ -207,14 +220,18 @@ class Simulation(object):
         self.mrio.distribute_production(self.current_t, self.scheme)
         self.mrio.calc_orders(constraints)
         self.mrio.calc_overproduction()
-        if self.current_t > (self.n_timesteps_to_sim // 5):
-            if self.mrio.check_crash() > ((self.mrio.n_sectors*self.mrio.n_regions) / 3):
-                return False
+        if self.current_t > min_steps_check and (self.current_t % check_period == 0):
+            if self.mrio.check_crash() >  min_failling_regions:
+                return 1
+            if self.mrio.check_equilibrium_soft(self.current_t):
+                return 2
         self.current_t+=1
-        return True
+        return 0
 
 
     def read_events_from_list(self, events_list):
+
+
         for ev_dic in events_list:
             if ev_dic['aff-sectors'] == 'all':
                 ev_dic['aff-sectors'] = list(self.mrio.sectors)
@@ -321,7 +338,7 @@ class Simulation(object):
 
     def reset_sim_with_same_events(self):
         self.current_t = 0
-        self.mrio.reset_module(self.params, pathlib.Path(self.params['storage_dir']+"/"+self.params['results_storage']))
+        self.mrio.reset_module(self.params)
 
     def reset_sim_full(self):
         self.reset_sim_with_same_events()

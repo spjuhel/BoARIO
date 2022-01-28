@@ -11,10 +11,8 @@ __all__ = ['Indicators']
 class Indicators(object):
     def __init__(self, data_dict) -> None:
         super().__init__()
-        #if indexes['fd_cat'] is None:
-        #    indexes['fd_cat'] = np.array(["Final demand"])
 
-        steps = [i for i in range(data_dict["n_timesteps_to_sim"])]
+        steps = [i for i in range(data_dict["n_steps_simulated"])]
 
         prod_df = pd.DataFrame(data_dict["prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
         prodmax_df = pd.DataFrame(data_dict["prodmax"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
@@ -23,7 +21,6 @@ class Indicators(object):
         r_demand_df = pd.DataFrame(data_dict["r_demand"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
         r_prod_df = pd.DataFrame(data_dict["r_prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
         fd_unmet_df = pd.DataFrame(data_dict["fd_unmet"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-        #print(data_dict["stocks_evolution"].shape)
         stocks_df = pd.DataFrame(data_dict["stocks"].reshape(data_dict["n_timesteps_to_sim"]*data_dict["n_sectors"],-1),
                                  index=pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of']),
                                  columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
@@ -49,21 +46,18 @@ class Indicators(object):
         df['overprod'] = overprod_df.set_index('step').melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'value':'overprod'})['overprod']
         del overprod_df
 
+        df = df.iloc[:data_dict["n_steps_simulated"]]
         df = df.reset_index().melt(id_vars=['region', 'sector', 'step'])
         self.df=df
         del df
         stocks_df = stocks_df.replace([np.inf, -np.inf], np.nan).dropna(how='all')
         stocks_df = stocks_df.astype(np.float32)
+        #stocks_df = stocks_df.iloc
         stocks_df = stocks_df.groupby('stock of').pct_change().fillna(0).add(1).groupby('stock of').cumprod().sub(1) #type: ignore
         stocks_df = stocks_df.melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'variable_2':'stock of'})
         stocks_df = stocks_df.reset_index()
         stocks_df['step'] = stocks_df['step'].astype("uint16")
         stocks_df['stock of'] = stocks_df['stock of'].astype("category")
-        #stocks_df = stocks_df.set_index(['step', 'stock of'])
-        #stocks_df = stocks_df.pct_change().fillna(0).add(1).cumprod().sub(1).melt(ignore_index=False).rename(columns={
-        #    'variable_0':'region','variable_1':'sector', 'variable_2':'stock of'})
-        #stocks_df['region'] = stocks_df['region'].astype("category")
-        #stocks_df['sector'] = stocks_df['sector'].astype("category")
         self.df_stocks = stocks_df
         del stocks_df
 
@@ -73,7 +67,6 @@ class Indicators(object):
         self.df_limiting = pd.DataFrame(data_dict["limiting_stocks"].reshape(data_dict["n_timesteps_to_sim"]*data_dict["n_sectors"],-1),
                                         index=pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of']),
                                         columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
-        #self.df_limiting.index = pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of'])
         self.aff_regions = []
         for e in data_dict["events"]:
             self.aff_regions.append(e['aff-regions'])
