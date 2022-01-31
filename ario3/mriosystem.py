@@ -374,13 +374,22 @@ class MrioSystem(object):
         return ((np.isclose(self.production, self.X_0)) | np.greater(self.production, self.X_0)).all()
 
     def check_production_eq_soft(self, t:int, period:int = 10):
-        return np.allclose(self.production_evolution[t], self.production_evolution[t-period])
+        return self.check_monotony(self.production_evolution, t, period)
 
-    def check_equilibrium_strict(self):
+    def check_stocks_monotony(self, t:int, period:int = 10):
+        return self.check_monotony(self.stocks_evolution, t, period)
+
+    def check_initial_equilibrium(self):
         return (np.allclose(self.production, self.X_0) and np.allclose(self.matrix_stock, self.matrix_stock_0))
 
     def check_equilibrium_soft(self, t:int):
         return (self.check_stock_increasing(t) and self.check_production_eq_strict)
+
+    def check_equilibrium_monotony(self, t:int, period:int=10):
+        return self.check_production_eq_soft(t, period) and self.check_stocks_monotony(t, period)
+
+    def check_monotony(self, x, t:int, period:int = 10):
+        return np.allclose(x[t], x[t-period], atol=0.0001)
 
     def check_crash(self, prod_threshold : float=0.80):
         tmp = np.full(self.production.shape, 0.0)

@@ -1,4 +1,5 @@
 from ario3.simulation import Simulation
+import numpyencoder
 import json
 import pathlib
 import numpy as np
@@ -12,7 +13,7 @@ class Indicators(object):
     def __init__(self, data_dict) -> None:
         super().__init__()
 
-        steps = [i for i in range(data_dict["n_steps_simulated"])]
+        steps = [i for i in range(data_dict["n_timesteps_to_sim"])]
 
         prod_df = pd.DataFrame(data_dict["prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
         prodmax_df = pd.DataFrame(data_dict["prodmax"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
@@ -25,6 +26,7 @@ class Indicators(object):
                                  index=pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of']),
                                  columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
         stocks_df.index = pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of'])
+        stocks_df = stocks_df.loc[pd.IndexSlice[:data_dict["n_timesteps_simulated"],:]]
         prod_df['step'] = prod_df.index
         prodmax_df['step'] = prodmax_df.index
         overprod_df['step'] = overprod_df.index
@@ -32,6 +34,7 @@ class Indicators(object):
         r_demand_df['step'] = r_demand_df.index
         r_prod_df['step'] = r_prod_df.index
         fd_unmet_df['step'] = fd_unmet_df.index
+        #fd_unmet_df = fd_unmet_df[fd_unmet_df.step <= data_dict['n_timesteps_simulated']]
         df = prod_df.copy().set_index('step').melt(ignore_index=False)
         del prod_df
         df=df.rename(columns={'variable_0':'region','variable_1':'sector', 'value':'production'})
@@ -45,14 +48,15 @@ class Indicators(object):
         del r_prod_df
         df['overprod'] = overprod_df.set_index('step').melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'value':'overprod'})['overprod']
         del overprod_df
+        #df['fd_unmet'] = fd_unmet_df.set_index('step').melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'value':'fd_unmet'})['fd_unmet']
+        #del fd_unmet_df
 
-        df = df.iloc[:data_dict["n_steps_simulated"]]
+        df = df[df.index <= data_dict['n_timesteps_simulated']]
         df = df.reset_index().melt(id_vars=['region', 'sector', 'step'])
         self.df=df
         del df
         stocks_df = stocks_df.replace([np.inf, -np.inf], np.nan).dropna(how='all')
         stocks_df = stocks_df.astype(np.float32)
-        #stocks_df = stocks_df.iloc
         stocks_df = stocks_df.groupby('stock of').pct_change().fillna(0).add(1).groupby('stock of').cumprod().sub(1) #type: ignore
         stocks_df = stocks_df.melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'variable_2':'stock of'})
         stocks_df = stocks_df.reset_index()
@@ -87,6 +91,7 @@ class Indicators(object):
     def from_model(cls, model : Simulation):
         data_dict = {}
         data_dict["n_timesteps_to_sim"] = model.n_timesteps_to_sim
+        data_dict["n_timesteps_simulated"] = model.n_steps_simulated
         data_dict["regions"] = model.mrio.regions
         data_dict["sectors"] = model.mrio.sectors
         with (pathlib.Path(model.params["results_storage"])/".simulated_events.json").open() as f:
@@ -120,6 +125,8 @@ class Indicators(object):
         else:
             with (storage_path/"params.json").open() as f:
                 simulation_params = json.load(f)
+        with (storage_path/simulation_params['results_storage']/"simulated_params.json").open() as f:
+            simulation_params = json.load(f)
         with (storage_path/"indexes"/"indexes.json").open() as f:
             indexes = json.load(f)
         with (storage_path/simulation_params['results_storage']/"simulated_events.json").open() as f:
@@ -130,6 +137,7 @@ class Indicators(object):
         results_path = storage_path/pathlib.Path(simulation_params['results_storage'])
         data_dict["results_storage"] = results_path
         data_dict["n_timesteps_to_sim"] = t
+        data_dict["n_timesteps_simulated"] = simulation_params['n_timesteps_simulated']
         data_dict["regions"] = indexes["regions"]
         data_dict["n_regions"] = indexes["n_regions"]
         data_dict["sectors"] = indexes["sectors"]
@@ -209,7 +217,7 @@ class Indicators(object):
     def write_indicators(self):
         self.update_indicators()
         with self.storage.open('w') as f:
-            json.dump(self.indicators, f)
+            json.dump(self.indicators, f, cls=numpyencoder.NumpyEncoder)
 
     def save_dfs(self):
         self.df.to_feather(self.storage_path/"treated_df.feather")

@@ -125,6 +125,7 @@ class Simulation(object):
         self.n_timesteps_to_sim = simulation_params['n_timesteps']
         self.current_t = 0
         self.n_steps_simulated = 0
+        self._monotony_checker = 0
         self.detailled = False
         self.scheme = 'proportional'
 
@@ -156,7 +157,7 @@ class Simulation(object):
             if step_res == 1:
                 logger.warning("Economy seems to have crashed")
                 break
-            elif step_res == 2:
+            elif self._monotony_checker > 3:
                 logger.warning("Economy seems to have found an equilibrium")
                 break
 
@@ -170,9 +171,12 @@ class Simulation(object):
             self.mrio.stocks_evolution.flush()
         self.mrio.overproduction_evolution.flush()
         self.mrio.production_cap_evolution.flush()
+        self.params['n_timesteps_simulated'] = self.n_steps_simulated
+        with (pathlib.Path(self.params["storage_dir"]+"/"+self.params['results_storage'])/"simulated_params.json").open('w') as f:
+            json.dump(self.params, f, indent=4)
         bar.finish()
 
-    def next_step(self, check_period : int = 15, min_steps_check : int = None, min_failling_regions = None):
+    def next_step(self, check_period : int = 10, min_steps_check : int = None, min_failling_regions = None):
         """Advance the model run by one step.
 
         This method wraps all computations and logging to proceed to the next
@@ -223,8 +227,10 @@ class Simulation(object):
         if self.current_t > min_steps_check and (self.current_t % check_period == 0):
             if self.mrio.check_crash() >  min_failling_regions:
                 return 1
-            if self.mrio.check_equilibrium_soft(self.current_t):
-                return 2
+            if self.mrio.rebuilding_demand.sum() == 0 and self.mrio.check_production_eq_soft(self.current_t, period = check_period):
+                self._monotony_checker +=1
+            else:
+                self._monotony_checker = 0
         self.current_t+=1
         return 0
 
