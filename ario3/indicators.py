@@ -15,7 +15,7 @@ class Indicators(object):
         super().__init__()
         steps = [i for i in range(data_dict["n_timesteps_to_sim"])]
 
-        if data_dict["stocks"] is not None:
+        if "stocks" in data_dict:
             stock_treatement = True
         else:
             stock_treatement = False
