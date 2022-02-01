@@ -12,7 +12,6 @@ __all__ = ['Indicators']
 class Indicators(object):
     def __init__(self, data_dict) -> None:
         super().__init__()
-
         steps = [i for i in range(data_dict["n_timesteps_to_sim"])]
 
         prod_df = pd.DataFrame(data_dict["prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
@@ -223,5 +222,5 @@ class Indicators(object):
         self.df.to_feather(self.storage_path/"treated_df.feather")
         self.df_loss.to_feather(self.storage_path/"treated_df_loss.feather")
         if self.df_stocks is not None:
-            self.df_stocks.to_feather(self.storage_path/"treated_df_stocks.feather")
+            self.df_stocks.to_parquet(self.storage_path/"treated_df_stocks.parquet", engine="pyarrow")
         #self.df_limiting.to_feather(self.storage_path/"treated_df_limiting.feather")
