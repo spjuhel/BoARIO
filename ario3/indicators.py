@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import itertools
 from ario3.utils import misc
+import dask.dataframe as da
 
 __all__ = ['Indicators']
 
@@ -222,5 +223,6 @@ class Indicators(object):
         self.df.to_feather(self.storage_path/"treated_df.feather")
         self.df_loss.to_feather(self.storage_path/"treated_df_loss.feather")
         if self.df_stocks is not None:
-            self.df_stocks.to_parquet(self.storage_path/"treated_df_stocks.parquet", engine="pyarrow")
+            ddf = da.from_pandas(self.df_stocks, chunksize=10000000)
+            ddf.to_parquet(self.storage_path/"treated_df_stocks.parquet", engine="pyarrow")
         #self.df_limiting.to_feather(self.storage_path/"treated_df_limiting.feather")
