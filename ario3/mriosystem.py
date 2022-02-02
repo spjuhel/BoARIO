@@ -161,7 +161,7 @@ class MrioSystem(object):
         if simulation_params['register_stocks']:
             self.stocks_evolution = np.memmap(results_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
         self.limiting_stocks_evolution = np.memmap(results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
-        if not (pathlib.Path(simulation_params['storage_dir'])/"indexes.json").exists :
+        if not (pathlib.Path(simulation_params['storage_dir'])/"indexes.json").exists() :
             self.write_index((pathlib.Path(simulation_params['storage_dir'])/"indexes.json"))
 
     def calc_production_cap(self):
