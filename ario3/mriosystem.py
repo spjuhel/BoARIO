@@ -281,7 +281,7 @@ class MrioSystem(object):
             assert not prod_max_toward_rebuild_chg[(prod_max_toward_rebuild_chg < -1) | (prod_max_toward_rebuild_chg > 1)].any()
             self.prod_max_toward_rebuilding += prod_max_toward_rebuild_chg
             self.prod_max_toward_rebuilding[self.prod_max_toward_rebuilding < 0] = 0
-            self.prod_max_toward_rebuilding = self.prod_max_toward_rebuilding.round(10)
+            self.prod_max_toward_rebuilding = self.prod_max_toward_rebuilding.round(15)
             assert not self.prod_max_toward_rebuilding[(self.prod_max_toward_rebuilding < 0) | (self.prod_max_toward_rebuilding > 1)].any()
             non_rebuild_production = self.production - rebuild_production.sum(axis=0)
 
