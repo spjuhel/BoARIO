@@ -51,7 +51,7 @@ def query_yes_no(question, default="no"):
         prompt = " [y/N] "
     else:
         raise ValueError("invalid default answer: '%s'" % default)
-        
+
     while True:
         sys.stdout.write(question + prompt)
         choice = input().lower()
@@ -60,7 +60,7 @@ def query_yes_no(question, default="no"):
         elif choice in valid:
             return valid[choice]
         else:
-            sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")                             
+            sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
 
 def quick_test(params, event_template, mrio_path):
     event = event_template.copy()
@@ -71,8 +71,8 @@ def quick_test(params, event_template, mrio_path):
     indic = Indicators.from_storage_path(pathlib.Path(sim_params['storage_dir']), params=sim_params)
     indic.update_indicators()
     print(indic.indicators)
-    
-if __name__ == '__main__':  
+
+if __name__ == '__main__':
     logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s] %(name)s %(message)s", datefmt="%H:%M:%S")
     rootLogger = logging.getLogger(__name__)
     consoleHandler = logging.StreamHandler(sys.stdout)
@@ -93,7 +93,7 @@ if __name__ == '__main__':
             Steps to simulate : {2}
             MRIO params file  : {3}
         - Event file : {4}
-       
+
 Do you wish to proceed ?
     """.format(mrio_path.resolve(),
                pathlib.Path(params['storage_dir']).resolve(),
@@ -104,7 +104,7 @@ Do you wish to proceed ?
     hans = query_yes_no(q,"no")
     if hans:
         quick_test(params, event_template, mrio_path)
-        
+
     else:
         print("Aborting")
         exit()

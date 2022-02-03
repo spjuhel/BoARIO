@@ -160,6 +160,7 @@ class MrioSystem(object):
         self.rebuild_production_evolution = np.memmap(results_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
         if simulation_params['register_stocks']:
             self.stocks_evolution = np.memmap(results_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
+
         self.limiting_stocks_evolution = np.memmap(results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
         if not (pathlib.Path(simulation_params['storage_dir'])/"indexes.json").exists() :
             self.write_index((pathlib.Path(simulation_params['storage_dir'])/"indexes.json"))
@@ -444,7 +445,7 @@ class MrioSystem(object):
         self.rebuild_production_evolution = np.memmap(self.results_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
         if reg_stocks:
             self.stocks_evolution = np.memmap(self.results_storage/"stocks_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors, self.n_sectors*self.n_regions))
-            self.limiting_stocks_evolution = np.memmap(self.results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(n_steps, self.n_sectors, self.n_sectors*self.n_regions))
+        self.limiting_stocks_evolution = np.memmap(self.results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(n_steps, self.n_sectors, self.n_sectors*self.n_regions))
 
 
     def write_production(self, t:int):

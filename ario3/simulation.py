@@ -237,7 +237,6 @@ class Simulation(object):
 
     def read_events_from_list(self, events_list):
 
-
         for ev_dic in events_list:
             if ev_dic['aff-sectors'] == 'all':
                 ev_dic['aff-sectors'] = list(self.mrio.sectors)
