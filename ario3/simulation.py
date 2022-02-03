@@ -118,7 +118,7 @@ class Simulation(object):
         self.params = params
         results_storage = pathlib.Path(self.params['storage_dir']+"/"+self.params['results_storage'])
         if not results_storage.exists():
-            results_storage.mkdir()
+            results_storage.mkdir(parents=True)
         self.mrio = MrioSystem(mrio, mrio_params, simulation_params, results_storage)
         self.events = []
         self.events_timings = set()
@@ -354,7 +354,7 @@ class Simulation(object):
         self.params = new_params
         results_storage = pathlib.Path(self.params['storage_dir']+"/"+self.params['results_storage'])
         if not results_storage.exists():
-            results_storage.mkdir()
+            results_storage.mkdir(parents=True)
         self.mrio.update_params(self.params)
 
     def write_index(self, index_file):
