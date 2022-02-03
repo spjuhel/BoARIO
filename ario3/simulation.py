@@ -227,7 +227,7 @@ class Simulation(object):
         if self.current_t > min_steps_check and (self.current_t % check_period == 0):
             if self.mrio.check_crash() >  min_failling_regions:
                 return 1
-            if self.mrio.rebuilding_demand.sum() == 0 and self.mrio.check_production_eq_soft(self.current_t, period = check_period):
+            if self.current_t >= self.params['min_duration'] and self.mrio.rebuilding_demand.sum() == 0 and self.mrio.check_production_eq_soft(self.current_t, period = check_period):
                 self._monotony_checker +=1
             else:
                 self._monotony_checker = 0
