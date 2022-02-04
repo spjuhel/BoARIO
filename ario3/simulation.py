@@ -14,11 +14,11 @@ from pymrio.core.mriosystem import IOSystem
 
 from ario3.event import Event
 from ario3.mriosystem import MrioSystem
-from ario3.utils.logger import init_logger
+import logging
 
 __all__=['Simulation']
 
-logger = init_logger(__name__,pathlib.Path.cwd()/"run.log")
+logger = logging.getLogger(__name__)
 
 class Simulation(object):
     '''Simulation instance'''
@@ -56,7 +56,7 @@ class Simulation(object):
 
         """
 
-        logger.debug("Initializing Simulation instance")
+        logger.info("Initializing new simulation instance")
         super().__init__()
         if isinstance(params, str):
             params_path=pathlib.Path(params)
@@ -128,8 +128,9 @@ class Simulation(object):
         self._monotony_checker = 0
         self.detailled = False
         self.scheme = 'proportional'
+        logger.info("Initialized !")
 
-    def loop(self):
+    def loop(self, progress:bool=True):
         """Launch the simulation loop.
 
         This method launch the simulation for the number of steps to simulate
@@ -144,22 +145,33 @@ class Simulation(object):
         FIXME: Add docs.
 
         """
-
-        widgets = [
-            'Processed: ', progressbar.Counter('Year: %(value)d '), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
-        ]
-        bar = progressbar.ProgressBar(widgets=widgets)
-        print(json.dumps(self.params, indent=4))
-        for t in bar(range(self.n_timesteps_to_sim)):
-            assert self.current_t == t
-            step_res = self.next_step()
-            self.n_steps_simulated = self.current_t
-            if step_res == 1:
-                logger.warning("Economy seems to have crashed")
-                break
-            elif self._monotony_checker > 3:
-                logger.warning("Economy seems to have found an equilibrium")
-                break
+        logger.info(json.dumps(self.params, indent=4))
+        if progress:
+            widgets = [
+                'Processed: ', progressbar.Counter('Year: %(value)d '), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
+            ]
+            bar = progressbar.ProgressBar(widgets=widgets)
+            for t in bar(range(self.n_timesteps_to_sim)):
+                assert self.current_t == t
+                step_res = self.next_step()
+                self.n_steps_simulated = self.current_t
+                if step_res == 1:
+                    logger.warning("Economy seems to have crashed")
+                    break
+                elif self._monotony_checker > 3:
+                    logger.warning("Economy seems to have found an equilibrium")
+                    break
+        else:
+            for t in range(self.n_timesteps_to_sim):
+                assert self.current_t == t
+                step_res = self.next_step()
+                self.n_steps_simulated = self.current_t
+                if step_res == 1:
+                    logger.warning("Economy seems to have crashed")
+                    break
+                elif self._monotony_checker > 3:
+                    logger.warning("Economy seems to have found an equilibrium")
+                    break
 
         self.mrio.rebuild_demand_evolution.flush()
         self.mrio.final_demand_unmet_evolution.flush()
@@ -174,7 +186,8 @@ class Simulation(object):
         self.params['n_timesteps_simulated'] = self.n_steps_simulated
         with (pathlib.Path(self.params["storage_dir"]+"/"+self.params['results_storage'])/"simulated_params.json").open('w') as f:
             json.dump(self.params, f, indent=4)
-        bar.finish()
+        if progress:
+            bar.finish()
 
     def next_step(self, check_period : int = 10, min_steps_check : int = None, min_failling_regions = None):
         """Advance the model run by one step.
@@ -221,7 +234,11 @@ class Simulation(object):
         self.mrio.write_limiting_stocks(self.current_t, constraints)
         self.mrio.write_production(self.current_t)
         self.mrio.write_production_max(self.current_t)
-        self.mrio.distribute_production(self.current_t, self.scheme)
+        try:
+            self.mrio.distribute_production(self.current_t, self.scheme)
+        except RuntimeError as r:
+            logger.error(r)
+            return 1
         self.mrio.calc_orders(constraints)
         self.mrio.calc_overproduction()
         if self.current_t > min_steps_check and (self.current_t % check_period == 0):

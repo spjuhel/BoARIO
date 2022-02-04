@@ -7,6 +7,8 @@ import pandas as pd
 import itertools
 from ario3.utils import misc
 import dask.dataframe as da
+import logging
+logger = logging.getLogger(__name__)
 
 __all__ = ['Indicators']
 

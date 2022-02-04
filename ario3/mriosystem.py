@@ -4,12 +4,12 @@ import pymrio as pym
 import numpy as np
 from nptyping import NDArray
 from typing import Any, Union
-from ario3.utils.logger import init_logger
+import logging
 from pymrio.core.mriosystem import IOSystem
 
 __all__ = ['MrioSystem']
 
-logger = init_logger(__name__,pathlib.Path.cwd()/"run.log")
+logger = logging.getLogger(__name__)
 
 VALUE_ADDED_NAMES = ['VA', 'Value Added', 'value added',
                         'factor inputs', 'factor_inputs', 'Factors Inputs',
@@ -336,7 +336,7 @@ class MrioSystem(object):
             self.matrix_stock = self.matrix_stock - stock_use + stock_add
             if (self.matrix_stock < 0).any():
                 self.matrix_stock.dump(self.results_storage/"matrix_stock_dump.pkl")
-                assert False, "Errors in the stocks, matrix has been dumped in the results dir"
+                raise RuntimeError('Negative values in the stocks, matrix has been dumped in the results dir')
 
         final_demand_not_met = self.final_demand - distributed_non_rebuild_production[:,self.n_sectors*self.n_regions:]#(self.n_sectors*self.n_regions + self.n_fd_cat*self.n_regions)]
         final_demand_not_met = final_demand_not_met.sum(axis=1)
