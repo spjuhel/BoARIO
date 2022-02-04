@@ -91,7 +91,22 @@ class Indicators(object):
             self.aff_sectors.append(e['aff-sectors'])
 
         self.aff_sectors = list(misc.flatten(self.aff_sectors))
-        self.indicators = {}
+        self.indicators = {
+            "tot_fd_unmet": "unset",
+            "aff_fd_unmet": "unset",
+            "rebuild_durations": "unset",
+            "shortage_b": False,
+            "shortage_date_start": "unset",
+            "shortage_date_end": "unset",
+            "shortage_date_max": "unset",
+            "shortage_ind_max": "unset",
+            "shortage_ind_mean": "unset",
+            "10_first_shortages": "unset",
+            "prod_gain_tot": "unset",
+            "prod_lost_tot": "unset",
+            "prod_gain_unaff": "unset",
+            "prod_lost_unaff": "unset"
+        }
         self.storage = pathlib.Path(data_dict['results_storage'])/'indicators.json'
         self.storage_path = pathlib.Path(data_dict['results_storage'])
         self.save_dfs()
@@ -222,6 +237,7 @@ class Indicators(object):
         self.calc_recovery_duration()
         self.calc_general_shortage()
         self.calc_tot_prod_change()
+        self.calc_shortage_extent()
 
     def write_indicators(self):
         self.update_indicators()
