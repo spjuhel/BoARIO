@@ -252,4 +252,7 @@ class Indicators(object):
         if self.df_stocks is not None:
             ddf = da.from_pandas(self.df_stocks, chunksize=10000000)
             ddf.to_parquet(self.storage_path/"treated_df_stocks.parquet", engine="pyarrow")
+        if self.df_limiting is not None:
+            ddf = da.from_pandas(self.df_limiting, chunksize=10000000)
+            ddf.to_parquet(self.storage_path/"treated_df_limiting.parquet", engine="pyarrow")
         #self.df_limiting.to_feather(self.storage_path/"treated_df_limiting.feather")
