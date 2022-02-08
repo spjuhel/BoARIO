@@ -147,7 +147,7 @@ class Simulation(object):
         """
         tmp = logging.FileHandler(self.results_storage)
         tmp.setLevel(logging.DEBUG)
-        tmp.setFormatter(logging.Formatter(DEBUGFORMATTER, datefmt="%H:%M:%S"))
+        tmp.setFormatter(DEBUGFORMATTER)
         logger.addHandler(tmp)
         logger.info(json.dumps(self.params, indent=4))
         if progress:
