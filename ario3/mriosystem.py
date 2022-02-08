@@ -37,6 +37,81 @@ def lexico_reindex(mrio: pym.IOSystem) -> pym.IOSystem:
     return mrio
 
 class MrioSystem(object):
+    """The core of ARIO3 model. Handles the different arrays containing the mrio tables.
+
+    An mriosystem wrap all the data and functions used in the core of the ario
+    model.
+
+    Attributes
+    ----------
+
+    results_storage : pathlib.Path
+                      The path where the results of the simulation are stored.
+    regions : numpy.ndarray of str
+              An array of the regions of the model.
+    n_regions : int
+                The numbers of regions.
+    sectors : numpy.ndarray of str
+              An array of the sectors of the model.
+    n_sectors : int
+                The numbers of sectors of the model.
+    fd_cat : numpy.ndarray of str
+             An array of the final demand categories of the model (`["Final demand"]` if there is only one)
+    n_fd_cat : int
+               The numbers of final demand categories.
+    monetary_unit : int
+                    monetary unit prefix (i.e. if the tables unit is 10^6 € instead of 1 €, it should be set to 10^6).
+    psi : float
+          Value of the psi parameter. (see :ref:`mathematical-background`).
+    model_timestep : int
+                     The number of days between each step. (Current version of the model was not tested with other values than `1`).
+    timestep_dividing_factor : int
+                               Kinda deprecated, should be equal to `model_timestep`.
+    rebuild_tau : int
+                  Value governing the rebuilding speed (see :ref:`mathematical-background`).
+    overprod_max : float
+                   Maximum factor of overproduction (default should be 1.25).
+    overprod_tau : float
+                   Characteristic time of overproduction in number of `model_timestep` (default should be 365).
+    overprod_base : float
+                    Base value of overproduction (Default to 0).
+    inv_duration : numpy.ndarray of int
+                   Array of size `n_sectors` setting for each inputs the initial number of `model_timestep` of stock for the input. (see :ref:`mathematical-background`).
+    restoration_tau : numpy.ndarray of int
+                      Array of size `n_sector` setting for each inputs its characteristic restoration time with `model_timestep` days as unit. (see :ref:`mathematical-background`).
+    Z_0 : numpy.ndarray of float
+          2-dim array of size `(n_sectors * n_regions,n_sectors * n_regions)` representing the intermediate (transaction) matrix (see :ref:`mathematical-background`).
+    Z_C : numpy.ndarray of float
+          2-dim array of size `(n_sectors, n_sectors * n_regions)` representing the intermediate (transaction) matrix aggregated by inputs (see :ref:`mathematical-background`).
+    Z_distrib : numpy.ndarray of float
+                `Z_0` normalised by `Z_C`, i.e. representing for each input the share of the total ordered transiting from an industry to another.
+    Y_0 : numpy.ndarray of float
+          2-dim array of size `(n_sectors * n_regions,n_regions * n_fd_cat)` representing the final demand matrix.
+    X_0 : numpy.ndarray of float
+          Array of size `n_sectors * n_regions` representing the initial gross production.
+    gdp_df : pandas.DataFrame
+             Dataframe of the total GDP of each region of the model
+    VA_0 : numpy.ndarray of float
+           Array of size `n_sectors * n_regions` representing the total value added for each sectors.
+    tech_mat : numpy.ndarray
+               2-dim array of size `(n_sectors * n_regions, n_sectors * n_regions)` representing the technical coefficients matrix
+    overprod : numpy.ndarray
+               Array of size `n_sectors * n_regions` representing the overproduction coefficients vector.
+    Raises
+    ------
+    RuntimeError
+        A RuntimeError can occur when data is inconsistent (negative stocks for
+        instance)
+    ValueError
+    NotImplementedError
+
+    Examples
+    --------
+    FIXME: Add docs.
+
+
+    """
+
     def __init__(self,
                  pym_mrio: IOSystem,
                  mrio_params: dict,
@@ -44,19 +119,6 @@ class MrioSystem(object):
                  results_storage: pathlib.Path
                  ) -> None:
 
-        """TODO describe function
-
-        :param pym_mrio:
-        :type pym_mrio: IOSystem
-        :param mrio_params:
-        :type mrio_params: dict
-        :param simulation_params:
-        :type simulation_params: dict
-        :param results_storage:
-        :type results_storage: pathlib.Path
-        :returns:
-
-        """
         logger.debug("Initiating new MrioSystem instance")
         super().__init__()
 
@@ -83,18 +145,18 @@ class MrioSystem(object):
         self.overprod_max = simulation_params['alpha_max']
         self.overprod_tau = simulation_params['alpha_tau']
         self.overprod_base = simulation_params['alpha_base']
-        self.detailled = False
+        self._detailled = False
 
         pym_mrio = lexico_reindex(pym_mrio)
-        self.matrix_id = np.eye(self.n_sectors)
-        self.matrix_I_sum = np.tile(self.matrix_id, self.n_regions)
+        self._matrix_id = np.eye(self.n_sectors)
+        self._matrix_I_sum = np.tile(self._matrix_id, self.n_regions)
         inv = mrio_params['inventories_dict']
         inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
         self.inv_duration = np.array(inventories)
         self.restoration_tau = np.full(self.n_sectors, simulation_params['inventory_restoration_time'])
 
         self.Z_0 = pym_mrio.Z.to_numpy()
-        self.Z_C = (self.matrix_I_sum @ self.Z_0)
+        self.Z_C = (self._matrix_I_sum @ self.Z_0)
         with np.errstate(divide='ignore',invalid='ignore'):
             self.Z_distrib = (np.divide(self.Z_0,(np.tile(self.Z_C, (self.n_regions, 1)))))
         self.Z_distrib = np.nan_to_num(self.Z_distrib)
@@ -122,7 +184,7 @@ class MrioSystem(object):
         else:
             self.gdp_df = value_added.groupby('region').sum()
             self.VA_0 = (value_added.to_numpy())
-        self.tech_mat = ((self.matrix_I_sum @ pym_mrio.A).to_numpy())
+        self.tech_mat = ((self._matrix_I_sum @ pym_mrio.A).to_numpy())
         self.overprod = np.full((self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64)
         with np.errstate(divide='ignore',invalid='ignore'):
             self.matrix_stock = ((np.tile(self.X_0, (self.n_sectors, 1)) * self.tech_mat) * self.inv_duration[:,np.newaxis])
@@ -327,7 +389,7 @@ class MrioSystem(object):
         intmd_distribution = distributed_non_rebuild_production[:,:self.n_sectors * self.n_regions]
         stock_use = np.tile(self.production, (self.n_sectors,1)) * self.tech_mat
         assert not (stock_use < 0).any()
-        stock_add = self.matrix_I_sum @ intmd_distribution
+        stock_add = self._matrix_I_sum @ intmd_distribution
         assert not (stock_add < 0).any()
         if not np.allclose(stock_add, stock_use):
             assert not (self.matrix_stock < 0).any()
