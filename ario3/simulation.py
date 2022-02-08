@@ -160,10 +160,17 @@ class Simulation(object):
                 step_res = self.next_step()
                 self.n_steps_simulated = self.current_t
                 if step_res == 1:
-                    logger.warning("Economy seems to have crashed")
+                    self.has_crashed = True
+                    logger.warning(f"""Economy seems to have crashed.
+                    - At step : {self.current_t}
+                    """
+                    )
                     break
                 elif self._monotony_checker > 3:
-                    logger.warning("Economy seems to have found an equilibrium")
+                    logger.warning(f"""Economy seems to have found an equilibrium
+                    - At step : {self.current_t}
+                    """
+                    )
                     break
         else:
             for t in range(self.n_timesteps_to_sim):
@@ -178,7 +185,10 @@ class Simulation(object):
                     )
                     break
                 elif self._monotony_checker > 3:
-                    logger.warning("Economy seems to have found an equilibrium")
+                    logger.warning(f"""Economy seems to have found an equilibrium
+                    - At step : {self.current_t}
+                    """
+                    )
                     break
 
         self.mrio.rebuild_demand_evolution.flush()

@@ -382,7 +382,8 @@ class MrioSystem(object):
             tot_rebuilding_demand = np.broadcast_to(self.rebuilding_demand.sum(axis=2)[:,:,np.newaxis],self.rebuilding_demand.shape)
             rebuild_demand_share[tot_rebuilding_demand!=0] = np.divide(self.rebuilding_demand[tot_rebuilding_demand!=0], tot_rebuilding_demand[tot_rebuilding_demand!=0])
             distributed_rebuild_production = np.multiply(rebuild_demand_share, np.expand_dims(rebuild_production,2))
-            assert not ((self.rebuilding_demand - distributed_rebuild_production).round(10) < 0).any()
+            if ((self.rebuilding_demand - distributed_rebuild_production).round(10) < 0).any():
+                raise RuntimeError('Rebuild production exceeds rebuild demand somewhere, this is strange. Aborting simulation.')
             self.rebuilding_demand -= distributed_rebuild_production#.reshape(self.rebuilding_demand.shape)
             self.__update_kapital_lost()
 
