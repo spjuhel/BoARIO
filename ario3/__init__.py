@@ -26,7 +26,7 @@ logger.setLevel(logging.DEBUG)
 
 # defines the stream handler
 _ch = logging.StreamHandler()  # creates the handler
-_ch.setLevel(logging.INFO)  # sets the handler info
+_ch.setLevel(logging.DEBUG)  # sets the handler info
 _ch.setFormatter(DEBUGFORMATTER)  # sets the handler formatting
 
 # adds the handler to the global variable: log
