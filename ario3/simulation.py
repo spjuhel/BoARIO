@@ -143,7 +143,7 @@ class Simulation(object):
         FIXME: Add docs.
 
         """
-        tmp = logging.FileHandler(self.results_storage)
+        tmp = logging.FileHandler(self.results_storage/"simulation.log")
         tmp.setLevel(logging.DEBUG)
         tmp.setFormatter(DEBUGFORMATTER)
         logger.addHandler(tmp)
