@@ -54,7 +54,6 @@ class Simulation(object):
 
 
         """
-        print(logger.handlers)
         logger.info("Initializing new simulation instance")
         super().__init__()
         if isinstance(params, str):

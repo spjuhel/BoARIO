@@ -3,8 +3,6 @@ from ario3.logging_conf import INFOFORMATTER, DEBUGFORMATTER
 
 # Create a logger object.
 logger = logging.getLogger(__name__)
-print("b")
-print(logger.handlers)
 
 fieldstyle = {'asctime': {'color': 'green'},
               'levelname': {'bold': True, 'color': 'black'},
