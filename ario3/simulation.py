@@ -169,9 +169,9 @@ class Simulation(object):
                 step_res = self.next_step()
                 self.n_steps_simulated = self.current_t
                 if step_res == 1:
-                    logger.warning("""Economy seems to have crashed.
+                    logger.warning(f"""Economy seems to have crashed.
                     - At step : {self.current_t}
-                    """.format()
+                    """
                     )
                     break
                 elif self._monotony_checker > 3:
