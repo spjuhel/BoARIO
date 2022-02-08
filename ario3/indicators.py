@@ -323,7 +323,7 @@ class Indicators(object):
 
     def write_indicators(self):
         logger.info("Writing indicators to json")
-        self.update_indicators()
+        #self.update_indicators()
         with self.storage.open('w') as f:
             json.dump(self.indicators, f, cls=numpyencoder.NumpyEncoder)
 
