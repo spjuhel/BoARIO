@@ -147,7 +147,7 @@ class Simulation(object):
         tmp.setLevel(logging.DEBUG)
         tmp.setFormatter(DEBUGFORMATTER)
         logger.addHandler(tmp)
-        logger.info(json.dumps(self.params, indent=4))
+        logger.info("Parameters : \n {}".format(json.dumps(self.params, indent=4)))
         if progress:
             widgets = [
                 'Processed: ', progressbar.Counter('Year: %(value)d '), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
@@ -169,7 +169,10 @@ class Simulation(object):
                 step_res = self.next_step()
                 self.n_steps_simulated = self.current_t
                 if step_res == 1:
-                    logger.warning("Economy seems to have crashed")
+                    logger.warning("""Economy seems to have crashed.
+                    - At step : {self.current_t}
+                    """
+                    )
                     break
                 elif self._monotony_checker > 3:
                     logger.warning("Economy seems to have found an equilibrium")
@@ -239,7 +242,6 @@ class Simulation(object):
         try:
             self.mrio.distribute_production(self.current_t, self.scheme)
         except RuntimeError as r:
-            logger.error(r)
             return 1
         self.mrio.calc_orders(constraints)
         self.mrio.calc_overproduction()

@@ -334,7 +334,7 @@ class MrioSystem(object):
             self.matrix_stock = self.matrix_stock - stock_use + stock_add
             if (self.matrix_stock < 0).any():
                 self.matrix_stock.dump(self.results_storage/"matrix_stock_dump.pkl")
-                logger.error("Negative values in the stocks, matrix has been dumped in the results dir.")
+                logger.error("Negative values in the stocks, matrix has been dumped in the results dir : {}".format(self.results_storage/"matrix_stock_dump.pkl"))
                 raise RuntimeError('Negative values in the stocks, matrix has been dumped in the results dir')
 
         final_demand_not_met = self.final_demand - distributed_non_rebuild_production[:,self.n_sectors*self.n_regions:]#(self.n_sectors*self.n_regions + self.n_fd_cat*self.n_regions)]
