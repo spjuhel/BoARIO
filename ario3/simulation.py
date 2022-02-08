@@ -126,6 +126,7 @@ class Simulation(object):
         self._monotony_checker = 0
         self.detailled = False
         self.scheme = 'proportional'
+        self.has_crashed = False
         logger.info("Initialized !")
 
     def loop(self, progress:bool=True):
@@ -169,6 +170,7 @@ class Simulation(object):
                 step_res = self.next_step()
                 self.n_steps_simulated = self.current_t
                 if step_res == 1:
+                    self.has_crashed = True
                     logger.warning(f"""Economy seems to have crashed.
                     - At step : {self.current_t}
                     """
@@ -189,6 +191,7 @@ class Simulation(object):
         self.mrio.overproduction_evolution.flush()
         self.mrio.production_cap_evolution.flush()
         self.params['n_timesteps_simulated'] = self.n_steps_simulated
+        self.params['has_crashed'] = self.has_crashed
         with (pathlib.Path(self.params["storage_dir"]+"/"+self.params['results_storage'])/"simulated_params.json").open('w') as f:
             json.dump(self.params, f, indent=4)
         if progress:
@@ -241,7 +244,7 @@ class Simulation(object):
         self.mrio.write_production_max(self.current_t)
         try:
             self.mrio.distribute_production(self.current_t, self.scheme)
-        except RuntimeError as r:
+        except RuntimeError:
             return 1
         self.mrio.calc_orders(constraints)
         self.mrio.calc_overproduction()

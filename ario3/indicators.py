@@ -26,8 +26,12 @@ class Indicators(object):
 
     params_list = ["simulated_params", "simulated_events"]
 
-    def __init__(self, data_dict) -> None:
+    def __init__(self, data_dict, include_crash:bool = False) -> None:
+        logger.info("Instanciating indicators")
         super().__init__()
+        if not include_crash:
+            if data_dict["has_crashed"]:
+                raise RuntimeError("Simulation crashed and include_crash is False, I won't compute indicators")
         steps = [i for i in range(data_dict["n_timesteps_to_sim"])]
 
         if "stocks" in data_dict:
@@ -129,10 +133,11 @@ class Indicators(object):
         self.save_dfs()
 
     @classmethod
-    def from_model(cls, model : Simulation):
+    def from_model(cls, model : Simulation, include_crash:bool = False):
         data_dict = {}
         data_dict["n_timesteps_to_sim"] = model.n_timesteps_to_sim
         data_dict["n_timesteps_simulated"] = model.n_steps_simulated
+        data_dict["has_crashed"] = model.has_crashed
         data_dict["regions"] = model.mrio.regions
         data_dict["sectors"] = model.mrio.sectors
         with (pathlib.Path(model.params["results_storage"])/".simulated_events.json").open() as f:
@@ -149,14 +154,14 @@ class Indicators(object):
         if model.params['register_stocks']:
             data_dict["stocks"] = model.mrio.stocks_evolution
         data_dict["limiting_stocks"] = model.mrio.limiting_stocks_evolution
-        return cls(data_dict)
+        return cls(data_dict, include_crash)
 
     @classmethod
-    def from_storage_path(cls, storage_path, params=None):
-        return cls(cls.dict_from_storage_path(storage_path, params=params))
+    def from_storage_path(cls, storage_path, params=None, include_crash:bool = False):
+        return cls(cls.dict_from_storage_path(storage_path, params=params), include_crash)
 
     @classmethod
-    def from_folder(cls, folder: Union[str, pathlib.Path], indexes_file: Union[str, pathlib.Path]):
+    def from_folder(cls, folder: Union[str, pathlib.Path], indexes_file: Union[str, pathlib.Path], include_crash:bool = False):
         data_dict = {}
         if not isinstance(indexes_file, pathlib.Path):
             indexes_file = pathlib.Path(indexes_file)
@@ -185,6 +190,10 @@ class Indicators(object):
         with params_file['simulated_events'].open('r') as f:
             events = json.load(f)
 
+        if "has_crashed" in params:
+            data_dict["has_crashed"] = params["has_crashed"]
+        else:
+            data_dict["has_crashed"] = False
         results_path = data_dict["results_storage"] = folder.absolute()
         t = data_dict["n_timesteps_to_sim"] = params['n_timesteps']
         data_dict["n_timesteps_simulated"] = params['n_timesteps_simulated']
@@ -205,7 +214,7 @@ class Indicators(object):
             if not (results_path/"stocks_record").exists():
                 raise FileNotFoundError("Stocks record file was not found {}".format(results_path/"stocks_record"))
             data_dict["stocks"] = np.memmap(results_path/"stocks_record", mode='r+', dtype='float64',shape=(t*indexes['n_sectors'],indexes['n_industries']))
-        return cls(data_dict)
+        return cls(data_dict, include_crash)
 
 
     @classmethod
@@ -229,6 +238,8 @@ class Indicators(object):
         if indexes['fd_cat'] is None:
             indexes['fd_cat'] = np.array(["Final demand"])
         results_path = storage_path/pathlib.Path(simulation_params['results_storage'])
+        if "has_crashed" in simulation_params:
+            data_dict["has_crashed"] = simulation_params["has_crashed"]
         data_dict["results_storage"] = results_path
         data_dict["n_timesteps_to_sim"] = t
         data_dict["n_timesteps_simulated"] = simulation_params['n_timesteps_simulated']
@@ -301,6 +312,7 @@ class Indicators(object):
         self.indicators['prod_lost_unaff'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum()
 
     def update_indicators(self):
+        logger.info("(Re)computing all indicators")
         self.calc_tot_fd_unmet()
         self.calc_aff_fd_unmet()
         self.calc_rebuild_durations()
@@ -310,11 +322,13 @@ class Indicators(object):
         self.calc_shortage_extent()
 
     def write_indicators(self):
+        logger.info("Writing indicators to json")
         self.update_indicators()
         with self.storage.open('w') as f:
             json.dump(self.indicators, f, cls=numpyencoder.NumpyEncoder)
 
     def save_dfs(self):
+        logger.info("Saving computed dataframe to results folder")
         self.df.to_feather(self.storage_path/"treated_df.feather")
         self.df_loss.to_feather(self.storage_path/"treated_df_loss.feather")
         if self.df_stocks is not None:
