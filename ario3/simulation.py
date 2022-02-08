@@ -6,6 +6,7 @@ import json
 import pickle
 import pathlib
 from typing import Union
+import logging
 
 import numpy as np
 import progressbar
@@ -15,6 +16,7 @@ from pymrio.core.mriosystem import IOSystem
 from ario3.event import Event
 from ario3.mriosystem import MrioSystem
 from ario3 import logger
+from ario3.logging_conf import DEBUGFORMATTER
 
 __all__=['Simulation']
 
@@ -114,7 +116,7 @@ class Simulation(object):
             raise TypeError("At this point, mrio should be an IOSystem, not a %s", str(type(mrio)))
 
         self.params = params
-        results_storage = pathlib.Path(self.params['storage_dir']+"/"+self.params['results_storage'])
+        self.results_storage = results_storage = pathlib.Path(self.params['storage_dir']+"/"+self.params['results_storage'])
         if not results_storage.exists():
             results_storage.mkdir(parents=True)
         self.mrio = MrioSystem(mrio, mrio_params, simulation_params, results_storage)
@@ -143,6 +145,10 @@ class Simulation(object):
         FIXME: Add docs.
 
         """
+        tmp = logging.FileHandler(self.results_storage)
+        tmp.setLevel(logging.DEBUG)
+        tmp.setFormatter(logging.Formatter(DEBUGFORMATTER))
+        logger.addHandler(tmp)
         logger.info(json.dumps(self.params, indent=4))
         if progress:
             widgets = [

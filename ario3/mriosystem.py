@@ -58,12 +58,6 @@ class MrioSystem(object):
 
         """
 
-
-        logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s] %(name)s %(message)s", datefmt="%H:%M:%S")
-        fileHandler = logging.FileHandler(results_storage/"simulation.log")
-        fileHandler.setFormatter(logFormatter)
-        logger.addHandler(fileHandler)
-
         logger.debug("Initiating new MrioSystem instance")
         super().__init__()
 
