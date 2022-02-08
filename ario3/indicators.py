@@ -1,3 +1,4 @@
+from typing import Union
 from ario3.simulation import Simulation
 import numpyencoder
 import json
@@ -13,6 +14,19 @@ logger = logging.getLogger(__name__)
 __all__ = ['Indicators']
 
 class Indicators(object):
+
+    record_files_list = ["classic_demand_record",
+                         "final_demand_unmet_record",
+                         "iotable_X_max_record",
+                         "iotable_XVA_record",
+                         "limiting_stocks_record",
+                         "overprodvector_record",
+                         "rebuild_demand_record",
+                         "rebuild_prod_record"
+                         ]
+
+    params_list = ["simulated_params", "simulated_events"]
+
     def __init__(self, data_dict) -> None:
         super().__init__()
         steps = [i for i in range(data_dict["n_timesteps_to_sim"])]
@@ -73,6 +87,8 @@ class Indicators(object):
             stocks_df = stocks_df.reset_index()
             stocks_df['step'] = stocks_df['step'].astype("uint16")
             stocks_df['stock of'] = stocks_df['stock of'].astype("category")
+            stocks_df['region'] = stocks_df['region'].astype("category")
+            stocks_df['sector'] = stocks_df['sector'].astype("category")
         self.df_stocks = stocks_df
         del stocks_df
 
@@ -141,6 +157,59 @@ class Indicators(object):
         return cls(cls.dict_from_storage_path(storage_path, params=params))
 
     @classmethod
+    def from_folder(cls, folder: Union[str, pathlib.Path], indexes_file: Union[str, pathlib.Path]):
+        data_dict = {}
+        if not isinstance(indexes_file, pathlib.Path):
+            indexes_file = pathlib.Path(indexes_file)
+            if not indexes_file.exists():
+                raise FileNotFoundError(str("File does not exist:"+str(indexes_file)))
+        if not isinstance(folder, pathlib.Path):
+            folder = pathlib.Path(folder)
+            if not folder.exists():
+                raise FileNotFoundError(str("Directory does not exist:"+str(folder)))
+        with indexes_file.open() as f:
+            indexes = json.load(f)
+
+        params_file = {f.stem : f for f in folder.glob("*.json")}
+        absentee = [f for f in cls.params_list if f not in params_file.keys()]
+        if absentee != []:
+            raise FileNotFoundError("Some of the required parameters files not found (looked for {}".format(cls.params_list))
+
+        record_files = [f for f in folder.glob("*record") if f.is_file()]
+        absentee = [f for f in cls.record_files_list if f not in [fn.name for fn in record_files]]
+        if absentee != []:
+            raise FileNotFoundError("Some of the required records are not there : {}".format(absentee))
+
+        with params_file['simulated_params'].open('r') as f:
+            params = json.load(f)
+
+        with params_file['simulated_events'].open('r') as f:
+            events = json.load(f)
+
+        results_path = data_dict["results_storage"] = folder.absolute()
+        t = data_dict["n_timesteps_to_sim"] = params['n_timesteps']
+        data_dict["n_timesteps_simulated"] = params['n_timesteps_simulated']
+        data_dict["regions"] = indexes["regions"]
+        data_dict["n_regions"] = indexes["n_regions"]
+        data_dict["sectors"] = indexes["sectors"]
+        data_dict["n_sectors"] = indexes["n_sectors"]
+        data_dict["events"] = events
+        data_dict["prod"] = np.memmap(results_path/"iotable_XVA_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["prodmax"] = np.memmap(results_path/"iotable_X_max_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["overprod"] = np.memmap(results_path/"overprodvector_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["c_demand"] = np.memmap(results_path/"classic_demand_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["r_demand"] = np.memmap(results_path/"rebuild_demand_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["r_prod"] = np.memmap(results_path/"rebuild_prod_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["fd_unmet"] = np.memmap(results_path/"final_demand_unmet_record", mode='r+', dtype='float64',shape=(t,indexes['n_regions']*indexes['n_sectors']))
+        data_dict["limiting_stocks"] = np.memmap(results_path/"limiting_stocks_record", mode='r+', dtype='bool',shape=(t*indexes['n_sectors'],indexes['n_industries']))
+        if params['register_stocks']:
+            if not (results_path/"stocks_record").exists():
+                raise FileNotFoundError("Stocks record file was not found {}".format(results_path/"stocks_record"))
+            data_dict["stocks"] = np.memmap(results_path/"stocks_record", mode='r+', dtype='float64',shape=(t*indexes['n_sectors'],indexes['n_industries']))
+        return cls(data_dict)
+
+
+    @classmethod
     def dict_from_storage_path(cls, storage_path, params=None):
         data_dict = {}
         if not isinstance(storage_path, pathlib.Path):
@@ -197,7 +266,7 @@ class Indicators(object):
     def calc_general_shortage(self):
         #TODO
         a = self.df_limiting.T.stack(level=0)
-        a.index = a.index.rename(['step','sector', 'region']) #type: ignore
+        #a.index = a.index.rename(['step','sector', 'region']) #type: ignore
         b = a.sum(axis=1).groupby(['step','region','sector']).sum()/8
         c = b.groupby(['step','region']).sum()/8
         c = c.groupby('step').sum()/6
@@ -253,6 +322,11 @@ class Indicators(object):
             ddf = da.from_pandas(self.df_stocks, chunksize=10000000)
             ddf.to_parquet(self.storage_path/"treated_df_stocks.parquet", engine="pyarrow")
         if self.df_limiting is not None:
-            ddf = da.from_pandas(self.df_limiting, chunksize=10000000)
-            ddf.to_parquet(self.storage_path/"treated_df_limiting.parquet", engine="pyarrow")
+            df_limiting = self.df_limiting.melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'variable_2':'stock of'})
+            df_limiting = df_limiting.reset_index()
+            df_limiting['step'] = df_limiting['step'].astype("uint16")
+            df_limiting['stock of'] = df_limiting['stock of'].astype("category")
+            df_limiting['region'] = df_limiting['region'].astype("category")
+            df_limiting['sector'] = df_limiting['sector'].astype("category")
+            df_limiting.to_feather(self.storage_path/"treated_df_loss.feather")
         #self.df_limiting.to_feather(self.storage_path/"treated_df_limiting.feather")
