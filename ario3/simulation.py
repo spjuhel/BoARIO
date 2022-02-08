@@ -144,6 +144,7 @@ class Simulation(object):
         FIXME: Add docs.
 
         """
+        logger.info("Starting model loop for at most {} steps".format(self.n_timesteps_to_sim))
         tmp = logging.FileHandler(self.results_storage/"simulation.log")
         tmp.setLevel(logging.DEBUG)
         tmp.setFormatter(DEBUGFORMATTER)
@@ -260,7 +261,7 @@ class Simulation(object):
 
 
     def read_events_from_list(self, events_list):
-
+        logger.info("Reading events from given list and adding them to the model")
         for ev_dic in events_list:
             if ev_dic['aff-sectors'] == 'all':
                 ev_dic['aff-sectors'] = list(self.mrio.sectors)
@@ -272,6 +273,7 @@ class Simulation(object):
             json.dump(events_list, f, indent=4)
 
     def read_events(self, events_file):
+        logger.info("Reading events from {} and adding them to the model".format(events_file))
         if not events_file.exists():
             raise FileNotFoundError("This file does not exist: ",events_file)
         else:
@@ -293,6 +295,7 @@ class Simulation(object):
         :returns:
 
         """
+        logger.info("Shocking model with new event")
         impacted_region_prod_share = self.params['impacted_region_base_production_toward_rebuilding']
         RoW_prod_share = self.params['row_base_production_toward_rebuilding']
         event_to_add.check_values(self)
@@ -366,6 +369,7 @@ class Simulation(object):
         self.mrio.update_kapital_lost()
 
     def reset_sim_with_same_events(self):
+        logger.info('Resetting model to initial status (with same events)')
         self.current_t = 0
         self._monotony_checker = 0
         self.n_steps_simulated = 0
@@ -373,10 +377,12 @@ class Simulation(object):
 
     def reset_sim_full(self):
         self.reset_sim_with_same_events()
+        logger.info('Resetting events')
         self.events = []
         self.events_timings = set()
 
     def update_params(self, new_params):
+        logger.info('Updating model parameters')
         self.params = new_params
         results_storage = pathlib.Path(self.params['storage_dir']+"/"+self.params['results_storage'])
         if not results_storage.exists():
