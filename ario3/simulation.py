@@ -1,7 +1,6 @@
 '''
 Simulation module
 '''
-
 import json
 import pickle
 import pathlib
@@ -55,7 +54,7 @@ class Simulation(object):
 
 
         """
-
+        print(logger.handlers)
         logger.info("Initializing new simulation instance")
         super().__init__()
         if isinstance(params, str):

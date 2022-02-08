@@ -3,6 +3,8 @@ from ario3.logging_conf import INFOFORMATTER, DEBUGFORMATTER
 
 # Create a logger object.
 logger = logging.getLogger(__name__)
+print("b")
+print(logger.handlers)
 
 fieldstyle = {'asctime': {'color': 'green'},
               'levelname': {'bold': True, 'color': 'black'},
@@ -22,12 +24,17 @@ coloredlogs.install(level=logging.DEBUG,
                     field_styles=fieldstyle,
                     level_styles=levelstyles)
 
-logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.DEBUG)
+#print("c")
+#print(logger.handlers)
 
 # defines the stream handler
-_ch = logging.StreamHandler()  # creates the handler
-_ch.setLevel(logging.DEBUG)  # sets the handler info
-_ch.setFormatter(DEBUGFORMATTER)  # sets the handler formatting
+#_ch = logging.StreamHandler()  # creates the handler
+#_ch.setLevel(logging.DEBUG)  # sets the handler info
+#_ch.setFormatter(DEBUGFORMATTER)  # sets the handler formatting
 
 # adds the handler to the global variable: log
-logger.addHandler(_ch)
+#logger.addHandler(_ch)
+#logger.propagate = False
+#print(logger.handlers)
+#print("a")

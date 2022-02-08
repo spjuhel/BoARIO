@@ -57,7 +57,6 @@ class MrioSystem(object):
         :returns:
 
         """
-
         logger.debug("Initiating new MrioSystem instance")
         super().__init__()
 
