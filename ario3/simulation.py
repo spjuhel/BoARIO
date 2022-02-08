@@ -14,11 +14,9 @@ from pymrio.core.mriosystem import IOSystem
 
 from ario3.event import Event
 from ario3.mriosystem import MrioSystem
-import logging
+from ario3 import logger
 
 __all__=['Simulation']
-
-logger = logging.getLogger(__name__)
 
 class Simulation(object):
     '''Simulation instance'''

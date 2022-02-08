@@ -1,6 +1,5 @@
 import warnings
-import logging
-logger = logging.getLogger(__name__)
+from ario3 import logger
 
 __all__ = ['Event']
 
