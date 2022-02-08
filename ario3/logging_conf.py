@@ -1,5 +1,7 @@
-DEBUGFORMATTER = '%(asctime)s [%(levelname)-5.5s] %(name)s:%(funcName)s:%(lineno)d: %(message)s'
+import logging
+
+DEBUGFORMATTER = logging.Formatter(fmt='%(asctime)s [%(levelname)s] - [%(filename)s > %(funcName)s() > %(lineno)s] - %(message)s',datefmt='%H:%M:%S',)
 """Debug file formatter."""
 
-INFOFORMATTER = '%(message)s'
+INFOFORMATTER = logging.Formatter(fmt='%(asctime)s [%(levelname)s] - %(message)s',datefmt='%H:%M:%S',)
 """Log file and stream output formatter."""
