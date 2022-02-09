@@ -9,6 +9,8 @@ from pymrio.core.mriosystem import IOSystem
 
 __all__ = ['MrioSystem']
 
+INV_THRESHOLD = 20 #days
+
 VALUE_ADDED_NAMES = ['VA', 'Value Added', 'value added',
                         'factor inputs', 'factor_inputs', 'Factors Inputs',
                         'Satellite Accounts', 'satellite accounts', 'satellite_accounts',
@@ -153,7 +155,10 @@ class MrioSystem(object):
         inv = mrio_params['inventories_dict']
         inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
         self.inv_duration = np.array(inventories)
-        self.restoration_tau = np.full(self.n_sectors, simulation_params['inventory_restoration_time'])
+        restoration_tau = [simulation_params['inventory_restoration_time'] if v >= INV_THRESHOLD else v for v in inventories]
+        self.restoration_tau = np.array(restoration_tau)
+        #np.full(self.n_sectors, simulation_params['inventory_restoration_time'])
+
 
         self.Z_0 = pym_mrio.Z.to_numpy()
         self.Z_C = (self._matrix_I_sum @ self.Z_0)
