@@ -337,12 +337,17 @@ class MrioSystem(object):
             #surplus_from_rebuild = (rebuild_production - rebuild_demand)
             #surplus_from_rebuild[surplus_from_rebuild<0.0] = 0.0
             #surplus_from_rebuild = surplus_from_rebuild.sum(axis=0)
-            scarcity = np.full(rebuild_production.shape,0.0)
-            scarcity[rebuild_demand > 0.] = (rebuild_demand[rebuild_demand > 0.] - rebuild_production[rebuild_demand > 0.]) / rebuild_demand[rebuild_demand > 0.]
-            scarcity[scarcity < 0] = 0.0
+            prod_reqby_demand = self.calc_prod_reqby_demand()
+            scarcity = np.full(self.production.shape, 0.0)
+            scarcity[prod_reqby_demand!=0] = (prod_reqby_demand[prod_reqby_demand!=0] - self.production[prod_reqby_demand!=0]) / prod_reqby_demand[prod_reqby_demand!=0]
 
+            rebuild_scarcity = np.full(rebuild_production.shape,0.0)
+            rebuild_scarcity[rebuild_demand > 0.] = (rebuild_demand[rebuild_demand > 0.] - rebuild_production[rebuild_demand > 0.]) / rebuild_demand[rebuild_demand > 0.]
+            rebuild_scarcity[rebuild_scarcity < 0] = 0.0
+
+            rebuild_scarcity = scarcity * rebuild_scarcity
             #scarcity[np.isinf(scarcity)] = 0
-            prod_max_toward_rebuild_chg = ((1. - self.prod_max_toward_rebuilding) * scarcity * (self.model_timestep / self.rebuild_tau) + (0. - self.prod_max_toward_rebuilding) * (scarcity == 0) * (self.model_timestep / self.rebuild_tau))
+            prod_max_toward_rebuild_chg = ((1. - self.prod_max_toward_rebuilding) * rebuild_scarcity * (self.model_timestep / self.rebuild_tau) + (0. - self.prod_max_toward_rebuilding) * (rebuild_scarcity == 0) * (self.model_timestep / self.rebuild_tau))
             assert not prod_max_toward_rebuild_chg[(prod_max_toward_rebuild_chg < -1) | (prod_max_toward_rebuild_chg > 1)].any()
             self.prod_max_toward_rebuilding += prod_max_toward_rebuild_chg
             self.prod_max_toward_rebuilding[self.prod_max_toward_rebuilding < 0] = 0
