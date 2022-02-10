@@ -306,10 +306,10 @@ class Indicators(object):
         prod_chg = df2 - df2.iloc[1,:]
         prod_chg = prod_chg.round(6)
         self.indicators['prod_gain_tot'] = prod_chg.mul(prod_chg.gt(0)).sum().sum()
-        self.indicators['prod_lost_tot'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum()
+        self.indicators['prod_lost_tot'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum() * (-1)
         prod_chg = prod_chg.drop(self.aff_regions, axis=1)
         self.indicators['prod_gain_unaff'] = prod_chg.mul(prod_chg.gt(0)).sum().sum()
-        self.indicators['prod_lost_unaff'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum()
+        self.indicators['prod_lost_unaff'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum() * (-1)
 
     def update_indicators(self):
         logger.info("(Re)computing all indicators")
