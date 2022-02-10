@@ -145,7 +145,7 @@ class MrioSystem(object):
         self.iotable_year_to_step_factor = simulation_params['timestep_dividing_factor'] # 365 for yearly IO tables
         if self.iotable_year_to_step_factor != 365:
             logger.warning("iotable_to_daily_step_factor is not set to 365 (days). This should probably not be the case if the IO tables you use are on a yearly basis.")
-        self.steply_factor = self.iotable_year_to_step_factor / self.n_days_by_step
+        self.steply_factor =  self.n_days_by_step / self.iotable_year_to_step_factor
         self.rebuild_tau = simulation_params['rebuild_tau']
         self.overprod_max = simulation_params['alpha_max']
         self.overprod_tau = simulation_params['alpha_tau']
