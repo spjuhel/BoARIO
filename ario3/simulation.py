@@ -145,6 +145,7 @@ class Simulation(object):
 
         """
         logger.info("Starting model loop for at most {} steps".format(self.n_timesteps_to_sim))
+        logger.info("One step is {} day(s)".format(self.mrio.n_days_by_step))
         tmp = logging.FileHandler(self.results_storage/"simulation.log")
         tmp.setLevel(logging.DEBUG)
         tmp.setFormatter(DEBUGFORMATTER)
@@ -152,7 +153,7 @@ class Simulation(object):
         logger.info("Parameters : \n {}".format(json.dumps(self.params, indent=4)))
         if progress:
             widgets = [
-                'Processed: ', progressbar.Counter('Year: %(value)d '), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
+                'Processed: ', progressbar.Counter('Step: %(value)d '), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
             ]
             bar = progressbar.ProgressBar(widgets=widgets)
             for t in bar(range(self.n_timesteps_to_sim)):
