@@ -141,21 +141,26 @@ class MrioSystem(object):
         self.monetary_unit = mrio_params['monetary_unit']
         logger.info("Monetary unit is: %s", self.monetary_unit)
         self.psi = simulation_params['psi_param']
-        self.model_timestep = simulation_params['model_time_step']
-        self.timestep_dividing_factor = simulation_params['timestep_dividing_factor']
+        self.n_days_by_step = simulation_params['model_time_step']
+        self.iotable_year_to_step_factor = simulation_params['timestep_dividing_factor'] # 365 for yearly IO tables
+        if self.iotable_year_to_step_factor != 365:
+            logger.warning("iotable_to_daily_step_factor is not set to 365 (days). This should probably not be the case if the IO tables you use are on a yearly basis.")
+        self.steply_factor = self.iotable_year_to_step_factor / self.n_days_by_step
         self.rebuild_tau = simulation_params['rebuild_tau']
         self.overprod_max = simulation_params['alpha_max']
         self.overprod_tau = simulation_params['alpha_tau']
         self.overprod_base = simulation_params['alpha_base']
         self._detailled = False
-
+        self.in_shortage = False
+        self.had_shortage = False
         pym_mrio = lexico_reindex(pym_mrio)
         self._matrix_id = np.eye(self.n_sectors)
         self._matrix_I_sum = np.tile(self._matrix_id, self.n_regions)
         inv = mrio_params['inventories_dict']
         inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
-        self.inv_duration = np.array(inventories)
-        restoration_tau = [simulation_params['inventory_restoration_time'] if v >= INV_THRESHOLD else v for v in inventories]
+        self.inv_duration = np.array(inventories) / self.n_days_by_step
+        self.inv_duration[self.inv_duration <= 1] = 2
+        restoration_tau = [(simulation_params['inventory_restoration_time'] / self.n_days_by_step) if v >= INV_THRESHOLD else v for v in inventories]
         self.restoration_tau = np.array(restoration_tau)
         #np.full(self.n_sectors, simulation_params['inventory_restoration_time'])
 
@@ -166,9 +171,9 @@ class MrioSystem(object):
             self.Z_distrib = (np.divide(self.Z_0,(np.tile(self.Z_C, (self.n_regions, 1)))))
         self.Z_distrib = np.nan_to_num(self.Z_distrib)
 
-        self.Z_0 = (pym_mrio.Z.to_numpy() / self.timestep_dividing_factor)
-        self.Y_0 = (pym_mrio.Y.to_numpy() / self.timestep_dividing_factor)
-        self.X_0 = (pym_mrio.x.T.to_numpy().flatten() / self.timestep_dividing_factor) #type: ignore
+        self.Z_0 = (pym_mrio.Z.to_numpy() * self.steply_factor)
+        self.Y_0 = (pym_mrio.Y.to_numpy() * self.steply_factor)
+        self.X_0 = (pym_mrio.x.T.to_numpy().flatten() * self.steply_factor) #type: ignore
         #self.classic_demand_evolution = (pym_mrio.x.T.to_numpy().flatten() / self.timestep_dividing_factor) #type: ignore
 
         exts_names, exts = pym_mrio.get_extensions(), pym_mrio.get_extensions(True)
@@ -270,6 +275,10 @@ class MrioSystem(object):
         supply_constraint = (np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat) * self.psi
         np.multiply(supply_constraint, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=supply_constraint)
         if (stock_constraint := (self.matrix_stock < supply_constraint) * self.matrix_share_thresh).any():
+            if not self.in_shortage:
+                logger.info('At least one industry entered shortage regime')
+            self.in_shortage = True
+            self.had_shortage = True
             production_ratio_stock = np.ones(shape=self.matrix_stock.shape)
             np.divide(self.matrix_stock, supply_constraint, out=production_ratio_stock, where=(self.matrix_share_thresh * (supply_constraint!=0)))
             production_ratio_stock[production_ratio_stock > 1] = 1
@@ -281,6 +290,9 @@ class MrioSystem(object):
                 assert not (production_opt < 0).any()
                 self.production = production_opt
         else:
+            if self.in_shortage:
+                self.in_shortage = False
+                logger.info('All industries exited shortage regime')
             assert not (production_opt < 0).any()
             self.production = production_opt
         return stock_constraint
@@ -307,9 +319,9 @@ class MrioSystem(object):
             matrix_stock_gap[np.isfinite(matrix_stock_goal)] = (matrix_stock_goal[np.isfinite(matrix_stock_goal)] - self.matrix_stock[np.isfinite(self.matrix_stock)])
         assert (not np.isnan(matrix_stock_gap).any()), "NaN in matrix stock gap"
         matrix_stock_gap[matrix_stock_gap < 0] = 0
-        matrix_stock_gap = np.expand_dims(self.model_timestep/self.restoration_tau, axis=1) * matrix_stock_gap
+        matrix_stock_gap = np.expand_dims(self.n_days_by_step/self.restoration_tau, axis=1) * matrix_stock_gap
         # Speed up restocking ?
-        matrix_stock_gap[stocks_constraints] *=2
+        # matrix_stock_gap[stocks_constraints] *=2
         matrix_stock_gap += (np.tile(self.production, (self.n_sectors, 1)) * self.tech_mat)
         assert not ((np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib) < 0).any()
         self.matrix_orders = (np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib)
@@ -347,7 +359,7 @@ class MrioSystem(object):
 
             rebuild_scarcity = scarcity * rebuild_scarcity
             #scarcity[np.isinf(scarcity)] = 0
-            prod_max_toward_rebuild_chg = ((1. - self.prod_max_toward_rebuilding) * rebuild_scarcity * (self.model_timestep / self.rebuild_tau) + (0. - self.prod_max_toward_rebuilding) * (rebuild_scarcity == 0) * (self.model_timestep / self.rebuild_tau))
+            prod_max_toward_rebuild_chg = ((1. - self.prod_max_toward_rebuilding) * rebuild_scarcity * (self.n_days_by_step / self.rebuild_tau) + (0. - self.prod_max_toward_rebuilding) * (rebuild_scarcity == 0) * (self.n_days_by_step / self.rebuild_tau))
             assert not prod_max_toward_rebuild_chg[(prod_max_toward_rebuild_chg < -1) | (prod_max_toward_rebuild_chg > 1)].any()
             self.prod_max_toward_rebuilding += prod_max_toward_rebuild_chg
             self.prod_max_toward_rebuilding[self.prod_max_toward_rebuilding < 0] = 0
@@ -431,7 +443,7 @@ class MrioSystem(object):
         scarcity = np.full(self.production.shape, 0.0)
         scarcity[prod_reqby_demand!=0] = (prod_reqby_demand[prod_reqby_demand!=0] - self.production[prod_reqby_demand!=0]) / prod_reqby_demand[prod_reqby_demand!=0]
         scarcity[np.isnan(scarcity)] = 0
-        overprod_chg = (((self.overprod_max - self.overprod) * scarcity * (self.model_timestep / self.overprod_tau)) + ((self.overprod_base - self.overprod) * (scarcity == 0) * self.model_timestep/self.overprod_tau)).flatten()
+        overprod_chg = (((self.overprod_max - self.overprod) * scarcity * (self.n_days_by_step / self.overprod_tau)) + ((self.overprod_base - self.overprod) * (scarcity == 0) * self.n_days_by_step/self.overprod_tau)).flatten()
         self.overprod += overprod_chg
         self.overprod[self.overprod < 1.] = 1.
 
@@ -496,8 +508,8 @@ class MrioSystem(object):
 
     def update_params(self, new_params):
         self.psi = new_params['psi_param']
-        self.model_timestep = new_params['model_time_step']
-        self.timestep_dividing_factor = new_params['timestep_dividing_factor']
+        self.n_days_by_step = new_params['model_time_step']
+        self.iotable_year_to_step_factor = new_params['timestep_dividing_factor']
         self.rebuild_tau = new_params['rebuild_tau']
         self.overprod_max = new_params['alpha_max']
         self.overprod_tau = new_params['alpha_tau']
