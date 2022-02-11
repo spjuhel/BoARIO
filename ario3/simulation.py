@@ -384,6 +384,7 @@ class Simulation(object):
         self.current_t = 0
         self._monotony_checker = 0
         self.n_steps_simulated = 0
+        self.has_crashed = False
         self.mrio.reset_module(self.params)
 
     def reset_sim_full(self):
