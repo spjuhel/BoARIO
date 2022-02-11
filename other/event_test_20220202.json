@@ -1,6 +1,6 @@
 {
     "aff-regions": [
-        "FR"
+        "PL"
     ],
     "aff-sectors": [
         "Mining of coal and lignite; extraction of peat (10)",
@@ -55,7 +55,7 @@
     "duration": 1,
     "name": "0",
     "occur": 5,
-    "q_dmg": 100000000,
+    "q_dmg": 5000000000,
     "rebuilding-sectors": {
         "Public administration and defence; compulsory social security, Education and Health (75,80,85)": 0.24,
         "Construction (45)": 0.24,

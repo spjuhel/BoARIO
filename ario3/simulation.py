@@ -307,6 +307,7 @@ class Simulation(object):
 
         """
         logger.info("Shocking model with new event")
+        logger.info("Affected regions are : {}".format(event_to_add.aff_regions))
         impacted_region_prod_share = self.params['impacted_region_base_production_toward_rebuilding']
         RoW_prod_share = self.params['row_base_production_toward_rebuilding']
         event_to_add.check_values(self)
