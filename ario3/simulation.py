@@ -256,7 +256,8 @@ class Simulation(object):
         self.mrio.write_production_max(self.current_t)
         try:
             self.mrio.distribute_production(self.current_t, self.scheme)
-        except RuntimeError:
+        except RuntimeError as e:
+            logger.exception("This exception happened:")
             return 1
         self.mrio.calc_orders(constraints)
         self.mrio.calc_overproduction()
@@ -322,6 +323,7 @@ class Simulation(object):
         n_sectors_aff = aff_sectors_idx.size
         aff_industries_idx = np.array([self.mrio.n_sectors * ri + si for ri in aff_regions_idx for si in aff_sectors_idx])
         q_dmg = event_to_add.q_damages / self.mrio.monetary_unit
+        logger.info("Damages are {} times {} [unit (ie $/€/£)]".format(q_dmg,self.mrio.monetary_unit))
         # print(f'''
         # regions_idx = {regions_idx},
         # aff_regions_idx = {aff_regions_idx}
@@ -343,7 +345,6 @@ class Simulation(object):
             raise ValueError("This should not happen")
         q_dmg_regions = q_dmg_regions.reshape((n_regions_aff,1))
 
-        #TODO: Check this one !
         # DAMAGE DISTRIBUTION ACROSS SECTORS
         if event_to_add.dmg_distrib_across_sectors_type == "gdp":
             shares = self.mrio.gdp_share_sector.reshape((self.mrio.n_regions,self.mrio.n_sectors))
