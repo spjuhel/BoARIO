@@ -176,24 +176,25 @@ class MrioSystem(object):
         self.X_0 = (pym_mrio.x.T.to_numpy().flatten() * self.steply_factor) #type: ignore
         #self.classic_demand_evolution = (pym_mrio.x.T.to_numpy().flatten() / self.timestep_dividing_factor) #type: ignore
 
-        exts_names, exts = pym_mrio.get_extensions(), pym_mrio.get_extensions(True)
-        tmp_chk = False
-        for name in exts_names:
-            ext = next(exts)
-            if name in VALUE_ADDED_NAMES:
-                value_added = ext.F #type: ignore
-                tmp_chk = True
-        if not tmp_chk:
-            raise NotImplementedError('Value added table not found in given MRIO, contact the dev !')
-        value_added = value_added.loc[VA_idx]
+        #exts_names, exts = pym_mrio.get_extensions(), pym_mrio.get_extensions(True)
+        #tmp_chk = False
+        #for name in exts_names:
+        #    ext = next(exts)
+        #    if name in VALUE_ADDED_NAMES:
+        #        value_added = ext.F #type: ignore
+        #        tmp_chk = True
+        #if not tmp_chk:
+        #    raise NotImplementedError('Value added table not found in given MRIO, contact the dev !')
+        value_added = (pym_mrio.x.T - pym_mrio.Z.sum(axis=0))
         value_added = value_added.reindex(sorted(value_added.index), axis=0) #type: ignore
         value_added = value_added.reindex(sorted(value_added.columns), axis=1)
-        if value_added.ndim > 1:
-            self.gdp_df = value_added.sum(axis=0).groupby('region').sum()
-            self.VA_0 = (value_added.sum(axis=0).to_numpy())
-        else:
-            self.gdp_df = value_added.groupby('region').sum()
-            self.VA_0 = (value_added.to_numpy())
+        value_added[value_added < 0] = 0.0
+        #if value_added.ndim > 1:
+        #    self.gdp_df = value_added.sum(axis=0).groupby('region').sum()
+        #    self.VA_0 = (value_added.sum(axis=0).to_numpy())
+        #else:
+        self.gdp_df = value_added.groupby('region',axis=1).sum()
+        self.VA_0 = (value_added.to_numpy().flatten())
         self.tech_mat = ((self._matrix_I_sum @ pym_mrio.A).to_numpy())
         self.overprod = np.full((self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64)
         with np.errstate(divide='ignore',invalid='ignore'):
