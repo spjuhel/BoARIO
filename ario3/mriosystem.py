@@ -150,7 +150,6 @@ class MrioSystem(object):
         self.overprod_max = simulation_params['alpha_max']
         self.overprod_tau = simulation_params['alpha_tau']
         self.overprod_base = simulation_params['alpha_base']
-        self._detailled = False
         self.in_shortage = False
         self.had_shortage = False
         pym_mrio = lexico_reindex(pym_mrio)

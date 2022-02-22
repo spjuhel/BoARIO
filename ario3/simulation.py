@@ -124,7 +124,6 @@ class Simulation(object):
         self.current_t = 0
         self.n_steps_simulated = 0
         self._monotony_checker = 0
-        self.detailled = False
         self.scheme = 'proportional'
         self.has_crashed = False
         logger.info("Initialized !")
