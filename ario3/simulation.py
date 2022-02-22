@@ -114,7 +114,7 @@ class Simulation(object):
             raise TypeError("At this point, mrio should be an IOSystem, not a %s", str(type(mrio)))
 
         self.params = params
-        self.results_storage = results_storage = pathlib.Path(self.params['storage_dir']+"/"+self.params['results_storage'])
+        self.results_storage = results_storage = pathlib.Path(self.params['output_dir']+"/"+self.params['results_storage'])
         if not results_storage.exists():
             results_storage.mkdir(parents=True)
         self.mrio = MrioSystem(mrio, mrio_params, simulation_params, results_storage)
@@ -203,7 +203,7 @@ class Simulation(object):
         self.mrio.production_cap_evolution.flush()
         self.params['n_timesteps_simulated'] = self.n_steps_simulated
         self.params['has_crashed'] = self.has_crashed
-        with (pathlib.Path(self.params["storage_dir"]+"/"+self.params['results_storage'])/"simulated_params.json").open('w') as f:
+        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_params.json").open('w') as f:
             json.dump(self.params, f, indent=4)
         if progress:
             bar.finish()
@@ -280,7 +280,7 @@ class Simulation(object):
             ev.check_values(self)
             self.events.append(ev)
             self.events_timings.add(ev_dic['occur'])
-        with (pathlib.Path(self.params["storage_dir"]+"/"+self.params['results_storage'])/"simulated_events.json").open('w') as f:
+        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_events.json").open('w') as f:
             json.dump(events_list, f, indent=4)
 
     def read_events(self, events_file):
@@ -397,7 +397,7 @@ class Simulation(object):
     def update_params(self, new_params):
         logger.info('Updating model parameters')
         self.params = new_params
-        results_storage = pathlib.Path(self.params['storage_dir']+"/"+self.params['results_storage'])
+        results_storage = pathlib.Path(self.params['output_dir']+"/"+self.params['results_storage'])
         if not results_storage.exists():
             results_storage.mkdir(parents=True)
         self.mrio.update_params(self.params)

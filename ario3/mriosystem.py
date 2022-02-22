@@ -232,8 +232,8 @@ class MrioSystem(object):
             self.stocks_evolution = np.memmap(results_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
 
         self.limiting_stocks_evolution = np.memmap(results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
-        if not (pathlib.Path(simulation_params['storage_dir'])/"indexes.json").exists() :
-            self.write_index((pathlib.Path(simulation_params['storage_dir'])/"indexes.json"))
+        if not (pathlib.Path(simulation_params['output_dir'])/"indexes.json").exists() :
+            self.write_index((pathlib.Path(simulation_params['output_dir'])/"indexes.json"))
 
     def calc_production_cap(self):
         """TODO describe function
@@ -515,8 +515,8 @@ class MrioSystem(object):
         self.overprod_tau = new_params['alpha_tau']
         self.overprod_base = new_params['alpha_base']
         self.restoration_tau = np.full(self.n_sectors, new_params['inventory_restoration_time'])
-        if self.results_storage != pathlib.Path(new_params['storage_dir']+"/"+new_params['results_storage']):
-            self.results_storage = pathlib.Path(new_params['storage_dir']+"/"+new_params['results_storage'])
+        if self.results_storage != pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage']):
+            self.results_storage = pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage'])
             self.reset_record_files(new_params['n_timesteps'], new_params['register_stocks'])
 
     def reset_record_files(self, n_steps:int, reg_stocks: bool):
