@@ -297,7 +297,7 @@ class Indicators(object):
         a = a.swaplevel(1,2).swaplevel(2,3)
         b = a[a]
         b = b[:10]
-        res = list(b.index)
+        res = list(b.index) #type:ignore
         self.indicators['10_first_shortages'] = res
 
     def calc_tot_prod_change(self):
