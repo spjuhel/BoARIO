@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='Aggregate an exio3 MRIO sectors')
 parser.add_argument('exio_path', type=str, help='The str path to the exio3 zip file')
 parser.add_argument('aggreg_path', type=str, help='The str path to the ods aggregation matrix file')
 parser.add_argument('sector_names_json_path', type=str, help='The str path to the json file with the new names of the sectors')
-parser.add_argument('regions_aggregator_json_path', type=str, help='The str path to the json file with the regions aggregation', nargs='?', default=None)
+#parser.add_argument('regions_aggregator_json_path', type=str, help='The str path to the json file with the regions aggregation', nargs='?', default=None)
 parser.add_argument('-o', "--output", type=str, help='The str path to save the pickled mrio to', nargs='?', default='./mrio_dump')
 
 args = parser.parse_args()
