@@ -1,6 +1,10 @@
 import os
 import sys
-module_path = os.path.abspath(os.path.join('..'))
+module_path = os.path.abspath(os.path.join('../'))
+if module_path not in sys.path:
+    sys.path.append(module_path)
+
+module_path = os.path.abspath(os.path.join('./'))
 if module_path not in sys.path:
     sys.path.append(module_path)
 
@@ -19,9 +23,9 @@ from datetime import datetime
 
 # REGIONS presents both in JRC data and EXIOBASE3
 # We have to work on RoW
-REGIONS = ['SI', 'PL', 'LV', 'BG', 'CZ', 'SE', 'KR', 'NO', 'HR', 'ES', 'JP', 'IN', 'BR', 'DE', 'CH', 'IE', 'EE', 'GB', 'ID', 'RU', 'GR', 'ZA', 'RO', 'MX', 'FI', 'AT', 'NL', 'US', 'IT', 'LT', 'FR', 'BE', 'HU', 'CA', 'AU', 'CN', 'TR', 'PT', 'SK']
+#REGIONS = ['SI', 'PL', 'LV', 'BG', 'CZ', 'SE', 'KR', 'NO', 'HR', 'ES', 'JP', 'IN', 'BR', 'DE', 'CH', 'IE', 'EE', 'GB', 'ID', 'RU', 'GR', 'ZA', 'RO', 'MX', 'FI', 'AT', 'NL', 'US', 'IT', 'LT', 'FR', 'BE', 'HU', 'CA', 'AU', 'CN', 'TR', 'PT', 'SK']
 
-#REGIONS = ['SI']
+REGIONS = ['SI']
 
 LOGPATH = "/diskdata/cired/sjuhel/Data/Runs/Flood-Dottori/outputs/logs"
 LOGNAME = "run"
