@@ -97,6 +97,7 @@ if __name__ == "__main__":
 
     for region in REGIONS:
         mrio_path = pathlib.Path(params_template['input_dir']).glob('mrio_'+region+'*.pkl')
+        rootLogger.info("Trying to load {}",list(mrio_path))
         assert len(list(mrio_path))==1, "region pkl file not found"
         mrio_path = list(mrio_path)[0]
         with mrio_path.open('rb') as f:
