@@ -113,6 +113,8 @@ class Indicators(object):
 
         self.aff_sectors = list(misc.flatten(self.aff_sectors))
         self.indicators = {
+            "region" : self.aff_regions,
+            "q_dmg" : None,
             "tot_fd_unmet": "unset",
             "aff_fd_unmet": "unset",
             "rebuild_durations": "unset",
@@ -126,7 +128,10 @@ class Indicators(object):
             "prod_gain_tot": "unset",
             "prod_lost_tot": "unset",
             "prod_gain_unaff": "unset",
-            "prod_lost_unaff": "unset"
+            "prod_lost_unaff": "unset",
+            "inv_tau" : data_dict['params']['psi_param'],
+            "n_timesteps" : data_dict['n_timesteps_simulated'],
+            "has_crashed" : data_dict['has_crashed'],
         }
         self.storage = pathlib.Path(data_dict['results_storage'])/'indicators.json'
         self.storage_path = pathlib.Path(data_dict['results_storage'])
@@ -135,6 +140,7 @@ class Indicators(object):
     @classmethod
     def from_model(cls, model : Simulation, include_crash:bool = False):
         data_dict = {}
+        data_dict['params'] = model.params
         data_dict["n_timesteps_to_sim"] = model.n_timesteps_to_sim
         data_dict["n_timesteps_simulated"] = model.n_steps_simulated
         data_dict["has_crashed"] = model.has_crashed
@@ -196,6 +202,7 @@ class Indicators(object):
             data_dict["has_crashed"] = False
         results_path = data_dict["results_storage"] = folder.absolute()
         t = data_dict["n_timesteps_to_sim"] = params['n_timesteps']
+        data_dict['params'] = params
         data_dict["n_timesteps_simulated"] = params['n_timesteps_simulated']
         data_dict["regions"] = indexes["regions"]
         data_dict["n_regions"] = indexes["n_regions"]
@@ -241,6 +248,7 @@ class Indicators(object):
         results_path = storage_path/pathlib.Path(simulation_params['results_storage'])
         if "has_crashed" in simulation_params:
             data_dict["has_crashed"] = simulation_params["has_crashed"]
+        data_dict['params'] = simulation_params
         data_dict["results_storage"] = results_path
         data_dict["n_timesteps_to_sim"] = t
         data_dict["n_timesteps_simulated"] = simulation_params['n_timesteps_simulated']

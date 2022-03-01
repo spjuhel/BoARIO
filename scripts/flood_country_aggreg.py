@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='Aggregate an exio3 MRIO sectors')
 parser.add_argument('exio_path', type=str, help='The str path to the exio3 zip file')
 parser.add_argument('aggreg_path', type=str, help='The str path to the ods aggregation matrix file')
 parser.add_argument('sector_names_json_path', type=str, help='The str path to the json file with the new names of the sectors')
-#parser.add_argument('regions_aggregator_json_path', type=str, help='The str path to the json file with the regions aggregation', nargs='?', default=None)
+parser.add_argument('-r', "--region_agg", type=str, help='The str path to the json file with the regions aggregation', nargs='?', default=None)
 parser.add_argument('-o', "--output", type=str, help='The str path to save the pickled mrio to', nargs='?', default='./mrio_dump')
 
 args = parser.parse_args()
@@ -26,7 +26,7 @@ scriptLogger.addHandler(consoleHandler)
 scriptLogger.setLevel(logging.INFO)
 scriptLogger.propagate = False
 
-agg_dicts = [{'aggregates': {'MX': 'MX'}, 'missing': 'Rest of the world'},
+agg_dicts_default = [{'aggregates': {'MX': 'MX'}, 'missing': 'Rest of the world'},
  {'aggregates': {'NO': 'NO'}, 'missing': 'Rest of the world'},
  {'aggregates': {'NL': 'NL'}, 'missing': 'Rest of the world'},
  {'aggregates': {'RU': 'RU'}, 'missing': 'Rest of the world'},
@@ -98,4 +98,9 @@ def aggreg(exio_path, sector_aggregator_path, new_sectors_name_path, regions_agg
 if __name__ == '__main__':
     args = parser.parse_args()
     name = pathlib.Path(args.exio_path).stem
+    if args.region_agg is None:
+        agg_dicts = agg_dicts_default
+    else :
+        with pathlib.Path(args.region_agg).open('r') as f:
+            agg_dicts = json.load(f)
     aggreg(args.exio_path, args.aggreg_path, args.sector_names_json_path, regions_aggregator_dicts=agg_dicts, save_path=args.output)
