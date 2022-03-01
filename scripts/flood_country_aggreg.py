@@ -101,5 +101,6 @@ if __name__ == '__main__':
     if args.region_agg is None:
         agg_dicts = agg_dicts_default
     else :
-        agg_dicts = args.region_agg
+        with pathlib.Path(args.region_agg).open('r') as f:
+            agg_dicts = json.load(f)
     aggreg(args.exio_path, args.aggreg_path, args.sector_names_json_path, regions_aggregator_dicts=agg_dicts, save_path=args.output)
