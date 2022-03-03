@@ -1,5 +1,8 @@
 import os
+import re
 import sys
+
+from pandas.core.accessor import register_index_accessor
 module_path = os.path.abspath(os.path.join('../'))
 if module_path not in sys.path:
     sys.path.append(module_path)
@@ -21,6 +24,8 @@ import coloredlogs
 import numpy as np
 import pickle
 from datetime import datetime
+import argparse
+from glob import glob
 
 parser = argparse.ArgumentParser(description='Aggregate an exio3 MRIO sectors')
 parser.add_argument('main_folder', type=str, help='A folder which subfolders are results of run')
@@ -37,51 +42,71 @@ scriptLogger.propagate = False
 
 
 res = [{
-            "tot_fd_unmet": "unset",
-            "aff_fd_unmet": "unset",
-            "rebuild_durations": "unset",
-            "shortage_b": False,
-            "shortage_date_start": "unset",
-            "shortage_date_end": "unset",
-            "shortage_date_max": "unset",
-            "shortage_ind_max": "unset",
-            "shortage_ind_mean": "unset",
-            "10_first_shortages": "unset",
-            "prod_gain_tot": "unset",
-            "prod_lost_tot": "unset",
-            "prod_gain_unaff": "unset",
-            "prod_lost_unaff": "unset",
-            "region":"unset",
-            "q_dmg":"unset",
-            "pib": "unset",
-            "psi": "unset",
-            "inv_tau": "unset",
-            "flood_int":"unset",
-            "n_timesteps":"unset",
-            "has_crashed":"unset"
-            }]
+    "tot_fd_unmet": "unset",
+    "aff_fd_unmet": "unset",
+    "rebuild_durations": "unset",
+    "shortage_b": False,
+    "shortage_date_start": "unset",
+    "shortage_date_end": "unset",
+    "shortage_date_max": "unset",
+    "shortage_ind_max": "unset",
+    "shortage_ind_mean": "unset",
+    "10_first_shortages": "unset",
+    "prod_gain_tot": "unset",
+    "prod_lost_tot": "unset",
+    "prod_gain_unaff": "unset",
+    "prod_lost_unaff": "unset",
+    "region":"unset",
+    "q_dmg":"unset",
+    "gdp": "unset",
+    "type":"unset",
+    "psi": "unset",
+    "inv_tau": "unset",
+    "flood_int":"unset",
+    "n_timesteps":"unset",
+    "top_5_sector_loss":"unset",
+    "has_crashed":"unset"
+}]
 
-for v in dmgs:
-         qdmg = str(round(v, 3))
-         dir = (list(wd.glob(region+'_RoW_qdmg_'+qdmg+'*_inv_tau_6'))[0])
-         indic = Indicators.from_folder(dir, dir/"indexes.json")
-         indic.update_indicators()
-         res_a = indic.indicators.copy()
-         indic.write_indicators()
-         res_a['pib'] = v
-         res_a['region'] = region
-         res_a['flood_int'] = qdmg
-         res_a['psi'] = 0.85
-         res_a['inv_tau'] = 6
-         res.append(res_a)
+def batch(wd:pathlib.Path, out):
+    subdirs = [d for d in wd.iterdir() if d.is_dir()]
+    scriptLogger.info("Subdirs found : {}".format(subdirs))
+    for d in subdirs:
+        regex = re.compile(r"(?P<region>[A-Z]{2})_(?P<type>RoW|Full)_qdmg_(?P<dmg_type>(?P<gdp_dmg>[\d.]+)|(?P<flood_int>[\d.]+%))_Psi_(?P<psi>0_\d+)_inv_tau_(?P<inv_tau>\d+)")
+        m = regex.match(d.name)
+        if m is None :
+            scriptLogger.warning("Directory {} didn't match regex".format(d.name))
+        else:
+            regex_res = m.groupdict()
+            region = regex_res['region']
+            sce_type = regex_res['dmg_type']
+            qdmg = regex_res['gdp_dmg']
+            flood_int = regex_res['flood_int']
+            psi = regex_res['psi']
+            inv_tau = regex_res['inv_tau']
+            indic = Indicators.from_folder(d, d/"indexes.json")
+            indic.update_indicators()
+            res_a = indic.indicators.copy()
+            indic.write_indicators()
+            res_a['gdp'] = qdmg
+            res_a['region'] = region
+            res_a['flood_int'] = flood_int
+            res_a['psi'] = psi
+            res_a['inv_tau'] = inv_tau
+            res_a['type'] = sce_type
+            res.append(res_a)
 
-with (wd/".."/("indicators_"+datetime.now().strftime("%Y%m%d-%H%M")+".csv")).open('w') as f:
+    with (out/("indicators_"+datetime.now().strftime("%Y%m%d-%H%M")+".csv")).open('w') as f:
         w = csv.DictWriter(f, res[0].keys())
         w.writeheader()
         w.writerows(res)
 
 if __name__ == '__main__':
+    scriptLogger.info('Starting Script')
     args = parser.parse_args()
     wd = pathlib.Path(args.main_folder).resolve()
-    out = pathlib.Path(args.output).resolve()
-    
+    if args.output == '../':
+        out = pathlib.Path(args.main_folder+'/'+args.output).resolve()
+    else:
+        out = pathlib.Path(args.output).resolve()
+    batch(wd, out)
