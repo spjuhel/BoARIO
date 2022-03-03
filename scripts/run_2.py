@@ -129,6 +129,7 @@ if __name__ == "__main__":
             qdmg = str(round(v,6))
             event = event_template.copy()
             sim_params = params_template.copy()
+            event['r_dmg'] = v
             event['aff-regions'] = region
             event['q_dmg'] = dmg
             psi = sim_params['psi_param']
