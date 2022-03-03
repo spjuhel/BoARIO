@@ -126,7 +126,7 @@ if __name__ == "__main__":
         dmgs = np.linspace(dmgs_dict['80%'], dmgs_dict['max'], 6, endpoint=False)
         for  v in dmgs:
             dmg = gdp_df_pct[region] * v
-            qdmg = str(round(v,3))
+            qdmg = str(round(v,6))
             event = event_template.copy()
             sim_params = params_template.copy()
             event['aff-regions'] = region
