@@ -18,7 +18,7 @@ parser.add_argument('-o', "--output", type=str, help='The str path to save the p
 
 args = parser.parse_args()
 logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s] %(name)s %(message)s", datefmt="%H:%M:%S")
-scriptLogger = logging.getLogger("aggreg_axio3")
+scriptLogger = logging.getLogger("aggreg_exio3")
 consoleHandler = logging.StreamHandler()
 consoleHandler.setFormatter(logFormatter)
 

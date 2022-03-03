@@ -269,6 +269,9 @@ class Indicators(object):
         data_dict["limiting_stocks"] = np.memmap(results_path/"limiting_stocks_record", mode='r+', dtype='bool',shape=(t*indexes['n_sectors'],indexes['n_industries']))
         return data_dict
 
+    def calc_top_failing_sect(self):
+        pass
+
     def calc_tot_fd_unmet(self):
         self.indicators['tot_fd_unmet'] = self.df_loss['fdloss'].sum()
 
@@ -301,7 +304,7 @@ class Indicators(object):
             self.indicators['shortage_ind_max'] = c.max()
             self.indicators['shortage_ind_mean'] = c.iloc[shortage_date_start:shortage_date_end].mean()
 
-    def calc_shortage_extent(self):
+    def calc_first_shortages(self):
         a = self.df_limiting.stack([0,1]) #type: ignore
         a = a.swaplevel(1,2).swaplevel(2,3)
         b = a[a]
@@ -314,11 +317,13 @@ class Indicators(object):
         df2.columns=df2.columns.droplevel(0)
         prod_chg = df2 - df2.iloc[1,:]
         prod_chg = prod_chg.round(6)
+        prod_chg_sect = prod_chg.sum()
         self.indicators['prod_gain_tot'] = prod_chg.mul(prod_chg.gt(0)).sum().sum()
         self.indicators['prod_lost_tot'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum() * (-1)
         prod_chg = prod_chg.drop(self.aff_regions, axis=1)
         self.indicators['prod_gain_unaff'] = prod_chg.mul(prod_chg.gt(0)).sum().sum()
         self.indicators['prod_lost_unaff'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum() * (-1)
+        self.indicators['top_5_sector_loss'] = prod_chg_sect.sort_values().head(5).droplevel(0).to_dict()
 
     def update_indicators(self):
         logger.info("(Re)computing all indicators")
@@ -328,7 +333,7 @@ class Indicators(object):
         self.calc_recovery_duration()
         self.calc_general_shortage()
         self.calc_tot_prod_change()
-        self.calc_shortage_extent()
+        self.calc_first_shortages()
 
     def write_indicators(self):
         logger.info("Writing indicators to json")
