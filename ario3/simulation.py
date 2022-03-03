@@ -205,6 +205,7 @@ class Simulation(object):
         self.params['has_crashed'] = self.has_crashed
         with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_params.json").open('w') as f:
             json.dump(self.params, f, indent=4)
+        logger.info('Loop complete')
         if progress:
             bar.finish()
 

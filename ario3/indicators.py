@@ -114,7 +114,7 @@ class Indicators(object):
         self.aff_sectors = list(misc.flatten(self.aff_sectors))
         self.indicators = {
             "region" : self.aff_regions,
-            "q_dmg" : None,
+            "gdp_dmg_share" : data_dict['events'][0]['r_dmg'],
             "tot_fd_unmet": "unset",
             "aff_fd_unmet": "unset",
             "rebuild_durations": "unset",

@@ -159,7 +159,7 @@ class MrioSystem(object):
         inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
         self.inv_duration = np.array(inventories) / self.n_days_by_step
         self.inv_duration[self.inv_duration <= 1] = 2
-        restoration_tau = [(simulation_params['inventory_restoration_time'] / self.n_days_by_step) if v >= INV_THRESHOLD else v for v in inventories]
+        restoration_tau = [(int(simulation_params['inventory_restoration_time']) / self.n_days_by_step) if v >= INV_THRESHOLD else v for v in inventories]
         self.restoration_tau = np.array(restoration_tau)
         #np.full(self.n_sectors, simulation_params['inventory_restoration_time'])
 

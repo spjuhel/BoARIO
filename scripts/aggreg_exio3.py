@@ -33,7 +33,7 @@ def aggreg(exio_path, sector_aggregator_path, new_sectors_name_path, regions_agg
     if regions_aggregator_json_path is not None:
         with pathlib.Path(regions_aggregator_json_path).open('r') as f:
             b = json.load(f)
-    sec_agg_matrix = pd.read_excel(sector_aggregator_path, sheet_name="input", engine="odf", header=None).to_numpy()w
+    sec_agg_matrix = pd.read_excel(sector_aggregator_path, sheet_name="input", engine="odf", header=None).to_numpy()
     scriptLogger.info("Parsing exiobase3 from {}".format(pathlib.Path(exio_path).resolve()))
     exio3 = pym.parse_exiobase3(path=exio_path)
     scriptLogger.info("Done")
@@ -53,7 +53,7 @@ def aggreg(exio_path, sector_aggregator_path, new_sectors_name_path, regions_agg
                                            missing_countries=b['missing'])
         exio3.aggregate(region_agg=regions_aggregator)
     exio3.calc_all()
-    name = save_path+"_"+datetime.datetime.now().strftime("%Y%m%d-%H%M%S")+".pkl"
+    name = save_path
     scriptLogger.info("Saving to {}".format(pathlib.Path(name).absolute()))
     with open(name, 'wb') as f:
         pkl.dump(exio3, f)

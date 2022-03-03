@@ -1,0 +1,112 @@
+configfile: "workflow/config.json"
+
+ARIO_DIR = config["ARIO_DIR"]
+INPUT_DIR = config['INPUT_DIR']
+OUTPUT_DIR = config['OUTPUT_DIR']
+REGIONS = config['REGIONS']
+TYPES = config['TYPES']
+FLOOD_INT = config['FLOOD_INT']
+PSI = config['PSI']
+INV_TAU = config['INV_TAU']
+FLOOD_GDP_SHARE_FILE = config['FLOOD_GDP_SHARE_FILE']
+
+RUNS = expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU)
+
+rule all:
+    input:
+        RUNS
+
+rule indicators:
+    input:
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indexes.json",
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_X_max_record"
+    output:
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json"
+    conda:
+        "ario3"
+    shell:
+        """
+        nice -n 10 python {config[ARIO_DIR]}/scripts/indicator_from_folder.py '{config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/'
+        """
+
+rule run_RoW:
+    input:
+        mrio = INPUT_DIR + "mrio_{region}.pkl",
+        event_template = INPUT_DIR + "event_template.json",
+        params_file = INPUT_DIR + "params.json",
+        mrio_params = INPUT_DIR + "mrio_params.json"
+    output:
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indexes.json",
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_X_max_record"
+    conda:
+        "ario3"
+    params:
+        ario_dir = ARIO_DIR,
+        input_dir = INPUT_DIR,
+        output_dir = OUTPUT_DIR,
+        flood_gdp = FLOOD_GDP_SHARE_FILE
+    shell:
+        """
+        nice -n 10 python {config[ARIO_DIR]}/scripts/mono_run.py {wildcards.region} {input.params_file} {wildcards.psi} {wildcards.inv} RoW {wildcards.flood} {params.input_dir} {params.output_dir} {params.flood_gdp} {input.event_template} {input.mrio_params}
+        """
+
+rule run_Full:
+    input:
+        mrio = INPUT_DIR + "mrio_full.pkl",
+        event_template = INPUT_DIR + "event_template.json",
+        params_file = INPUT_DIR + "params.json",
+        mrio_params = INPUT_DIR + "mrio_params.json"
+    output:
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indexes.json",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_X_max_record"
+    conda:
+        "ario3"
+    params:
+        input_dir = INPUT_DIR,
+        output_dir = OUTPUT_DIR,
+        flood_gdp = FLOOD_GDP_SHARE_FILE
+    shell:
+        """
+        nice -n 10 python {config[ARIO_DIR]}/scripts/mono_run.py {wildcards.region} {input.params_file} {wildcards.psi} {wildcards.inv} Full {wildcards.flood} {params.input_dir} {params.output_dir} {params.flood_gdp} {input.event_template} {input.mrio_params}
+        """
+
+rule mrio_full:
+    input:
+        mrio_file = INPUT_DIR + "IOT_2019_ixi.zip",
+        sector_aggreg_file = INPUT_DIR + "133_74_sector_aggregation_exiobase3.ods",
+        sector_renaming_file = INPUT_DIR + "sector_renaming_74.json"
+    conda:
+        "ario3"
+    output:
+        INPUT_DIR + "mrio_full.pkl"
+    shell:
+        """
+        nice -n 10 python {config[ARIO_DIR]}/scripts/aggreg_exio3.py -o {output} {input.mrio_file} {input.sector_aggreg_file} {input.sector_renaming_file}
+        """
+
+rule mrio_region:
+    input:
+        mrio_file = INPUT_DIR + "IOT_2019_ixi.zip",
+        sector_aggreg_file = INPUT_DIR + "133_74_sector_aggregation_exiobase3.ods",
+        sector_renaming_file = INPUT_DIR + "sector_renaming_74.json",
+        region_aggreg_file = INPUT_DIR + "aggreg/{region}_aggreg.json"
+    conda:
+        "ario3"
+    output:
+        INPUT_DIR + "mrio_{region}.pkl"
+    shell:
+        """
+        nice -n 10 python {config[ARIO_DIR]}/scripts/aggreg_exio3.py -o {output} {input.mrio_file} {input.sector_aggreg_file} {input.sector_renaming_file} {input.region_aggreg_file}
+        """
+
+rule region_aggreg_dict:
+    output:
+        INPUT_DIR + "aggreg/{region}_aggreg.json"
+    run:
+        import json
+        dic = {
+            "aggregates":{str(wildcards.region):str(wildcards.region)},
+            "missing":"RoW"
+        }
+        with open(output[0],'w') as f:
+            json.dump(dic, f)
