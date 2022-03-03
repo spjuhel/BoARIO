@@ -23,9 +23,9 @@ from datetime import datetime
 
 # REGIONS presents both in JRC data and EXIOBASE3
 # We have to work on RoW
-#REGIONS = ['SI', 'PL', 'LV', 'BG', 'CZ', 'SE', 'KR', 'NO', 'HR', 'ES', 'JP', 'IN', 'BR', 'DE', 'CH', 'IE', 'EE', 'GB', 'ID', 'RU', 'GR', 'ZA', 'RO', 'MX', 'FI', 'AT', 'NL', 'US', 'IT', 'LT', 'FR', 'BE', 'HU', 'CA', 'AU', 'CN', 'TR', 'PT', 'SK']
+REGIONS = ['SI', 'PL', 'LV', 'BG', 'CZ', 'SE', 'KR', 'NO', 'HR', 'ES', 'JP', 'IN', 'BR', 'DE', 'CH', 'IE', 'EE', 'GB', 'ID', 'RU', 'GR', 'ZA', 'RO', 'MX', 'FI', 'AT', 'NL', 'US', 'IT', 'LT', 'FR', 'BE', 'HU', 'CA', 'AU', 'CN', 'TR', 'PT', 'SK']
 
-REGIONS = ['AT']
+#REGIONS = ['AT']
 
 LOGPATH = "/diskdata/cired/sjuhel/Data/Runs/Flood-Dottori/outputs/logs"
 LOGNAME = "run"
@@ -111,7 +111,7 @@ if __name__ == "__main__":
         gdp_df_pct = gdp_df*1000000
         rootLogger.info('Done !')
         rootLogger.info("Main storage dir is : {}".format(pathlib.Path(params_template['output_dir']).resolve()))
-        dmgs = { '1%': flood_gdp_share[region]['1%'],
+        dmgs_dict = { '1%': flood_gdp_share[region]['1%'],
                      '5%': flood_gdp_share[region]['5%'],
                      '10%': flood_gdp_share[region]['10%'],
                      '33%': flood_gdp_share[region]['33%'],
@@ -123,8 +123,10 @@ if __name__ == "__main__":
                      '99%': flood_gdp_share[region]['99%'],
                      'max': flood_gdp_share[region]['max']
                     }
-        for qdmg, v in dmgs.items():
+        dmgs = np.linspace(dmgs_dict['80%'], dmgs_dict['max'], 6, endpoint=False)
+        for  v in dmgs:
             dmg = gdp_df_pct[region] * v
+            qdmg = str(round(v,3))
             event = event_template.copy()
             sim_params = params_template.copy()
             event['aff-regions'] = region
