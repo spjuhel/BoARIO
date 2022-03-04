@@ -12,6 +12,12 @@ FLOOD_GDP_SHARE_FILE = config['FLOOD_GDP_SHARE_FILE']
 
 RUNS = expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU)
 
+TEST_RUN = RUNS[0]
+
+rule test:
+    input:
+        TEST_RUN
+
 rule all:
     input:
         RUNS
