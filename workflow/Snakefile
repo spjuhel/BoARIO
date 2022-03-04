@@ -31,7 +31,7 @@ rule indicators:
     conda:
         "ario3"
     benchmark:
-        OUTPUT_DIR + "benchmarks/indicators_{wildcards.region}_{wildcards.stype}.benchmark.txt"
+        OUTPUT_DIR + "benchmarks/indicators_{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}.benchmark.txt"
     shell:
         """
         nice -n 10 python {config[ARIO_DIR]}/scripts/indicator_from_folder.py '{config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/'
@@ -49,7 +49,7 @@ rule run_RoW:
     conda:
         "ario3"
     benchmark:
-        OUTPUT_DIR + "benchmarks/run_RoW_{wildcards.region}.benchmark.txt"
+        OUTPUT_DIR + "benchmarks/run_RoW_{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}.benchmark.txt"
     params:
         ario_dir = ARIO_DIR,
         input_dir = INPUT_DIR,
@@ -70,7 +70,7 @@ rule run_Full:
         OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indexes.json",
         OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_X_max_record"
     benchmark:
-        OUTPUT_DIR + "benchmarks/run_full.benchmark.txt"
+        OUTPUT_DIR + "benchmarks/run_{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}.benchmark.txt"
     conda:
         "ario3"
     params:
