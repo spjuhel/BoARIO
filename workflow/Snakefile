@@ -34,6 +34,7 @@ rule indicators:
         "ario3"
     resources:
         mem_mb=15000
+        disk_mb=500
     shell:
         """
         nice -n 10 python {config[ARIO_DIR]}/scripts/indicator_from_folder.py '{config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/'
@@ -52,6 +53,7 @@ rule run_RoW:
         "ario3"
     resources:
         mem_mb=3000
+        disk_mb=50
     params:
         ario_dir = ARIO_DIR,
         input_dir = INPUT_DIR,
@@ -75,6 +77,7 @@ rule run_Full:
     #    OUTPUT_DIR + "benchmarks/run_{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}.benchmark.txt"
     resources:
         mem_mb=4000
+        disk_mb=500
     conda:
         "ario3"
     params:
@@ -99,6 +102,7 @@ rule mrio_full:
 #        OUTPUT_DIR + "benchmarks/mrio_full.pkl.benchmark.txt"
     resources:
         mem_mb=6000
+        disk_mb=2000
     shell:
         """
         nice -n 10 python {config[ARIO_DIR]}/scripts/aggreg_exio3.py -o {output} {input.mrio_file} {input.sector_aggreg_file} {input.sector_renaming_file}
@@ -118,6 +122,7 @@ rule mrio_region:
 #        OUTPUT_DIR + "benchmarks/mrio_{region}.pkl.benchmark.txt"
     resources:
         mem_mb=6000
+        disk_mb=2000
     shell:
         """
         nice -n 10 python {config[ARIO_DIR]}/scripts/aggreg_exio3.py -o {output} {input.mrio_file} {input.sector_aggreg_file} {input.sector_renaming_file} {input.region_aggreg_file}
