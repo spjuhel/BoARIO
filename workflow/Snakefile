@@ -31,6 +31,11 @@ rule all_prod_indicators:
     input:
         INDICATORS_RUNS
 
+rule all_indicators_json:
+    input:
+        expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU)
+
+
 rule prod_indicators:
     input:
         OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/treated_df.feather",
@@ -41,7 +46,7 @@ rule prod_indicators:
         OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/prod_indicators.json"
     shell:
         """
-        nice -n 5 python {config[ARIO_DIR]}/scripts/other_indicators.py '{config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/' -o {config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/prod_indicators.json
+        nice -n 10 python {config[ARIO_DIR]}/scripts/other_indicators.py '{config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/' -o {config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/prod_indicators.json
         """
 
 rule mv_to_final:
@@ -110,7 +115,7 @@ rule indicators:
         disk_mb=500
     shell:
         """
-        nice -n 5 python {config[ARIO_DIR]}/scripts/indicator_from_folder.py '{config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/'
+        nice -n 10 python {config[ARIO_DIR]}/scripts/indicator_from_folder.py '{config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/'
         """
 
 rule run_RoW:
@@ -144,7 +149,7 @@ rule run_RoW:
         flood_gdp = FLOOD_GDP_SHARE_FILE
     shell:
         """
-        nice -n 5 python {config[ARIO_DIR]}/scripts/mono_run.py {wildcards.region} {input.params_file} {wildcards.psi} {wildcards.inv} RoW {wildcards.flood} {params.input_dir} {params.output_dir} {params.flood_gdp} {input.event_template} {input.mrio_params}
+        nice -n 10 python {config[ARIO_DIR]}/scripts/mono_run.py {wildcards.region} {input.params_file} {wildcards.psi} {wildcards.inv} RoW {wildcards.flood} {params.input_dir} {params.output_dir} {params.flood_gdp} {input.event_template} {input.mrio_params}
         """
 
 rule run_Full:
@@ -179,7 +184,7 @@ rule run_Full:
         flood_gdp = FLOOD_GDP_SHARE_FILE
     shell:
         """
-        nice -n 5 python {config[ARIO_DIR]}/scripts/mono_run.py {wildcards.region} {input.params_file} {wildcards.psi} {wildcards.inv} Full {wildcards.flood} {params.input_dir} {params.output_dir} {params.flood_gdp} {input.event_template} {input.mrio_params}
+        nice -n 10 python {config[ARIO_DIR]}/scripts/mono_run.py {wildcards.region} {input.params_file} {wildcards.psi} {wildcards.inv} Full {wildcards.flood} {params.input_dir} {params.output_dir} {params.flood_gdp} {input.event_template} {input.mrio_params}
         """
 
 rule mrio_full:
@@ -198,7 +203,7 @@ rule mrio_full:
         disk_mb=2000
     shell:
         """
-        nice -n 5 python {config[ARIO_DIR]}/scripts/aggreg_exio3.py -o {output} {input.mrio_file} {input.sector_aggreg_file} {input.sector_renaming_file}
+        nice -n 10 python {config[ARIO_DIR]}/scripts/aggreg_exio3.py -o {output} {input.mrio_file} {input.sector_aggreg_file} {input.sector_renaming_file}
         """
 
 rule mrio_region:
@@ -218,7 +223,7 @@ rule mrio_region:
         disk_mb=2000
     shell:
         """
-        nice -n 5 python {config[ARIO_DIR]}/scripts/aggreg_exio3.py -o {output} {input.mrio_file} {input.sector_aggreg_file} {input.sector_renaming_file} {input.region_aggreg_file}
+        nice -n 10 python {config[ARIO_DIR]}/scripts/aggreg_exio3.py -o {output} {input.mrio_file} {input.sector_aggreg_file} {input.sector_renaming_file} {input.region_aggreg_file}
         """
 
 rule region_aggreg_dict:
