@@ -35,6 +35,8 @@ rule prod_indicators:
     input:
         OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/treated_df.feather",
         OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/treated_df_loss.feather"
+    conda:
+        "ario3"
     output:
         OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/prod_indicators.json"
     shell:
