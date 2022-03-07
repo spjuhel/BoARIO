@@ -57,7 +57,7 @@ def produce_region_prod_loss_csv(folder,save_path):
             if future_df is None:
                 future_df = df.copy()
             else:
-                future_df.append(df)
+                pd.concat([future_df,df])
 
     future_df.to_csv(save_path)
 
