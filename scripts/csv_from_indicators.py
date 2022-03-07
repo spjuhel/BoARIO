@@ -47,14 +47,17 @@ def produce_general_csv(folder,save_path):
 def produce_region_prod_loss_csv(folder,save_path):
     future_df = None
     for ind in folder.glob('**/prod_indicators.json'):
-        with ind.open('r') as f:
-            dico = json.load(f)
-
-        df = pd.DataFrame(dico)
-        if future_df is None:
-            future_df = df.copy()
+        if ind.parent.name.contains("RoW"):
+            pass
         else:
-            future_df.append(df)
+            with ind.open('r') as f:
+                dico = json.load(f)
+
+            df = pd.DataFrame(dico)
+            if future_df is None:
+                future_df = df.copy()
+            else:
+                future_df.append(df)
 
     future_df.to_csv(save_path)
 
