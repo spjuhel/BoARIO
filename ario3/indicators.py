@@ -355,5 +355,5 @@ class Indicators(object):
             df_limiting['stock of'] = df_limiting['stock of'].astype("category")
             df_limiting['region'] = df_limiting['region'].astype("category")
             df_limiting['sector'] = df_limiting['sector'].astype("category")
-            df_limiting.to_feather(self.storage_path/"treated_df_loss.feather")
+            df_limiting.to_feather(self.storage_path/"treated_df_limiting.feather")
         #self.df_limiting.to_feather(self.storage_path/"treated_df_limiting.feather")

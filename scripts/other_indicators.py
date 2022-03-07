@@ -38,16 +38,29 @@ def prod_change_region(df):
     prod_chg = prod_chg.round(6)
     return prod_chg.sum().groupby('region').sum()
 
+def fd_loss_region(folder):
+    # TO CHANGE AFTER RECOMPUTATION OF treated_df_loss.feather
+    t=730
+    with (folder/"indexes.json").open('r') as f:
+        indexes = json.load(f)
+
+    a = np.memmap("../../../Data/Floods_Run_1/FR_type_Full_qdmg_0_005_Psi_0_85_inv_tau_6/final_demand_unmet_record", mode='r+', dtype='float64',shape=(t,indexes['n_regions']*indexes['n_sectors']))
+    df = pd.DataFrame(a, columns=pd.MultiIndex.from_product([indexes["regions"], indexes["sectors"]], names=['region','sector']))
+    return df.sum().groupby("region").sum()
+
 
 def produce_json(folder,save_path):
     if isinstance(folder,str):
         folder = pathlib.Path(folder)
     assert isinstance(folder,pathlib.Path)
     df = pd.read_feather(folder/"treated_df.feather")
-    #df_loss = pd.read_feather(folder/"treated_df_loss.feather")
+    df_loss = pd.read_feather(folder/"treated_df_loss.feather")
     # Production loss
     prod_chg_region = prod_change_region(df)
     prod_chg_region.to_json(save_path)
+    # FD loss
+
+
 
 if __name__ == '__main__':
     scriptLogger.info('Starting Script')
