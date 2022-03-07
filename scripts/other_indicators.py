@@ -39,6 +39,7 @@ def prod_change_region(df):
     return prod_chg.sum().groupby('region').sum()
 
 def fd_loss_region(folder):
+    pass
     # TO CHANGE AFTER RECOMPUTATION OF treated_df_loss.feather
 #    t=730
 #    with (folder/"indexes.json").open('r') as f:
