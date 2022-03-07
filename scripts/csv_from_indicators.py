@@ -47,7 +47,7 @@ def produce_general_csv(folder,save_path):
 def produce_region_prod_loss_csv(folder,save_path):
     future_df = None
     for ind in folder.glob('**/prod_indicators.json'):
-        if ind.parent.name.contains("RoW"):
+        if "RoW" in ind.parent.name:
             pass
         else:
             with ind.open('r') as f:
