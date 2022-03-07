@@ -3,6 +3,7 @@ configfile: "workflow/config.json"
 ARIO_DIR = config["ARIO_DIR"]
 INPUT_DIR = config['INPUT_DIR']
 OUTPUT_DIR = config['OUTPUT_DIR']
+FINAL_DIR = config['LONG_TERM_DIR']
 REGIONS = config['REGIONS']
 TYPES = config['TYPES']
 FLOOD_INT = config['FLOOD_INT']
@@ -10,11 +11,11 @@ PSI = config['PSI']
 INV_TAU = config['INV_TAU']
 FLOOD_GDP_SHARE_FILE = config['FLOOD_GDP_SHARE_FILE']
 
-RUNS = expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU)
+RUNS = expand(FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU)
 
-TEST_RUN_ROW = expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS[0], stype=TYPES[0], flood=FLOOD_INT[0], psi=PSI[0], inv=INV_TAU[0])
+TEST_RUN_ROW = expand(FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS[0], stype=TYPES[0], flood=FLOOD_INT[0], psi=PSI[0], inv=INV_TAU[0])
 
-TEST_RUN_FULL = expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS[0], stype=TYPES[1], flood=FLOOD_INT[0], psi=PSI[0], inv=INV_TAU[0])
+TEST_RUN_FULL = expand(FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS[0], stype=TYPES[1], flood=FLOOD_INT[0], psi=PSI[0], inv=INV_TAU[0])
 
 rule test:
     input:
@@ -24,12 +25,62 @@ rule all:
     input:
         RUNS
 
+rule mv_to_final:
+    input:
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indexes.json",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/classic_demand_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/final_demand_unmet_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_X_max_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_XVA_max_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/limiting_stocks_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/overprodvector_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/rebuild_demand_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/rebuild_prod_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulated_events.json",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulated_params.json",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulation.log"
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json"
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/treated_df.feather"
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/treated_df_loss.feather"
+    output:
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indexes.json",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/classic_demand_record",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/final_demand_unmet_record",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_X_max_record",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_XVA_max_record",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/limiting_stocks_record",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/overprodvector_record",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/rebuild_demand_record",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/rebuild_prod_record",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulated_events.json",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulated_params.json",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulation.log"
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json"
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/treated_df.feather"
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/treated_df_loss.feather"
+    shell:
+        """
+        mkdir -p {config[FINAL_DIR]}+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/
+        cp {config[OUTPUT_DIR]}+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/* {config[FINAL_DIR]}+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/
+        """
 rule indicators:
     input:
         OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indexes.json",
-        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_X_max_record"
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/classic_demand_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/final_demand_unmet_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_X_max_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_XVA_max_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/limiting_stocks_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/overprodvector_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/rebuild_demand_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/rebuild_prod_record",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulated_events.json",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulated_params.json",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulation.log"
     output:
         OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json"
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/treated_df.feather"
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/treated_df_loss.feather"
     conda:
         "ario3"
     resources:
@@ -48,7 +99,17 @@ rule run_RoW:
         mrio_params = INPUT_DIR + "mrio_params.json"
     output:
         OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indexes.json",
-        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_X_max_record"
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/classic_demand_record",
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/final_demand_unmet_record",
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_X_max_record",
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_XVA_max_record",
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/limiting_stocks_record",
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/overprodvector_record",
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/rebuild_demand_record",
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/rebuild_prod_record",
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulated_events.json",
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulated_params.json",
+        OUTPUT_DIR+"{region}_type_RoW_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulation.log"
     conda:
         "ario3"
     resources:
@@ -72,7 +133,17 @@ rule run_Full:
         mrio_params = INPUT_DIR + "mrio_params.json"
     output:
         OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indexes.json",
-        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_X_max_record"
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/classic_demand_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/final_demand_unmet_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_X_max_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/iotable_XVA_max_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/limiting_stocks_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/overprodvector_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/rebuild_demand_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/rebuild_prod_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulated_events.json",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulated_params.json",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/simulation.log"
     #benchmark:
     #    OUTPUT_DIR + "benchmarks/run_{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}.benchmark.txt"
     resources:
