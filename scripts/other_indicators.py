@@ -40,13 +40,13 @@ def prod_change_region(df):
 
 def fd_loss_region(folder):
     # TO CHANGE AFTER RECOMPUTATION OF treated_df_loss.feather
-    t=730
-    with (folder/"indexes.json").open('r') as f:
-        indexes = json.load(f)
+#    t=730
+#    with (folder/"indexes.json").open('r') as f:
+#        indexes = json.load(f)#
 
-    a = np.memmap("../../../Data/Floods_Run_1/FR_type_Full_qdmg_0_005_Psi_0_85_inv_tau_6/final_demand_unmet_record", mode='r+', dtype='float64',shape=(t,indexes['n_regions']*indexes['n_sectors']))
-    df = pd.DataFrame(a, columns=pd.MultiIndex.from_product([indexes["regions"], indexes["sectors"]], names=['region','sector']))
-    return df.sum().groupby("region").sum()
+#    a = np.memmap("../../../Data/Floods_Run_1/FR_type_Full_qdmg_0_005_Psi_0_85_inv_tau_6/final_demand_unmet_record", mode='r+', dtype='float64',shape=(t,indexes['n_regions']*indexes['n_sectors']))
+ #   df = pd.DataFrame(a, columns=pd.MultiIndex.from_product([indexes["regions"], indexes["sectors"]], names=['region','sector']))
+ #   return df.sum().groupby("region").sum()
 
 
 def produce_json(folder,save_path):
@@ -57,6 +57,7 @@ def produce_json(folder,save_path):
     df_loss = pd.read_feather(folder/"treated_df_loss.feather")
     # Production loss
     prod_chg_region = prod_change_region(df)
+    prod_chg_region = pd.DataFrame({folder.name:prod_chg_region}).T
     prod_chg_region.to_json(save_path)
     # FD loss
 
