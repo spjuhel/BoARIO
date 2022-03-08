@@ -52,9 +52,11 @@ def produce_json(folder,save_path):
     # Production loss
     prod_chg_region = prod_change_region(df)
     prod_chg_region = pd.DataFrame({folder.name:prod_chg_region}).T
-    prod_chg_region.to_json(save_path)
+    prod_chg_region.to_json(save_path+"/prod_chg.json")
     # FD loss
-
+    fd_loss_region_df = fd_loss_region(df_loss)
+    fd_loss_region_df = pd.DataFrame({folder.name:fd_loss_region_df}).T
+    fd_loss_region_df.to_json(save_path+"/fd_loss.json")
 
 
 if __name__ == '__main__':
