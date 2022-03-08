@@ -86,8 +86,8 @@ rule mv_to_final:
         FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/treated_df_loss.feather"
     shell:
         """
-        mkdir -p {params.final_dir}+"{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/
-        cp {params.final_dir}+"{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/* {params.final_dir}+"{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/
+        mkdir -p {params.final_dir}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/
+        cp {params.final_dir}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/* {params.final_dir}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/
         """
 
 rule indicators:
