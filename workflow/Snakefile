@@ -43,7 +43,7 @@ rule prod_indicators:
     conda:
         "ario3"
     output:
-        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/prod_chg.json"
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/prod_chg.json",
         OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/fd_loss.json"
     shell:
         """
