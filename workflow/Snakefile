@@ -13,7 +13,7 @@ FLOOD_GDP_SHARE_FILE = config['FLOOD_GDP_SHARE_FILE']
 
 RUNS = expand(FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU)
 
-INDICATORS_RUNS = expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/prod_indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU)
+PROD_INDICATORS_RUNS = expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/prod_chg.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU)
 
 TEST_RUN_ROW = expand(FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS[0], stype=TYPES[0], flood=FLOOD_INT[0], psi=PSI[0], inv=INV_TAU[0])
 
@@ -29,7 +29,7 @@ rule test:
 
 rule all_prod_indicators:
     input:
-        INDICATORS_RUNS
+        PROD_INDICATORS_RUNS
 
 rule all_indicators_json:
     input:
