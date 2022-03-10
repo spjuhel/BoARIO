@@ -28,7 +28,6 @@ parser.add_argument('flood_gdp_file', type=str, help='The share of gdp impacted 
 parser.add_argument('event_file', type=str, help='The event template file')
 parser.add_argument('mrio_params', type=str, help='The mrio parameters file')
 
-
 def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, flood_gdp_file, event_file, mrio_params):
     with open(params) as f:
         params_template = json.load(f)
@@ -83,7 +82,7 @@ def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, f
 if __name__ == "__main__":
     args = parser.parse_args()
     logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s] %(name)s %(message)s", datefmt="%H:%M:%S")
-    scriptLogger = logging.getLogger("generic_run - {}_{}_{}_{}_{}_{}".format(args.region, args.psi, args.inv_tau, args.stype, args.flood_int))
+    scriptLogger = logging.getLogger("generic_run - {}_{}_{}_{}_{}".format(args.region, args.psi, args.inv_tau, args.stype, args.flood_int))
     consoleHandler = logging.StreamHandler()
     consoleHandler.setFormatter(logFormatter)
     scriptLogger.addHandler(consoleHandler)
