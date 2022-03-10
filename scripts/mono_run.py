@@ -9,18 +9,11 @@ if module_path not in sys.path:
     sys.path.append(module_path)
 
 from ario3.simulation import Simulation
-from ario3.indicators import Indicators
-from ario3.logging_conf import DEBUGFORMATTER
 import json
-import pandas as pd
-import numpy as np
 import pathlib
-import csv
 import logging
-import coloredlogs
 import pickle
 import argparse
-from datetime import datetime
 
 parser = argparse.ArgumentParser(description="Produce indicators from one run folder")
 parser.add_argument('region', type=str, help='The region to run')
@@ -35,14 +28,6 @@ parser.add_argument('flood_gdp_file', type=str, help='The share of gdp impacted 
 parser.add_argument('event_file', type=str, help='The event template file')
 parser.add_argument('mrio_params', type=str, help='The mrio parameters file')
 
-logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s] %(name)s %(message)s", datefmt="%H:%M:%S")
-scriptLogger = logging.getLogger("generic_run")
-consoleHandler = logging.StreamHandler()
-consoleHandler.setFormatter(logFormatter)
-
-scriptLogger.addHandler(consoleHandler)
-scriptLogger.setLevel(logging.INFO)
-scriptLogger.propagate = False
 
 def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, flood_gdp_file, event_file, mrio_params):
     with open(params) as f:
@@ -96,6 +81,14 @@ def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, f
         scriptLogger.exception("There was a problem:")
 
 if __name__ == "__main__":
-    scriptLogger.info("=============== STARTING RUN ================")
     args = parser.parse_args()
+    logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s] %(name)s %(message)s", datefmt="%H:%M:%S")
+    scriptLogger = logging.getLogger("generic_run - {}_{}_{}_{}_{}_{}".format(args.region, args.psi, args.inv_tau, args.stype, args.flood_int))
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setFormatter(logFormatter)
+    scriptLogger.addHandler(consoleHandler)
+    scriptLogger.setLevel(logging.INFO)
+    scriptLogger.propagate = False
+
+    scriptLogger.info("=============== STARTING RUN ================")
     run(args.region, args.params, args.psi, int(args.inv_tau), args.stype, args.flood_int, args.input_dir, args.output_dir, args.flood_gdp_file, args.event_file, args.mrio_params)
