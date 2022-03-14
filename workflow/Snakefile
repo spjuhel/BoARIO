@@ -17,7 +17,7 @@ PROD_INDICATORS_RUNS = expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi
 
 TEST_RUN_ROW = expand(FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS[0], stype=TYPES[0], flood=FLOOD_INT[0], psi=PSI[0], inv=INV_TAU[0])
 
-TEST_RUN_FULL = expand(FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS[0], stype=TYPES[1], flood=FLOOD_INT[0], psi=PSI[0], inv=INV_TAU[0])
+TEST_RUN_FULL = expand(FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS[0], stype="RoW", flood=FLOOD_INT[0], psi=PSI[0], inv=INV_TAU[0])
 
 rule all:
     input:
