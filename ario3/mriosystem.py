@@ -63,13 +63,13 @@ class MrioSystem(object):
     monetary_unit : int
                     monetary unit prefix (i.e. if the tables unit is 10^6 € instead of 1 €, it should be set to 10^6).
     psi : float
-          Value of the psi parameter. (see :ref:`mathematical-background`).
+          Value of the psi parameter. (see :doc:`math`).
     model_timestep : int
                      The number of days between each step. (Current version of the model was not tested with other values than `1`).
     timestep_dividing_factor : int
                                Kinda deprecated, should be equal to `model_timestep`.
     rebuild_tau : int
-                  Value governing the rebuilding speed (see :ref:`mathematical-background`).
+                  Value governing the rebuilding speed (see :doc:`math`).
     overprod_max : float
                    Maximum factor of overproduction (default should be 1.25).
     overprod_tau : float
@@ -77,13 +77,13 @@ class MrioSystem(object):
     overprod_base : float
                     Base value of overproduction (Default to 0).
     inv_duration : numpy.ndarray of int
-                   Array of size `n_sectors` setting for each inputs the initial number of `model_timestep` of stock for the input. (see :ref:`mathematical-background`).
+                   Array of size `n_sectors` setting for each inputs the initial number of `model_timestep` of stock for the input. (see :doc:`math`).
     restoration_tau : numpy.ndarray of int
-                      Array of size `n_sector` setting for each inputs its characteristic restoration time with `model_timestep` days as unit. (see :ref:`mathematical-background`).
+                      Array of size `n_sector` setting for each inputs its characteristic restoration time with `model_timestep` days as unit. (see :doc:`math`).
     Z_0 : numpy.ndarray of float
-          2-dim array of size `(n_sectors * n_regions,n_sectors * n_regions)` representing the intermediate (transaction) matrix (see :ref:`mathematical-background`).
+          2-dim array of size `(n_sectors * n_regions,n_sectors * n_regions)` representing the intermediate (transaction) matrix (see :doc:`math`).
     Z_C : numpy.ndarray of float
-          2-dim array of size `(n_sectors, n_sectors * n_regions)` representing the intermediate (transaction) matrix aggregated by inputs (see :ref:`mathematical-background`).
+          2-dim array of size `(n_sectors, n_sectors * n_regions)` representing the intermediate (transaction) matrix aggregated by inputs (see :doc:`math`).
     Z_distrib : numpy.ndarray of float
                 `Z_0` normalised by `Z_C`, i.e. representing for each input the share of the total ordered transiting from an industry to another.
     Y_0 : numpy.ndarray of float
