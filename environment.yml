@@ -412,7 +412,6 @@ dependencies:
   - zope.interface=5.4.0=py38h7f8727e_0
   - zstd=1.4.9=haebb681_0
   - pip:
-    - coloredlogs==15.0.1
     - country-converter==0.7.4
     - humanfriendly==10.0
     - nptyping==1.4.4
