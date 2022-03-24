@@ -1,12 +1,425 @@
-pytest==6.2.5
-plotly==4.4.1
-pymrio==0.4.5
-numpy==1.17.4
-dash==2.1.0
-dash_bootstrap_components==1.0.2
-dash_extensions==0.0.67
-flask_caching==1.10.1
+affine==2.3.0
+aiohttp==3.7.4.post0
+aiohttp-cors==0.7.0
+aioredis==2.0.0
+aiosmtpd==1.4.2
+alabaster @ file:///home/ktietz/src/ci/alabaster_1611921544520/work
+amply==0.1.4
+anaconda-client @ file:///tmp/build/80754af9/anaconda-client_1635330891925/work
+anaconda-project @ file:///tmp/build/80754af9/anaconda-project_1637161053845/work
+anyio==3.3.1
+appdirs==1.4.4
+argh==0.26.2
+argon2-cffi==21.1.0
+arrow==0.13.1
+asn1crypto @ file:///tmp/build/80754af9/asn1crypto_1596577642040/work
+astroid==2.7.3
+astropy @ file:///tmp/build/80754af9/astropy_1638772087871/work
+async-generator==1.10
+async-timeout==3.0.1
+atomicwrites==1.4.0
+atpublic==2.3
+attrs==21.2.0
+autopep8==1.5.7
+Babel==2.9.1
+backcall==0.2.0
+backports.shutil-get-terminal-size @ file:///tmp/build/80754af9/backports.shutil_get_terminal_size_1608222128777/work
+bcrypt==3.2.0
+beautifulsoup4==4.10.0
+binaryornot @ file:///tmp/build/80754af9/binaryornot_1617751525010/work
+bitarray @ file:///tmp/build/80754af9/bitarray_1641817257091/work
+bkcharts==0.2
+black==20.8b1
+bleach==4.1.0
+blessings==1.7
+bokeh @ file:///tmp/build/80754af9/bokeh_1638349634419/work
+boto==2.49.0
+Bottleneck==1.3.2
+brotlipy==0.7.0
+cachetools==4.2.2
+cairocffi==1.2.0
+CairoSVG==2.5.2
+Cartopy==0.19.0.post1
+certifi==2021.5.30
+cffi==1.14.6
+chardet==4.0.0
+charset-normalizer==2.0.4
+chart-studio==1.1.0
+click==8.0.1
+click-plugins==1.1.1
+cligj==0.7.2
+cloudpickle==2.0.0
+clyent==1.2.2
+colorama==0.4.4
+coloredlogs==15.0.1
+colorful==0.5.4
+conda==4.11.0
+conda-content-trust @ file:///tmp/build/80754af9/conda-content-trust_1617045594566/work
+conda-pack @ file:///tmp/build/80754af9/conda-pack_1611163042455/work
+conda-package-handling @ file:///tmp/build/80754af9/conda-package-handling_1618262148928/work
+conda-token @ file:///tmp/build/80754af9/conda-token_1620076980546/work
+ConfigArgParse==1.5.2
+connection-pool==0.0.3
+contextily==1.1.0
+contextlib2 @ file:///Users/ktietz/demo/mc3/conda-bld/contextlib2_1630668244042/work
+cookiecutter @ file:///tmp/build/80754af9/cookiecutter_1617748928239/work
+country-converter==0.7.4
+coverage==5.5
+cryptography==3.4.8
+cssselect2==0.4.1
+cycler==0.10.0
+Cython @ file:///tmp/build/80754af9/cython_1639474574311/work
+cytoolz==0.11.0
+daal4py==2021.4.0
+dask==2021.9.0
+datrie==0.8.2
+debugpy==1.4.3
+decorator==5.1.0
+defusedxml==0.7.1
+deprecation==2.1.0
+descartes==1.1.0
+diff-match-patch @ file:///Users/ktietz/demo/mc3/conda-bld/diff-match-patch_1630511840874/work
+distributed @ file:///tmp/build/80754af9/distributed_1635968203122/work
+distro==1.6.0
+distro-info==0.0.0
+dnspython==2.1.0
+docopt==0.6.2
+docutils==0.17.1
+earthpy==0.9.2
+entrypoints==0.3
+epc==0.0.5
+et-xmlfile==1.1.0
+fastcache==1.1.0
+fasteners==0.16.3
+filelock==3.0.12
+Fiona==1.8.20
+flake8==3.9.2
+Flask @ file:///home/ktietz/src/ci/flask_1611932660458/work
+fonttools==4.25.0
+fsspec==2021.8.1
+geographiclib==1.52
+geopandas==0.9.0
+geoplot==0.4.4
+geopy==2.2.0
+gevent @ file:///tmp/build/80754af9/gevent_1628273677693/work
+gitdb==4.0.7
+GitPython==3.1.18
+glob2 @ file:///home/linux1/recipes/ci/glob2_1610991677669/work
+gmpy2==2.0.8
+google-api-core==2.0.1
+google-auth==2.0.2
+googleapis-common-protos==1.53.0
+gpustat==0.6.0
+greenlet @ file:///tmp/build/80754af9/greenlet_1628887725296/work
+grpcio==1.40.0
+guake==3.7.0
+guppy3==3.1.1
+h5py==2.10.0
+HeapDict @ file:///Users/ktietz/demo/mc3/conda-bld/heapdict_1630598515714/work
+hiredis==2.0.0
+html5lib==1.1
+httplib2==0.19.1
+humanfriendly==10.0
+icc-rt==2020.0.133
+idna==2.10
+imagecodecs @ file:///tmp/build/80754af9/imagecodecs_1635529103369/work
+imageio==2.9.0
+imagesize @ file:///tmp/build/80754af9/imagesize_1637939814114/work
+importlib-metadata==4.8.1
+importmagic==0.1.7
+inflection==0.5.1
+iniconfig==1.1.1
+intel-openmp==2021.3.0
+intervaltree @ file:///Users/ktietz/demo/mc3/conda-bld/intervaltree_1630511889664/work
+ipykernel==6.4.1
+ipympl==0.7.0
+ipython==7.27.0
+ipython-genutils==0.2.0
+ipython-memory-usage==1.7
+ipywidgets==7.6.4
+iso-639==0.4.5
+iso3166==1.0.1
+isodate==0.6.0
+isort==5.9.3
+itsdangerous @ file:///tmp/build/80754af9/itsdangerous_1621432558163/work
+jdcal @ file:///Users/ktietz/demo/mc3/conda-bld/jdcal_1630584345063/work
+jedi==0.17.2
+jeepney==0.7.1
+Jinja2==3.0.1
+jinja2-time @ file:///tmp/build/80754af9/jinja2-time_1617751524098/work
+joblib==1.0.1
+json5==0.9.6
+jsonschema==3.2.0
+jupyter==1.0.0
+jupyter-client==7.0.2
+jupyter-console==6.4.0
+jupyter-core==4.7.1
+jupyter-packaging==0.10.4
+jupyter-server==1.11.0
+jupyterlab==3.1.11
+jupyterlab-pygments==0.1.2
+jupyterlab-server==2.8.1
+jupyterlab-widgets==1.0.1
+keyring==23.2.1
+kiwisolver==1.3.2
+launchpadlib==1.10.14
+lazr.restfulclient==0.14.4
+lazr.uri==1.0.6
+lazy-object-proxy==1.6.0
+libarchive-c @ file:///tmp/build/80754af9/python-libarchive-c_1617780486945/work
+line-profiler==3.3.0
+livestreamer==1.12.2
+llvmlite==0.37.0
+locket==0.2.1
+lxml==4.6.3
+Mako==1.1.5
+mapclassify==2.4.3
+MarkupSafe==2.0.1
+matplotlib==3.4.3
+matplotlib-inline==0.1.3
+mccabe==0.6.1
+memory-profiler==0.58.0
+mercantile==1.2.1
+mistune==0.8.4
+mkl-fft==1.3.1
+mkl-random @ file:///tmp/build/80754af9/mkl_random_1626186064646/work
+mkl-service==2.4.0
+mock @ file:///tmp/build/80754af9/mock_1607622725907/work
+monotonic==1.6
+more-itertools==8.9.0
+mplcursors==0.4
+mpmath==1.2.1
+msgpack==1.0.2
+multidict==5.1.0
+multipledispatch==0.6.0
+munch==2.5.0
+munkres==1.1.4
+mypy==0.910
+mypy-extensions==0.4.3
+nbclassic==0.3.1
+nbclient==0.5.4
+nbconvert==6.1.0
+nbformat==5.1.3
+nest-asyncio==1.5.1
+netifaces==0.11.0
+networkx==2.6.3
+nltk==3.6.5
+nose @ file:///opt/conda/conda-bld/nose_1642704612149/work
+notebook==6.4.3
 nptyping==1.4.4
+numba @ file:///tmp/build/80754af9/numba_1600100669015/work
+numexpr==2.7.3
+numpy==1.20.0
+numpydoc @ file:///opt/conda/conda-bld/numpydoc_1643788541039/work
 numpyencoder==0.3.0
-pandas==1.4.0
-progressbar33==2.4
+nvidia-ml-py3==7.352.0
+oauthlib==3.1.1
+odfpy==1.4.1
+olefile @ file:///Users/ktietz/demo/mc3/conda-bld/olefile_1629805411829/work
+opencensus==0.7.13
+opencensus-context==0.1.2
+openpyxl @ file:///tmp/build/80754af9/openpyxl_1632777717936/work
+orjson==3.6.7
+OWSLib==0.25.0
+packaging==21.0
+pandas==1.3.5
+pandocfilters==1.4.3
+paramiko==2.7.2
+parso==0.7.1
+partd==1.2.0
+path @ file:///opt/conda/conda-bld/path_1641578212155/work
+pathlib2 @ file:///tmp/build/80754af9/pathlib2_1625585678054/work
+pathspec==0.9.0
+patsy==0.5.2
+pbr==5.6.0
+pep8==1.7.1
+pexpect==4.8.0
+pickleshare==0.7.5
+Pillow==8.3.2
+pipreqs==0.4.10
+pkginfo @ file:///tmp/build/80754af9/pkginfo_1643162084911/work
+platformdirs==2.3.0
+plotly==5.3.1
+pluggy==1.0.0
+ply==3.11
+poyo @ file:///tmp/build/80754af9/poyo_1617751526755/work
+pprintpp==0.4.0
+progressbar2==3.37.1
+prometheus-client==0.11.0
+prompt-toolkit==3.0.20
+protobuf==3.17.3
+psutil==5.8.0
+ptvsd==4.3.2
+ptyprocess==0.7.0
+PuLP==2.5.0
+py==1.10.0
+py-spy==0.3.9
+pyarrow==5.0.0
+pyasn1==0.4.8
+pyasn1-modules==0.2.8
+pycairo==1.20.1
+pyclustering==0.10.1.2
+pycodestyle==2.7.0
+pycosat==0.6.3
+pycountry==20.7.3
+pycountry-convert==0.7.2
+pycparser==2.20
+pycryptodome==3.10.1
+pycurl==7.44.0
+pydocstyle==6.1.1
+pyee==8.2.2
+pyerfa @ file:///tmp/build/80754af9/pyerfa_1621560806183/work
+pyflakes==2.3.1
+Pygments==2.10.0
+PyJWT==2.1.0
+pylint==2.10.2
+pyls==0.1.6
+pyls-black==0.4.7
+pyls-isort==0.2.2
+pyls-mypy==0.1.8
+pyls-spyder==0.4.0
+pymrio @ file:///home/conda/feedstock_root/build_artifacts/pymrio_1637263118694/work
+PyNaCl==1.4.0
+pyodbc===4.0.0-unsupported
+pyOpenSSL @ file:///tmp/build/80754af9/pyopenssl_1635333100036/work
+pyparsing==2.4.7
+pyppeteer==0.2.6
+pyproj==3.2.0
+PyQt5==5.15.4
+PyQt5-Qt5==5.15.2
+PyQt5-sip==12.9.0
+pyrsistent==0.18.0
+pyshp==2.1.3
+PySocks==1.7.1
+pytest==6.2.5
+pytest-cov==2.12.1
+pytest-mock==3.6.1
+pytest-runner @ file:///tmp/build/80754af9/pytest-runner_1623663836848/work
+python-dateutil==2.8.2
+python-debian==0.1.40
+python-jsonrpc-server==0.4.0
+python-language-server==0.36.2
+python-lsp-black @ file:///tmp/build/80754af9/python-lsp-black_1634232156041/work
+python-lsp-jsonrpc==1.0.0
+python-lsp-server==1.2.2
+python-slugify @ file:///tmp/build/80754af9/python-slugify_1620405669636/work
+python-utils==2.5.6
+pytz==2021.1
+PyWavelets==1.1.1
+pyxdg==0.27
+PyYAML==5.4.1
+pyzmq==22.2.1
+QDarkStyle @ file:///tmp/build/80754af9/qdarkstyle_1617386714626/work
+qstylizer @ file:///tmp/build/80754af9/qstylizer_1617713584600/work/dist/qstylizer-0.1.10-py2.py3-none-any.whl
+QtAwesome @ file:///tmp/build/80754af9/qtawesome_1637160816833/work
+qtconsole==5.1.1
+QtPy==1.11.0
+rasterio==1.2.8
+ratelimiter==1.2.0.post0
+ray==1.6.0
+redis==3.5.3
+regex==2021.8.28
+reportlab==3.6.1
+repoze.lru==0.7
+requests==2.26.0
+retrying @ file:///Users/ktietz/demo/mc3/conda-bld/retrying_1629465456590/work
+reverse-geocoder==1.5.1
+rioxarray==0.7.0
+rope==0.19.0
+rsa==4.7.2
+Rtree==0.9.7
+ruamel-yaml-conda @ file:///tmp/build/80754af9/ruamel_yaml_1616016699510/work
+scikit-image==0.18.3
+scikit-learn==0.24.2
+scikit-learn-intelex==2021.20211201.174538
+scipy==1.7.1
+seaborn==0.11.2
+SecretStorage==3.3.1
+Send2Trash==1.8.0
+sexpdata==0.0.3
+Shapely @ file:///tmp/build/80754af9/shapely_1632813486044/work
+simplegeneric==0.8.1
+simplejson==3.17.5
+singledispatch @ file:///tmp/build/80754af9/singledispatch_1629321204894/work
+sip==6.1.1
+six==1.16.0
+sklearn==0.0
+smart-open==5.2.1
+smmap==4.0.0
+snakemake==6.8.0
+snakeviz==2.1.0
+sniffio==1.2.0
+snowballstemmer==2.1.0
+snuggs==1.4.7
+sortedcollections @ file:///tmp/build/80754af9/sortedcollections_1611172717284/work
+sortedcontainers @ file:///tmp/build/80754af9/sortedcontainers_1623949099177/work
+soupsieve==2.2.1
+Sphinx @ file:///tmp/build/80754af9/sphinx_1616268783226/work
+sphinxcontrib-applehelp @ file:///home/ktietz/src/ci/sphinxcontrib-applehelp_1611920841464/work
+sphinxcontrib-devhelp @ file:///home/ktietz/src/ci/sphinxcontrib-devhelp_1611920923094/work
+sphinxcontrib-htmlhelp @ file:///tmp/build/80754af9/sphinxcontrib-htmlhelp_1623945626792/work
+sphinxcontrib-jsmath @ file:///home/ktietz/src/ci/sphinxcontrib-jsmath_1611920942228/work
+sphinxcontrib-qthelp @ file:///home/ktietz/src/ci/sphinxcontrib-qthelp_1611921055322/work
+sphinxcontrib-serializinghtml @ file:///tmp/build/80754af9/sphinxcontrib-serializinghtml_1624451540180/work
+sphinxcontrib-websupport @ file:///tmp/build/80754af9/sphinxcontrib-websupport_1597081412696/work
+spyder @ file:///tmp/build/80754af9/spyder_1636480225430/work
+spyder-kernels @ file:///tmp/build/80754af9/spyder-kernels_1634236926649/work
+SQLAlchemy @ file:///tmp/build/80754af9/sqlalchemy_1638290671404/work
+statsmodels @ file:///tmp/build/80754af9/statsmodels_1635163029030/work
+stopit==1.1.2
+streamlink==2.4.0
+swifter==1.0.9
+sympy @ file:///tmp/build/80754af9/sympy_1635237063176/work
+tables==3.6.1
+tabulate==0.8.9
+TBB==0.2
+tblib @ file:///Users/ktietz/demo/mc3/conda-bld/tblib_1629402031467/work
+tenacity==8.0.1
+terminado==0.12.1
+testpath==0.5.0
+testresources==2.0.1
+text-unidecode @ file:///Users/ktietz/demo/mc3/conda-bld/text-unidecode_1629401354553/work
+textdistance @ file:///tmp/build/80754af9/textdistance_1612461398012/work
+threadpoolctl==2.2.0
+three-merge @ file:///tmp/build/80754af9/three-merge_1607553261110/work
+tifffile==2021.8.30
+tinycss @ file:///tmp/build/80754af9/tinycss_1617713798712/work
+tinycss2==1.1.0
+toml==0.10.2
+tomlkit==0.7.2
+toolz==0.11.1
+toposort==1.6
+tornado==6.1
+tqdm==4.62.2
+traitlets==5.1.0
+typed-ast==1.4.3
+typing-extensions==3.10.0.2
+typish==1.9.3
+ujson==4.1.0
+unicodecsv==0.14.1
+Unidecode @ file:///tmp/build/80754af9/unidecode_1614712377438/work
+urllib3==1.26.6
+vermin==1.2.2
+wadllib==1.3.5
+watchdog @ file:///tmp/build/80754af9/watchdog_1638366565112/work
+wcwidth==0.2.5
+webencodings==0.5.1
+websocket-client==1.2.1
+websockets==9.1
+Werkzeug @ file:///tmp/build/80754af9/werkzeug_1635505089296/work
+whichcraft @ file:///tmp/build/80754af9/whichcraft_1617751293875/work
+widgetsnbextension==3.5.1
+wrapt==1.12.1
+wurlitzer @ file:///tmp/build/80754af9/wurlitzer_1638354972036/work
+xarray==0.19.0
+xcffib==0.11.1
+xlrd==2.0.1
+XlsxWriter @ file:///tmp/build/80754af9/xlsxwriter_1636633762820/work
+xlwt==1.3.0
+yapf==0.31.0
+yarg==0.1.9
+yarl==1.6.3
+zict==2.0.0
+zipp==3.5.0
+zope.event==4.5.0
+zope.interface @ file:///tmp/build/80754af9/zope.interface_1625035545636/work

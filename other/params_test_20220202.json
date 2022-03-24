@@ -1,6 +1,5 @@
 {
     "results_storage": "results",
-    "bool_run_detailled": true,
     "register_stocks": true,
     "psi_param": 0.85,
     "model_time_step": 1,

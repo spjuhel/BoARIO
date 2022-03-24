@@ -3,7 +3,6 @@ import pathlib
 import pymrio as pym
 import numpy as np
 from nptyping import NDArray
-from typing import Any, Union
 from ario3 import logger
 from pymrio.core.mriosystem import IOSystem
 

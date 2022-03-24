@@ -2,7 +2,6 @@ import os
 import re
 import sys
 
-from pandas.core.accessor import register_index_accessor
 module_path = os.path.abspath(os.path.join('../'))
 if module_path not in sys.path:
     sys.path.append(module_path)
@@ -11,21 +10,12 @@ module_path = os.path.abspath(os.path.join('./'))
 if module_path not in sys.path:
     sys.path.append(module_path)
 
-from ario3.simulation import Simulation
 from ario3.indicators import Indicators
-from ario3.logging_conf import DEBUGFORMATTER
-import json
-import pandas as pd
-import numpy as np
 import pathlib
 import csv
 import logging
-import coloredlogs
-import numpy as np
-import pickle
 from datetime import datetime
 import argparse
-from glob import glob
 
 parser = argparse.ArgumentParser(description='Aggregate an exio3 MRIO sectors')
 parser.add_argument('main_folder', type=str, help='A folder which subfolders are results of run')

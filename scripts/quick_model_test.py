@@ -11,10 +11,8 @@ if module_path not in sys.path:
 from ario3.simulation import Simulation
 from ario3.indicators import Indicators
 import json
-import pandas as pd
 import numpy as np
 import pathlib
-import csv
 import argparse
 import logging
 
