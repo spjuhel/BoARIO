@@ -12,10 +12,10 @@ import progressbar
 import pymrio as pym
 from pymrio.core.mriosystem import IOSystem
 
-from ario3.event import Event
-from ario3.mriosystem import MrioSystem
-from ario3 import logger
-from ario3.logging_conf import DEBUGFORMATTER
+from boario.event import Event
+from boario.mriosystem import MrioSystem
+from boario import logger
+from boario.logging_conf import DEBUGFORMATTER
 
 __all__=['Simulation']
 

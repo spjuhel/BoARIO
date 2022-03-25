@@ -1,5 +1,5 @@
 import coloredlogs, logging
-from ario3.logging_conf import INFOFORMATTER, DEBUGFORMATTER
+from boario.logging_conf import INFOFORMATTER, DEBUGFORMATTER
 
 # Create a logger object.
 logger = logging.getLogger(__name__)

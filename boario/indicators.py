@@ -1,14 +1,14 @@
 from typing import Union
-from ario3.simulation import Simulation
+from boario.simulation import Simulation
 import numpyencoder
 import json
 import pathlib
 import numpy as np
 import pandas as pd
 import itertools
-from ario3.utils import misc
+from boario.utils import misc
 import dask.dataframe as da
-from ario3 import logger
+from boario import logger
 
 __all__ = ['Indicators']
 

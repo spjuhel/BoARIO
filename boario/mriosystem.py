@@ -3,7 +3,7 @@ import pathlib
 import pymrio as pym
 import numpy as np
 from nptyping import NDArray
-from ario3 import logger
+from boario import logger
 from pymrio.core.mriosystem import IOSystem
 
 __all__ = ['MrioSystem']
