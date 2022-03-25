@@ -1,5 +1,5 @@
 Welcome to BoARIO's documentation!
-=================================
+==================================
 
 .. toctree::
    :maxdepth: 3
