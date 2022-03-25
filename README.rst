@@ -1,13 +1,13 @@
 #######
-ARIO³
+BoARIO
 #######
 
-ARIO³ : Adaptative Regional Input Output Object-Oriented in python.
+BoARIO : Adaptative Regional Input Output python.
 
-What is ARIO³ ?
+What is BoARIO ?
 =================
 
-ARIO³, is an object-oriented python implementation project of the Adaptative Regional Input Output (ARIO) model [`Hallegatte 2013`_].
+BoARIO, is a python implementation project of the Adaptative Regional Input Output (ARIO) model [`Hallegatte 2013`_].
 
 Its objectives are to give an accessible and inter-operable implementation of ARIO, as well as tools to visualize and analyze simulation outputs and to
 evaluate the effects of many parameters of the model.
@@ -23,12 +23,12 @@ It is still an ongoing project (in parallel of a PhD project).
 Where to get it ?
 ===================
 
-The full source code is available on Github at: https://github.com/spjuhel/ario3
+The full source code is available on Github at: https://github.com/spjuhel/BoARIO
 
-How does ARIO³ work?
+How does BoARIO work?
 ======================
 
-In a nutshell, ARIO³ takes the following inputs :
+In a nutshell, BoARIO takes the following inputs :
 
 - an IO table (such as EXIOBASE or EORA26) in the form of an `IOSystem` object (define by the `pymrio` package)
 
@@ -150,7 +150,7 @@ This script will produce files in ``~/ARIO3/storage/results/`` :
  - ``simulated_events.json`` : A json record of the events that were simulated
    during the loop.
 
- - ``indicators.json`` : A json record (produced by :py:meth:`.Indicators.write_indicators`)
+ - ``indicators.json`` : A json record (produced by :func:`~boario.indicators.Indicators.write_indicators`)
    of the computed indicators.
 
  - ``record`` files. These are :py:class:`numpy.memmap`:
