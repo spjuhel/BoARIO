@@ -8,8 +8,8 @@ module_path = os.path.abspath(os.path.join('./'))
 if module_path not in sys.path:
     sys.path.append(module_path)
 
-from ario3.simulation import Simulation
-from ario3.indicators import Indicators
+from boario.simulation import Simulation
+from boario.indicators import Indicators
 import json
 import numpy as np
 import pathlib

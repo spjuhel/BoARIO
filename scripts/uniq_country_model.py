@@ -8,8 +8,8 @@ module_path = os.path.abspath(os.path.join('./'))
 if module_path not in sys.path:
     sys.path.append(module_path)
 
-from ario3.simulation import Simulation
-from ario3.logging_conf import DEBUGFORMATTER
+from boario.simulation import Simulation
+from boario.logging_conf import DEBUGFORMATTER
 import json
 import pathlib
 import logging
