@@ -1,7 +1,7 @@
-ario3
-=====
+boario
+======
 
 .. toctree::
    :maxdepth: 4
 
-   ario3
+   boario

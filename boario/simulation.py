@@ -235,7 +235,7 @@ class Simulation(object):
 
         6) If at least min_steps_check steps of the simulation were run, it checks for a possible crash of the economy in the model (a crash being defined by more than a third of all industries having close to null production) or an equilibrium (see :func:`~ario3.mriosystem.MrioSystem.check_crash` and :func:`ario3.mriosystem:MrioSystem.check_production_eq_soft`).
 
-        See :ref:`Mathematical background <ario3-math>` section for more in depth information.
+        See :ref:`Mathematical background <boario-math>` section for more in depth information.
 
         Parameters
         ----------
