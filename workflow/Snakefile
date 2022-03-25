@@ -113,7 +113,7 @@ rule indicators:
     conda:
         "ario3"
     resources:
-        mem_mb=15000,
+        mem_mb=18000,
         disk_mb=500
     shell:
         """
@@ -142,7 +142,7 @@ rule run_RoW:
     conda:
         "ario3"
     resources:
-        mem_mb=3000,
+        mem_mb=4000,
         disk_mb=50
     params:
         ario_dir = ARIO_DIR,
@@ -176,7 +176,7 @@ rule run_Full:
     #benchmark:
     #    OUTPUT_DIR + "benchmarks/run_{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}.benchmark.txt"
     resources:
-        mem_mb=4000,
+        mem_mb=5000,
         disk_mb=500
     conda:
         "ario3"
