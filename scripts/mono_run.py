@@ -57,6 +57,7 @@ def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, f
     value_added[value_added < 0] = 0.0
     gdp_df = value_added.groupby('region',axis=1).sum().T['indout']
     gdp_df_pct = gdp_df*1000000
+    del mrio
     scriptLogger.info('Done !')
     scriptLogger.info("Main storage dir is : {}".format(pathlib.Path(params_template['output_dir']).resolve()))
     v = flood_gdp_share[region][flood_int]

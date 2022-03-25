@@ -26,6 +26,26 @@ VA_idx = np.array(['Taxes less subsidies on products purchased: Total',
        'Operating surplus: Remaining net operating surplus'], dtype=object)
 
 def lexico_reindex(mrio: pym.IOSystem) -> pym.IOSystem:
+    """Reindex IOSystem lexicographicaly
+
+    Sort indexes and columns of the dataframe of a :ref:`pymrio.IOSystem` by
+    lexical order.
+
+    Parameters
+    ----------
+    mrio : pym.IOSystem
+        The IOSystem to sort
+
+    Returns
+    -------
+    pym.IOSystem
+        The sorted IOSystem
+
+    Examples
+    --------
+    FIXME: Add docs.
+
+    """
 
     mrio.Z = mrio.Z.reindex(sorted(mrio.Z.index), axis=0)
     mrio.Z = mrio.Z.reindex(sorted(mrio.Z.columns), axis=1)
@@ -124,6 +144,7 @@ class MrioSystem(object):
         super().__init__()
 
         self.results_storage = results_storage
+        logger.info("Results storage is: {}".format(self.results_storage))
         self.regions = np.array(sorted(list(pym_mrio.get_regions()))) #type: ignore
         self.n_regions = len(pym_mrio.get_regions()) #type: ignore
         self.sectors = np.array(sorted(list(pym_mrio.get_sectors()))) #type: ignore
