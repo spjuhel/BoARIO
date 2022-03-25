@@ -1,3 +1,8 @@
+*.~undo-tree~
+.envrc
+.Rhistory
+.snakemake
+launch.json
 **/results/
 **/logs/
 **/mock_data/

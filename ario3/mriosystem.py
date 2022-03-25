@@ -478,11 +478,27 @@ class MrioSystem(object):
         return np.allclose(x[t], x[t-period], atol=0.0001)
 
     def check_crash(self, prod_threshold : float=0.80):
+        """Check for economic crash
+
+        This method look at the production vector and returns the number of
+        industries which production is less than a certain share (default 20%) of the starting
+        production.
+
+        Parameters
+        ----------
+        prod_threshold : float, default: 0.8
+            An industry is counted as 'crashed' if its current production is less than its starting production times (1 - `prod_threshold`).
+
+        Examples
+        --------
+        FIXME: Add docs.
+
+        """
         tmp = np.full(self.production.shape, 0.0)
         checker = np.full(self.production.shape, 0.0)
         mask = self.X_0 != 0
         np.subtract(self.X_0, self.production, out=tmp, where=mask)
-        np.divide(checker, self.X_0, out=checker, where=mask)
+        np.divide(tmp, self.X_0, out=checker, where=mask)
         return np.where(checker >= prod_threshold)[0].size
 
     def reset_module(self,

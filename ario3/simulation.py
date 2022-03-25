@@ -223,7 +223,7 @@ class Simulation(object):
         occur at the current step and if so, shock the model with the
         corresponding event. Then it :
 
-        1) computes the production capacity vector of the current step (using calc_production_cap())
+        1) Computes the production capacity vector of the current step (using calc_production_cap())
 
         2) Computes the actual production vector for the step.
 
@@ -233,7 +233,9 @@ class Simulation(object):
 
         5) Computes the new overproduction vector for the next step.
 
-        6) If at least min_steps_check steps of the simulation were run, it checks for a possible crash of the economy in the model (a crash being defined by more than a third of all industries having close to null production) or an equilibrium (see :py:meth:`~MrioSystem.mriosystem.check_crash` and :py:meth:`MrioSystem:mriosystem.check_production_eq_soft`).
+        6) If at least min_steps_check steps of the simulation were run, it checks for a possible crash of the economy in the model (a crash being defined by more than a third of all industries having close to null production) or an equilibrium (see :func:`~ario3.mriosystem.MrioSystem.check_crash` and :func:`ario3.mriosystem:MrioSystem.check_production_eq_soft`).
+
+        See :ref:`Mathematical background <ario3-math>` section for more in depth information.
 
         Parameters
         ----------
@@ -245,9 +247,7 @@ class Simulation(object):
             Minimum number of steps before checking for crash/equilibrium. If none, it is set to a fifth of the number of steps to simulate.
 
         min_failing_regions : int, default: None
-            Minimum number of 'failing regions' required to consider the economy has 'crashed' (see :py:meth:`mrio_system.check_crash`:).
-
-
+            Minimum number of 'failing regions' required to consider the economy has 'crashed' (see :func:`~ario3.mriosystem.MrioSystem.check_crash`:).
 
         Examples
         --------
@@ -292,6 +292,22 @@ class Simulation(object):
 
 
     def read_events_from_list(self, events_list):
+        """Import a list of events (as dicts) into the model.
+
+        Imports a list of events (as dictionnaries) into th model. Also does
+        various checks on the events to avoid badly written events.
+
+        Parameters
+        ----------
+        events_list :
+            List of events as dictionnaries.
+
+        Examples
+        --------
+        FIXME: Add docs.
+
+        """
+
         logger.info("Reading events from given list and adding them to the model")
         for ev_dic in events_list:
             if ev_dic['aff-sectors'] == 'all':
@@ -304,6 +320,27 @@ class Simulation(object):
             json.dump(events_list, f, indent=4)
 
     def read_events(self, events_file):
+        """Read events from a json file.
+
+        .. deprecated::
+            Method wasn't checked recently.
+
+        Parameters
+        ----------
+        events_file :
+            path to a json file
+
+        Raises
+        ------
+        FileNotFoundError
+            If file does not exist
+
+        Examples
+        --------
+        FIXME: Add docs.
+
+        """
+
         logger.info("Reading events from {} and adding them to the model".format(events_file))
         if not events_file.exists():
             raise FileNotFoundError("This file does not exist: ",events_file)
@@ -320,10 +357,25 @@ class Simulation(object):
                 self.events_timings.add(event['occur'])
 
     def shock(self, event_to_add):
-        """Sets the rebuilding demand and the share of production allocated toward it in the mrio system.
+        """Shocks the model with an event.
 
-        :param event:
-        :returns:
+        Sets the rebuilding demand and the share of production allocated toward
+        it in the mrio system.
+
+        Parameters
+        ----------
+        event_to_add : Event
+            The event to shock the model with.
+
+        Raises
+        ------
+        ValueError
+            Raised if the production share allocated to rebuilding (in either
+            the impacted regions or the others) is not in [0,1].
+
+        Examples
+        --------
+        FIXME: Add docs.
 
         """
         logger.info("Shocking model with new event")
@@ -401,6 +453,14 @@ class Simulation(object):
         self.mrio.update_kapital_lost()
 
     def reset_sim_with_same_events(self):
+        """Resets the model to its initial status (without removing the events).
+
+        Examples
+        --------
+        FIXME: Add docs.
+
+        """
+
         logger.info('Resetting model to initial status (with same events)')
         self.current_t = 0
         self._monotony_checker = 0
@@ -409,12 +469,33 @@ class Simulation(object):
         self.mrio.reset_module(self.params)
 
     def reset_sim_full(self):
+        """Resets the model to its initial status and remove all events.
+
+        Examples
+        --------
+        FIXME: Add docs.
+
+        """
+
         self.reset_sim_with_same_events()
         logger.info('Resetting events')
         self.events = []
         self.events_timings = set()
 
     def update_params(self, new_params):
+        """Update the parameters of the model.
+
+        Parameters
+        ----------
+        new_params : dict
+            New dictionnary of parameters to use.
+
+        Examples
+        --------
+        FIXME: Add docs.
+
+        """
+
         logger.info('Updating model parameters')
         self.params = new_params
         results_storage = pathlib.Path(self.params['output_dir']+"/"+self.params['results_storage'])
@@ -423,4 +504,17 @@ class Simulation(object):
         self.mrio.update_params(self.params)
 
     def write_index(self, index_file):
+        """Write the index of the dataframes in a json file.
+
+        Parameters
+        ----------
+        index_file : Union[str, pathlib.Path]
+            name of the file to save the indexes to.
+
+        Examples
+        --------
+        FIXME: Add docs.
+
+        """
+
         self.mrio.write_index(index_file)
