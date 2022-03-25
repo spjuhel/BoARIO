@@ -1,4 +1,4 @@
-.. _ario3-math:
+.. _boario-math:
 
 ########################
 Mathematical background

@@ -1,4 +1,4 @@
-Welcome to ARIO3's documentation!
+Welcome to BoARIO's documentation!
 =================================
 
 .. toctree::

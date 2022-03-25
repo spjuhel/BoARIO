@@ -4,7 +4,7 @@ API Reference
 
 API references for all modules
 
-.. currentmodule:: ario3
+.. currentmodule:: boario
 
 Subpackages
 ------------
