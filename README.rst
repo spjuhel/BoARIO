@@ -49,14 +49,14 @@ Example of use
 
 In this commented example, we run the model with one simple
 event using 'usual' parameters, and compute the aggregated indicators of the
-simulation. We suppose we run the following script from ``~/ARIO3/``
+simulation. We suppose we run the following script from ``~/boario/``
 
 .. code:: python
 
     # We import the base of the model
-    import ario3.simulation.base as sim
+    import boario.simulation.base as sim
     # We also import the indicators module
-    from ario3.indicators.indicators import Indicators
+    from boario.indicators.indicators import Indicators
     import pathlib
 
     # We instantiate a dictionary with the parameters
@@ -66,8 +66,8 @@ simulation. We suppose we run the following script from ``~/ARIO3/``
         # The name of the working directory to use (relative to current wd)
         "storage_dir": "storage",
         # The directory to use to store results (relative to storage_dir)
-        # i.e. here, the model will look for files in ~/ARIO3/storage/ and
-        # store results in ~/ARIO3/storage/results/
+        # i.e. here, the model will look for files in ~/boario/storage/ and
+        # store results in ~/boario/storage/results/
         "results_storage": "results",
         "bool_run_detailled": True,
         # This tells the model to register the evolution of the stocks
@@ -145,7 +145,7 @@ simulation. We suppose we run the following script from ``~/ARIO3/``
     indic.update_indicators()
     indic.write_indicators()
 
-This script will produce files in ``~/ARIO3/storage/results/`` :
+This script will produce files in ``~/boario/storage/results/`` :
 
  - ``simulated_events.json`` : A json record of the events that were simulated
    during the loop.
