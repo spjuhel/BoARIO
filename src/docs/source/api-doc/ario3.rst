@@ -1,45 +1,19 @@
 ario3 package
 =============
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   ario3.test
+.. automodule:: ario3
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
 
-ario3.event module
-------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: ario3.event
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-ario3.indicators module
------------------------
-
-.. automodule:: ario3.indicators
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-ario3.mriosystem module
------------------------
-
-.. automodule:: ario3.mriosystem
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-ario3.simulation module
------------------------
-
-.. automodule:: ario3.simulation
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   ario3.event
+   ario3.indicators
+   ario3.logging_conf
+   ario3.mriosystem
+   ario3.simulation

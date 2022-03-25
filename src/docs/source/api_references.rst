@@ -13,4 +13,3 @@ Subpackages
    :maxdepth: 4
 
    api-doc/modules
-   api-doc/ario3.test
