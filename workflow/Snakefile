@@ -15,7 +15,7 @@ def runs():
     if FINAL_DIR == OUTPUT_DIR:
         return expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU)
     else :
-        expand(FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU)
+        return expand(FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}/indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU)
 
 RUNS = runs()
 
