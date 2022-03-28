@@ -290,7 +290,6 @@ class Simulation(object):
         self.current_t+=1
         return 0
 
-
     def read_events_from_list(self, events_list):
         """Import a list of events (as dicts) into the model.
 
