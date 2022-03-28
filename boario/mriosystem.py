@@ -617,4 +617,7 @@ class MrioSystem(object):
     def change_inv_duration(self, new_dur, old_dur=None):
         if old_dur is None:
             old_dur = self.main_inv_dur
-        self.inv_duration = self.inv_duration.where(self.inv_duration==old_dur, new_dur, self.inv_duration)
+        old_dur = float(old_dur) / self.n_days_by_step
+        new_dur = float(new_dur) / self.n_days_by_step
+        logger.info("Changing (main) inventories duration from {} to {} days".format(old_dur, new_dur))
+        self.inv_duration = np.where(self.inv_duration==old_dur, new_dur, self.inv_duration)

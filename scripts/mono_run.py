@@ -27,6 +27,7 @@ parser.add_argument('output_dir', type=str, help='The output directory')
 parser.add_argument('flood_gdp_file', type=str, help='The share of gdp impacted according to flood distribution file')
 parser.add_argument('event_file', type=str, help='The event template file')
 parser.add_argument('mrio_params', type=str, help='The mrio parameters file')
+parser.add_argument('alt_inv_dur', type=str, help='The optional alternative main inventory duration', nargs='?', default=None)
 
 def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, flood_gdp_file, event_file, mrio_params, alt_inv_dur=None):
     with open(params) as f:
@@ -71,7 +72,10 @@ def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, f
     event['aff-regions'] = region
     event['q_dmg'] = dmg
     sim_params["output_dir"] = output_dir
-    sim_params["results_storage"] = region+'_type_'+stype+'_qdmg_'+flood_int+'_Psi_'+psi+"_inv_tau_"+str(sim_params['inventory_restoration_time'])
+    if alt_inv_dur:
+        sim_params["results_storage"] = region+'_type_'+stype+'_qdmg_'+flood_int+'_Psi_'+psi+"_inv_tau_"+str(sim_params['inventory_restoration_time'])+"_inv_time_"+str(int(alt_inv_dur))
+    else:
+        sim_params["results_storage"] = region+'_type_'+stype+'_qdmg_'+flood_int+'_Psi_'+psi+"_inv_tau_"+str(sim_params['inventory_restoration_time'])
     model = Simulation(sim_params, mrio_path)
     if alt_inv_dur:
         model.mrio.change_inv_duration(alt_inv_dur)
@@ -93,4 +97,4 @@ if __name__ == "__main__":
     scriptLogger.propagate = False
 
     scriptLogger.info("=============== STARTING RUN ================")
-    run(args.region, args.params, args.psi, int(args.inv_tau), args.stype, args.flood_int, args.input_dir, args.output_dir, args.flood_gdp_file, args.event_file, args.mrio_params)
+    run(args.region, args.params, args.psi, int(args.inv_tau), args.stype, args.flood_int, args.input_dir, args.output_dir, args.flood_gdp_file, args.event_file, args.mrio_params, args.alt_inv_dur)
