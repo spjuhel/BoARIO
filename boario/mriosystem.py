@@ -143,6 +143,8 @@ class MrioSystem(object):
         logger.debug("Initiating new MrioSystem instance")
         super().__init__()
 
+        self.mrio_params = mrio_params
+        self.main_inv_dur = mrio_params['main_inv_dur']
         self.results_storage = results_storage
         logger.info("Results storage is: {}".format(self.results_storage))
         self.regions = np.array(sorted(list(pym_mrio.get_regions()))) #type: ignore
@@ -611,3 +613,8 @@ class MrioSystem(object):
         }
         with index_file.open('w') as f:
             json.dump(indexes,f)
+
+    def change_inv_duration(self, new_dur, old_dur=None):
+        if old_dur is None:
+            old_dur = self.main_inv_dur
+        self.inv_duration = self.inv_duration.where(self.inv_duration==old_dur, new_dur, self.inv_duration)

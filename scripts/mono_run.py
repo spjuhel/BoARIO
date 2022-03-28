@@ -28,7 +28,7 @@ parser.add_argument('flood_gdp_file', type=str, help='The share of gdp impacted 
 parser.add_argument('event_file', type=str, help='The event template file')
 parser.add_argument('mrio_params', type=str, help='The mrio parameters file')
 
-def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, flood_gdp_file, event_file, mrio_params):
+def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, flood_gdp_file, event_file, mrio_params, alt_inv_dur=None):
     with open(params) as f:
         params_template = json.load(f)
     params_template['input_dir'] = input_dir
@@ -73,6 +73,8 @@ def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, f
     sim_params["output_dir"] = output_dir
     sim_params["results_storage"] = region+'_type_'+stype+'_qdmg_'+flood_int+'_Psi_'+psi+"_inv_tau_"+str(sim_params['inventory_restoration_time'])
     model = Simulation(sim_params, mrio_path)
+    if alt_inv_dur:
+        model.mrio.change_inv_duration(alt_inv_dur)
     model.read_events_from_list([event])
     try:
         scriptLogger.info("Model ready, looping")
