@@ -315,9 +315,11 @@ class Indicators(object):
     def calc_tot_prod_change(self):
         df2=self.prod_df.copy()
         #df2.columns=df2.columns.droplevel(0)
-        prod_chg = df2 - df2.iloc[1,:]
+        prod_chg = df2 - df2.iloc[0,:]
         prod_chg = prod_chg.round(6)
         prod_chg_sect = prod_chg.sum()
+        self.prod_chg_region =  prod_chg.sum().groupby('region').sum()
+        self.prod_chg_region.to_json(self.storage/"fd_loss.json")
         self.indicators['prod_gain_tot'] = prod_chg.mul(prod_chg.gt(0)).sum().sum()
         self.indicators['prod_lost_tot'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum() * (-1)
         prod_chg = prod_chg.drop(self.aff_regions, axis=1)
@@ -341,6 +343,13 @@ class Indicators(object):
         #self.update_indicators()
         with self.storage.open('w') as f:
             json.dump(self.indicators, f, cls=numpyencoder.NumpyEncoder)
+
+    def fd_loss_region(self):
+        df2 = self.df_loss.set_index(['step','region','fd_cat']).unstack([1,2])
+        df2 = df2.round(6)
+        self.df_loss_region = df2.sum().groupby('region').sum()
+        self.df_loss_region.to_json(self.storage/"fd_loss.json")
+
 
     def save_dfs(self):
         logger.info("Saving computed dataframe to results folder")
