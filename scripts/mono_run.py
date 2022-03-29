@@ -66,7 +66,6 @@ def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, f
     event = event_template.copy()
     sim_params = params_template.copy()
     sim_params['psi_param'] = float(psi.replace("_","."))
-    print(sim_params['psi_param'])
     sim_params['inventory_restoration_time'] = inv_tau
     event['r_dmg'] = v
     event['aff-regions'] = region
