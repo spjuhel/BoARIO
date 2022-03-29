@@ -53,10 +53,14 @@ simulation. We suppose we run the following script from ``~/boario/``
 
 .. code:: python
 
+    import sys
+    # insert boario into python path (There is no installer yet)
+    sys.path.insert(1, '../')
+
     # We import the base of the model
-    import boario.simulation.base as sim
+    import boario.simulation as sim
     # We also import the indicators module
-    from boario.indicators.indicators import Indicators
+    from boario.indicators import Indicators
     import pathlib
 
     # We instantiate a dictionary with the parameters
