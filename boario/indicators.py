@@ -12,6 +12,18 @@ from boario import logger
 
 __all__ = ['Indicators']
 
+
+
+def df_from_memmap(memmap, indexes):
+    a = pd.DataFrame(memmap, columns=pd.MultiIndex.from_product([indexes["regions"], indexes["sectors"]]))
+    a['step'] = a.index
+    return a
+
+def stock_df_from_memmap(memmap, indexes, timesteps, timesteps_simulated):
+    a = pd.DataFrame(memmap.reshape(timesteps*indexes["n_sectors"],-1), index=pd.MultiIndex.from_product([timesteps, indexes["sectors"]], names=['step', 'stock of']), columns=pd.MultiIndex.from_product([indexes["regions"], indexes["sectors"]]))
+    a = a.loc[pd.IndexSlice[:timesteps_simulated,:]]
+    return a
+
 class Indicators(object):
 
     record_files_list = ["classic_demand_record",
@@ -39,49 +51,28 @@ class Indicators(object):
         else:
             stock_treatement = False
 
-        prod_df = pd.DataFrame(data_dict["prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-        prodmax_df = pd.DataFrame(data_dict["prodmax"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-        overprod_df = pd.DataFrame(data_dict["overprod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-        c_demand_df = pd.DataFrame(data_dict["c_demand"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-        r_demand_df = pd.DataFrame(data_dict["r_demand"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-        r_prod_df = pd.DataFrame(data_dict["r_prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
+        self.prod_df = pd.DataFrame(data_dict["prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
+        self.prodmax_df = pd.DataFrame(data_dict["prodmax"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
+        self.overprod_df = pd.DataFrame(data_dict["overprod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
+        self.c_demand_df = pd.DataFrame(data_dict["c_demand"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
+        self.r_demand_df = pd.DataFrame(data_dict["r_demand"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
+        self.r_prod_df = pd.DataFrame(data_dict["r_prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
         fd_unmet_df = pd.DataFrame(data_dict["fd_unmet"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
         if stock_treatement:
             stocks_df = pd.DataFrame(data_dict["stocks"].reshape(data_dict["n_timesteps_to_sim"]*data_dict["n_sectors"],-1),
                                      index=pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of']),
                                      columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-            stocks_df.index = pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of'])
             stocks_df = stocks_df.loc[pd.IndexSlice[:data_dict["n_timesteps_simulated"],:]]
         else:
             stocks_df = None
-        prod_df['step'] = prod_df.index
-        prodmax_df['step'] = prodmax_df.index
-        overprod_df['step'] = overprod_df.index
-        c_demand_df['step'] = c_demand_df.index
-        r_demand_df['step'] = r_demand_df.index
-        r_prod_df['step'] = r_prod_df.index
+        self.prod_df['step'] = self.prod_df.index
+        self.prodmax_df['step'] = self.prodmax_df.index
+        self.overprod_df['step'] = self.overprod_df.index
+        self.c_demand_df['step'] = self.c_demand_df.index
+        self.r_demand_df['step'] = self.r_demand_df.index
+        self.r_prod_df['step'] = self.r_prod_df.index
         fd_unmet_df['step'] = fd_unmet_df.index
-        #fd_unmet_df = fd_unmet_df[fd_unmet_df.step <= data_dict['n_timesteps_simulated']]
-        df = prod_df.copy().set_index('step').melt(ignore_index=False)
-        del prod_df
-        df=df.rename(columns={'variable_0':'region','variable_1':'sector', 'value':'production'})
-        df['demand'] = c_demand_df.set_index('step').melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'value':'demand'})['demand']
-        del c_demand_df
-        df['rebuild_demand'] = r_demand_df.set_index('step').melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'value':'rebuild_demand'})['rebuild_demand']
-        del r_demand_df
-        df['production_max'] = prodmax_df.set_index('step').melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'value':'production_max'})['production_max']
-        del prodmax_df
-        df['rebuild_production'] = r_prod_df.set_index('step').melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'value':'rebuild_production'})['rebuild_production']
-        del r_prod_df
-        df['overprod'] = overprod_df.set_index('step').melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'value':'overprod'})['overprod']
-        del overprod_df
-        #df['fd_unmet'] = fd_unmet_df.set_index('step').melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'value':'fd_unmet'})['fd_unmet']
-        #del fd_unmet_df
 
-        df = df[df.index <= data_dict['n_timesteps_simulated']]
-        df = df.reset_index().melt(id_vars=['region', 'sector', 'step'])
-        self.df=df
-        del df
         if stock_treatement:
             stocks_df = stocks_df.replace([np.inf, -np.inf], np.nan).dropna(how='all')
             stocks_df = stocks_df.astype(np.float32)
@@ -95,9 +86,8 @@ class Indicators(object):
         self.df_stocks = stocks_df
         del stocks_df
 
-        df_loss = fd_unmet_df.set_index('step').melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'fd_cat', 'value':'fdloss'}).reset_index()
-        self.df_loss = df_loss
-        del df_loss
+        self.df_loss = fd_unmet_df.set_index('step').melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'fd_cat', 'value':'fdloss'}).reset_index()
+
         self.df_limiting = pd.DataFrame(data_dict["limiting_stocks"].reshape(data_dict["n_timesteps_to_sim"]*data_dict["n_sectors"],-1),
                                         index=pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of']),
                                         columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
@@ -110,11 +100,20 @@ class Indicators(object):
         self.aff_sectors = []
         for e in data_dict["events"]:
             self.aff_sectors.append(e['aff-sectors'])
-
         self.aff_sectors = list(misc.flatten(self.aff_sectors))
+
+        self.rebuilding_sectors = []
+        for e in data_dict["events"]:
+            self.rebuilding_sectors.append(e['rebuilding-sectors'].keys())
+            self.rebuilding_sectors = list(misc.flatten(self.rebuilding_sectors))
+
+        if 'r_dmg' in data_dict['events'][0]:
+            gdp_dmg_share = data_dict['events'][0]['r_dmg']
+        else:
+            gdp_dmg_share = -1.
         self.indicators = {
             "region" : self.aff_regions,
-            "gdp_dmg_share" : data_dict['events'][0]['r_dmg'],
+            "gdp_dmg_share" : gdp_dmg_share,
             "tot_fd_unmet": "unset",
             "aff_fd_unmet": "unset",
             "rebuild_durations": "unset",
@@ -183,7 +182,7 @@ class Indicators(object):
         params_file = {f.stem : f for f in folder.glob("*.json")}
         absentee = [f for f in cls.params_list if f not in params_file.keys()]
         if absentee != []:
-            raise FileNotFoundError("Some of the required parameters files not found (looked for {}".format(cls.params_list))
+            raise FileNotFoundError("Some of the required parameters files not found (looked for {} in {}".format(cls.params_list,folder))
 
         record_files = [f for f in folder.glob("*record") if f.is_file()]
         absentee = [f for f in cls.record_files_list if f not in [fn.name for fn in record_files]]
@@ -276,10 +275,11 @@ class Indicators(object):
         self.indicators['tot_fd_unmet'] = self.df_loss['fdloss'].sum()
 
     def calc_aff_fd_unmet(self):
+        #TODO: check this
         self.indicators['aff_fd_unmet'] = self.df_loss[self.df_loss.region.isin(self.aff_regions)]['fdloss'].sum()
 
     def calc_rebuild_durations(self):
-        rebuilding = (self.df[self.df['variable']=='rebuild_demand'].groupby('step').sum().ne(0)).value.to_numpy()
+        rebuilding = self.r_demand_df.melt(id_vars ="step", var_name=['region','sector'], value_name="rebuild_demand").groupby('step').sum().ne(0).rebuild_demand.to_numpy()
         self.indicators['rebuild_durations'] = [ sum( 1 for _ in group ) for key, group in itertools.groupby( rebuilding ) if key ]
 
     def calc_recovery_duration(self):
@@ -313,8 +313,8 @@ class Indicators(object):
         self.indicators['10_first_shortages'] = res
 
     def calc_tot_prod_change(self):
-        df2=self.df[self.df.variable=="production"].set_index(['step','region','sector']).drop(['variable'],axis=1).unstack([1,2])
-        df2.columns=df2.columns.droplevel(0)
+        df2=self.prod_df.copy()
+        #df2.columns=df2.columns.droplevel(0)
         prod_chg = df2 - df2.iloc[1,:]
         prod_chg = prod_chg.round(6)
         prod_chg_sect = prod_chg.sum()
@@ -323,7 +323,8 @@ class Indicators(object):
         prod_chg = prod_chg.drop(self.aff_regions, axis=1)
         self.indicators['prod_gain_unaff'] = prod_chg.mul(prod_chg.gt(0)).sum().sum()
         self.indicators['prod_lost_unaff'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum() * (-1)
-        self.indicators['top_5_sector_loss'] = prod_chg_sect.sort_values().head(5).droplevel(0).to_dict()
+        tmp = prod_chg_sect.sort_values(ascending=False,key=abs).head(5).to_dict()
+        self.indicators['top_5_sector_chg'] = {str(k): v for k, v in tmp.items()}
 
     def update_indicators(self):
         logger.info("(Re)computing all indicators")
@@ -343,8 +344,9 @@ class Indicators(object):
 
     def save_dfs(self):
         logger.info("Saving computed dataframe to results folder")
-        self.df.to_feather(self.storage_path/"treated_df.feather")
-        self.df_loss.to_feather(self.storage_path/"treated_df_loss.feather")
+        self.prod_df.to_parquet(self.storage_path/"prod_df.parquet")
+        self.c_demand_df.to_parquet(self.storage_path/"c_demand_df.parquet")
+        self.df_loss.to_parquet(self.storage_path/"treated_df_loss.parquet")
         if self.df_stocks is not None:
             ddf = da.from_pandas(self.df_stocks, chunksize=10000000)
             ddf.to_parquet(self.storage_path/"treated_df_stocks.parquet", engine="pyarrow")
@@ -355,5 +357,5 @@ class Indicators(object):
             df_limiting['stock of'] = df_limiting['stock of'].astype("category")
             df_limiting['region'] = df_limiting['region'].astype("category")
             df_limiting['sector'] = df_limiting['sector'].astype("category")
-            df_limiting.to_feather(self.storage_path/"treated_df_limiting.feather")
+            df_limiting.to_parquet(self.storage_path/"treated_df_limiting.parquet")
         #self.df_limiting.to_feather(self.storage_path/"treated_df_limiting.feather")
