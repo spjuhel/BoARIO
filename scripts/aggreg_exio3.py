@@ -6,6 +6,7 @@ import logging
 import argparse
 import json
 import country_converter as coco
+from pymrio.core.mriosystem import IOSystem
 
 parser = argparse.ArgumentParser(description='Aggregate an exio3 MRIO sectors')
 parser.add_argument('exio_path', type=str, help='The str path to the exio3 zip file')
@@ -33,6 +34,13 @@ def aggreg(exio_path, sector_aggregator_path, new_sectors_name_path, regions_agg
     sec_agg_matrix = pd.read_excel(sector_aggregator_path, sheet_name="input", engine="odf", header=None).to_numpy()
     scriptLogger.info("Parsing exiobase3 from {}".format(pathlib.Path(exio_path).resolve()))
     exio3 = pym.parse_exiobase3(path=exio_path)
+    # gain some diskspace and RAM by removing unused attributes
+    attr = ['Z', 'Y', 'x', 'A', 'L', 'unit', 'population', 'meta', '__non_agg_attributes__', '__coefficients__', '__basic__']
+    tmp = list(exio3.__dict__.keys())
+    for at in tmp:
+        if at not in attr:
+            delattr(exio3,at)
+    assert isinstance(exio3, IOSystem)
     scriptLogger.info("Done")
     scriptLogger.info("Computing the IO components")
     exio3.calc_all()
@@ -52,6 +60,7 @@ def aggreg(exio_path, sector_aggregator_path, new_sectors_name_path, regions_agg
     exio3.calc_all()
     name = save_path
     scriptLogger.info("Saving to {}".format(pathlib.Path(name).absolute()))
+
     with open(name, 'wb') as f:
         pkl.dump(exio3, f)
 
