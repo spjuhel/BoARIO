@@ -51,27 +51,27 @@ class Indicators(object):
         else:
             stock_treatement = False
 
-        self.prod_df = pd.DataFrame(data_dict["prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-        self.prodmax_df = pd.DataFrame(data_dict["prodmax"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-        self.overprod_df = pd.DataFrame(data_dict["overprod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-        self.c_demand_df = pd.DataFrame(data_dict["c_demand"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-        self.r_demand_df = pd.DataFrame(data_dict["r_demand"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-        self.r_prod_df = pd.DataFrame(data_dict["r_prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
-        fd_unmet_df = pd.DataFrame(data_dict["fd_unmet"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
+        self.prod_df = pd.DataFrame(data_dict["prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region','sector']))
+        self.prodmax_df = pd.DataFrame(data_dict["prodmax"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
+        self.overprod_df = pd.DataFrame(data_dict["overprod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
+        self.c_demand_df = pd.DataFrame(data_dict["c_demand"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
+        self.r_demand_df = pd.DataFrame(data_dict["r_demand"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
+        self.r_prod_df = pd.DataFrame(data_dict["r_prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
+        fd_unmet_df = pd.DataFrame(data_dict["fd_unmet"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
         if stock_treatement:
             stocks_df = pd.DataFrame(data_dict["stocks"].reshape(data_dict["n_timesteps_to_sim"]*data_dict["n_sectors"],-1),
                                      index=pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of']),
-                                     columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]]))
+                                     columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
             stocks_df = stocks_df.loc[pd.IndexSlice[:data_dict["n_timesteps_simulated"],:]]
         else:
             stocks_df = None
-        self.prod_df['step'] = self.prod_df.index
-        self.prodmax_df['step'] = self.prodmax_df.index
-        self.overprod_df['step'] = self.overprod_df.index
-        self.c_demand_df['step'] = self.c_demand_df.index
-        self.r_demand_df['step'] = self.r_demand_df.index
-        self.r_prod_df['step'] = self.r_prod_df.index
-        fd_unmet_df['step'] = fd_unmet_df.index
+        self.prod_df = self.prod_df.rename_axis('step')
+        self.prodmax_df = self.prodmax_df.rename_axis('step')
+        self.overprod_df = self.overprod_df.rename_axis('step')
+        self.c_demand_df = self.c_demand_df.rename_axis('step')
+        self.r_demand_df = self.r_demand_df.rename_axis('step')
+        self.r_prod_df = self.r_prod_df.rename_axis('step')
+        fd_unmet_df = fd_unmet_df.rename_axis('step')
 
         if stock_treatement:
             stocks_df = stocks_df.replace([np.inf, -np.inf], np.nan).dropna(how='all')
@@ -86,7 +86,7 @@ class Indicators(object):
         self.df_stocks = stocks_df
         del stocks_df
 
-        self.df_loss = fd_unmet_df.set_index('step').melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'fd_cat', 'value':'fdloss'}).reset_index()
+        self.df_loss = fd_unmet_df.melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'fd_cat', 'value':'fdloss'}).reset_index()
 
         self.df_limiting = pd.DataFrame(data_dict["limiting_stocks"].reshape(data_dict["n_timesteps_to_sim"]*data_dict["n_sectors"],-1),
                                         index=pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of']),
@@ -279,7 +279,7 @@ class Indicators(object):
         self.indicators['aff_fd_unmet'] = self.df_loss[self.df_loss.region.isin(self.aff_regions)]['fdloss'].sum()
 
     def calc_rebuild_durations(self):
-        rebuilding = self.r_demand_df.melt(id_vars ="step", var_name=['region','sector'], value_name="rebuild_demand").groupby('step').sum().ne(0).rebuild_demand.to_numpy()
+        rebuilding = self.r_demand_df.reset_index().melt(id_vars ="step", var_name=['region','sector'], value_name="rebuild_demand").groupby('step').sum().ne(0).rebuild_demand.to_numpy()
         self.indicators['rebuild_durations'] = [ sum( 1 for _ in group ) for key, group in itertools.groupby( rebuilding ) if key ]
 
     def calc_recovery_duration(self):
@@ -319,7 +319,7 @@ class Indicators(object):
         prod_chg = prod_chg.round(6)
         prod_chg_sect = prod_chg.sum()
         self.prod_chg_region =  prod_chg.sum().groupby('region').sum()
-        self.prod_chg_region.to_json(self.storage/"fd_loss.json")
+        self.prod_chg_region.to_json(self.storage_path/"prod_chg.json")
         self.indicators['prod_gain_tot'] = prod_chg.mul(prod_chg.gt(0)).sum().sum()
         self.indicators['prod_lost_tot'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum() * (-1)
         prod_chg = prod_chg.drop(self.aff_regions, axis=1)
@@ -348,7 +348,7 @@ class Indicators(object):
         df2 = self.df_loss.set_index(['step','region','fd_cat']).unstack([1,2])
         df2 = df2.round(6)
         self.df_loss_region = df2.sum().groupby('region').sum()
-        self.df_loss_region.to_json(self.storage/"fd_loss.json")
+        self.df_loss_region.to_json(self.storage_path/"fd_loss.json")
 
 
     def save_dfs(self):

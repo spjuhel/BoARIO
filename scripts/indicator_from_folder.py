@@ -17,7 +17,7 @@ import re
 parser = argparse.ArgumentParser(description="Produce indicators from one run folder")
 parser.add_argument('folder', type=str, help='The str path to the folder')
 logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s] %(name)s %(message)s", datefmt="%H:%M:%S")
-scriptLogger = logging.getLogger("indicators_batch")
+scriptLogger = logging.getLogger("indicators_from_folder")
 consoleHandler = logging.StreamHandler()
 consoleHandler.setFormatter(logFormatter)
 
