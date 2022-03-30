@@ -127,8 +127,8 @@ rule indicators:
     conda:
         "ario3"
     resources:
-        vmem_mb=12000,
-        mem_mb = 10000,
+        vmem_mb=15000,
+        mem_mb = 12000,
         disk_mb=500
     shell:
         """
