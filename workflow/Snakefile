@@ -158,6 +158,8 @@ rule run_RoW:
     resources:
         mem_mb=4000,
         disk_mb=50
+    benchmark:
+        OUTPUT_DIR + "benchmarks/run_{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}.benchmark.txt"
     params:
         ario_dir = ARIO_DIR,
         input_dir = INPUT_DIR,
@@ -190,7 +192,8 @@ rule run_Full:
     benchmark:
         OUTPUT_DIR + "benchmarks/run_{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}.benchmark.txt"
     resources:
-        mem_mb=5000,
+        vmem_mb=3000,
+        mem_mb=2000,
         disk_mb=500
     conda:
         "ario3"
@@ -215,7 +218,8 @@ rule mrio_full:
     benchmark:
         OUTPUT_DIR + "benchmarks/mrio_full.pkl.benchmark.txt"
     resources:
-        mem_mb=6000,
+        vmem_mb=6000,
+        mem_mb=5000,
         disk_mb=2000
     shell:
         """
@@ -235,7 +239,8 @@ rule mrio_region:
     benchmark:
         OUTPUT_DIR + "benchmarks/mrio_{region}.pkl.benchmark.txt"
     resources:
-        mem_mb=6000,
+        vmem_mb=6000,
+        mem_mb=5000,
         disk_mb=2000
     shell:
         """
