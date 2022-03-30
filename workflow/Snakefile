@@ -80,6 +80,9 @@ rule mv_to_final:
     params:
         final_dir = FINAL_DIR,
         output_dir = OUTPUT_DIR
+    resources:
+        mem_mb = 500,
+        vmem_mb = 500
     output:
         FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/indexes.json",
         FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/classic_demand_record",
