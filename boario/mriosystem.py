@@ -8,7 +8,7 @@ from pymrio.core.mriosystem import IOSystem
 
 __all__ = ['MrioSystem']
 
-INV_THRESHOLD = 20 #days
+INV_THRESHOLD = 0 #20 #days
 
 VALUE_ADDED_NAMES = ['VA', 'Value Added', 'value added',
                         'factor inputs', 'factor_inputs', 'Factors Inputs',
@@ -362,6 +362,7 @@ class MrioSystem(object):
 
     def calc_rebuilding_production(self):
         if self.rebuilding_demand is None:
+            logger.warning("Rebuilding demand is now None")
             return np.full(self.production.shape, 0.0), self.production
         elif self.prod_max_toward_rebuilding is not None:
             #non_rebuild_demand = np.concatenate([self.matrix_orders, self.final_demand], axis=1)
@@ -379,9 +380,9 @@ class MrioSystem(object):
             rebuild_scarcity[rebuild_demand > 0.] = (rebuild_demand[rebuild_demand > 0.] - rebuild_production[rebuild_demand > 0.]) / rebuild_demand[rebuild_demand > 0.]
             rebuild_scarcity[rebuild_scarcity < 0] = 0.0
 
-            rebuild_scarcity = scarcity * rebuild_scarcity
+            rebuild_scarcity = rebuild_scarcity #* scarcity
             #scarcity[np.isinf(scarcity)] = 0
-            prod_max_toward_rebuild_chg = ((1. - self.prod_max_toward_rebuilding) * rebuild_scarcity * (self.n_days_by_step / self.rebuild_tau) + (0. - self.prod_max_toward_rebuilding) * (rebuild_scarcity == 0) * (self.n_days_by_step / self.rebuild_tau))
+            prod_max_toward_rebuild_chg = ((0.25 - self.prod_max_toward_rebuilding) * rebuild_scarcity * (self.n_days_by_step / self.rebuild_tau) + (0. - self.prod_max_toward_rebuilding) * (rebuild_scarcity == 0) * (self.n_days_by_step / self.rebuild_tau))
             assert not prod_max_toward_rebuild_chg[(prod_max_toward_rebuild_chg < -1) | (prod_max_toward_rebuild_chg > 1)].any()
             self.prod_max_toward_rebuilding += prod_max_toward_rebuild_chg
             self.prod_max_toward_rebuilding[self.prod_max_toward_rebuilding < 0] = 0
