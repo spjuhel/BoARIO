@@ -119,6 +119,7 @@ class Simulation(object):
             results_storage.mkdir(parents=True)
         self.mrio = MrioSystem(mrio, mrio_params, simulation_params, results_storage)
         self.events = []
+        self.current_events = []
         self.events_timings = set()
         self.n_timesteps_to_sim = simulation_params['n_timesteps']
         self.current_t = 0
@@ -259,10 +260,13 @@ class Simulation(object):
         if min_failing_regions is None:
             min_failing_regions = self.mrio.n_regions*self.mrio.n_sectors // 3
         if self.current_t in self.events_timings:
-            current_events = [e_id for e_id, e in enumerate(self.events) if e.occurence_time==self.current_t]
-            for e_id in current_events:
+            new_events = [(e_id,e) for e_id, e in enumerate(self.events) if e.occurence_time==self.current_t]
+            for (e_id,e) in new_events:
                 # print(e)
-                self.shock(e_id)
+                self.current_events.append(e)
+
+        if self.current_events != []:
+            self.update_events()
         if self.params['register_stocks']:
             self.mrio.write_stocks(self.current_t)
         if self.current_t > 1:
@@ -276,9 +280,9 @@ class Simulation(object):
         self.mrio.write_production(self.current_t)
         self.mrio.write_production_max(self.current_t)
         try:
-            self.mrio.distribute_production(self.current_t, self.scheme)
+            self.mrio.distribute_production(self.current_t, self.events, self.scheme)
         except RuntimeError as e:
-            logger.exception("This exception happened:")
+            logger.exception("This exception happened:",e)
             return 1
         self.mrio.calc_orders(constraints)
         if self.current_t > min_steps_check and (self.current_t % check_period == 0):
@@ -290,6 +294,11 @@ class Simulation(object):
                 self._monotony_checker = 0
         self.current_t+=1
         return 0
+
+    def update_events(self):
+        for e in self.current_events:
+            e.rebuildable = (e.occurence_time + e.duration) <= self.current_t
+        self.mrio.update_system_from_events(self.current_events)
 
     def read_events_from_list(self, events_list):
         """Import a list of events (as dicts) into the model.
@@ -436,6 +445,7 @@ class Simulation(object):
         rebuild_share = np.array([self.events[event_to_add_id].rebuilding_sectors[k] for k in sorted(self.events[event_to_add_id].rebuilding_sectors.keys())])
         rebuilding_demand = np.outer(rebuild_share, q_dmg_regions_sectors)
         new_rebuilding_demand = np.full(self.mrio.Z_0.shape, 0.0)
+        # build the mask of rebuilding sectors (worldwide)
         mask = np.ix_(np.union1d(rebuilding_industries_RoW_idx, rebuilding_industries_idx), aff_industries_idx)
         new_rebuilding_demand[mask] = self.mrio.Z_distrib[mask] * np.tile(rebuilding_demand, (self.mrio.n_regions,1)) #np.full(self.mrio.Z_0.shape,0.0)
         #new_rebuilding_demand[] = q_dmg_regions_sectors * rebuild_share.reshape(rebuilding_sectors_idx.size,1)
