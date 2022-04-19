@@ -259,16 +259,18 @@ class Simulation(object):
         if min_failing_regions is None:
             min_failing_regions = self.mrio.n_regions*self.mrio.n_sectors // 3
         if self.current_t in self.events_timings:
-            current_events = [e for e in self.events if e.occurence_time==self.current_t]
-            for e in current_events:
+            current_events = [e_id for e_id, e in enumerate(self.events) if e.occurence_time==self.current_t]
+            for e_id in current_events:
                 # print(e)
-                self.shock(e)
+                self.shock(e_id)
         if self.params['register_stocks']:
             self.mrio.write_stocks(self.current_t)
+        if self.current_t > 1:
+                self.mrio.calc_overproduction()
         self.mrio.write_overproduction(self.current_t)
         self.mrio.write_rebuild_demand(self.current_t)
         self.mrio.write_classic_demand(self.current_t)
-        self.mrio.calc_production_cap()
+        self.mrio.calc_production_cap(self.events)
         constraints = self.mrio.calc_production()
         self.mrio.write_limiting_stocks(self.current_t, constraints)
         self.mrio.write_production(self.current_t)
@@ -279,7 +281,6 @@ class Simulation(object):
             logger.exception("This exception happened:")
             return 1
         self.mrio.calc_orders(constraints)
-        self.mrio.calc_overproduction()
         if self.current_t > min_steps_check and (self.current_t % check_period == 0):
             if self.mrio.check_crash() >  min_failing_regions:
                 return 1
@@ -311,7 +312,7 @@ class Simulation(object):
         for ev_dic in events_list:
             if ev_dic['aff-sectors'] == 'all':
                 ev_dic['aff-sectors'] = list(self.mrio.sectors)
-            ev = Event(ev_dic)
+            ev = Event(ev_dic,self.mrio)
             ev.check_values(self)
             self.events.append(ev)
             self.events_timings.add(ev_dic['occur'])
@@ -350,12 +351,12 @@ class Simulation(object):
             for event in events['events']:
                 if event['aff-sectors'] == 'all':
                     event['aff-sectors'] = self.mrio.sectors
-                ev=Event(event)
+                ev=Event(event,self.mrio)
                 ev.check_values(self)
                 self.events.append(ev)
                 self.events_timings.add(event['occur'])
 
-    def shock(self, event_to_add):
+    def shock(self, event_to_add_id:int):
         """Shocks the model with an event.
 
         Sets the rebuilding demand and the share of production allocated toward
@@ -378,21 +379,21 @@ class Simulation(object):
 
         """
         logger.info("Shocking model with new event")
-        logger.info("Affected regions are : {}".format(event_to_add.aff_regions))
+        logger.info("Affected regions are : {}".format(self.events[event_to_add_id].aff_regions))
         impacted_region_prod_share = self.params['impacted_region_base_production_toward_rebuilding']
         RoW_prod_share = self.params['row_base_production_toward_rebuilding']
-        event_to_add.check_values(self)
+        self.events[event_to_add_id].check_values(self)
         if (impacted_region_prod_share > 1.0 or impacted_region_prod_share < 0.0):
             raise ValueError("Impacted production share should be in [0.0,1.0], (%f)", impacted_region_prod_share)
         if (RoW_prod_share > 1.0 or RoW_prod_share < 0.0):
             raise ValueError("RoW production share should be in [0.0,1.0], (%f)", RoW_prod_share)
         regions_idx = np.arange(self.mrio.regions.size)
-        aff_regions_idx = np.searchsorted(self.mrio.regions, event_to_add.aff_regions)
+        aff_regions_idx = np.searchsorted(self.mrio.regions, self.events[event_to_add_id].aff_regions)
         n_regions_aff = aff_regions_idx.size
-        aff_sectors_idx = np.searchsorted(self.mrio.sectors, event_to_add.aff_sectors)
+        aff_sectors_idx = np.searchsorted(self.mrio.sectors, self.events[event_to_add_id].aff_sectors)
         n_sectors_aff = aff_sectors_idx.size
         aff_industries_idx = np.array([self.mrio.n_sectors * ri + si for ri in aff_regions_idx for si in aff_sectors_idx])
-        q_dmg = event_to_add.q_damages / self.mrio.monetary_unit
+        q_dmg = self.events[event_to_add_id].q_damages / self.mrio.monetary_unit
         logger.info("Damages are {} times {} [unit (ie $/€/£)]".format(q_dmg,self.mrio.monetary_unit))
         # print(f'''
         # regions_idx = {regions_idx},
@@ -405,34 +406,34 @@ class Simulation(object):
         # ''')
 
         # DAMAGE DISTRIBUTION ACROSS REGIONS
-        if event_to_add.dmg_distrib_across_regions is None:
+        if self.events[event_to_add_id].dmg_distrib_across_regions is None:
             q_dmg_regions = np.array([1.0]) * q_dmg
-        elif type(event_to_add.dmg_distrib_across_regions) == list:
-            q_dmg_regions = np.array(event_to_add.dmg_distrib_across_regions) * q_dmg
-        elif type(event_to_add.dmg_distrib_across_regions) == str and event_to_add.dmg_distrib_across_regions == 'shared':
+        elif type(self.events[event_to_add_id].dmg_distrib_across_regions) == list:
+            q_dmg_regions = np.array(self.events[event_to_add_id].dmg_distrib_across_regions) * q_dmg
+        elif type(self.events[event_to_add_id].dmg_distrib_across_regions) == str and self.events[event_to_add_id].dmg_distrib_across_regions == 'shared':
             q_dmg_regions = np.full(shape=aff_regions_idx.shape,fill_value=q_dmg/aff_regions_idx.size)
         else:
             raise ValueError("This should not happen")
         q_dmg_regions = q_dmg_regions.reshape((n_regions_aff,1))
 
         # DAMAGE DISTRIBUTION ACROSS SECTORS
-        if event_to_add.dmg_distrib_across_sectors_type == "gdp":
+        if self.events[event_to_add_id].dmg_distrib_across_sectors_type == "gdp":
             shares = self.mrio.gdp_share_sector.reshape((self.mrio.n_regions,self.mrio.n_sectors))
             q_dmg_regions_sectors = q_dmg_regions * (shares[aff_regions_idx][:,aff_sectors_idx]/shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[:,np.newaxis])
-        elif event_to_add.dmg_distrib_across_sectors is None:
+        elif self.events[event_to_add_id].dmg_distrib_across_sectors is None:
             q_dmg_regions_sectors = q_dmg_regions
-        elif type(event_to_add.dmg_distrib_across_sectors) == list:
-            q_dmg_regions_sectors = q_dmg_regions * np.array(event_to_add.dmg_distrib_across_sectors)
-        elif type(event_to_add.dmg_distrib_across_sectors) == str and event_to_add.dmg_distrib_across_sectors == 'GDP':
+        elif type(self.events[event_to_add_id].dmg_distrib_across_sectors) == list:
+            q_dmg_regions_sectors = q_dmg_regions * np.array(self.events[event_to_add_id].dmg_distrib_across_sectors)
+        elif type(self.events[event_to_add_id].dmg_distrib_across_sectors) == str and self.events[event_to_add_id].dmg_distrib_across_sectors == 'GDP':
             shares = self.mrio.gdp_share_sector.reshape((self.mrio.n_regions,self.mrio.n_sectors))
             q_dmg_regions_sectors = q_dmg_regions * (shares[aff_regions_idx][:,aff_sectors_idx]/shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[:,np.newaxis])
         else:
-            raise ValueError("damage <-> sectors distribution %s not implemented", event_to_add.dmg_distrib_across_sectors)
+            raise ValueError("damage <-> sectors distribution %s not implemented", self.events[event_to_add_id].dmg_distrib_across_sectors)
 
-        rebuilding_sectors_idx = np.searchsorted(self.mrio.sectors, list(event_to_add.rebuilding_sectors.keys()))
+        rebuilding_sectors_idx = np.searchsorted(self.mrio.sectors, list(self.events[event_to_add_id].rebuilding_sectors.keys()))
         rebuilding_industries_idx = np.array([self.mrio.n_sectors * ri + si for ri in aff_regions_idx for si in rebuilding_sectors_idx])
         rebuilding_industries_RoW_idx = np.array([self.mrio.n_sectors * ri + si for ri in regions_idx if ri not in aff_regions_idx for si in rebuilding_sectors_idx])
-        rebuild_share = np.array([event_to_add.rebuilding_sectors[k] for k in sorted(event_to_add.rebuilding_sectors.keys())])
+        rebuild_share = np.array([self.events[event_to_add_id].rebuilding_sectors[k] for k in sorted(self.events[event_to_add_id].rebuilding_sectors.keys())])
         rebuilding_demand = np.outer(rebuild_share, q_dmg_regions_sectors)
         new_rebuilding_demand = np.full(self.mrio.Z_0.shape, 0.0)
         mask = np.ix_(np.union1d(rebuilding_industries_RoW_idx, rebuilding_industries_idx), aff_industries_idx)
@@ -441,15 +442,10 @@ class Simulation(object):
         new_prod_max_toward_rebuilding = np.full(self.mrio.production.shape, 0.0)
         new_prod_max_toward_rebuilding[rebuilding_industries_idx] = impacted_region_prod_share
         new_prod_max_toward_rebuilding[rebuilding_industries_RoW_idx] = RoW_prod_share
-        if self.mrio.rebuilding_demand is not None:
-            self.mrio.rebuilding_demand = np.append(self.mrio.rebuilding_demand, new_rebuilding_demand[np.newaxis,:], axis=0)
-            self.mrio.prod_max_toward_rebuilding = np.append(self.mrio.prod_max_toward_rebuilding, new_prod_max_toward_rebuilding[np.newaxis,:], axis=0)
-        else:
-            self.mrio.rebuilding_demand = new_rebuilding_demand[np.newaxis,:]
-            assert self.mrio.prod_max_toward_rebuilding is None
-            self.mrio.prod_max_toward_rebuilding = new_prod_max_toward_rebuilding[np.newaxis,:]
-
-        self.mrio.update_kapital_lost()
+        # TODO : Differentiate industry losses and households losses
+        self.events[event_to_add_id].industry_rebuild = new_rebuilding_demand
+        self.events[event_to_add_id].production_share_allocated = new_prod_max_toward_rebuilding
+        #self.mrio.update_kapital_lost()
 
     def reset_sim_with_same_events(self):
         """Resets the model to its initial status (without removing the events).

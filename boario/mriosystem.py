@@ -4,6 +4,7 @@ import pymrio as pym
 import numpy as np
 from nptyping import NDArray
 from boario import logger
+from boario.event import Event
 from pymrio.core.mriosystem import IOSystem
 
 __all__ = ['MrioSystem']
@@ -230,6 +231,8 @@ class MrioSystem(object):
         self.rebuilding_demand = None
         self.prod_max_toward_rebuilding = None
         self.kapital_lost = np.zeros(self.production.shape)
+        self.macro_effect = np.ones(self.production.shape)
+        self.local_demand = self.Y_0
         if value_added.ndim > 1:
             self.gdp_share_sector = (self.VA_0 / value_added.sum(axis=0).groupby('region').transform('sum').to_numpy())
         else:
@@ -257,13 +260,28 @@ class MrioSystem(object):
         if not pathlib.Path(results_storage/"indexes.json").exists() :
             self.write_index(results_storage/"indexes.json")
 
-    def calc_production_cap(self):
+    def calc_local_demand(self):
+        self.local_demand = self.local_demand * self.macro_effect
+
+    def calc_rebuild_house_demand(self):
+        return 0
+
+    def calc_rebuild_firm_demand(self):
+        return 0
+
+    def calc_rebuild_demand(self):
+        self.rebuild_demand = self.calc_rebuild_house_demand() +  self.calc_rebuild_firm_demand()
+
+
+
+    def calc_production_cap(self, events:'list[Event]'):
         """TODO describe function
 
         :returns:
 
         """
         self.production_cap = self.X_0.copy()
+        self.update_kapital_lost(events)
         productivity_loss = np.zeros(shape=self.kapital_lost.shape)
         k_stock = (self.VA_0 * self.kstock_ratio_to_VA)
         np.divide(self.kapital_lost, k_stock, out=productivity_loss, where=k_stock!=0)
@@ -360,9 +378,9 @@ class MrioSystem(object):
             assert self.rebuilding_demand.ndim == 3
             return self.rebuilding_demand.sum(axis=0)
 
-    def calc_rebuilding_production(self):
-        if self.rebuilding_demand is None:
-            logger.warning("Rebuilding demand is now None")
+    def calc_rebuilding_production(self, rebuild: bool):
+        if self.rebuilding_demand is None or not rebuild:
+            #logger.warning("Rebuilding demand is now None")
             return np.full(self.production.shape, 0.0), self.production
         elif self.prod_max_toward_rebuilding is not None:
             #non_rebuild_demand = np.concatenate([self.matrix_orders, self.final_demand], axis=1)
@@ -396,12 +414,12 @@ class MrioSystem(object):
             raise ValueError("Attempt to compute prod_max_toward_rebuilding_chg while prod_max_toward_rebuilding is None")
 
     def distribute_production(self,
-                              t: int,
+                              t: int, rebuild: bool,
                               scheme='proportional'):
         if scheme != 'proportional':
             raise ValueError("Scheme %s not implemented"% scheme)
 
-        rebuild_production, non_rebuild_production = self.calc_rebuilding_production()
+        rebuild_production, non_rebuild_production = self.calc_rebuilding_production(rebuild)
         self.write_rebuild_prod(t,rebuild_production.sum(axis=0)) #type: ignore
         # 'Usual' demand (intermediate and final)
         non_rebuild_demand = np.concatenate([self.matrix_orders, self.final_demand], axis=1)
@@ -452,14 +470,14 @@ class MrioSystem(object):
 
         self.write_final_demand_unmet(t, final_demand_not_met)
 
-    def update_kapital_lost(self,
+    def update_kapital_lost(self, events:'list[Event]'
                         ):
-        self.__update_kapital_lost()
+        self.__update_kapital_lost(events)
 
-    def __update_kapital_lost(self,
+    def __update_kapital_lost(self, events:'list[Event]'
                         ):
-        self.kapital_lost = self.aggregate_rebuild_demand().sum(axis=0)
-
+        tot_industry_rebuild_demand = np.add.reduce([e.industry_rebuild for e in events])
+        self.kapital_lost = tot_industry_rebuild_demand.sum(axis=0)
 
     def calc_overproduction(self):
         prod_reqby_demand = self.calc_prod_reqby_demand()
