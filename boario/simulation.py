@@ -264,6 +264,7 @@ class Simulation(object):
             for (e_id,e) in new_events:
                 # print(e)
                 self.current_events.append(e)
+                self.shock(e_id)
 
         if self.current_events != []:
             self.update_events()
