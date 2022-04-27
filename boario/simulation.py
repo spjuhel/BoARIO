@@ -6,7 +6,7 @@ import pickle
 import pathlib
 from typing import Union
 import logging
-
+import math
 import numpy as np
 import progressbar
 import pymrio as pym
@@ -162,8 +162,8 @@ class Simulation(object):
                 'Processed: ', progressbar.Counter('Step: %(value)d '), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
             ]
             bar = progressbar.ProgressBar(widgets=widgets)
-            for t in bar(range(self.n_timesteps_to_sim)):
-                assert self.current_t == t
+            for t in bar(range(0,self.n_timesteps_to_sim,math.floor(self.params['model_time_step']))):
+                #assert self.current_t == t
                 step_res = self.next_step()
                 self.n_steps_simulated = self.current_t
                 if step_res == 1:
@@ -180,7 +180,7 @@ class Simulation(object):
                     )
                     break
         else:
-            for t in range(self.n_timesteps_to_sim):
+            for t in range(start=0, stop=self.n_timesteps_to_sim, step=self.params['model_time_step']):
                 assert self.current_t == t
                 step_res = self.next_step()
                 self.n_steps_simulated = self.current_t
@@ -255,14 +255,16 @@ class Simulation(object):
         FIXME: Add docs.
 
         """
+        #print(self.current_t)
         if min_steps_check is None:
             min_steps_check = self.n_timesteps_to_sim // 5
         if min_failing_regions is None:
             min_failing_regions = self.mrio.n_regions*self.mrio.n_sectors // 3
-        if self.current_t in self.events_timings:
-            new_events = [(e_id,e) for e_id, e in enumerate(self.events) if e.occurence_time==self.current_t]
-            for (e_id,e) in new_events:
-                # print(e)
+
+        new_events = [(e_id,e) for e_id, e in enumerate(self.events) if ((self.current_t-self.params['model_time_step']) <= e.occurence_time <= self.current_t)]
+        for (e_id,e) in new_events:
+            # print(e)
+            if e not in self.current_events:
                 self.current_events.append(e)
                 self.shock(e_id)
 
@@ -271,12 +273,12 @@ class Simulation(object):
         if self.params['register_stocks']:
             self.mrio.write_stocks(self.current_t)
         if self.current_t > 1:
-                self.mrio.calc_overproduction()
+                self.mrio.calc_overproduction(self.events)
         self.mrio.write_overproduction(self.current_t)
         self.mrio.write_rebuild_demand(self.current_t)
         self.mrio.write_classic_demand(self.current_t)
-        self.mrio.calc_production_cap(self.events)
-        constraints = self.mrio.calc_production()
+        self.mrio.calc_production_cap()
+        constraints = self.mrio.calc_production(self.current_t, self.events)
         self.mrio.write_limiting_stocks(self.current_t, constraints)
         self.mrio.write_production(self.current_t)
         self.mrio.write_production_max(self.current_t)
@@ -285,7 +287,7 @@ class Simulation(object):
         except RuntimeError as e:
             logger.exception("This exception happened:",e)
             return 1
-        self.mrio.calc_orders(constraints)
+        self.mrio.calc_orders(self.events)
         if self.current_t > min_steps_check and (self.current_t % check_period == 0):
             if self.mrio.check_crash() >  min_failing_regions:
                 return 1
@@ -293,7 +295,7 @@ class Simulation(object):
                 self._monotony_checker +=1
             else:
                 self._monotony_checker = 0
-        self.current_t+=1
+        self.current_t+= self.params['model_time_step']
         return 0
 
     def update_events(self):
