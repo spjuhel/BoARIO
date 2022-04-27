@@ -1,13 +1,16 @@
+from boario.mriosystem import MrioSystem
 import warnings
+import numpy as np
 
 __all__ = ['Event']
 
 class Event(object):
-    def __init__(self, event:dict) -> None:
+    def __init__(self, event:dict, mrio:MrioSystem) -> None:
         super().__init__()
 
         self.name = event['name']
         self.occurence_time = event['occur']
+        self.duration = event['duration']
         self.q_damages = event['q_dmg']
         self.aff_regions = event['aff-regions']
         if type(self.aff_regions) is str:
@@ -20,6 +23,12 @@ class Event(object):
         self.dmg_distrib_across_sectors_type = event['dmg-distrib-sectors-type']
         self.dmg_distrib_across_sectors = event['dmg-distrib-sectors']
         self.rebuilding_sectors = event['rebuilding-sectors']
+        self.final_demand_rebuild = np.zeros(shape=mrio.Y_0.shape)
+        self.final_demand_rebuild_share = np.zeros(shape=mrio.Y_0.shape)
+        self.industry_rebuild_share = np.zeros(shape=mrio.Z_0.shape)
+        self.industry_rebuild = np.zeros(shape=mrio.Z_0.shape)
+        self.production_share_allocated = np.zeros(shape=mrio.production.shape)
+        self.rebuildable = False
 
     def __repr__(self):
         #TODO: find ways to represent long lists
