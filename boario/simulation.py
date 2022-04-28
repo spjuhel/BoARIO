@@ -180,8 +180,8 @@ class Simulation(object):
                     )
                     break
         else:
-            for t in range(start=0, stop=self.n_timesteps_to_sim, step=self.params['model_time_step']):
-                assert self.current_t == t
+            for t in range(0,self.n_timesteps_to_sim,math.floor(self.params['model_time_step'])):
+                #assert self.current_t == t
                 step_res = self.next_step()
                 self.n_steps_simulated = self.current_t
                 if step_res == 1:
