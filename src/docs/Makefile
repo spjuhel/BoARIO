@@ -23,10 +23,13 @@ help:
 github:
 	@rm -rf "$(BUILDDIR)"
 	@rm -rf "$(DOCS)/"*
+	@git checkout gh-pages
+	@rm -rf "$(DOCS)/"*
+	@git checkout master
 	@make html
 	@mv -v "$(BUILDDIR)/html/"* "$(DOCS)"
 	@touch "$(DOCS)/.nojekyll"
-	@git checkout gh-page
+	@git checkout gh-pages
 	@git add "$(DOCS)"
 	@git commit -m "update doc"
 	@git push
