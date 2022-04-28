@@ -7,9 +7,7 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
-DOCS_root     = docs
 DOCS	      = ../../docs
-this_dir      = src/docs
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -25,15 +23,6 @@ help:
 github:
 	@rm -rf "$(BUILDDIR)"
 	@rm -rf "$(DOCS)/"*
-	@cd "../../"
-	@git checkout gh-pages
-	@rm -rf "$(DOCS_root)/"*
-	@git checkout master
-	@cd "$(this_dir)
 	@make html
 	@mv -v "$(BUILDDIR)/html/"* "$(DOCS)"
 	@touch "$(DOCS)/.nojekyll"
-	@git checkout gh-pages
-	@git add "$(DOCS)"
-	@git commit -m "update doc"
-	@git push
