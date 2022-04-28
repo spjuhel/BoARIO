@@ -26,3 +26,7 @@ github:
 	@make html
 	@mv -v "$(BUILDDIR)/html/"* "$(DOCS)"
 	@touch "$(DOCS)/.nojekyll"
+	@git checkout gh-page
+	@git add "$(DOCS)"
+	@git commit -m "update doc"
+	@git push

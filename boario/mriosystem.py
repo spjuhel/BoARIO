@@ -300,7 +300,7 @@ class MrioSystem(object):
         Compute and update production capacity from possible kapital damage and overproduction.
 
         .. math::
-            X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+            X(e^{j\omega } ) = x(n)e^{ - j\omega n} * 6
 
         Raises
         ------
