@@ -1,9 +1,12 @@
 import json
 import pathlib
+from signal import pthread_sigmask
+from typing import Union
 import pymrio as pym
 import numpy as np
 from nptyping import NDArray
 from boario import logger
+from boario.event import *
 from pymrio.core.mriosystem import IOSystem
 
 __all__ = ['MrioSystem']
@@ -170,12 +173,16 @@ class MrioSystem(object):
         if self.iotable_year_to_step_factor != 365:
             logger.warning("iotable_to_daily_step_factor is not set to 365 (days). This should probably not be the case if the IO tables you use are on a yearly basis.")
         self.steply_factor =  self.n_days_by_step / self.iotable_year_to_step_factor
-        self.rebuild_tau = simulation_params['rebuild_tau']
+        self.rebuild_tau = self.n_days_by_step / simulation_params['rebuild_tau']
         self.overprod_max = simulation_params['alpha_max']
-        self.overprod_tau = simulation_params['alpha_tau']
+        self.overprod_tau = self.n_days_by_step / simulation_params['alpha_tau']
         self.overprod_base = simulation_params['alpha_base']
         inv = mrio_params['inventories_dict']
-        #################################################################
+        inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
+        self.inv_duration = np.array(inventories)  / self.n_days_by_step
+        self.inv_duration[self.inv_duration <= 1] = 2
+        restoration_tau = [(self.n_days_by_step / simulation_params['inventory_restoration_time'])]# if v >= INV_THRESHOLD else v for v in inventories]
+        self.restoration_tau = np.array(restoration_tau)
 
         ######## INITIAL MRIO STATE (in step temporality) ###############
         self.Z_0 = pym_mrio.Z.to_numpy()
@@ -224,28 +231,68 @@ class MrioSystem(object):
         self.intmd_demand = self.Z_0.copy()
         self.final_demand = self.Y_0.copy()
         self.rebuilding_demand = None
+        self.rebuild_demand = np.zeros(shape = np.concatenate([self.Z_0,self.Y_0],axis=1).shape)
         self.prod_max_toward_rebuilding = None
-        ##################################################################
+        self.kapital_lost = np.zeros(self.production.shape)
+        self.macro_effect = np.ones(self.production.shape)
+        self.local_demand = self.Y_0.copy()
+        #################################################################
 
-        ################## SIMULATION TRACKING VARIABLES ###########################
+        ################## SIMULATION TRACKING VARIABLES ################
         self.in_shortage = False
         self.had_shortage = False
         self.production_evolution = np.memmap(results_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.production_evolution.fill(np.nan)
         self.production_cap_evolution = np.memmap(results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.production_cap_evolution.fill(np.nan)
         self.classic_demand_evolution = np.memmap(results_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.classic_demand_evolution.fill(np.nan)
         self.rebuild_demand_evolution = np.memmap(results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.rebuild_demand_evolution.fill(np.nan)
+        self.rebuild_stock_evolution = np.memmap(results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.rebuild_stock_evolution.fill(np.nan)
         self.overproduction_evolution = np.memmap(results_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.overproduction_evolution.fill(np.nan)
         self.final_demand_unmet_evolution = np.memmap(results_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.final_demand_unmet_evolution.fill(np.nan)
         self.rebuild_production_evolution = np.memmap(results_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.rebuild_production_evolution.fill(np.nan)
         if simulation_params['register_stocks']:
             self.stocks_evolution = np.memmap(results_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
-
+            self.stocks_evolution.fill(np.nan)
         self.limiting_stocks_evolution = np.memmap(results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
         #############################################################################
 
         #### POST INIT ####
         if not pathlib.Path(results_storage/"indexes.json").exists() :
             self.write_index(results_storage/"indexes.json")
+
+    def update_system_from_events(self, events: 'list[Event]') -> None:
+        self.update_kapital_lost(events)
+        self.calc_tot_rebuild_demand(events)
+
+    def calc_local_demand(self) -> None:
+        self.local_demand = self.local_demand * self.macro_effect
+
+    def calc_rebuild_house_demand(self, events:'list[Event]') -> np.ndarray :
+        rebuildable_events = [e.final_demand_rebuild for e in events if e.rebuildable]
+        if rebuildable_events == []:
+            return np.zeros(shape = self.Y_0.shape)
+        ret = np.add.reduce(rebuildable_events)
+        return ret
+
+    def calc_rebuild_firm_demand(self, events:'list[Event]') -> np.ndarray :
+        rebuildable_events = [e.industry_rebuild for e in events if e.rebuildable]
+        if rebuildable_events == []:
+            return np.zeros(shape = self.Z_0.shape)
+        ret = np.add.reduce(rebuildable_events)
+        return ret
+
+    def calc_tot_rebuild_demand(self, events:'list[Event]', separate_rebuilding:bool=False) -> None:
+        ret =  np.concatenate([self.calc_rebuild_house_demand(events),self.calc_rebuild_firm_demand(events)],axis=1)
+        if not separate_rebuilding:
+            ret *= self.rebuild_tau
+        self.rebuild_demand = ret
 
     def calc_production_cap(self):
         """Compute and update production capacity.
@@ -271,32 +318,34 @@ class MrioSystem(object):
         if (self.production_cap < 0).any() :
             raise ValueError("Production capacity was found negative for at least on industry")
 
-    def calc_prod_reqby_demand(self):
+    def calc_prod_reqby_demand(self, events:'list[Event]', separate_rebuilding:bool=False ) -> np.ndarray :
         """TODO describe function
 
         :returns:
 
         """
-        dmg_demand_restorable = self.aggregate_rebuild_demand() #* self.rebuild_tau
+        self.calc_tot_rebuild_demand(events, separate_rebuilding)
+        dmg_demand_restorable = self.rebuild_demand #* self.rebuild_tau
         prod_reqby_demand = self.matrix_orders.sum(axis=1) + self.final_demand.sum(axis=1)
         if dmg_demand_restorable is not None:
             prod_reqby_demand += dmg_demand_restorable.sum(axis=1)
         assert not (prod_reqby_demand < 0).any()
         return prod_reqby_demand
 
-    def calc_production(self):
+    def calc_production(self, current_step:int, events:'list[Event]'):
         """TODO describe function
 
         :returns:
 
         """
-        prod_reqby_demand = self.calc_prod_reqby_demand()
+        prod_reqby_demand = self.calc_prod_reqby_demand(events=events, separate_rebuilding=False)
         production_opt = np.fmin(prod_reqby_demand, self.production_cap)
-        supply_constraint = (np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat) * self.psi
+        production_inv_cons = production_opt #np.fmax(production_opt, self.production)
+        supply_constraint = (np.tile(production_inv_cons, (self.n_sectors, 1)) * self.tech_mat) * self.psi
         np.multiply(supply_constraint, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=supply_constraint)
         if (stock_constraint := (self.matrix_stock < supply_constraint) * self.matrix_share_thresh).any():
             if not self.in_shortage:
-                logger.info('At least one industry entered shortage regime')
+                logger.info('At least one industry entered shortage regime. (step:{})'.format(current_step))
             self.in_shortage = True
             self.had_shortage = True
             production_ratio_stock = np.ones(shape=self.matrix_stock.shape)
@@ -317,7 +366,142 @@ class MrioSystem(object):
             self.production = production_opt
         return stock_constraint
 
-    def calc_orders(self, stocks_constraints):
+    def calc_rebuilding_production(self, events: 'list[Event]', rebuild_prod_ceil:float=0.5) -> 'tuple[dict[int,np.ndarray],np.ndarray]':
+        remaining_prod = self.production.copy()
+        rebuild_productions = {}
+        for e_id, e in enumerate(events):
+            if e.rebuildable:
+                event_rebuild_demand = np.add.reduce(np.concatenate([e.final_demand_rebuild, e.industry_rebuild],axis=1),axis=1)
+                #event_rebuild_demand *= self.rebuild_tau
+                event_rebuild_production = remaining_prod * e.production_share_allocated
+                event_rebuild_production = np.minimum(event_rebuild_production, event_rebuild_demand)
+                rebuild_scarcity = np.full(event_rebuild_production.shape,0.0)
+                rebuild_scarcity[event_rebuild_demand > 0.] = (event_rebuild_demand[event_rebuild_demand > 0.] - event_rebuild_production[event_rebuild_demand > 0.]) / event_rebuild_demand[event_rebuild_demand > 0.]
+                rebuild_scarcity[rebuild_scarcity < 0] = 0.0
+                #print(e.final_demand_rebuild.shape)
+                #print(e.industry_rebuild.shape)
+
+                prod_max_toward_rebuild_chg = ((rebuild_prod_ceil - e.production_share_allocated) * rebuild_scarcity * self.rebuild_tau + (0. - e.production_share_allocated) * (rebuild_scarcity == 0) * self.rebuild_tau)
+                #print(prod_max_toward_rebuild_chg.shape)
+                #print(e.production_share_allocated.shape)
+                assert not prod_max_toward_rebuild_chg[(prod_max_toward_rebuild_chg < -1) | (prod_max_toward_rebuild_chg > 1)].any()
+                e.production_share_allocated += prod_max_toward_rebuild_chg
+                e.production_share_allocated[e.production_share_allocated < 0] = 0
+                remaining_prod = self.production - event_rebuild_production
+                rebuild_productions[e_id] = event_rebuild_production
+        non_rebuild_production = remaining_prod
+        return rebuild_productions, non_rebuild_production
+
+    def distribute_production(self,
+                              t: int, events: 'list[Event]',
+                              scheme='proportional', separate_rebuilding:bool=False):
+        if scheme != 'proportional':
+            raise ValueError("Scheme %s not implemented"% scheme)
+
+
+        if separate_rebuilding:
+            rebuild_productions, non_rebuild_production = self.calc_rebuilding_production(events)
+            if rebuild_productions == {}:
+                tot_rebuild_prod = np.zeros(self.X_0.shape)
+            else:
+                tot_rebuild_prod = np.add.reduce(list(rebuild_productions.values()))
+            self.write_rebuild_prod(t,tot_rebuild_prod) #type: ignore
+            # 'Usual' demand (intermediate and final)
+            non_rebuild_demand = np.concatenate([self.matrix_orders, self.final_demand], axis=1)
+            rationning_required = (non_rebuild_production - non_rebuild_demand.sum(axis=1))<(-1/self.monetary_unit)
+            rationning_mask = np.tile(rationning_required[:,np.newaxis],(1,(self.n_regions*self.n_sectors)+(self.n_regions*self.n_fd_cat)))
+            demand_share = np.full(non_rebuild_demand.shape,0.0)
+            tot_dem = np.expand_dims(np.sum(non_rebuild_demand, axis=1, where=rationning_mask),1)
+            np.divide(non_rebuild_demand, tot_dem, where=(tot_dem!=0), out=demand_share)
+            distributed_non_rebuild_production = non_rebuild_demand
+            np.multiply(demand_share, np.expand_dims(non_rebuild_production,1), out=distributed_non_rebuild_production, where=rationning_mask)
+
+            # Rebuilding
+            for e_id, e in enumerate(events):
+                if e.rebuildable:
+                    rebuilding_demand = np.concatenate([e.industry_rebuild,e.final_demand_rebuild],axis=1)
+                    rebuild_demand_share = np.full(rebuilding_demand.shape,0.0)
+                    #print(rebuilding_demand.shape)
+                    #print(rebuilding_demand.sum(axis=1).shape)
+
+                    tot_rebuilding_demand = np.broadcast_to(rebuilding_demand.sum(axis=1)[:,np.newaxis],rebuilding_demand.shape)
+                    rebuild_demand_share[tot_rebuilding_demand!=0] = np.divide(rebuilding_demand[tot_rebuilding_demand!=0], tot_rebuilding_demand[tot_rebuilding_demand!=0])
+                    distributed_rebuild_production = np.multiply(rebuild_demand_share, np.expand_dims(rebuild_productions[e_id],1))
+                    e.industry_rebuild -= distributed_rebuild_production[:,:self.n_sectors*self.n_regions]
+                    e.final_demand_rebuild -= distributed_rebuild_production[:,self.n_sectors*self.n_regions:]
+
+            intmd_distribution = distributed_non_rebuild_production[:,:self.n_sectors * self.n_regions]
+            stock_use = np.tile(self.production, (self.n_sectors,1)) * self.tech_mat
+            assert not (stock_use < 0).any()
+            stock_add = self._matrix_I_sum @ intmd_distribution
+            assert not (stock_add < 0).any()
+            if not np.allclose(stock_add, stock_use):
+                assert not (self.matrix_stock < 0).any()
+            self.matrix_stock = self.matrix_stock - stock_use + stock_add
+            if (self.matrix_stock < 0).any():
+                self.matrix_stock.dump(self.results_storage/"matrix_stock_dump.pkl")
+                logger.error("Negative values in the stocks, matrix has been dumped in the results dir : \n {}".format(self.results_storage/"matrix_stock_dump.pkl"))
+                raise RuntimeError('Negative values in the stocks, matrix has been dumped in the results dir')
+
+            final_demand_not_met = self.final_demand - distributed_non_rebuild_production[:,self.n_sectors*self.n_regions:]#(self.n_sectors*self.n_regions + self.n_fd_cat*self.n_regions)]
+            final_demand_not_met = final_demand_not_met.sum(axis=1)
+            # avoid -0.0 (just in case)
+            final_demand_not_met[final_demand_not_met==0.] = 0.
+
+            self.write_final_demand_unmet(t, final_demand_not_met)
+        else:
+            n_events = len([e for e in events])
+            n_events_reb = len([e for e in events if e.rebuildable])
+            tot_rebuilding_demand_summed = np.zeros(self.X_0.shape)
+            tot_rebuilding_demand = np.zeros(shape=(self.n_sectors*self.n_regions, (self.n_sectors*self.n_regions+self.n_regions*self.n_fd_cat),n_events))
+            if n_events_reb >0:
+               for e_id, e in enumerate(events):
+                   if e.rebuildable:
+                       rebuilding_demand = np.concatenate([e.industry_rebuild,e.final_demand_rebuild],axis=1)
+                       rebuilding_demand_summed = np.add.reduce(rebuilding_demand,axis=1)
+                       tot_rebuilding_demand[:,:,e_id] = rebuilding_demand * self.rebuild_tau
+                       tot_rebuilding_demand_summed += rebuilding_demand_summed * self.rebuild_tau
+
+            tot_demand = np.concatenate([self.matrix_orders, self.final_demand, np.expand_dims(tot_rebuilding_demand_summed,1)], axis=1)
+            rationning_required = (self.production - tot_demand.sum(axis=1))<(-1/self.monetary_unit)
+            rationning_mask = np.tile(rationning_required[:,np.newaxis],(1,tot_demand.shape[1]))
+            demand_share = np.full(tot_demand.shape,0.0)
+            tot_dem_summed = np.expand_dims(np.sum(tot_demand, axis=1, where=rationning_mask),1)
+            np.divide(tot_demand, tot_dem_summed, where=(tot_dem_summed!=0), out=demand_share)
+            distributed_production = tot_demand.copy()
+            np.multiply(demand_share, np.expand_dims(self.production,1), out=distributed_production, where=rationning_mask)
+            intmd_distribution = distributed_production[:,:self.n_sectors * self.n_regions]
+            stock_use = np.tile(self.production, (self.n_sectors,1)) * self.tech_mat
+            assert not (stock_use < 0).any()
+            stock_add = self._matrix_I_sum @ intmd_distribution
+            assert not (stock_add < 0).any()
+            if not np.allclose(stock_add, stock_use):
+                assert not (self.matrix_stock < 0).any()
+            self.matrix_stock = self.matrix_stock - stock_use + stock_add
+            if (self.matrix_stock < 0).any():
+                self.matrix_stock.dump(self.results_storage/"matrix_stock_dump.pkl")
+                logger.error("Negative values in the stocks, matrix has been dumped in the results dir : \n {}".format(self.results_storage/"matrix_stock_dump.pkl"))
+                raise RuntimeError('Negative values in the stocks, matrix has been dumped in the results dir')
+
+            final_demand_not_met = self.final_demand - distributed_production[:,self.n_sectors*self.n_regions:(self.n_sectors*self.n_regions + self.n_fd_cat*self.n_regions)]
+            final_demand_not_met = final_demand_not_met.sum(axis=1)
+            # avoid -0.0 (just in case)
+            final_demand_not_met[final_demand_not_met==0.] = 0.
+            self.write_final_demand_unmet(t, final_demand_not_met)
+
+            rebuild_prod = distributed_production[:,(self.n_sectors*self.n_regions + self.n_fd_cat*self.n_regions):].copy().flatten()
+            self.write_rebuild_prod(t,rebuild_prod) #type: ignore
+            tot_rebuilding_demand_shares = np.zeros(shape=tot_rebuilding_demand.shape)
+            tot_rebuilding_demand_broad = np.broadcast_to(tot_rebuilding_demand_summed[:,np.newaxis,np.newaxis],tot_rebuilding_demand.shape)
+            np.divide(tot_rebuilding_demand,tot_rebuilding_demand_broad, where=(tot_rebuilding_demand_broad!=0), out=tot_rebuilding_demand_shares)
+            rebuild_prod_broad = np.broadcast_to(rebuild_prod[:,np.newaxis,np.newaxis],tot_rebuilding_demand.shape)
+            rebuild_prod_distributed = np.zeros(shape=tot_rebuilding_demand.shape)
+            np.multiply(tot_rebuilding_demand_shares,rebuild_prod_broad,out=rebuild_prod_distributed)
+            for e_id, e in enumerate(events):
+                e.industry_rebuild -= rebuild_prod_distributed[:,:self.n_sectors*self.n_regions,e_id]
+                e.final_demand_rebuild -= rebuild_prod_distributed[:,self.n_sectors*self.n_regions:,e_id]
+
+    def calc_orders(self, events:'list[Event]'):
         """TODO describe function
 
         :param stocks_constraints:
@@ -325,7 +509,7 @@ class MrioSystem(object):
         :returns:
 
         """
-        prod_reqby_demand = self.calc_prod_reqby_demand()
+        prod_reqby_demand = self.calc_prod_reqby_demand(events)
         production_opt = np.fmin(prod_reqby_demand, self.production_cap)
         matrix_stock_goal = np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat
         # Check this !
@@ -339,132 +523,46 @@ class MrioSystem(object):
             matrix_stock_gap[np.isfinite(matrix_stock_goal)] = (matrix_stock_goal[np.isfinite(matrix_stock_goal)] - self.matrix_stock[np.isfinite(self.matrix_stock)])
         assert (not np.isnan(matrix_stock_gap).any()), "NaN in matrix stock gap"
         matrix_stock_gap[matrix_stock_gap < 0] = 0
-        matrix_stock_gap = np.expand_dims(self.n_days_by_step/self.restoration_tau, axis=1) * matrix_stock_gap
+        matrix_stock_gap = np.expand_dims(self.restoration_tau, axis=1) * matrix_stock_gap
         # Speed up restocking ?
         # matrix_stock_gap[stocks_constraints] *=2
         matrix_stock_gap += (np.tile(self.production, (self.n_sectors, 1)) * self.tech_mat)
         assert not ((np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib) < 0).any()
         self.matrix_orders = (np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib)
 
-    def aggregate_rebuild_demand(self):
+    def aggregate_rebuild_demand(self, events:'list[Event]'):
         """TODO describe function
 
         :returns:
 
         """
+        tot_industry_rebuild_demand = np.add.reduce([e.industry_rebuild for e in events])
+        tot_final_rebuild_demand = np.add.reduce([e.final_demand_rebuild for e in events])
+        return tot_final_rebuild_demand.sum(axis=0) + tot_industry_rebuild_demand.sum(axis=0)
         if self.rebuilding_demand is None:
             return None
         else:
             assert self.rebuilding_demand.ndim == 3
             return self.rebuilding_demand.sum(axis=0)
 
-    def calc_rebuilding_production(self):
-        if self.rebuilding_demand is None:
-            logger.warning("Rebuilding demand is now None")
-            return np.full(self.production.shape, 0.0), self.production
-        elif self.prod_max_toward_rebuilding is not None:
-            #non_rebuild_demand = np.concatenate([self.matrix_orders, self.final_demand], axis=1)
-            rebuild_demand = self.rebuilding_demand.sum(axis=2)
-            rebuild_production = self.production[np.newaxis,:] * self.prod_max_toward_rebuilding
-            rebuild_production = np.minimum(rebuild_production, rebuild_demand)
-            #surplus_from_rebuild = (rebuild_production - rebuild_demand)
-            #surplus_from_rebuild[surplus_from_rebuild<0.0] = 0.0
-            #surplus_from_rebuild = surplus_from_rebuild.sum(axis=0)
-            prod_reqby_demand = self.calc_prod_reqby_demand()
-            scarcity = np.full(self.production.shape, 0.0)
-            scarcity[prod_reqby_demand!=0] = (prod_reqby_demand[prod_reqby_demand!=0] - self.production[prod_reqby_demand!=0]) / prod_reqby_demand[prod_reqby_demand!=0]
 
-            rebuild_scarcity = np.full(rebuild_production.shape,0.0)
-            rebuild_scarcity[rebuild_demand > 0.] = (rebuild_demand[rebuild_demand > 0.] - rebuild_production[rebuild_demand > 0.]) / rebuild_demand[rebuild_demand > 0.]
-            rebuild_scarcity[rebuild_scarcity < 0] = 0.0
 
-            rebuild_scarcity = rebuild_scarcity #* scarcity
-            #scarcity[np.isinf(scarcity)] = 0
-            prod_max_toward_rebuild_chg = ((0.25 - self.prod_max_toward_rebuilding) * rebuild_scarcity * (self.n_days_by_step / self.rebuild_tau) + (0. - self.prod_max_toward_rebuilding) * (rebuild_scarcity == 0) * (self.n_days_by_step / self.rebuild_tau))
-            assert not prod_max_toward_rebuild_chg[(prod_max_toward_rebuild_chg < -1) | (prod_max_toward_rebuild_chg > 1)].any()
-            self.prod_max_toward_rebuilding += prod_max_toward_rebuild_chg
-            self.prod_max_toward_rebuilding[self.prod_max_toward_rebuilding < 0] = 0
-            self.prod_max_toward_rebuilding = self.prod_max_toward_rebuilding.round(15)
-            assert not self.prod_max_toward_rebuilding[(self.prod_max_toward_rebuilding < 0) | (self.prod_max_toward_rebuilding > 1)].any()
-            non_rebuild_production = self.production - rebuild_production.sum(axis=0)
-
-            assert np.allclose(rebuild_production.sum(axis=0) + non_rebuild_production, self.production)
-            return rebuild_production, non_rebuild_production
-        else:
-            raise ValueError("Attempt to compute prod_max_toward_rebuilding_chg while prod_max_toward_rebuilding is None")
-
-    def distribute_production(self,
-                              t: int,
-                              scheme='proportional'):
-        if scheme != 'proportional':
-            raise ValueError("Scheme %s not implemented"% scheme)
-
-        rebuild_production, non_rebuild_production = self.calc_rebuilding_production()
-        self.write_rebuild_prod(t,rebuild_production.sum(axis=0)) #type: ignore
-        # 'Usual' demand (intermediate and final)
-        non_rebuild_demand = np.concatenate([self.matrix_orders, self.final_demand], axis=1)
-        rationning_required = (non_rebuild_production - non_rebuild_demand.sum(axis=1))<(-1/self.monetary_unit)
-        rationning_mask = np.tile(rationning_required[:,np.newaxis],(1,(self.n_regions*self.n_sectors)+(self.n_regions*self.n_fd_cat)))
-        demand_share = np.full(non_rebuild_demand.shape,0.0)
-        tot_dem = np.expand_dims(np.sum(non_rebuild_demand, axis=1, where=rationning_mask),1)
-        np.divide(non_rebuild_demand, tot_dem, where=(tot_dem!=0), out=demand_share)
-        #with np.errstate(divide='ignore',invalid='ignore'):
-        #    demand_share = np.divide(non_rebuild_demand, np.expand_dims(np.sum(non_rebuild_demand, axis=1),1))
-        #shape = demand_share.shape
-        #demand_share = demand_share.ravel()
-        #demand_share[np.isnan(demand_share)]=0
-        #assert (not demand_share.isnull().any()), "NaNs in demand share (distribution module)"
-        #demand_share = demand_share.reshape(shape)
-        distributed_non_rebuild_production = non_rebuild_demand
-        np.multiply(demand_share, np.expand_dims(non_rebuild_production,1), out=distributed_non_rebuild_production, where=rationning_mask)
-
-        # Rebuilding
-
-        if self.rebuilding_demand is not None:
-            rebuild_demand_share = np.full(self.rebuilding_demand.shape,0.0)
-            tot_rebuilding_demand = np.broadcast_to(self.rebuilding_demand.sum(axis=2)[:,:,np.newaxis],self.rebuilding_demand.shape)
-            rebuild_demand_share[tot_rebuilding_demand!=0] = np.divide(self.rebuilding_demand[tot_rebuilding_demand!=0], tot_rebuilding_demand[tot_rebuilding_demand!=0])
-            distributed_rebuild_production = np.multiply(rebuild_demand_share, np.expand_dims(rebuild_production,2))
-            if ((self.rebuilding_demand - distributed_rebuild_production).round(10) < 0).any():
-                raise RuntimeError('Rebuild production exceeds rebuild demand somewhere, this is strange. Aborting simulation.')
-            self.rebuilding_demand -= distributed_rebuild_production#.reshape(self.rebuilding_demand.shape)
-            self.__update_kapital_lost()
-
-        intmd_distribution = distributed_non_rebuild_production[:,:self.n_sectors * self.n_regions]
-        stock_use = np.tile(self.production, (self.n_sectors,1)) * self.tech_mat
-        assert not (stock_use < 0).any()
-        stock_add = self._matrix_I_sum @ intmd_distribution
-        assert not (stock_add < 0).any()
-        if not np.allclose(stock_add, stock_use):
-            assert not (self.matrix_stock < 0).any()
-            self.matrix_stock = self.matrix_stock - stock_use + stock_add
-            if (self.matrix_stock < 0).any():
-                self.matrix_stock.dump(self.results_storage/"matrix_stock_dump.pkl")
-                logger.error("Negative values in the stocks, matrix has been dumped in the results dir : \n {}".format(self.results_storage/"matrix_stock_dump.pkl"))
-                raise RuntimeError('Negative values in the stocks, matrix has been dumped in the results dir')
-
-        final_demand_not_met = self.final_demand - distributed_non_rebuild_production[:,self.n_sectors*self.n_regions:]#(self.n_sectors*self.n_regions + self.n_fd_cat*self.n_regions)]
-        final_demand_not_met = final_demand_not_met.sum(axis=1)
-        # avoid -0.0 (just in case)
-        final_demand_not_met[final_demand_not_met==0.] = 0.
-
-        self.write_final_demand_unmet(t, final_demand_not_met)
-
-    def update_kapital_lost(self,
+    def update_kapital_lost(self, events:'list[Event]'
                         ):
-        self.__update_kapital_lost()
+        self.__update_kapital_lost(events)
 
-    def __update_kapital_lost(self,
-                        ):
-        self.kapital_lost = self.aggregate_rebuild_demand().sum(axis=0)
+    def __update_kapital_lost(self, events:'list[Event]'
+                              ):
+        tot_industry_rebuild_demand = np.add.reduce([e.industry_rebuild for e in events])
 
+        self.kapital_lost = tot_industry_rebuild_demand.sum(axis=0)
 
-    def calc_overproduction(self):
-        prod_reqby_demand = self.calc_prod_reqby_demand()
+    def calc_overproduction(self, events:'list[Event]'):
+        prod_reqby_demand = self.calc_prod_reqby_demand(events)
         scarcity = np.full(self.production.shape, 0.0)
         scarcity[prod_reqby_demand!=0] = (prod_reqby_demand[prod_reqby_demand!=0] - self.production[prod_reqby_demand!=0]) / prod_reqby_demand[prod_reqby_demand!=0]
         scarcity[np.isnan(scarcity)] = 0
-        overprod_chg = (((self.overprod_max - self.overprod) * scarcity * (self.n_days_by_step / self.overprod_tau)) + ((self.overprod_base - self.overprod) * (scarcity == 0) * self.n_days_by_step/self.overprod_tau)).flatten()
+        overprod_chg = (((self.overprod_max - self.overprod) * (scarcity) * self.overprod_tau) + ((self.overprod_base - self.overprod) * (scarcity == 0) * self.overprod_tau)).flatten()
         self.overprod += overprod_chg
         self.overprod[self.overprod < 1.] = 1.
 
@@ -551,7 +649,8 @@ class MrioSystem(object):
         self.overprod_max = new_params['alpha_max']
         self.overprod_tau = new_params['alpha_tau']
         self.overprod_base = new_params['alpha_base']
-        self.restoration_tau = np.full(self.n_sectors, new_params['inventory_restoration_time'])
+        restoration_tau = [(self.n_days_by_step / new_params['inventory_restoration_time'])]# if v >= INV_THRESHOLD else v for v in inventories]
+        self.restoration_tau = np.array(restoration_tau)
         if self.results_storage != pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage']):
             self.results_storage = pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage'])
             self.reset_record_files(new_params['n_timesteps'], new_params['register_stocks'])
@@ -580,7 +679,7 @@ class MrioSystem(object):
 
     def write_rebuild_demand(self, t:int):
         to_write = np.full(self.n_regions*self.n_sectors,0.0)
-        if (r_dem := self.aggregate_rebuild_demand()) is not None:
+        if (r_dem := self.rebuild_demand) is not None:
             self.rebuild_demand_evolution[t] = r_dem.sum(axis=1)
         else:
             self.rebuild_demand_evolution[t] = to_write
