@@ -143,8 +143,10 @@ class MrioSystem(object):
         logger.debug("Initiating new MrioSystem instance")
         super().__init__()
 
+        ################ Parameters variables #######################
         self.mrio_params = mrio_params
         self.main_inv_dur = mrio_params['main_inv_dur']
+        results_storage = results_storage.absolute()
         self.results_storage = results_storage
         logger.info("Results storage is: {}".format(self.results_storage))
         self.regions = np.array(sorted(list(pym_mrio.get_regions()))) #type: ignore
@@ -172,51 +174,45 @@ class MrioSystem(object):
         self.overprod_max = simulation_params['alpha_max']
         self.overprod_tau = simulation_params['alpha_tau']
         self.overprod_base = simulation_params['alpha_base']
-        self.in_shortage = False
-        self.had_shortage = False
-        pym_mrio = lexico_reindex(pym_mrio)
-        self._matrix_id = np.eye(self.n_sectors)
-        self._matrix_I_sum = np.tile(self._matrix_id, self.n_regions)
         inv = mrio_params['inventories_dict']
-        inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
-        self.inv_duration = np.array(inventories) / self.n_days_by_step
-        self.inv_duration[self.inv_duration <= 1] = 2
-        restoration_tau = [(simulation_params['inventory_restoration_time'] / self.n_days_by_step) if v >= INV_THRESHOLD else v for v in inventories]
-        self.restoration_tau = np.array(restoration_tau)
-        #np.full(self.n_sectors, simulation_params['inventory_restoration_time'])
+        #################################################################
 
-
+        ######## INITIAL MRIO STATE (in step temporality) ###############
         self.Z_0 = pym_mrio.Z.to_numpy()
         self.Z_C = (self._matrix_I_sum @ self.Z_0)
         with np.errstate(divide='ignore',invalid='ignore'):
             self.Z_distrib = (np.divide(self.Z_0,(np.tile(self.Z_C, (self.n_regions, 1)))))
         self.Z_distrib = np.nan_to_num(self.Z_distrib)
-
         self.Z_0 = (pym_mrio.Z.to_numpy() * self.steply_factor)
         self.Y_0 = (pym_mrio.Y.to_numpy() * self.steply_factor)
         self.X_0 = (pym_mrio.x.T.to_numpy().flatten() * self.steply_factor) #type: ignore
-        #self.classic_demand_evolution = (pym_mrio.x.T.to_numpy().flatten() / self.timestep_dividing_factor) #type: ignore
-
-        #exts_names, exts = pym_mrio.get_extensions(), pym_mrio.get_extensions(True)
-        #tmp_chk = False
-        #for name in exts_names:
-        #    ext = next(exts)
-        #    if name in VALUE_ADDED_NAMES:
-        #        value_added = ext.F #type: ignore
-        #        tmp_chk = True
-        #if not tmp_chk:
-        #    raise NotImplementedError('Value added table not found in given MRIO, contact the dev !')
         value_added = (pym_mrio.x.T - pym_mrio.Z.sum(axis=0))
         value_added = value_added.reindex(sorted(value_added.index), axis=0) #type: ignore
         value_added = value_added.reindex(sorted(value_added.columns), axis=1)
         value_added[value_added < 0] = 0.0
-        #if value_added.ndim > 1:
-        #    self.gdp_df = value_added.sum(axis=0).groupby('region').sum()
-        #    self.VA_0 = (value_added.sum(axis=0).to_numpy())
-        #else:
         self.gdp_df = value_added.groupby('region',axis=1).sum()
         self.VA_0 = (value_added.to_numpy().flatten())
         self.tech_mat = ((self._matrix_I_sum @ pym_mrio.A).to_numpy())
+        kratio = mrio_params['capital_ratio_dict']
+        kratio_ordered = [kratio[k] for k in sorted(kratio.keys())]
+        self.kstock_ratio_to_VA = np.tile(np.array(kratio_ordered),self.n_regions)
+        if value_added.ndim > 1:
+            self.gdp_share_sector = (self.VA_0 / value_added.sum(axis=0).groupby('region').transform('sum').to_numpy())
+        else:
+            self.gdp_share_sector = (self.VA_0 / value_added.groupby('region').transform('sum').to_numpy())
+        self.gdp_share_sector = self.gdp_share_sector.flatten()
+        self.matrix_share_thresh = self.Z_C > np.tile(self.X_0, (self.n_sectors, 1)) * 0.00001 # [n_sectors, n_regions*n_sectors]
+        #################################################################
+
+        ####### SIMULATION VARIABLES ####################################
+        pym_mrio = lexico_reindex(pym_mrio)
+        self._matrix_id = np.eye(self.n_sectors)
+        self._matrix_I_sum = np.tile(self._matrix_id, self.n_regions)
+        inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
+        self.inv_duration = np.array(inventories) / self.n_days_by_step
+        self.inv_duration[self.inv_duration <= 1] = 2
+        restoration_tau = [(simulation_params['inventory_restoration_time'] / self.n_days_by_step) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
+        self.restoration_tau = np.array(restoration_tau)
         self.overprod = np.full((self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64)
         with np.errstate(divide='ignore',invalid='ignore'):
             self.matrix_stock = ((np.tile(self.X_0, (self.n_sectors, 1)) * self.tech_mat) * self.inv_duration[:,np.newaxis])
@@ -229,20 +225,11 @@ class MrioSystem(object):
         self.final_demand = self.Y_0.copy()
         self.rebuilding_demand = None
         self.prod_max_toward_rebuilding = None
-        self.kapital_lost = np.zeros(self.production.shape)
-        if value_added.ndim > 1:
-            self.gdp_share_sector = (self.VA_0 / value_added.sum(axis=0).groupby('region').transform('sum').to_numpy())
-        else:
-            self.gdp_share_sector = (self.VA_0 / value_added.groupby('region').transform('sum').to_numpy())
-        self.gdp_share_sector = self.gdp_share_sector.flatten()
-        kratio = mrio_params['capital_ratio_dict']
-        kratio_ordered = [kratio[k] for k in sorted(kratio.keys())]
-        self.kstock_ratio_to_VA = np.tile(np.array(kratio_ordered),self.n_regions)
+        ##################################################################
 
-        self.matrix_share_thresh = self.Z_C > np.tile(self.X_0, (self.n_sectors, 1)) * 0.00001 # [n_sectors, n_regions*n_sectors]
-        results_storage = results_storage.absolute()
-        self.results_storage = results_storage
-
+        ################## SIMULATION TRACKING VARIABLES ###########################
+        self.in_shortage = False
+        self.had_shortage = False
         self.production_evolution = np.memmap(results_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
         self.production_cap_evolution = np.memmap(results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
         self.classic_demand_evolution = np.memmap(results_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
@@ -254,14 +241,24 @@ class MrioSystem(object):
             self.stocks_evolution = np.memmap(results_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
 
         self.limiting_stocks_evolution = np.memmap(results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
+        #############################################################################
+
+        #### POST INIT ####
         if not pathlib.Path(results_storage/"indexes.json").exists() :
             self.write_index(results_storage/"indexes.json")
 
     def calc_production_cap(self):
-        """TODO describe function
+        """Compute and update production capacity.
 
-        :returns:
+        Compute and update production capacity from possible kapital damage and overproduction.
 
+        .. math::
+            X(e^{j\omega } ) = x(n)e^{ - j\omega n}
+
+        Raises
+        ------
+        ValueError
+            Raised if any industry has negative production (probably from kapital loss too high)
         """
         self.production_cap = self.X_0.copy()
         productivity_loss = np.zeros(shape=self.kapital_lost.shape)
@@ -271,7 +268,8 @@ class MrioSystem(object):
             self.production_cap = self.production_cap * (1 - productivity_loss)
         if (self.overprod > 1.0).any():
             self.production_cap *= self.overprod
-        assert not (self.production_cap < 0).any()
+        if (self.production_cap < 0).any() :
+            raise ValueError("Production capacity was found negative for at least on industry")
 
     def calc_prod_reqby_demand(self):
         """TODO describe function
