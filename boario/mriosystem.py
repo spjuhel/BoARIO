@@ -147,6 +147,9 @@ class MrioSystem(object):
         super().__init__()
 
         ################ Parameters variables #######################
+        pym_mrio = lexico_reindex(pym_mrio)
+        self._matrix_id = np.eye(self.n_sectors)
+        self._matrix_I_sum = np.tile(self._matrix_id, self.n_regions)
         self.mrio_params = mrio_params
         self.main_inv_dur = mrio_params['main_inv_dur']
         results_storage = results_storage.absolute()
@@ -181,7 +184,7 @@ class MrioSystem(object):
         inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
         self.inv_duration = np.array(inventories)  / self.n_days_by_step
         self.inv_duration[self.inv_duration <= 1] = 2
-        restoration_tau = [(self.n_days_by_step / simulation_params['inventory_restoration_time'])]# if v >= INV_THRESHOLD else v for v in inventories]
+        restoration_tau = [(simulation_params['inventory_restoration_time'] / self.n_days_by_step) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
         self.restoration_tau = np.array(restoration_tau)
 
         ######## INITIAL MRIO STATE (in step temporality) ###############
@@ -212,14 +215,6 @@ class MrioSystem(object):
         #################################################################
 
         ####### SIMULATION VARIABLES ####################################
-        pym_mrio = lexico_reindex(pym_mrio)
-        self._matrix_id = np.eye(self.n_sectors)
-        self._matrix_I_sum = np.tile(self._matrix_id, self.n_regions)
-        inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
-        self.inv_duration = np.array(inventories) / self.n_days_by_step
-        self.inv_duration[self.inv_duration <= 1] = 2
-        restoration_tau = [(simulation_params['inventory_restoration_time'] / self.n_days_by_step) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
-        self.restoration_tau = np.array(restoration_tau)
         self.overprod = np.full((self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64)
         with np.errstate(divide='ignore',invalid='ignore'):
             self.matrix_stock = ((np.tile(self.X_0, (self.n_sectors, 1)) * self.tech_mat) * self.inv_duration[:,np.newaxis])
@@ -378,12 +373,8 @@ class MrioSystem(object):
                 rebuild_scarcity = np.full(event_rebuild_production.shape,0.0)
                 rebuild_scarcity[event_rebuild_demand > 0.] = (event_rebuild_demand[event_rebuild_demand > 0.] - event_rebuild_production[event_rebuild_demand > 0.]) / event_rebuild_demand[event_rebuild_demand > 0.]
                 rebuild_scarcity[rebuild_scarcity < 0] = 0.0
-                #print(e.final_demand_rebuild.shape)
-                #print(e.industry_rebuild.shape)
 
                 prod_max_toward_rebuild_chg = ((rebuild_prod_ceil - e.production_share_allocated) * rebuild_scarcity * self.rebuild_tau + (0. - e.production_share_allocated) * (rebuild_scarcity == 0) * self.rebuild_tau)
-                #print(prod_max_toward_rebuild_chg.shape)
-                #print(e.production_share_allocated.shape)
                 assert not prod_max_toward_rebuild_chg[(prod_max_toward_rebuild_chg < -1) | (prod_max_toward_rebuild_chg > 1)].any()
                 e.production_share_allocated += prod_max_toward_rebuild_chg
                 e.production_share_allocated[e.production_share_allocated < 0] = 0
