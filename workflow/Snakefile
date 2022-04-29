@@ -77,6 +77,8 @@ rule mv_to_final:
         OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/treated_df_loss.parquet",
         OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/prod_df.parquet",
         OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/c_demand_df.parquet",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/prod_chg.json",
+        OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/fd_loss.json"
     params:
         final_dir = FINAL_DIR,
         output_dir = OUTPUT_DIR
@@ -101,6 +103,8 @@ rule mv_to_final:
         FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/treated_df_loss.parquet",
         FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/prod_df.parquet",
         FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/c_demand_df.parquet",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/prod_chg.json",
+        FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/fd_loss.json"
     shell:
         """
         mkdir -p {params.final_dir}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}_inv_time_{wildcards.inv_t}/
