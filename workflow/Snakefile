@@ -197,6 +197,8 @@ rule run_Full_dmg:
         event_template = INPUT_DIR + "event_template.json",
         params_file = INPUT_DIR + "params.json",
         mrio_params = INPUT_DIR + "mrio_params.json"
+    wildcard_constraints:
+        flood="\d+"
     output:
         OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/indexes.json",
         OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/classic_demand_record",
@@ -227,14 +229,14 @@ rule run_Full_dmg:
         nice -n 10 python {config[ARIO_DIR]}/scripts/mono_run_dmg.py {wildcards.region} {input.params_file} {wildcards.psi} {wildcards.inv} Full {wildcards.flood} {params.input_dir} {params.output_dir} {input.event_template} {input.mrio_params} {wildcards.inv_t}
         """
 
-
-
 rule run_Full:
     input:
         mrio = INPUT_DIR + "mrio_full.pkl",
         event_template = INPUT_DIR + "event_template.json",
         params_file = INPUT_DIR + "params.json",
         mrio_params = INPUT_DIR + "mrio_params.json"
+    wildcard_constraints:
+        flood="max|min|[1-99]%"
     output:
         OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/indexes.json",
         OUTPUT_DIR+"{region}_type_Full_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/classic_demand_record",
