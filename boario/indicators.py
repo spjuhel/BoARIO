@@ -320,7 +320,7 @@ class Indicators(object):
         prod_chg_sect = prod_chg.sum()
         self.prod_chg_region =  prod_chg.sum().groupby('region').sum()
         self.prod_chg_region = pd.DataFrame({self.storage_path.name:self.prod_chg_region}).T
-        self.prod_chg_region.to_json(save_path+"/prod_chg.json", indent=4)
+        self.prod_chg_region.to_json(self.storage_path/"prod_chg.json", indent=4)
 
         self.indicators['prod_gain_tot'] = prod_chg.mul(prod_chg.gt(0)).sum().sum()
         self.indicators['prod_lost_tot'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum() * (-1)
