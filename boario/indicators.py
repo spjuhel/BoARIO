@@ -132,8 +132,8 @@ class Indicators(object):
             "n_timesteps" : data_dict['n_timesteps_simulated'],
             "has_crashed" : data_dict['has_crashed'],
         }
-        self.storage = pathlib.Path(data_dict['results_storage'])/'indicators.json'
-        self.storage_path = pathlib.Path(data_dict['results_storage'])
+        self.storage = (pathlib.Path(data_dict['results_storage'])/'indicators.json').resolve()
+        self.storage_path = (pathlib.Path(data_dict['results_storage'])).resolve()
         self.save_dfs()
 
     @classmethod
@@ -319,7 +319,9 @@ class Indicators(object):
         prod_chg = prod_chg.round(6)
         prod_chg_sect = prod_chg.sum()
         self.prod_chg_region =  prod_chg.sum().groupby('region').sum()
-        self.prod_chg_region.to_json(self.storage_path/"prod_chg.json")
+        self.prod_chg_region = pd.DataFrame({self.storage_path.name:self.prod_chg_region}).T
+        self.prod_chg_region.to_json(save_path+"/prod_chg.json", indent=4)
+
         self.indicators['prod_gain_tot'] = prod_chg.mul(prod_chg.gt(0)).sum().sum()
         self.indicators['prod_lost_tot'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum() * (-1)
         prod_chg = prod_chg.drop(self.aff_regions, axis=1)
@@ -348,6 +350,7 @@ class Indicators(object):
         df2 = self.df_loss.set_index(['step','region','fd_cat']).unstack([1,2])
         df2 = df2.round(6)
         self.df_loss_region = df2.sum().groupby('region').sum()
+        self.df_loss_region = pd.DataFrame({self.storage_path.name:self.df_loss_region}).T
         self.df_loss_region.to_json(self.storage_path/"fd_loss.json")
 
 
