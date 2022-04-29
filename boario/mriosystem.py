@@ -148,8 +148,6 @@ class MrioSystem(object):
 
         ################ Parameters variables #######################
         pym_mrio = lexico_reindex(pym_mrio)
-        self._matrix_id = np.eye(self.n_sectors)
-        self._matrix_I_sum = np.tile(self._matrix_id, self.n_regions)
         self.mrio_params = mrio_params
         self.main_inv_dur = mrio_params['main_inv_dur']
         results_storage = results_storage.absolute()
@@ -186,8 +184,12 @@ class MrioSystem(object):
         self.inv_duration[self.inv_duration <= 1] = 2
         restoration_tau = [(simulation_params['inventory_restoration_time'] / self.n_days_by_step) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
         self.restoration_tau = np.array(restoration_tau)
+        #################################################################
+
 
         ######## INITIAL MRIO STATE (in step temporality) ###############
+        self._matrix_id = np.eye(self.n_sectors)
+        self._matrix_I_sum = np.tile(self._matrix_id, self.n_regions)
         self.Z_0 = pym_mrio.Z.to_numpy()
         self.Z_C = (self._matrix_I_sum @ self.Z_0)
         with np.errstate(divide='ignore',invalid='ignore'):
