@@ -182,7 +182,7 @@ class MrioSystem(object):
         inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
         self.inv_duration = np.array(inventories)  / self.n_days_by_step
         self.inv_duration[self.inv_duration <= 1] = 2
-        restoration_tau = [(simulation_params['inventory_restoration_time'] / self.n_days_by_step) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
+        restoration_tau = [(self.n_days_by_step / simulation_params['inventory_restoration_time']) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
         self.restoration_tau = np.array(restoration_tau)
         #################################################################
 
@@ -261,8 +261,7 @@ class MrioSystem(object):
         #############################################################################
 
         #### POST INIT ####
-        if not pathlib.Path(results_storage/"indexes.json").exists() :
-            self.write_index(results_storage/"indexes.json")
+        self.write_index(results_storage/"indexes.json")
 
     def update_system_from_events(self, events: 'list[Event]') -> None:
         self.update_kapital_lost(events)
@@ -358,7 +357,7 @@ class MrioSystem(object):
         else:
             if self.in_shortage:
                 self.in_shortage = False
-                logger.info('All industries exited shortage regime')
+                logger.info('All industries exited shortage regime. (step:{})'.format(current_step))
             assert not (production_opt < 0).any()
             self.production = production_opt
         return stock_constraint
