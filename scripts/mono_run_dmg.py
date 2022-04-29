@@ -55,7 +55,7 @@ def run(region, params, psi, inv_tau, stype, flood_dmg, input_dir, output_dir, e
     sim_params['inventory_restoration_time'] = inv_tau
     event['r_dmg'] = -99
     event['aff-regions'] = region
-    event['q_dmg'] = dmg
+    event['q_dmg'] = int(dmg)
     sim_params["output_dir"] = output_dir
     if alt_inv_dur:
         sim_params["results_storage"] = region+'_type_'+stype+'_qdmg_raw_'+flood_dmg+'_Psi_'+psi+"_inv_tau_"+str(sim_params['inventory_restoration_time'])+"_inv_time_"+str(int(alt_inv_dur))
