@@ -348,7 +348,7 @@ class Indicators(object):
             json.dump(self.indicators, f, cls=numpyencoder.NumpyEncoder)
 
     def calc_fd_loss_region(self):
-        df2 = self.df_loss.set_index(['step','region','fd_cat']).unstack([1,2])
+        df2 = self.df_loss.set_index(['step','region','sector']).unstack([1,2])
         df2 = df2.round(6)
         self.df_loss_region = df2.sum().groupby('region').sum()
         self.df_loss_region = pd.DataFrame({self.storage_path.name:self.df_loss_region}).T
