@@ -7,10 +7,17 @@ FINAL_DIR = config['LONG_TERM_DIR']
 REGIONS = config['REGIONS']
 TYPES = config['TYPES']
 FLOOD_INT = config['FLOOD_INT']
+FLOOD_DMG = config['FLOOD_DMG']
 PSI = config['PSI']
 INV_TAU = config['INV_TAU']
 INV_TIME = config['INV_TIME']
 FLOOD_GDP_SHARE_FILE = config['FLOOD_GDP_SHARE_FILE']
+
+def raw_dmg_runs():
+    if FINAL_DIR == OUTPUT_DIR:
+        return expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_DMG, psi=PSI, inv=INV_TAU, inv_t=INV_TIME)
+    else :
+        return expand(FINAL_DIR+"{region}_type_{stype}_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_DMG, psi=PSI, inv=INV_TAU, inv_t=INV_TIME)
 
 def runs():
     if FINAL_DIR == OUTPUT_DIR:
@@ -177,6 +184,44 @@ rule run_RoW:
         """
         nice -n 10 python {config[ARIO_DIR]}/scripts/mono_run.py {wildcards.region} {input.params_file} {wildcards.psi} {wildcards.inv} RoW {wildcards.flood} {params.input_dir} {params.output_dir} {params.flood_gdp} {input.event_template} {input.mrio_params} {wildcards.inv_t}
         """
+
+rule run_Full_dmg:
+    input:
+        mrio = INPUT_DIR + "mrio_full.pkl",
+        event_template = INPUT_DIR + "event_template.json",
+        params_file = INPUT_DIR + "params.json",
+        mrio_params = INPUT_DIR + "mrio_params.json"
+    output:
+        OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/indexes.json",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/classic_demand_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/final_demand_unmet_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/iotable_X_max_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/iotable_XVA_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/limiting_stocks_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/overprodvector_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/rebuild_demand_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/rebuild_prod_record",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/simulated_events.json",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/simulated_params.json",
+        OUTPUT_DIR+"{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/simulation.log"
+    benchmark:
+        OUTPUT_DIR + "benchmarks/run_{region}_type_Full_qdmg_raw_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}.benchmark.txt"
+    resources:
+        vmem_mb=3000,
+        mem_mb=2000,
+        disk_mb=500
+    conda:
+        "ario3"
+    params:
+        input_dir = INPUT_DIR,
+        output_dir = OUTPUT_DIR,
+        flood_gdp = FLOOD_GDP_SHARE_FILE
+    shell:
+        """
+        nice -n 10 python {config[ARIO_DIR]}/scripts/mono_run_dmg.py {wildcards.region} {input.params_file} {wildcards.psi} {wildcards.inv} Full {wildcards.flood} {params.input_dir} {params.output_dir} {input.event_template} {input.mrio_params} {wildcards.inv_t}
+        """
+
+
 
 rule run_Full:
     input:
