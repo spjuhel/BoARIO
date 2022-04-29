@@ -25,13 +25,19 @@ def runs():
     else :
         return expand(FINAL_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/indicators.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU, inv_t=INV_TIME)
 
+RAW_DMG_RUNS = raw_dmg_runs()
+
 RUNS = runs()
 
 PROD_INDICATORS_RUNS = expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/prod_chg.json", region=REGIONS, stype=TYPES, flood=FLOOD_INT, psi=PSI, inv=INV_TAU, inv_t=INV_TIME)
 
 TEST_RUN_FULL = expand(OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/indicators.json", region=REGIONS[0], stype=TYPES[0], flood=FLOOD_INT[0], psi=PSI[0], inv=INV_TAU[0], inv_t=INV_TIME[0])
 
-rule all:
+rule all_raw:
+    input:
+        RAW_DMG_RUNS
+
+rule all_intensity:
     input:
         RUNS
 
