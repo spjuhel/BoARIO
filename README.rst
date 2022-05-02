@@ -26,34 +26,6 @@ Here is a non-exhaustive chronology of academic works with or about the ARIO mod
            :width: 800
            :alt: ADEME Logo
 
-References
------------
-
-[AH19] Andre F. T. Avelino and Geoffray J. D. Hewings. “The Challenge of Estimating the Impact of Disasters: Many Approaches, Many Limitations and a Compromise”. In: Advances in Spatial and Economic Modeling of Disaster Impacts. Ed. by Yasuhide Okuyama and Adam Rose. Advances in Spatial Science. Springer International Publishing, 2019. Chap. 7, pp. 163–189. doi: 10.1007/978-3-030-16237-5.
-
-[CHR19] Célian Colon, S. Hallegatte, and Julie Rozenberg. Transportation and Supply Chain Resilience in the United Republic of Tanzania: Assessing the Supply-Chain Impacts of Disaster-Induced Transportation Disruptions. 00001. World Bank, June 2019. doi: 10.1596/31909.
-
-[Gua+20] Dabo Guan et al. “Global Supply-Chain Effects of Covid-19 Control Measures”. In: Nature Human Behaviour 4.6 (2020), pp. 577–587. doi: 10.1038/s41562-020-0896-8.
-
-[Hal+11] Stéphane Hallegatte et al. “Assessing Climate Change Impacts, Sea Level Rise and Storm Surge Risk in Port Cities: a Case Study on Copenhagen”. In: Climatic Change 104.1 (2011), pp. 113–137. doi: 10.1007/s10584-010-9978-3.
-
-[Hal08] S. Hallegatte. “An Adaptive Regional Input-Output Model and Its Application to the Assessment of the Economic Cost of Katrina”. In: Risk Analysis 28.3 (June 2008). 00483, pp. 779–799. doi: 10.1111/j.1539-6924.2008.01046.x.
-
-[Hal13] Stéphane Hallegatte. “Modeling the Role of Inventories and Heterogeneity in the Assessment of the Economic Costs of Natural Disasters”. In: Risk Analysis 34.1 (2013), pp. 152–167. doi: 10.1111/risa.12090.
-
-[HHT12] Fanny Henriet, Stéphane Hallegatte, and Lionel Tabourier. “Firm-Network Characteristics and Economic Robustness To Natural Disasters”. In: Journal of Economic Dynamics and Control 36.1 (2012), pp. 150–167. doi: 10.1016/j.jedc.2011.10.001.
-
-[Kok+15] E. E. Koks et al. “Integrated Direct and Indirect Flood Risk Modeling: Development and Sensitivity Analysis”. In: Risk Analysis 35.5 (2015), pp. 882–900. doi: 10.1111/risa.12300.
-
-[Ran+10] Nicola Ranger et al. “An Assessment of the Potential Impact of Climate Change on Flood Risk in Mumbai”. In: Climatic Change 104.1 (2010), pp. 139–167. doi: 10.1007/s10584-010-9979-2.
-
-[Wan+18] Cailin Wang et al. “Quantifying the Spatial Ripple Effect of the Bohai Sea Ice Disaster in the Winter of 2009/2010 in 31 Provinces of China”. In: Geomatics, Natural Hazards and Risk 9.1 (2018), pp. 986–1005. doi: 10.1080/19475705.2018.1489312.
-
-[Wan+20] Daoping Wang et al. “Economic Footprint of California Wildfires in 2018”. In: Nature Sustainability 4.3 (2020), pp. 252–260. doi: 10.1038/s41893-020-00646-7.
-
-[Zha+18] Zhengtao Zhang et al. “Analysis of the Economic Ripple Effect of the United States on the World Due To Future Climate Change”. In: Earth’s Future 6.6 (2018), pp. 828–840. doi: 10.1029/2018ef000839.
-
-[Zha+21] Zhengtao Zhang et al. “Analysis of the Impact of Dynamic Economic Resilience on Post-Disaster Recovery ”Secondary Shock” and Sustainable Improvement of System Performance”. In: Safety Science 144.nil (2021), p. 105443. doi: 10.1016/j.ssci.2021.105443.
 
 
 Where to get it ?
