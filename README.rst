@@ -220,7 +220,13 @@ Where ``shape`` is the shape mentioned afterward.
 Indicators
 ============
 
-Invoking :pythoncode:`indic = Indicators.from_storage_path("path/to/results/folder", param=simulation_params_dictionary)` create an Indicators object containing mostly all results from the simulation in dataframe. For instance :pythoncode:`indic.prod_df` is a dataframe of the production of each sector of each region for every timestep. Note that some dataframes are in wide format while other are in long format, for treatment purpose. Also note that some of these dataframes are saved in the result folder as `parquet`_ files. They are simply the memmaps ``records`` with the indexes.
+Invoking
+
+.. code:: python
+
+          indic = Indicators.from_storage_path("path/to/results/folder", param=simulation_params_dictionary)`
+
+   create an Indicators object containing mostly all results from the simulation in dataframe. For instance :pythoncode:`indic.prod_df` is a dataframe of the production of each sector of each region for every timestep. Note that some dataframes are in wide format while other are in long format, for treatment purpose. Also note that some of these dataframes are saved in the result folder as `parquet`_ files. They are simply the memmaps ``records`` with the indexes.
 
 Calling :pythoncode:`indic.update_indicators()` fills the :pythoncode:`indic.indicators` dictionary with the following indicators:
  - The total (whole world, all sectors) final consumption not met during the simulation :pythoncode:`indicator['tot_fd_unmet']`.
