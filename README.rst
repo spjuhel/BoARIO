@@ -160,13 +160,13 @@ simulation. We suppose we run the following script from ``~/boario/``
 
 This script will produce files in ``~/boario/storage/results/`` :
 
- - ``simulated_events.json`` : A json record of the events that were simulated
+   - ``simulated_events.json`` : A json record of the events that were simulated
    during the loop.
 
- - ``indicators.json`` : A json record (produced by :func:`~boario.indicators.Indicators.write_indicators`)
+   - ``indicators.json`` : A json record (produced by :func:`~boario.indicators.Indicators.write_indicators`)
    of the computed indicators.
 
- - ``record`` files. These are :py:class:`numpy.memmap`:
+   - ``record`` files. These are :py:class:`numpy.memmap`:
    of the different recorded variables.
 
 Record files
@@ -184,34 +184,34 @@ You may read these directly into a numpy array with :
 
 Where ``shape`` is the shape mentioned afterward.
 
-   1. ``classic_demand`` : the sum of intermediate and final demand addressed to
+ 1. ``classic_demand`` : the sum of intermediate and final demand addressed to
    each industries. Its shape is ``(n_timesteps, n_sectors*n_regions)``
 
-   2. ``iotable_XVA`` : the realised production of each industry. Its shape is
+ 2. ``iotable_XVA`` : the realised production of each industry. Its shape is
    ``(n_timesteps, n_sectors*n_regions)``
 
-   3. ``iotable_X_max`` : the production capacity of each industry. Its shape is
+ 3. ``iotable_X_max`` : the production capacity of each industry. Its shape is
    ``(n_timesteps, n_sectors*n_regions)``
 
-   4. ``overprod_vector`` : the overproduction scaling of each industry. Its
+ 4. ``overprod_vector`` : the overproduction scaling of each industry. Its
    shape is ``(n_timesteps, n_sectors*n_regions)``
 
-   5. ``rebuild_demand`` : the additional direct demand created by the event
+ 5. ``rebuild_demand`` : the additional direct demand created by the event
    for rebuilding, for each industry.
    Its shape is ``(n_timesteps, n_sectors*n_regions)``
 
-   6. ``rebuild_prod`` : the part of production attributed to rebuilding, for each
+ 6. ``rebuild_prod`` : the part of production attributed to rebuilding, for each
    industry. Its shape is ``(n_timesteps, n_sectors*n_regions)``
 
-   7. ``final_demand_unmet`` : the final demand that was not met due to rationing,
+ 7. ``final_demand_unmet`` : the final demand that was not met due to rationing,
    for each industry. Its shape is ``(n_timesteps, n_sectors*n_regions)``
 
-   8. ``stocks`` : the stocks of each input for each industry.
+ 8. ``stocks`` : the stocks of each input for each industry.
    Its shape is ``(n_timesteps*n_sectors, n_sectors*n_regions)``.
    Note that this file is not created if ``register_stocks`` is set to ``False``
    in the simulation parameters.
 
-   9. ``limiting_stocks`` : a boolean matrix, telling for each input and for each
+ 9. ``limiting_stocks`` : a boolean matrix, telling for each input and for each
    industry if the stock is limiting for production.
    Its shape is ``(n_timesteps*n_sectors, n_sectors*n_regions)``.
    Reading this array directly require to change the dtype
@@ -229,11 +229,12 @@ Invoking
    create an Indicators object containing mostly all results from the simulation in dataframe. For instance :pythoncode:`indic.prod_df` is a dataframe of the production of each sector of each region for every timestep. Note that some dataframes are in wide format while other are in long format, for treatment purpose. Also note that some of these dataframes are saved in the result folder as `parquet`_ files. They are simply the memmaps ``records`` with the indexes.
 
 Calling :pythoncode:`indic.update_indicators()` fills the :pythoncode:`indic.indicators` dictionary with the following indicators:
+
  - The total (whole world, all sectors) final consumption not met during the simulation :pythoncode:`indicator['tot_fd_unmet']`.
  - The final consumption not met in the region(s) affected by the shock :pythoncode:`indicator['aff_fd_unmet']`.
  - The rebuild duration (ie the number of step during which rebuild demand is not zero) :pythoncode:`indicator['rebuild_durations']`.
  - If there was a shortage (:pythoncode:`indicator['shortage_b']`), its start and end dates :pythoncode:`indicator['shortage_date_start']` and :pythoncode:`indicator['shortage_date_end']`.
-  - The top five `(region,sectors)` tuples where there was the biggest absolute change of production compared to a no shock scenario.
+ - The top five `(region,sectors)` tuples where there was the biggest absolute change of production compared to a no shock scenario.
 
 It also produce dataframes indicators :
 
