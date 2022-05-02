@@ -23,7 +23,7 @@ It is still an ongoing project (in parallel of a PhD project).
 Here is a non-exhaustive chronology of academic works with or about the ARIO model :
 
 .. image:: https://raw.githubusercontent.com/spjuhel/BoARIO/master/imgs/chronology.svg?sanitize=true
-           :width: 400
+           :width: 800
            :alt: ADEME Logo
 
 References
