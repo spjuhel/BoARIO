@@ -23,10 +23,8 @@ It is still an ongoing project (in parallel of a PhD project).
 Here is a non-exhaustive chronology of academic works with or about the ARIO model :
 
 .. image:: https://raw.githubusercontent.com/spjuhel/BoARIO/master/imgs/chronology.svg?sanitize=true
-           :width: 800
+           :width: 900
            :alt: ADEME Logo
-
-
 
 Where to get it ?
 ===================
@@ -246,3 +244,8 @@ Contributions
 * Be the first `contributor`_ !
 
 .. _`contributor`: https://spjuhel.github.io/BoARIO/development.html
+
+Acknowledgements
+------------------
+
+I would like to thank Vincent Viguie, Fabio D'Andrea my PhD supervisors as well as Célian Colon for their inputs during the model implementaiton.
