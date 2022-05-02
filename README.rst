@@ -20,6 +20,32 @@ It is still an ongoing project (in parallel of a PhD project).
 .. _`Hallegatte 2013`: https://doi.org/10.1111/j.1539-6924.2008.01046.x
 .. _`Pymrio`: https://pymrio.readthedocs.io/en/latest/intro.html
 
+Credits
+========
+
+Associated PhD project
+------------------------
+
+This model is part of my PhD work on the indirect impact of extreme events, which is funded by `ADEME`_.
+
+.. image:: /home/sjuhel/Nextcloud/Thesis/Latex/Presentation-Latex/imgs-general/logo_ademe.jpg
+           :width: 400
+           :alt: ADEME Logo
+
+.. _`ADEME`: https://www.ademe.fr/
+
+Development
+------------
+
+* Samuel Juhel
+
+Contributions
+---------------
+
+* Be the first `contributor`_ !
+
+.. _`contributor`: https://spjuhel.github.io/BoARIO/development.html
+
 Where to get it ?
 ===================
 
@@ -30,7 +56,7 @@ How does BoARIO work?
 
 In a nutshell, BoARIO takes the following inputs :
 
-- an IO table (such as EXIOBASE or EORA26) in the form of an `IOSystem` object (define by the `pymrio` package)
+- an IO table (such as EXIOBASE3 or EORA26) in the form of an `IOSystem` object (define by the `pymrio` package)
 
 - simulation and mrio parameters (as json files or dictionaries), which govern the simulation,
 
@@ -79,14 +105,14 @@ simulation. We suppose we run the following script from ``~/boario/``
         # a 365 days simulation with exiobase))
         "register_stocks": True,
         # Parameters of the model (we detail these in the documentation)
-       "psi_param": 0.8,
+       "psi_param": 0.9,
        "model_time_step": 1,
        "timestep_dividing_factor": 365,
-       "inventory_restoration_time": 40,
+       "inventory_restoration_time": 90,
        "alpha_base": 1.0,
        "alpha_max": 1.25,
        "alpha_tau": 365,
-       "rebuild_tau": 30,
+       "rebuild_tau": 60,
        "n_timesteps": 365,
        "min_duration": (365 // 100) * 25,
        "impacted_region_base_production_toward_rebuilding": 0.001,
@@ -110,7 +136,7 @@ simulation. We suppose we run the following script from ``~/boario/``
         "dmg-distrib-sectors-type": "gdp",
         # 'gdp' distribution doesn't require this parameter to be set
         "dmg-distrib-sectors": [],
-        # The duration of the event (not implemented yet, so it has no effect)
+        # The duration of the event.
         "duration": 1,
         # A name for the event (usefull when simulating multiple events)
         "name": "0",
