@@ -160,14 +160,11 @@ simulation. We suppose we run the following script from ``~/boario/``
 
 This script will produce files in ``~/boario/storage/results/`` :
 
-- ``simulated_events.json`` : A json record of the events that were simulated
-   during the loop.
+- ``simulated_events.json`` : A json record of the events that were simulated during the loop.
 
-- ``indicators.json`` : A json record (produced by :func:`~boario.indicators.Indicators.write_indicators`)
-   of the computed indicators.
+- ``indicators.json`` : A json record (produced by :func:`~boario.indicators.Indicators.write_indicators`) of the computed indicators.
 
-- ``record`` files. These are :py:class:`numpy.memmap`:
-   of the different recorded variables.
+- ``record`` files. These are :py:class:`numpy.memmap` of the different recorded variables.
 
 Record files
 ------------
@@ -200,7 +197,7 @@ Where ``shape`` is the shape mentioned afterward.
 
 8. ``stocks`` : the stocks of each input for each industry. Its shape is ``(n_timesteps*n_sectors, n_sectors*n_regions)``. Note that this file is not created if ``register_stocks`` is set to ``False`` in the simulation parameters.
 
- 9. ``limiting_stocks`` : a boolean matrix, telling for each input and for each industry if the stock is limiting for production. Its shape is ``(n_timesteps*n_sectors, n_sectors*n_regions)``. Reading this array directly require to change the dtype to 'bool' in the above command.
+9. ``limiting_stocks`` : a boolean matrix, telling for each input and for each industry if the stock is limiting for production. Its shape is ``(n_timesteps*n_sectors, n_sectors*n_regions)``. Reading this array directly require to change the dtype to 'bool' in the above command.
 
 Indicators
 ============
