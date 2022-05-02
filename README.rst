@@ -28,7 +28,7 @@ Associated PhD project
 
 This model is part of my PhD work on the indirect impact of extreme events, which is funded by `ADEME`_.
 
-.. image:: ./docs/logo_ademe.jpg
+.. image:: https://raw.githubusercontent.com/spjuhel/BoARIO/tree/master/imgs/logo_ademe.jpeg?sanitize=true
            :width: 400
            :alt: ADEME Logo
 
