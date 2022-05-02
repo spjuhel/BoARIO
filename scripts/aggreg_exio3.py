@@ -8,7 +8,7 @@ import json
 import country_converter as coco
 from pymrio.core.mriosystem import IOSystem
 
-parser = argparse.ArgumentParser(description='Aggregate an exio3 MRIO sectors')
+parser = argparse.ArgumentParser(description='Aggregate an EXIOBASE3 MRIO table in less sectors (an optionally less regions)')
 parser.add_argument('exio_path', type=str, help='The str path to the exio3 zip file')
 parser.add_argument('aggreg_path', type=str, help='The str path to the ods aggregation matrix file')
 parser.add_argument('sector_names_json_path', type=str, help='The str path to the json file with the new names of the sectors')
@@ -17,7 +17,7 @@ parser.add_argument('-o', "--output", type=str, help='The str path to save the p
 
 args = parser.parse_args()
 logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s] %(name)s %(message)s", datefmt="%H:%M:%S")
-scriptLogger = logging.getLogger("aggreg_axio3")
+scriptLogger = logging.getLogger("aggreg_exio3")
 consoleHandler = logging.StreamHandler()
 consoleHandler.setFormatter(logFormatter)
 

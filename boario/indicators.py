@@ -286,7 +286,7 @@ class Indicators(object):
         pass
 
     def calc_general_shortage(self):
-        #TODO
+        #TODO: replace hard values by soft.
         a = self.df_limiting.T.stack(level=0)
         #a.index = a.index.rename(['step','sector', 'region']) #type: ignore
         b = a.sum(axis=1).groupby(['step','region','sector']).sum()/8
