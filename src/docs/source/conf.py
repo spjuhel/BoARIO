@@ -27,7 +27,7 @@ author = 'Samuel Juhel'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon', 'sphinx.ext.intersphinx','sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon', 'sphinx.ext.intersphinx','sphinx.ext.viewcode', 'sphinx.ext.imgmath']
 
 napoleon_google_docstring = False
 napoleon_use_param = False
@@ -76,3 +76,45 @@ html_js_files = [
 ]
 
 add_module_names = False
+
+# Keep members order from source :
+autodoc_member_order = 'bysource'
+
+# Custom latex STY for mathjax
+
+# Additional stuff for the LaTeX preamble.
+imgmath_latex_preamble = r'''
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{xparse}
+\NewDocumentCommand{\mentry}{m O{f} O{f'} O{} O{}}{\ensuremath{#1_{#2#3}^{#4#5}}}
+\NewDocumentCommand{\colvec}{m m}{  \ensuremath{    \begin{bmatrix}      #1\\      \vdots\\      #2    \end{bmatrix}  }}
+\NewDocumentCommand{\rfirmsset}{O{R}}{\ensuremath{\mathbf{F}^{#1}}}
+\NewDocumentCommand{\mdefentry}{m o O{f} O{\firmsset} O{f'} O{\firmsset} O{}  O{}}{  \IfValueTF{#2}{    \ensuremath{(#1_{#3#5}( #2 )^{#7#8})_{\substack{#3 \in #4\\#5 \in #6}}}  }{    \ensuremath{(#1_{#3#5}^{#7#8})_{\substack{#3 \in #4\\#5 \in #6}}}  }}
+\newcommand{\irowsum}{\ensuremath{    \begin{bmatrix}      1 \\      \vdots \\      1    \end{bmatrix}  }}
+\newcommand{\isum}{\ensuremath{    \underset{s \times p}{      \begin{bmatrix}        1 & \hdots & 0 & & 1 & \hdots & 0\\        \vdots & \ddots & \vdots & \hdots &\vdots & \ddots & \vdots\\        0 & \hdots & 1 & & 0 & \hdots & 1      \end{bmatrix}    }  }}
+\NewDocumentCommand{\colvecid}{m o}{  \IfValueTF{#2}{    \ensuremath{      \underbrace{        \begin{bmatrix}          #1\\          \vdots\\          #1        \end{bmatrix}      }_{\substack{#1 \\#2 \textrm{times}}}    }    }    {      \ensuremath{        \begin{bmatrix}          #1\\          \vdots\\          #1        \end{bmatrix}      }    }  }
+\newcommand{\ioorders}{\ensuremath{\mathbf{O}}}
+\newcommand{\sectorsset}{\ensuremath{\mathbb{S}}}
+\newcommand{\sectorssetsize}{\ensuremath{n}}
+\newcommand{\regionsset}{\ensuremath{\mathbb{R}}}
+\newcommand{\regionssetsize}{\ensuremath{m}}
+\newcommand{\firmsset}{\ensuremath{\mathbb{F}}}
+
+\newcommand{\firmssetsize}{\ensuremath{p}}
+\newcommand{\catfdset}{\ensuremath{\mathbb{C}^{\textrm{fd}}}}
+\newcommand{\catfdsetsize}{\ensuremath{r}}
+\newcommand{\catvaset}{\ensuremath{\mathbb{C}^{\textrm{va}}}}
+\newcommand{\catvasetsize}{\ensuremath{q}}
+\newcommand{\ioz}{\ensuremath{\mathbf{Z}}}
+\newcommand{\ioy}{\ensuremath{\mathbf{Y}}}
+\newcommand{\iov}{\ensuremath{\mathbf{V}}}
+\newcommand{\iox}{\ensuremath{\mathbf{x}}}
+\newcommand{\ioa}{\ensuremath{\mathbf{A}}}
+\newcommand{\ioava}{\ensuremath{\mathbf{A}_{\textrm{va}}}}
+\newcommand{\ioinv}{\ensuremath{\mathbf{\Omega}}}
+\newcommand{\Damage}{\ensuremath{\mathbf{\Gamma}}}
+\newcommand{\damage}{\ensuremath{\gamma}}
+'''

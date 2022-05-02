@@ -271,6 +271,31 @@ class MrioSystem(object):
         self.local_demand = self.local_demand * self.macro_effect
 
     def calc_rebuild_house_demand(self, events:'list[Event]') -> np.ndarray :
+        """Compute rebuild demand for final demand
+
+        Compute and return rebuilding final demand for the given list of events
+        by summing the final_demand_rebuild member of each event. Only events
+        tagged as rebuildable are accounted for. The shape of the array
+        returned is the same as the final demand member (Y_0) of the calling
+        MrioSystem.
+
+        Parameters
+        ----------
+        events : 'list[Event]'
+            A list of Event objects
+
+        Returns
+        -------
+        np.ndarray
+            An array of same shape as Y_0, containing the sum of all currently
+            rebuildable final demand stock from all events in the given list.
+
+        Notes
+        -----
+
+        Currently the model wasn't tested with such a rebuilding demand. Only intermediate demand is considered.
+        """
+
         rebuildable_events = [e.final_demand_rebuild for e in events if e.rebuildable]
         if rebuildable_events == []:
             return np.zeros(shape = self.Y_0.shape)
@@ -278,6 +303,25 @@ class MrioSystem(object):
         return ret
 
     def calc_rebuild_firm_demand(self, events:'list[Event]') -> np.ndarray :
+        """Compute rebuild demand for intermediate demand
+
+        Compute and return rebuilding intermediate demand for the given list of events
+        by summing the industry_rebuild member of each event. Only events
+        tagged as rebuildable are accounted for. The shape of the array
+        returned is the same as the intermediate demand member (Z_0) of the calling
+        MrioSystem.
+
+        Parameters
+        ----------
+        events : 'list[Event]'
+            A list of Event objects
+
+        Returns
+        -------
+        np.ndarray
+            An array of same shape as Z_0, containing the sum of all currently
+            rebuildable intermediate demand stock from all events in the given list.
+        """
         rebuildable_events = [e.industry_rebuild for e in events if e.rebuildable]
         if rebuildable_events == []:
             return np.zeros(shape = self.Z_0.shape)
@@ -285,6 +329,21 @@ class MrioSystem(object):
         return ret
 
     def calc_tot_rebuild_demand(self, events:'list[Event]', separate_rebuilding:bool=False) -> None:
+        """Compute and update total rebuild demand.
+
+        Compute and update total rebuilding demand for the given list of events. Only events
+        tagged as rebuildable are accounted for. If separate_rebuilding is not True, apply the rebuilding characteristic time before updating.
+
+        TODO: ADD MATH
+
+        Parameters
+        ----------
+        events : 'list[Event]'
+            A list of Event objects
+
+        separate_rebuilding: 'bool'
+            A boolean specifying if demand should be treated as a whole (true) or under the characteristic time/proportional scheme strategy.
+        """
         ret =  np.concatenate([self.calc_rebuild_house_demand(events),self.calc_rebuild_firm_demand(events)],axis=1)
         if not separate_rebuilding:
             ret *= self.rebuild_tau
@@ -296,7 +355,8 @@ class MrioSystem(object):
         Compute and update production capacity from possible kapital damage and overproduction.
 
         .. math::
-            X(e^{j\omega } ) = x(n)e^{ - j\omega n} * 6
+
+            x^{Cap}_{f}(t) = \\alpha_{f}(t) (1 - \Delta_{f}(t)) x_{f}(t)
 
         Raises
         ------
