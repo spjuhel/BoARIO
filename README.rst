@@ -160,13 +160,13 @@ simulation. We suppose we run the following script from ``~/boario/``
 
 This script will produce files in ``~/boario/storage/results/`` :
 
-   - ``simulated_events.json`` : A json record of the events that were simulated
+- ``simulated_events.json`` : A json record of the events that were simulated
    during the loop.
 
-   - ``indicators.json`` : A json record (produced by :func:`~boario.indicators.Indicators.write_indicators`)
+- ``indicators.json`` : A json record (produced by :func:`~boario.indicators.Indicators.write_indicators`)
    of the computed indicators.
 
-   - ``record`` files. These are :py:class:`numpy.memmap`:
+- ``record`` files. These are :py:class:`numpy.memmap`:
    of the different recorded variables.
 
 Record files
@@ -184,38 +184,23 @@ You may read these directly into a numpy array with :
 
 Where ``shape`` is the shape mentioned afterward.
 
- 1. ``classic_demand`` : the sum of intermediate and final demand addressed to
-   each industries. Its shape is ``(n_timesteps, n_sectors*n_regions)``
+1. ``classic_demand`` : the sum of intermediate and final demand addressed to each industries. Its shape is ``(n_timesteps, n_sectors*n_regions)``
 
- 2. ``iotable_XVA`` : the realised production of each industry. Its shape is
-   ``(n_timesteps, n_sectors*n_regions)``
+2. ``iotable_XVA`` : the realised production of each industry. Its shape is ``(n_timesteps, n_sectors*n_regions)``
 
- 3. ``iotable_X_max`` : the production capacity of each industry. Its shape is
-   ``(n_timesteps, n_sectors*n_regions)``
+3. ``iotable_X_max`` : the production capacity of each industry. Its shape is ``(n_timesteps, n_sectors*n_regions)``
 
- 4. ``overprod_vector`` : the overproduction scaling of each industry. Its
-   shape is ``(n_timesteps, n_sectors*n_regions)``
+4. ``overprod_vector`` : the overproduction scaling of each industry. Its shape is ``(n_timesteps, n_sectors*n_regions)``
 
- 5. ``rebuild_demand`` : the additional direct demand created by the event
-   for rebuilding, for each industry.
-   Its shape is ``(n_timesteps, n_sectors*n_regions)``
+5. ``rebuild_demand`` : the additional direct demand created by the event for rebuilding, for each industry. Its shape is ``(n_timesteps, n_sectors*n_regions)``
 
- 6. ``rebuild_prod`` : the part of production attributed to rebuilding, for each
-   industry. Its shape is ``(n_timesteps, n_sectors*n_regions)``
+6. ``rebuild_prod`` : the part of production attributed to rebuilding, for each industry. Its shape is ``(n_timesteps, n_sectors*n_regions)``
 
- 7. ``final_demand_unmet`` : the final demand that was not met due to rationing,
-   for each industry. Its shape is ``(n_timesteps, n_sectors*n_regions)``
+7. ``final_demand_unmet`` : the final demand that was not met due to rationing, for each industry. Its shape is ``(n_timesteps, n_sectors*n_regions)``
 
- 8. ``stocks`` : the stocks of each input for each industry.
-   Its shape is ``(n_timesteps*n_sectors, n_sectors*n_regions)``.
-   Note that this file is not created if ``register_stocks`` is set to ``False``
-   in the simulation parameters.
+8. ``stocks`` : the stocks of each input for each industry. Its shape is ``(n_timesteps*n_sectors, n_sectors*n_regions)``. Note that this file is not created if ``register_stocks`` is set to ``False`` in the simulation parameters.
 
- 9. ``limiting_stocks`` : a boolean matrix, telling for each input and for each
-   industry if the stock is limiting for production.
-   Its shape is ``(n_timesteps*n_sectors, n_sectors*n_regions)``.
-   Reading this array directly require to change the dtype
-   to 'bool' in the above command.
+ 9. ``limiting_stocks`` : a boolean matrix, telling for each input and for each industry if the stock is limiting for production. Its shape is ``(n_timesteps*n_sectors, n_sectors*n_regions)``. Reading this array directly require to change the dtype to 'bool' in the above command.
 
 Indicators
 ============
@@ -224,22 +209,30 @@ Invoking
 
 .. code:: python
 
-          indic = Indicators.from_storage_path("path/to/results/folder", param=simulation_params_dictionary)`
+          indic = Indicators.from_storage_path(
+                                   "path/to/results/folder",
+                                   param=simulation_params_dictionary
+          )
 
-   create an Indicators object containing mostly all results from the simulation in dataframe. For instance :pythoncode:`indic.prod_df` is a dataframe of the production of each sector of each region for every timestep. Note that some dataframes are in wide format while other are in long format, for treatment purpose. Also note that some of these dataframes are saved in the result folder as `parquet`_ files. They are simply the memmaps ``records`` with the indexes.
+creates an Indicators object containing mostly all results from the simulation in dataframe. For instance :pythoncode:`indic.prod_df` is a dataframe of the production of each sector of each region for every timestep. Note that some dataframes are in wide format while other are in long format, for treatment purpose. Also note that some of these dataframes are saved in the result folder as `parquet`_ files. They are simply the memmaps ``records`` with the indexes.
 
 Calling :pythoncode:`indic.update_indicators()` fills the :pythoncode:`indic.indicators` dictionary with the following indicators:
 
- - The total (whole world, all sectors) final consumption not met during the simulation :pythoncode:`indicator['tot_fd_unmet']`.
- - The final consumption not met in the region(s) affected by the shock :pythoncode:`indicator['aff_fd_unmet']`.
- - The rebuild duration (ie the number of step during which rebuild demand is not zero) :pythoncode:`indicator['rebuild_durations']`.
- - If there was a shortage (:pythoncode:`indicator['shortage_b']`), its start and end dates :pythoncode:`indicator['shortage_date_start']` and :pythoncode:`indicator['shortage_date_end']`.
- - The top five `(region,sectors)` tuples where there was the biggest absolute change of production compared to a no shock scenario.
+- The total (whole world, all sectors) final consumption not met during the simulation :pythoncode:`indicator['tot_fd_unmet']`.
+
+- The final consumption not met in the region(s) affected by the shock :pythoncode:`indicator['aff_fd_unmet']`.
+
+- The rebuild duration (ie the number of step during which rebuild demand is not zero) :pythoncode:`indicator['rebuild_durations']`.
+
+- If there was a shortage (:pythoncode:`indicator['shortage_b']`), its start and end dates :pythoncode:`indicator['shortage_date_start']` and :pythoncode:`indicator['shortage_date_end']`.
+
+- The top five `(region,sectors)` tuples where there was the biggest absolute change of production compared to a no shock scenario.
 
 It also produce dataframes indicators :
 
- - The production change by region over the simulation (:pythoncode:`indic.prod_chg_region`) giving for each region the total gain or loss in production during the simulation.
- - The final consumption not met by region over the simulation (:pythoncode:`indic.df_loss_region`) giving for each region the total loss in consumption during the simulation.
+- The production change by region over the simulation (:pythoncode:`indic.prod_chg_region`) giving for each region the total gain or loss in production during the simulation.
+
+- The final consumption not met by region over the simulation (:pythoncode:`indic.df_loss_region`) giving for each region the total loss in consumption during the simulation.
 
 These two dataframe are also saved in json format.
 
@@ -250,17 +243,18 @@ Useful scripts
 
 The github repository contains a variety of `useful scripts`_ to ease the generation of input data, run simulations, produce indicators, etc. such as :
 
- 1. ``python aggreg_exio3.py exio_path.zip aggreg_path.ods sector_names.json [region_aggreg.json] -o output`` :
+1. ``python aggreg_exio3.py exio_path.zip aggreg_path.ods sector_names.json [region_aggreg.json] -o output`` :
+
 This script takes an EXIOBASE3 MRIO zip file, the ``input`` sheet of a libreoffice spreadsheet, a json file for sector renaming and optionally a json file for region aggregation (see examples of such files in the git repo, `here`_) and produce a pickle file (python format) of the corresponding MRIO tables directly usable by the model. ``region_aggreg.json`` must have the following form :
 
 .. code:: json
 
    {
-   'aggregates': {
-          'original region': 'new region',
-          'original region': 'new region',
+   "aggregates": {
+          "original region": "new region",
+          "original region": "new region",
           },
-   'missing': 'name for all region not named before'
+   "missing": "name for all region not named before"
    }
 
 These scripts are mainly thought to be used for my PhD project and with the `Snakemake workflow`_ also available on the repository. (Description of this process soon !)
