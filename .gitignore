@@ -10,6 +10,7 @@ launch.json
 __pycache__/
 *.py[cod]
 *$py.class
+*.ipynb
 
 # C extensions
 *.so
@@ -144,6 +145,9 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-workflow/config.json
 
+# Custom
+workflow/config.json
 workflow/config_full.json
+
+DOC_BUILDING_REMINDER
