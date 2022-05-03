@@ -123,12 +123,13 @@ class Indicators(object):
             "shortage_date_max": "unset",
             "shortage_ind_max": "unset",
             "shortage_ind_mean": "unset",
-            "10_first_shortages": "unset",
+            "10_first_shortages_(step,region,sector,stock_of)": "unset",
             "prod_gain_tot": "unset",
             "prod_lost_tot": "unset",
             "prod_gain_unaff": "unset",
             "prod_lost_unaff": "unset",
-            "inv_tau" : data_dict['params']['psi_param'],
+            "psi" : data_dict['params']['psi_param'],
+            "inv_tau" : data_dict['params']['inventory_restoration_time'],
             "n_timesteps" : data_dict['n_timesteps_simulated'],
             "has_crashed" : data_dict['has_crashed'],
         }
@@ -310,7 +311,7 @@ class Indicators(object):
         b = a[a]
         b = b[:10]
         res = list(b.index) #type:ignore
-        self.indicators['10_first_shortages'] = res
+        self.indicators['10_first_shortages_(step,region,sector,stock_of)'] = res
 
     def calc_tot_prod_change(self):
         df2=self.prod_df.copy()

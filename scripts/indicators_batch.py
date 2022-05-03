@@ -41,7 +41,7 @@ res = [{
     "shortage_date_max": "unset",
     "shortage_ind_max": "unset",
     "shortage_ind_mean": "unset",
-    "10_first_shortages": "unset",
+    "10_first_shortages_(step,region,sector,stock_of)": "unset",
     "prod_gain_tot": "unset",
     "prod_lost_tot": "unset",
     "prod_gain_unaff": "unset",
