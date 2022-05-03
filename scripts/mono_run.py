@@ -22,17 +22,16 @@ parser.add_argument('psi', type=str, help='The psi parameter')
 parser.add_argument('inv_tau', type=str, help='The inventory restoration parameter')
 parser.add_argument('stype', type=str, help='The type (RoW or Full) simulation to run')
 parser.add_argument('flood_int', type=str, help='The flood intensity to run')
-parser.add_argument('input_dir', type=str, help='The input directory')
+parser.add_argument('mrios_path', type=str, help='The mrios path')
 parser.add_argument('output_dir', type=str, help='The output directory')
 parser.add_argument('flood_gdp_file', type=str, help='The share of gdp impacted according to flood distribution file')
 parser.add_argument('event_file', type=str, help='The event template file')
 parser.add_argument('mrio_params', type=str, help='The mrio parameters file')
 parser.add_argument('alt_inv_dur', type=str, help='The optional alternative main inventory duration', nargs='?', default=None)
 
-def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, flood_gdp_file, event_file, mrio_params, alt_inv_dur=None):
+def run(region, params, psi, inv_tau, stype, flood_int, mrios_path, output_dir, flood_gdp_file, event_file, mrio_params, alt_inv_dur=None):
     with open(params) as f:
         params_template = json.load(f)
-    params_template['input_dir'] = input_dir
     params_template['output_dir'] = output_dir
     params_template['mrio_params_file'] = mrio_params
     with open(flood_gdp_file) as f:
@@ -42,12 +41,12 @@ def run(region, params, psi, inv_tau, stype, flood_int, input_dir, output_dir, f
         event_template = json.load(f)
 
     if stype == "RoW":
-        mrio_path = list(pathlib.Path(input_dir).glob('mrio_'+region+'*.pkl'))
+        mrio_path = list(pathlib.Path(mrios_path).glob('mrio_'+region+'*.pkl'))
         scriptLogger.info("Trying to load {}".format(mrio_path))
         assert len(mrio_path)==1
         mrio_path = list(mrio_path)[0]
     else:
-        mrio_path = pathlib.Path(input_dir+"mrio_full.pkl")
+        mrio_path = pathlib.Path(mrios_path+"mrio_full.pkl")
 
     with mrio_path.open('rb') as f:
         mrio = pickle.load(f)
@@ -96,4 +95,4 @@ if __name__ == "__main__":
     scriptLogger.propagate = False
 
     scriptLogger.info("=============== STARTING RUN ================")
-    run(args.region, args.params, args.psi, int(args.inv_tau), args.stype, args.flood_int, args.input_dir, args.output_dir, args.flood_gdp_file, args.event_file, args.mrio_params, args.alt_inv_dur)
+    run(args.region, args.params, args.psi, int(args.inv_tau), args.stype, args.flood_int, args.mrios_path, args.output_dir, args.flood_gdp_file, args.event_file, args.mrio_params, args.alt_inv_dur)
