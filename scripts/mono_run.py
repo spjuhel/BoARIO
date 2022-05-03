@@ -1,5 +1,6 @@
 import os
 import sys
+print(os.getcwd())
 module_path = os.path.abspath(os.path.join('../'))
 if module_path not in sys.path:
     sys.path.append(module_path)
@@ -46,7 +47,7 @@ def run(region, params, psi, inv_tau, stype, flood_int, mrios_path, output_dir, 
         assert len(mrio_path)==1
         mrio_path = list(mrio_path)[0]
     else:
-        mrio_path = pathlib.Path(mrios_path+"mrio_full.pkl")
+        mrio_path = pathlib.Path(mrios_path)/"mrio_full.pkl"
 
     with mrio_path.open('rb') as f:
         mrio = pickle.load(f)
