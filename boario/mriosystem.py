@@ -368,6 +368,9 @@ class MrioSystem(object):
         k_stock = (self.VA_0 * self.kstock_ratio_to_VA)
         np.divide(self.kapital_lost, k_stock, out=productivity_loss, where=k_stock!=0)
         if (productivity_loss > 0.).any():
+            if (productivity_loss > 1.).any():
+                np.minimum(productivity_loss, 1.0, out=productivity_loss)
+                logger.warning("Productivity loss factor was found greater than 1.0 on at least on industry (meaning more kapital damage than kapital stock)")
             self.production_cap = self.production_cap * (1 - productivity_loss)
         if (self.overprod > 1.0).any():
             self.production_cap *= self.overprod
