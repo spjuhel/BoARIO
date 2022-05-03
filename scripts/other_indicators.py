@@ -41,7 +41,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     folder = pathlib.Path(args.folder).resolve()
     logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s] %(name)s %(message)s", datefmt="%H:%M:%S")
-    scriptLogger = logging.getLogger("indicators_other - "+folder.name)
+    scriptLogger = logging.getLogger("other_indicator - "+folder.name)
     consoleHandler = logging.StreamHandler()
     consoleHandler.setFormatter(logFormatter)
     scriptLogger.addHandler(consoleHandler)

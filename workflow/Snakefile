@@ -68,7 +68,7 @@ rule prod_indicators:
         OUTPUT_DIR+"{region}_type_{stype}_qdmg_{flood}_Psi_{psi}_inv_tau_{inv}_inv_time_{inv_t}/fd_loss.json"
     shell:
         """
-        nice -n 10 python {config[ARIO_DIR]}/scripts/other_indicators.py '{config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}/' -o {config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}_inv_time_{wildcards.inv_t}/
+        nice -n 10 python {config[ARIO_DIR]}/scripts/other_indicators.py '{config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}_inv_time_{wildcards.inv_t}/' -o {config[OUTPUT_DIR]}{wildcards.region}_type_{wildcards.stype}_qdmg_{wildcards.flood}_Psi_{wildcards.psi}_inv_tau_{wildcards.inv}_inv_time_{wildcards.inv_t}/
         """
 
 rule mv_to_final:
