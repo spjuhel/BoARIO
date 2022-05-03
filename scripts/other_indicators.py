@@ -3,7 +3,7 @@ import pathlib
 import argparse
 import logging
 
-parser = argparse.ArgumentParser(description="Produce json indicators from feather df")
+parser = argparse.ArgumentParser(description="Produce json indicators from parquet df")
 parser.add_argument('folder', type=str, help='The str path to the folder')
 parser.add_argument('-o', "--output", type=str, help='Path where to save json')
 
@@ -25,8 +25,8 @@ def produce_json(folder,save_path):
     if isinstance(folder,str):
         folder = pathlib.Path(folder)
     assert isinstance(folder,pathlib.Path)
-    df = pd.read_feather(folder/"treated_df.feather")
-    df_loss = pd.read_feather(folder/"treated_df_loss.feather")
+    df = pd.read_parquet(folder/"treated_df.parquet")
+    df_loss = pd.read_parquet(folder/"treated_df_loss.parquet")
     # Production loss
     prod_chg_region = prod_change_region(df)
     prod_chg_region = pd.DataFrame({folder.name:prod_chg_region}).T
