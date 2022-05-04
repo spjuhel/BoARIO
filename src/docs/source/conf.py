@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('../../../'))
 project = 'BoARIO'
 copyright = '2022, Samuel Juhel'
 author = 'Samuel Juhel'
-
+html_last_updated_fmt = "%b %d, %Y"
 
 # -- General configuration ---------------------------------------------------
 
@@ -53,7 +53,9 @@ master_doc = "index"
 # a list of builtin themes.
 #
 html_theme = 'pydata_sphinx_theme'
-
+html_theme_options = {
+	"navbar_end": ["navbar-icon-links", "last-updated"]
+}
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
