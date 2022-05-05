@@ -90,7 +90,8 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         event["q_dmg"] = dmg
     elif rtype == "raw":
         dmg = flood_dmg
-        event["r_dmg"] = flood_dmg / gdp_df[region]
+        event["r_dmg"] = float(flood_dmg) / float(gdp_df[region])
+        scriptLogger.info("Damages represent : {}/{} = {} of the region GDP".format(flood_dmg, gdp_df[region], event['r_dmg']))
         event["q_dmg"] = dmg
 
     event["aff-regions"] = region
