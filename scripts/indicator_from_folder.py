@@ -42,7 +42,7 @@ scriptLogger.setLevel(logging.INFO)
 scriptLogger.propagate = False
 
 def produce_indicator(folder):
-    regex = re.compile(r"(?P<region>[A-Z]{2})_type_(?P<type>RoW|Full)_qdmg_(?:raw_)?(?P<gdp_dmg>(?:[\d_]+%?)|(?:max|min))_Psi_(?P<psi>0_\d+)_inv_tau_(?P<inv_tau>\d+)(?:_inv_time_(?:\d+))?")
+    regex = re.compile(r"(?P<region>[A-Z]{2})_type_(?P<type>RoW|Full)_qdmg_(?:raw_|int_)?(?P<gdp_dmg>(?:[\d_]+%?)|(?:max|min))_Psi_(?P<psi>0_\d+)_inv_tau_(?P<inv_tau>\d+)(?:_inv_time_(?:\d+))?")
     m = regex.match(folder.name)
     if m is None:
         scriptLogger.warning("Directory {} didn't match regex".format(folder.name))
