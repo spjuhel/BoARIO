@@ -90,7 +90,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         event["q_dmg"] = dmg
     elif rtype == "raw":
         dmg = flood_dmg
-        event["r_dmg"] = flood_dmg / gdp_df
+        event["r_dmg"] = flood_dmg / gdp_df[region]
         event["q_dmg"] = dmg
 
     event["aff-regions"] = region
