@@ -144,12 +144,6 @@ class MrioSystem(object):
         instance)
     ValueError
     NotImplementedError
-
-    Examples
-    --------
-    FIXME: Add docs.
-
-
     """
 
     def __init__(self,
@@ -244,11 +238,10 @@ class MrioSystem(object):
         self.intmd_demand = self.Z_0.copy()
         self.final_demand = self.Y_0.copy()
         self.rebuilding_demand = None
+        self.total_demand = np.zeros(shape = self.X_0.shape)
         self.rebuild_demand = np.zeros(shape = np.concatenate([self.Z_0,self.Y_0],axis=1).shape)
         self.prod_max_toward_rebuilding = None
         self.kapital_lost = np.zeros(self.production.shape)
-        self.macro_effect = np.ones(self.production.shape)
-        self.local_demand = self.Y_0.copy()
         #################################################################
 
         ################## SIMULATION TRACKING VARIABLES ################
@@ -279,12 +272,28 @@ class MrioSystem(object):
         #### POST INIT ####
         self.write_index(results_storage/"indexes.json")
 
+
+    # TODO : ADD calc_rebuildable_demand ?
+
     def update_system_from_events(self, events: 'list[Event]') -> None:
+        """Update MrioSystem variables according to given list of events
+
+        Compute kapital loss for each industry affected as the sum of their total rebuilding demand (to each rebuilding sectors and for each events). This information is stored as a 1D array ``kapital_lost`` of size (n_sectors *  n_regions).
+        Also compute the total rebuilding demand.
+
+        Parameters
+        ----------
+        events : 'list[Event]'
+            List of events (as Event objects) to consider.
+
+        Examples
+        --------
+        FIXME: Add docs.
+
+        """
+
         self.update_kapital_lost(events)
         self.calc_tot_rebuild_demand(events)
-
-    def calc_local_demand(self) -> None:
-        self.local_demand = self.local_demand * self.macro_effect
 
     def calc_rebuild_house_demand(self, events:'list[Event]') -> np.ndarray :
         """Compute rebuild demand for final demand
@@ -344,7 +353,7 @@ class MrioSystem(object):
         ret = np.add.reduce(rebuildable_events)
         return ret
 
-    def calc_tot_rebuild_demand(self, events:'list[Event]', separate_rebuilding:bool=False) -> None:
+    def calc_tot_rebuild_demand(self, events:'list[Event]') -> None:
         """Compute and update total rebuild demand.
 
         Compute and update total rebuilding demand for the given list of events. Only events
@@ -361,8 +370,8 @@ class MrioSystem(object):
             A boolean specifying if demand should be treated as a whole (true) or under the characteristic time/proportional scheme strategy.
         """
         ret =  np.concatenate([self.calc_rebuild_house_demand(events),self.calc_rebuild_firm_demand(events)],axis=1)
-        if not separate_rebuilding:
-            ret *= self.rebuild_tau
+        #if not separate_rebuilding:
+        #    ret *= self.rebuild_tau
         self.rebuild_demand = ret
 
     def calc_production_cap(self):
@@ -393,30 +402,32 @@ class MrioSystem(object):
         if (self.production_cap < 0).any() :
             raise ValueError("Production capacity was found negative for at least on industry")
 
-    def calc_prod_reqby_demand(self, events:'list[Event]', separate_rebuilding:bool=False ) -> np.ndarray :
+    def calc_prod_reqby_demand(self, events:'list[Event]', separate_rebuilding:bool=False ) -> None :
         """TODO describe function
 
         :returns:
 
         """
-        self.calc_tot_rebuild_demand(events, separate_rebuilding)
-        dmg_demand_restorable = self.rebuild_demand #* self.rebuild_tau
+        self.calc_tot_rebuild_demand(events)
+        if not separate_rebuilding:
+            dmg_demand_restorable = self.rebuild_demand * self.rebuild_tau
+        else:
+            dmg_demand_restorable = None # rebuild demand is treated elsewhere in this case
         prod_reqby_demand = self.matrix_orders.sum(axis=1) + self.final_demand.sum(axis=1)
         if dmg_demand_restorable is not None:
             prod_reqby_demand += dmg_demand_restorable.sum(axis=1)
         assert not (prod_reqby_demand < 0).any()
-        return prod_reqby_demand
+        self.total_demand = prod_reqby_demand
 
-    def calc_production(self, current_step:int, events:'list[Event]'):
+    def calc_production(self, current_step:int):
         """TODO describe function
 
         :returns:
 
         """
-        prod_reqby_demand = self.calc_prod_reqby_demand(events=events, separate_rebuilding=False)
-        production_opt = np.fmin(prod_reqby_demand, self.production_cap)
-        production_inv_cons = production_opt #np.fmax(production_opt, self.production)
-        supply_constraint = (np.tile(production_inv_cons, (self.n_sectors, 1)) * self.tech_mat) * self.psi
+        #self.calc_prod_reqby_demand(events=events, separate_rebuilding=False)
+        production_opt = np.fmin(self.total_demand, self.production_cap)
+        supply_constraint = (np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat) * self.psi
         np.multiply(supply_constraint, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=supply_constraint)
         if (stock_constraint := (self.matrix_stock < supply_constraint) * self.matrix_share_thresh).any():
             if not self.in_shortage:
@@ -442,6 +453,9 @@ class MrioSystem(object):
         return stock_constraint
 
     def calc_rebuilding_production(self, events: 'list[Event]', rebuild_prod_ceil:float=0.5) -> 'tuple[dict[int,np.ndarray],np.ndarray]':
+        """
+        deprecated
+        """
         remaining_prod = self.production.copy()
         rebuild_productions = {}
         for e_id, e in enumerate(events):
@@ -469,8 +483,8 @@ class MrioSystem(object):
         if scheme != 'proportional':
             raise ValueError("Scheme %s not implemented"% scheme)
 
-
         if separate_rebuilding:
+        ##### Deprecated ########################################################################
             rebuild_productions, non_rebuild_production = self.calc_rebuilding_production(events)
             if rebuild_productions == {}:
                 tot_rebuild_prod = np.zeros(self.X_0.shape)
@@ -520,6 +534,7 @@ class MrioSystem(object):
             final_demand_not_met[final_demand_not_met==0.] = 0.
 
             self.write_final_demand_unmet(t, final_demand_not_met)
+        ############################################################################################
         else:
             n_events = len([e for e in events])
             n_events_reb = len([e for e in events if e.rebuildable])
@@ -580,8 +595,8 @@ class MrioSystem(object):
         :returns:
 
         """
-        prod_reqby_demand = self.calc_prod_reqby_demand(events)
-        production_opt = np.fmin(prod_reqby_demand, self.production_cap)
+        self.calc_prod_reqby_demand(events)
+        production_opt = np.fmin(self.total_demand, self.production_cap)
         matrix_stock_goal = np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat
         # Check this !
         matrix_stock_gap = matrix_stock_goal * 0
@@ -601,22 +616,20 @@ class MrioSystem(object):
         assert not ((np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib) < 0).any()
         self.matrix_orders = (np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib)
 
-    def aggregate_rebuild_demand(self, events:'list[Event]'):
-        """TODO describe function
+#    def aggregate_rebuild_demand(self, events:'list[Event]'):
+        # """TODO describe function
 
-        :returns:
+        # :returns:
 
-        """
-        tot_industry_rebuild_demand = np.add.reduce([e.industry_rebuild for e in events])
-        tot_final_rebuild_demand = np.add.reduce([e.final_demand_rebuild for e in events])
-        return tot_final_rebuild_demand.sum(axis=0) + tot_industry_rebuild_demand.sum(axis=0)
-        if self.rebuilding_demand is None:
-            return None
-        else:
-            assert self.rebuilding_demand.ndim == 3
-            return self.rebuilding_demand.sum(axis=0)
-
-
+        # """
+        # tot_industry_rebuild_demand = np.add.reduce([e.industry_rebuild for e in events])
+        # tot_final_rebuild_demand = np.add.reduce([e.final_demand_rebuild for e in events])
+        # return tot_final_rebuild_demand.sum(axis=0) + tot_industry_rebuild_demand.sum(axis=0)
+        # #if self.rebuilding_demand is None:
+        # #    return None
+        # #else:
+        # #    assert self.rebuilding_demand.ndim == 3
+        # #    return self.rebuilding_demand.sum(axis=0)
 
     def update_kapital_lost(self, events:'list[Event]'
                         ):
@@ -628,10 +641,10 @@ class MrioSystem(object):
 
         self.kapital_lost = tot_industry_rebuild_demand.sum(axis=0)
 
-    def calc_overproduction(self, events:'list[Event]'):
-        prod_reqby_demand = self.calc_prod_reqby_demand(events)
+    def calc_overproduction(self):
+        #prod_reqby_demand = self.calc_prod_reqby_demand(events)
         scarcity = np.full(self.production.shape, 0.0)
-        scarcity[prod_reqby_demand!=0] = (prod_reqby_demand[prod_reqby_demand!=0] - self.production[prod_reqby_demand!=0]) / prod_reqby_demand[prod_reqby_demand!=0]
+        scarcity[self.total_demand!=0] = (self.total_demand[self.total_demand!=0] - self.production[self.total_demand!=0]) / self.total_demand[self.total_demand!=0]
         scarcity[np.isnan(scarcity)] = 0
         overprod_chg = (((self.overprod_max - self.overprod) * (scarcity) * self.overprod_tau) + ((self.overprod_base - self.overprod) * (scarcity == 0) * self.overprod_tau)).flatten()
         self.overprod += overprod_chg

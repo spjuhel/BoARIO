@@ -286,15 +286,17 @@ class Simulation(object):
 
         if self.current_events != []:
             self.update_events()
+            self.mrio.update_system_from_events(self.current_events)
         if self.params['register_stocks']:
             self.mrio.write_stocks(self.current_t)
+        self.mrio.calc_prod_reqby_demand(self.current_events)
         if self.current_t > 1:
-                self.mrio.calc_overproduction(self.events)
+                self.mrio.calc_overproduction()
         self.mrio.write_overproduction(self.current_t)
         self.mrio.write_rebuild_demand(self.current_t)
         self.mrio.write_classic_demand(self.current_t)
         self.mrio.calc_production_cap()
-        constraints = self.mrio.calc_production(self.current_t, self.events)
+        constraints = self.mrio.calc_production(self.current_t)
         self.mrio.write_limiting_stocks(self.current_t, constraints)
         self.mrio.write_production(self.current_t)
         self.mrio.write_production_max(self.current_t)
@@ -317,7 +319,6 @@ class Simulation(object):
     def update_events(self):
         for e in self.current_events:
             e.rebuildable = (e.occurence_time + e.duration) <= self.current_t
-        self.mrio.update_system_from_events(self.current_events)
 
     def read_events_from_list(self, events_list):
         """Import a list of events (as dicts) into the model.
