@@ -78,28 +78,30 @@ def batch(wd:pathlib.Path, out):
     subdirs = [d for d in wd.iterdir() if d.is_dir()]
     scriptLogger.info("Subdirs found : {}".format(subdirs))
     for d in subdirs:
-        regex = re.compile(r"(?P<region>[A-Z]{2})_(?P<type>RoW|Full)_qdmg_(?:(?P<gdp_dmg>[\d.]+)|(?P<flood_int>[\d.]+%))_Psi_(?P<psi>0_\d+)_inv_tau_(?P<inv_tau>\d+)")
+        regex = re.compile(r"(?P<region>[A-Z]{2})_type_(?P<type>RoW|Full)_qdmg_(?P<sce>:raw_|int_)?(?P<gdp_dmg>(?:[\d_]+%?)|(?:max|min))_Psi_(?P<psi>(?:0_\d+)|1_0)_inv_tau_(?P<inv_tau>\d+)(?:_inv_time_(?:\d+))?")
+        #regex = re.compile(r"(?P<region>[A-Z]{2})_(?P<type>RoW|Full)_qdmg_(?:(?P<gdp_dmg>[\d.]+)|(?P<flood_int>[\d.]+%))_Psi_(?P<psi>0_\d+)_inv_tau_(?P<inv_tau>\d+)")
         m = regex.match(d.name)
         if m is None :
             scriptLogger.warning("Directory {} didn't match regex".format(d.name))
         else:
             regex_res = m.groupdict()
             region = regex_res['region']
-            if regex_res['gdp_dmg'] is None:
-                sce_type = "flood_intensity"
+            sce_type = regex_res['sce']
+            if sce_type == "raw_":
+                qdmg = regex_res['gdp_dmg']
+                flood_centile = None
             else:
-                sce_type = "gdp_share"
-            qdmg = regex_res['gdp_dmg']
-            flood_int = regex_res['flood_int']
+                flood_centile = regex_res['gdp_dmg']
+                qdmg = None
             psi = regex_res['psi']
             inv_tau = regex_res['inv_tau']
             indic = Indicators.from_folder(d, d/"indexes.json")
             indic.update_indicators()
             res_a = indic.indicators.copy()
             indic.write_indicators()
-            res_a['gdp'] = qdmg
+            res_a['qdmg'] = qdmg
             res_a['region'] = region
-            res_a['flood_int'] = flood_int
+            res_a['flood_centile'] = flood_centile
             res_a['psi'] = psi
             res_a['inv_tau'] = inv_tau
             res_a['type'] = sce_type
