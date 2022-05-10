@@ -357,7 +357,7 @@ class MrioSystem(object):
         """Compute and update total rebuild demand.
 
         Compute and update total rebuilding demand for the given list of events. Only events
-        tagged as rebuildable are accounted for. If separate_rebuilding is not True, apply the rebuilding characteristic time before updating.
+        tagged as rebuildable are accounted for.
 
         TODO: ADD MATH
 
@@ -403,9 +403,22 @@ class MrioSystem(object):
             raise ValueError("Production capacity was found negative for at least on industry")
 
     def calc_prod_reqby_demand(self, events:'list[Event]', separate_rebuilding:bool=False ) -> None :
-        """TODO describe function
+        """Computes and updates total demand
 
-        :returns:
+        Update total rebuild demand (and apply rebuilding characteristic time
+        if ``separate_rebuilding`` is False, then sum/reduce rebuilding, orders
+        and final demand together and accordingly update vector of total
+        demand.
+
+        Parameters
+        ----------
+        events : 'list[Event]'
+            List of Event to consider for rebuilding demand.
+        separate_rebuilding : bool
+            A boolean specifying if rebuilding demand should be treated as a whole (true) or under the characteristic time/proportional scheme strategy.
+        Returns
+        -------
+        None
 
         """
         self.calc_tot_rebuild_demand(events)
@@ -420,12 +433,20 @@ class MrioSystem(object):
         self.total_demand = prod_reqby_demand
 
     def calc_production(self, current_step:int):
-        """TODO describe function
+        """Compute and update actual production
 
-        :returns:
+        1°) Compute ``production_opt`` as
+
+        Parameters
+        ----------
+        current_step : int
+            current step number
+
+        Math
+        ----
+        FIXME: Add docs.
 
         """
-        #self.calc_prod_reqby_demand(events=events, separate_rebuilding=False)
         production_opt = np.fmin(self.total_demand, self.production_cap)
         supply_constraint = (np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat) * self.psi
         np.multiply(supply_constraint, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=supply_constraint)
