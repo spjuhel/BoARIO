@@ -652,8 +652,7 @@ class MrioSystem(object):
         # #    assert self.rebuilding_demand.ndim == 3
         # #    return self.rebuilding_demand.sum(axis=0)
 
-    def update_kapital_lost(self, events:'list[Event]'
-                        ):
+    def update_kapital_lost(self, events:'list[Event]'):
         self.__update_kapital_lost(events)
 
     def __update_kapital_lost(self, events:'list[Event]'
