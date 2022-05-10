@@ -54,6 +54,8 @@ class Event(object):
               occurence_time = {self.occurence_time},
               q_damages = {self.q_damages},
               aff_regions = {self.aff_regions},
+              aff_sectors = {self.aff_sectors},
+              occurence_time = {self.occurence_time},
               duration = {self.duration},
               dmg_distrib_across_sectors_type = {self.dmg_distrib_across_sectors_type}
              )

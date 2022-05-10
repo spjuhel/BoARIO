@@ -448,6 +448,8 @@ class Simulation(object):
         # DAMAGE DISTRIBUTION ACROSS SECTORS
         if self.events[event_to_add_id].dmg_distrib_across_sectors_type == "gdp":
             shares = self.mrio.gdp_share_sector.reshape((self.mrio.n_regions,self.mrio.n_sectors))
+            if shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[0] == 0:
+                raise ValueError("The sum of the affected sectors value added is 0 (meaning they probably don't exist in this regions)")
             q_dmg_regions_sectors = q_dmg_regions * (shares[aff_regions_idx][:,aff_sectors_idx]/shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[:,np.newaxis])
         elif self.events[event_to_add_id].dmg_distrib_across_sectors is None:
             q_dmg_regions_sectors = q_dmg_regions
