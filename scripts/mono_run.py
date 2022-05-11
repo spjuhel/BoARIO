@@ -58,13 +58,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     with open(event_file) as f:
         event_template = json.load(f)
 
-    if stype == "RoW":
-        mrio_path = list(pathlib.Path(mrios_path).glob("mrio_"+region+"*.pkl"))
-        scriptLogger.info("Trying to load {}".format(mrio_path))
-        assert len(mrio_path)==1
-        mrio_path = list(mrio_path)[0]
-    else:
-        mrio_path = pathlib.Path(mrios_path)
+    mrio_path = pathlib.Path(mrios_path)
 
     with mrio_path.open("rb") as f:
         mrio = pickle.load(f)
