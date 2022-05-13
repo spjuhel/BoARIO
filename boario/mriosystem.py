@@ -634,8 +634,9 @@ class MrioSystem(object):
         # Speed up restocking ?
         # matrix_stock_gap[stocks_constraints] *=2
         matrix_stock_gap += (np.tile(self.production, (self.n_sectors, 1)) * self.tech_mat)
-        assert not ((np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib) < 0).any()
-        self.matrix_orders = (np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib)
+        tmp = (np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib)
+        assert not (tmp < 0).any()
+        self.matrix_orders = tmp
 
 #    def aggregate_rebuild_demand(self, events:'list[Event]'):
         # """TODO describe function
