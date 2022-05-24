@@ -335,9 +335,9 @@ class Indicators(object):
         prod_chg = df2 - df2.iloc[0,:]
         prod_chg = prod_chg.round(6)
         prod_chg_sect = prod_chg.sum()
-        self.prod_chg_region =  prod_chg.sum().groupby('region').sum()
+        self.prod_chg_region = pd.concat([prod_chg_sect.loc[pd.IndexSlice[:,self.rebuilding_sectors]].groupby('region').sum(),prod_chg_sect.loc[prod_chg_sect.index.difference(prod_chg_sect.loc[pd.IndexSlice[:,self.rebuilding_sectors]].index)].groupby('region').sum()], keys=['rebuilding', 'non-rebuilding'], names=['sectors affected'])
         self.prod_chg_region = pd.DataFrame({self.storage_path.name:self.prod_chg_region}).T
-        self.prod_chg_region.to_json(self.storage_path/"prod_chg.json", indent=4)
+        self.prod_chg_region.to_json(self.storage_path/"prod_chg.json", indent=4, orient='split')
 
         self.indicators['prod_gain_tot'] = prod_chg.mul(prod_chg.gt(0)).sum().sum()
         self.indicators['prod_lost_tot'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum() * (-1)
@@ -366,10 +366,10 @@ class Indicators(object):
 
     def calc_fd_loss_region(self):
         df2 = self.df_loss.set_index(['step','region','sector']).unstack([1,2])
-        df2 = df2.round(6)
-        self.df_loss_region = df2.sum().groupby('region').sum()
+        df2 = df2.round(6).sum()
+        self.df_loss_region = pd.concat([df2.loc[pd.IndexSlice[:,:,self.rebuilding_sectors]].groupby('region').sum(),df2.loc[df2.index.difference(df2.loc[pd.IndexSlice[:,:,self.rebuilding_sectors]].index)].groupby('region').sum()], keys=['rebuilding', 'non-rebuilding'], names=['sectors affected'])
         self.df_loss_region = pd.DataFrame({self.storage_path.name:self.df_loss_region}).T
-        self.df_loss_region.to_json(self.storage_path/"fd_loss.json")
+        self.df_loss_region.to_json(self.storage_path/"fd_loss.json", indent=4, orient='split')
 
     def save_dfs(self):
         logger.info("Saving computed dataframe to results folder")
