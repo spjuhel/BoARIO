@@ -16,6 +16,8 @@
 
 import os
 import sys
+
+import pandas as pd
 print(os.getcwd())
 module_path = os.path.abspath(os.path.join("../"))
 if module_path not in sys.path:
@@ -52,8 +54,9 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         params_template = json.load(f)
     params_template["output_dir"] = output_dir
     params_template["mrio_params_file"] = mrio_params
-    with open(flood_gdp_file) as f:
-        flood_gdp_share = json.load(f)
+    #with open(flood_gdp_file) as f:
+    #    flood_gdp_share = json.load(f)
+    flood_gdp_df = pd.read_parquet(flood_gdp_file)
 
     with open(event_file) as f:
         event_template = json.load(f)
@@ -74,19 +77,34 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     gdp_df = value_added.groupby("region",axis=1).sum().T["indout"]
     # TODO : Change this hard coded value !
     gdp_df = gdp_df*1000000
+
+    #TODO : Finish this
+    if stype == "Subregions":
+        if "sliced" not in str(mrio_path):
+            raise ValueError("mrio {} seems not to contain subregions (sliced is not )".format(str(mrio_path)))
+    elif stype == "RoW":
+        pass
+    elif stype== "Full":
+        pass
+    else:
+        raise ValueError("Simulation type {} is incorrect".format(stype))
+
     del mrio
     scriptLogger.info("Done !")
     scriptLogger.info("Main storage dir is : {}".format(pathlib.Path(params_template["output_dir"]).resolve()))
     if rtype == "int":
-        v = flood_gdp_share[region][flood_dmg]
-        dmg = gdp_df[region] * v
-        event["r_dmg"] = float(v)
-        event["q_dmg"] = float(dmg)
+        event_row = flood_gdp_df.loc[(flood_gdp_df['class'] == flood_dmg) & (flood_gdp_df['EXIO3_region'] == region)]
+        dmg_as_gdp_share = float(event_row['dmg_as_gdp_share'])
+        total_direct_dmg = float(event_row['total_dmg'])
+        event["r_dmg"] = dmg_as_gdp_share
+        event["q_dmg"] = total_direct_dmg
     elif rtype == "raw":
         dmg = flood_dmg
         event["r_dmg"] = float(flood_dmg) / float(gdp_df[region])
         scriptLogger.info("Damages represent : {}/{} = {} of the region GDP".format(flood_dmg, gdp_df[region], event['r_dmg']))
         event["q_dmg"] = float(dmg)
+    else:
+        raise ValueError("Run damage type {} is incorrect".format(rtype))
 
     event["aff-regions"] = region
     sim_params["output_dir"] = output_dir

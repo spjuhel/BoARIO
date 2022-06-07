@@ -398,7 +398,7 @@ class MrioSystem(object):
                 logger.warning("Productivity loss factor was found greater than 1.0 on at least on industry (meaning more kapital damage than kapital stock)")
             self.production_cap = self.production_cap * (1 - productivity_loss)
         if (self.overprod > 1.0).any():
-            self.production_cap *= self.overprod
+            self.production_cap = self.production_cap * self.overprod
         if (self.production_cap < 0).any() :
             raise ValueError("Production capacity was found negative for at least on industry")
 
