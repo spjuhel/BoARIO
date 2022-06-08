@@ -96,6 +96,8 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         event_row = flood_gdp_df.loc[(flood_gdp_df['class'] == flood_dmg) & (flood_gdp_df['EXIO3_region'] == region)]
         dmg_as_gdp_share = float(event_row['dmg_as_gdp_share'])
         total_direct_dmg = float(event_row['total_dmg'])
+        duration = int(event_row['duration'])
+        event["duration"] = duration
         event["r_dmg"] = dmg_as_gdp_share
         event["q_dmg"] = total_direct_dmg
     elif rtype == "raw":
