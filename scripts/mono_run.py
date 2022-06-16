@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import re
 import sys
 
 import pandas as pd
@@ -80,8 +81,29 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
 
     #TODO : Finish this
     if stype == "Subregions":
+        scriptLogger.info("Subregions run detected !")
         if "sliced" not in str(mrio_path):
-            raise ValueError("mrio {} seems not to contain subregions (sliced is not )".format(str(mrio_path)))
+            raise ValueError("mrio {} seems not to contain subregions (sliced is not present in its name)".format(str(mrio_path)))
+        else:
+            mrio_rgxp = re.compile(r"(?P<region>[A-Z]{2})_sliced_in_(?P<split_number>[0-9]+)")
+            if (mrio_match := mrio_rgxp.match(mrio_path.stem)) is None:
+                raise ValueError("MRIO ({}) is not valid in this context".format(str(mrio_path.stem)))
+            else:
+                splited_region = mrio_match['region']
+                split_number = int(mrio_match['split_number'])
+            region_rgxp = re.compile(r"(?P<main_region>[A-Z]{2,3})-(?P<subregion>(?P<sregionname>[A-Z]{2,3})_?(?P<n>\d+)|all|one)")
+            if (match := region_rgxp.match(region)) is None:
+                raise ValueError("Impacted region ({}) is not valid in this context".format(str(region)))
+            else:
+                if match['main_region'] != splited_region:
+                    raise ValueError("Impacted region ({}) is different from the splited region ({})".format(str(region, splited_region)))
+                event["main_region"] = match['main_region']
+                if match['subregion'] == "all":
+                    event["aff-regions"] = [event["main_region"]+"_"+str(i) for i in range(split_number)]
+                elif match['subregion'] == "one":
+                    event["aff-regions"] = event["main_region"]+"_1"
+                else:
+                    event["aff-regions"] = match['sregionname']+"_"+match['n']
     elif stype == "RoW":
         pass
     elif stype== "Full":
