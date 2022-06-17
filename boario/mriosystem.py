@@ -194,6 +194,7 @@ class MrioSystem(object):
         self.inv_duration[self.inv_duration <= 1] = 2
         restoration_tau = [(self.n_days_by_step / simulation_params['inventory_restoration_time']) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
         self.restoration_tau = np.array(restoration_tau)
+        self.order_type = "alt"
         #################################################################
 
 
@@ -428,55 +429,57 @@ class MrioSystem(object):
         self.total_demand = prod_reqby_demand
 
     def calc_production(self, current_step:int):
-        """Compute and update actual production
+        r"""Compute and update actual production
 
-        1. Compute ``production_opt`` and ``supply constraints`` as :
+        1. Compute ``production_opt`` and ``inventory_constraints`` as :
 
         .. math::
+           :nowrap:
 
-            \begin{alignat}{4}
-      \mathbf{D}^{\textrm{Tot}}(t) &= (d_{f}^{\textrm{Tot}}(t))_{f \in \firmsset} &&= \ioorders(t) \cdot \irowsum + \ioy \cdot \irowsum + \Damage_{\firmsset} && \text{Total demand matrix} \label{Dtot}\\
-      \iox^{\textrm{Opt}}(t) &= (x^{\textrm{Opt}}_{f}(t))_{f \in \firmsset} &&= \left ( \min \left ( d^{\textrm{Tot}}_{f}(t), x^{\textrm{Cap}}_{f}(t) \right ) \right )_{f \in \firmsset} && \text{Optimal production}\label{optprod}\\
-      \mathbf{\ioinv}^{\textrm{Cons}}(t) &= (\omega^{\textrm{Cons},f}_p(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} &&=
-\begin{bmatrix}
-\tau^{1}_1 & \hdots & \tau^{p}_1 \\
-\vdots & \ddots & \vdots\\
-\tau^1_n & \hdots & \tau^{p}_n
-\end{bmatrix}
-\odot \begin{bmatrix} \iox^{\textrm{Opt}}(t)\\ \vdots\\ \iox^{\textrm{Opt}}(t) \end{bmatrix} \odot \ioa^{\sectorsset} && \\
-&&&= \begin{bmatrix}
-\tau^{1}_1 x^{\textrm{Opt}}_{1}(t) a_{11} & \hdots & \tau^{p}_1 x^{\textrm{Opt}}_{p}(t) a_{1p}\\
-\vdots & \ddots & \vdots\\
-\tau^1_n x^{\textrm{Opt}}_{1}(t) a_{n1} & \hdots & \tau^{p}_n x^{\textrm{Opt}}_{p}(t) a_{np}
-\end{bmatrix} \cdot \psi && \text{Inventory constraints} \label{invcons} \\
-      \iox^{a}(t) &= (x^{a}_{f}(t))_{f \in \firmsset} &&= \left \{ \begin{aligned}
+                \begin{alignat*}{4}
+                      \iox^{\textrm{Opt}}(t) &= (x^{\textrm{Opt}}_{f}(t))_{f \in \firmsset} &&= \left ( \min \left ( d^{\textrm{Tot}}_{f}(t), x^{\textrm{Cap}}_{f}(t) \right ) \right )_{f \in \firmsset} && \text{Optimal production}\\
+                      \mathbf{\ioinv}^{\textrm{Cons}}(t) &= (\omega^{\textrm{Cons},f}_p(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} &&=
+                    \begin{bmatrix}
+                        \tau^{1}_1 & \hdots & \tau^{p}_1 \\
+                        \vdots & \ddots & \vdots\\
+                        \tau^1_n & \hdots & \tau^{p}_n
+                    \end{bmatrix}
+                    \odot \begin{bmatrix} \iox^{\textrm{Opt}}(t)\\ \vdots\\ \iox^{\textrm{Opt}}(t) \end{bmatrix} \odot \ioa^{\sectorsset} && \text{Inventory constraints} \\
+                    &&&= \begin{bmatrix}
+                        \tau^{1}_1 x^{\textrm{Opt}}_{1}(t) a_{11} & \hdots & \tau^{p}_1 x^{\textrm{Opt}}_{p}(t) a_{1p}\\
+                        \vdots & \ddots & \vdots\\
+                        \tau^1_n x^{\textrm{Opt}}_{1}(t) a_{n1} & \hdots & \tau^{p}_n x^{\textrm{Opt}}_{p}(t) a_{np}
+                    \end{bmatrix} \cdot \psi && \\
+                \end{alignat*}
+
+        2. If stocks do not meet inventory_constraints for any inputs -> Decrease production accordingly :
+
+        .. math::
+           :nowrap:
+
+            \iox^{a}(t) &= (x^{a}_{f}(t))_{f \in \firmsset} &&= \left \{ \begin{aligned}
                                                       & x^{\textrm{Opt}}_{f}(t) & \text{if $\omega_{p}^f(t) \geq \omega^{\textrm{Cons},f}_p(t)$}\\
                                                       & x^{\textrm{Opt}}_{f}(t) \cdot \min_{p \in \sectorsset} \left ( \frac{\omega^s_{p}(t)}{\omega^{\textrm{Cons,f}}_p(t)} \right ) & \text{if $\omega_{p}^f(t) < \omega^{\textrm{Cons},f}_p(t)$}
-                                                      \end{aligned} \right. \quad && \text{Actual production at $t$}\label{actprod}
-   \end{alignat}
+                                                      \end{aligned} \right. \quad &&
 
         Parameters
         ----------
         current_step : int
             current step number
 
-        Math
-        ----
-        FIXME: Add docs.
-
         """
         #1.
         production_opt = np.fmin(self.total_demand, self.production_cap)
+        inventory_constraints = (np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat) * self.psi
+        np.multiply(inventory_constraints, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=inventory_constraints)
         #2.
-        supply_constraint = (np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat) * self.psi
-        np.multiply(supply_constraint, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=supply_constraint)
-        if (stock_constraint := (self.matrix_stock < supply_constraint) * self.matrix_share_thresh).any():
+        if (stock_constraint := (self.matrix_stock < inventory_constraints) * self.matrix_share_thresh).any():
             if not self.in_shortage:
                 logger.info('At least one industry entered shortage regime. (step:{})'.format(current_step))
             self.in_shortage = True
             self.had_shortage = True
             production_ratio_stock = np.ones(shape=self.matrix_stock.shape)
-            np.divide(self.matrix_stock, supply_constraint, out=production_ratio_stock, where=(self.matrix_share_thresh * (supply_constraint!=0)))
+            np.divide(self.matrix_stock, inventory_constraints, out=production_ratio_stock, where=(self.matrix_share_thresh * (inventory_constraints!=0)))
             production_ratio_stock[production_ratio_stock > 1] = 1
             if (production_ratio_stock < 1).any():
                 production_max = np.tile(production_opt, (self.n_sectors, 1)) * production_ratio_stock
@@ -585,8 +588,15 @@ class MrioSystem(object):
         matrix_stock_gap[matrix_stock_gap < 0] = 0
         matrix_stock_gap = np.expand_dims(self.restoration_tau, axis=1) * matrix_stock_gap
         matrix_stock_gap += (np.tile(self.production, (self.n_sectors, 1)) * self.tech_mat)
-
-        tmp = (np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib)
+        if self.order_type == "alt":
+            prod_ratio = np.divide(self.production,self.X_0, where=self.X_0!=0)
+            Z_prod = self.Z_0 * prod_ratio[:, np.newaxis]
+            Z_Cprod = np.tile(self._matrix_I_sum @ Z_prod,(self.n_regions,1))
+            out=np.zeros(shape=Z_prod.shape)
+            np.divide(Z_prod,Z_Cprod,out=out, where=Z_Cprod!=0)
+            tmp = (np.tile(matrix_stock_gap, (self.n_regions, 1)) * out)
+        else:
+            tmp = (np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib)
         assert not (tmp < 0).any()
         self.matrix_orders = tmp
 
