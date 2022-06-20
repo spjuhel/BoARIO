@@ -462,10 +462,18 @@ class MrioSystem(object):
                                                       & x^{\textrm{Opt}}_{f}(t) \cdot \min_{p \in \sectorsset} \left ( \frac{\omega^s_{p}(t)}{\omega^{\textrm{Cons,f}}_p(t)} \right ) & \text{if $\omega_{p}^f(t) < \omega^{\textrm{Cons},f}_p(t)$}
                                                       \end{aligned} \right. \quad &&
 
+        Also warns in log if such shortage happens.
+
+
         Parameters
         ----------
         current_step : int
             current step number
+
+        Returns
+        -------
+
+        A boolean NDArray `stock_constraint` of the same shape as `matrix_sock` (ie `(n_sectors,n_regions*n_sectors)`), with True for any input not meeting the inventory constraints.
 
         """
         #1.
@@ -498,11 +506,58 @@ class MrioSystem(object):
 
     def distribute_production(self,
                               t: int, events: 'list[Event]',
-                              scheme='proportional', separate_rebuilding:bool=False):
+                              scheme:str='proportional', separate_rebuilding:bool=False):
+        r"""Production distribution module
+
+        1. Computes rebuilding demand for each rebuildable events (applying the
+        `rebuild_tau` characteristic time)
+
+        2. Creates/Computes total demand matrix (Intermediate + Final + Rebuild)
+
+        3. Assesses if total demand is greater than realized production, hence requiring rationning.
+        4. Distributes production proportionally to demand such that :
+
+        .. math::
+           :nowrap:
+
+           \begin{alignat*}{4}
+  &\ioorders^{\textrm{Received}}(t) &&= \left (\frac{o_{ff'}(t)}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f,f'\in \firmsset}\\
+  &\ioy^{\textrm{Received}}(t) &&= \left ( \frac{y_{f,c}}{d^{\textrm{Tot}}_f(t)}\cdot x^a_f(t) \right )_{f\in \firmsset, c \in \catfdset}\\
+  &\Damage^{\textrm{Repaired}}(t) &&= \left ( \frac{\gamma_{f,c}}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f\in \firmsset, c \in \catfdset}\\
+           \end{alignat*}{4}
+
+        Where math::`o_{ff'}(t)` is the quantity of product ordered by industry math::`f'` to industry math::`f`, math::`d^{\textrm{Tot}}_f(t)` is the total demand to industry math::`f` and math::`x^a_f(t)` is math::`f`'s realized production.
+
+        5. Updates stocks matrix. (Only if `np.allclose(stock_add, stock_use).all()` is false)
+
+        6. Computes final demand not met due to rationing and write it.
+
+        7. Updates rebuilding demand for each event (by substracting distributed production)
+
+        Parameters
+        ----------
+        t : int
+            Current timestep (required to write the final demand not met)
+        events : 'list[Event]'
+            Simulation events list
+        scheme : str
+            Placeholder for future distribution scheme
+        separate_rebuilding : bool
+            If False, include the rebuilding in the proportional distribution
+            scheme (with a characteristic time) else,
+
+        Raises
+        ------
+        RuntimeError
+            If negative values are found in places there's should not be any
+        ValueError
+            If an attempt to run an unimplemented distribution scheme is tried
+
+        """
         if scheme != 'proportional':
             raise ValueError("Scheme %s not implemented"% scheme)
 
-        ## Calc demand from rebuilding requirements (with characteristic time rebuild_tau)
+        ## 1. Calc demand from rebuilding requirements (with characteristic time rebuild_tau)
         n_events = len([e for e in events])
         n_events_reb = len([e for e in events if e.rebuildable])
         tot_rebuilding_demand_summed = np.zeros(self.X_0.shape)
@@ -515,9 +570,9 @@ class MrioSystem(object):
                    tot_rebuilding_demand[:,:,e_id] = rebuilding_demand * self.rebuild_tau
                    tot_rebuilding_demand_summed += rebuilding_demand_summed * self.rebuild_tau
 
-        ## Concat to have total demand matrix (Intermediate + Final + Rebuild)
+        ## 2. Concat to have total demand matrix (Intermediate + Final + Rebuild)
         tot_demand = np.concatenate([self.matrix_orders, self.final_demand, np.expand_dims(tot_rebuilding_demand_summed,1)], axis=1)
-        ## Does production meet total demand
+        ## 3. Does production meet total demand
         rationning_required = (self.production - tot_demand.sum(axis=1))<(-1/self.monetary_unit)
         rationning_mask = np.tile(rationning_required[:,np.newaxis],(1,tot_demand.shape[1]))
         demand_share = np.full(tot_demand.shape,0.0)
@@ -525,14 +580,14 @@ class MrioSystem(object):
         # Get demand share
         np.divide(tot_demand, tot_dem_summed, where=(tot_dem_summed!=0), out=demand_share)
         distributed_production = tot_demand.copy()
-        # distribute production proportionally to demand
+        # 4. distribute production proportionally to demand
         np.multiply(demand_share, np.expand_dims(self.production,1), out=distributed_production, where=rationning_mask)
         intmd_distribution = distributed_production[:,:self.n_sectors * self.n_regions]
         # Stock use is simply production times technical coefs
         stock_use = np.tile(self.production, (self.n_sectors,1)) * self.tech_mat
         if (stock_use < 0).any() :
             raise RuntimeError("Stock use contains negative values, this should not happen")
-        # Restock is the production from each supplier, summed.
+        # 5. Restock is the production from each supplier, summed.
         stock_add = self._matrix_I_sum @ intmd_distribution
         if (stock_add < 0).any():
             raise RuntimeError("stock_add (restocking) contains negative values, this should not happen")
@@ -543,14 +598,14 @@ class MrioSystem(object):
                 logger.error("Negative values in the stocks, matrix has been dumped in the results dir : \n {}".format(self.results_storage/"matrix_stock_dump.pkl"))
                 raise RuntimeError("stock_add (restocking) contains negative values, this should not happen")
 
-        # Compute final demand not met due to rationing
+        # 6. Compute final demand not met due to rationing
         final_demand_not_met = self.final_demand - distributed_production[:,self.n_sectors*self.n_regions:(self.n_sectors*self.n_regions + self.n_fd_cat*self.n_regions)]
         final_demand_not_met = final_demand_not_met.sum(axis=1)
         # avoid -0.0 (just in case)
         final_demand_not_met[final_demand_not_met==0.] = 0.
         self.write_final_demand_unmet(t, final_demand_not_met)
 
-        # Compute production delivered to rebuilding
+        # 7. Compute production delivered to rebuilding
         rebuild_prod = distributed_production[:,(self.n_sectors*self.n_regions + self.n_fd_cat*self.n_regions):].copy().flatten()
         self.write_rebuild_prod(t,rebuild_prod) #type: ignore
         tot_rebuilding_demand_shares = np.zeros(shape=tot_rebuilding_demand.shape)
