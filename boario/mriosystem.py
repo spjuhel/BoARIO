@@ -559,7 +559,7 @@ class MrioSystem(object):
 
         - :math:`\ioinv` is the inventory matrix,
         - :math:`\mathbf{I}_{\textrm{sum}}` is a row summation matrix,
-        - :math:`\ioa^{\sectorset}` is the (input not specific to region) technical coefficients matrix.
+        - :math:`\ioa^{\sectorsset}` is the (input not specific to region) technical coefficients matrix.
 
     #. Computes final demand not met due to rationing and write it.
 
