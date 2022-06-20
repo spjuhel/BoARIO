@@ -457,10 +457,12 @@ class MrioSystem(object):
         .. math::
            :nowrap:
 
-            \iox^{a}(t) &= (x^{a}_{f}(t))_{f \in \firmsset} &&= \left \{ \begin{aligned}
-                                                      & x^{\textrm{Opt}}_{f}(t) & \text{if $\omega_{p}^f(t) \geq \omega^{\textrm{Cons},f}_p(t)$}\\
-                                                      & x^{\textrm{Opt}}_{f}(t) \cdot \min_{p \in \sectorsset} \left ( \frac{\omega^s_{p}(t)}{\omega^{\textrm{Cons,f}}_p(t)} \right ) & \text{if $\omega_{p}^f(t) < \omega^{\textrm{Cons},f}_p(t)$}
-                                                      \end{aligned} \right. \quad &&
+                \begin{alignat*}{4}
+                    \iox^{a}(t) &= (x^{a}_{f}(t))_{f \in \firmsset} &&= \left \{ \begin{aligned}
+                                                           & x^{\textrm{Opt}}_{f}(t) & \text{if $\omega_{p}^f(t) \geq \omega^{\textrm{Cons},f}_p(t)$}\\
+                                                           & x^{\textrm{Opt}}_{f}(t) \cdot \min_{p \in \sectorsset} \left ( \frac{\omega^s_{p}(t)}{\omega^{\textrm{Cons,f}}_p(t)} \right ) & \text{if $\omega_{p}^f(t) < \omega^{\textrm{Cons},f}_p(t)$}
+                                                           \end{aligned} \right. \quad &&
+                \end{alignat*}
 
         Also warns in log if such shortage happens.
 
@@ -509,51 +511,80 @@ class MrioSystem(object):
                               scheme:str='proportional', separate_rebuilding:bool=False):
         r"""Production distribution module
 
-        1. Computes rebuilding demand for each rebuildable events (applying the
-        `rebuild_tau` characteristic time)
+    #. Computes rebuilding demand for each rebuildable events (applying the `rebuild_tau` characteristic time)
 
-        2. Creates/Computes total demand matrix (Intermediate + Final + Rebuild)
+    #. Creates/Computes total demand matrix (Intermediate + Final + Rebuild)
 
-        3. Assesses if total demand is greater than realized production, hence requiring rationning.
-        4. Distributes production proportionally to demand such that :
+    #. Assesses if total demand is greater than realized production, hence requiring rationning
+
+    #. Distributes production proportionally to demand such that :
 
         .. math::
            :nowrap:
 
-           \begin{alignat*}{4}
-  &\ioorders^{\textrm{Received}}(t) &&= \left (\frac{o_{ff'}(t)}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f,f'\in \firmsset}\\
-  &\ioy^{\textrm{Received}}(t) &&= \left ( \frac{y_{f,c}}{d^{\textrm{Tot}}_f(t)}\cdot x^a_f(t) \right )_{f\in \firmsset, c \in \catfdset}\\
-  &\Damage^{\textrm{Repaired}}(t) &&= \left ( \frac{\gamma_{f,c}}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f\in \firmsset, c \in \catfdset}\\
-           \end{alignat*}{4}
+               \begin{alignat*}{4}
+                   &\ioorders^{\textrm{Received}}(t) &&= \left (\frac{o_{ff'}(t)}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f,f'\in \firmsset}\\
+                   &\ioy^{\textrm{Received}}(t) &&= \left ( \frac{y_{f,c}}{d^{\textrm{Tot}}_f(t)}\cdot x^a_f(t) \right )_{f\in \firmsset, c \in \catfdset}\\
+                   &\Damage^{\textrm{Repaired}}(t) &&= \left ( \frac{\gamma_{f,c}}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f\in \firmsset, c \in \catfdset}\\
+               \end{alignat*}
 
-        Where math::`o_{ff'}(t)` is the quantity of product ordered by industry math::`f'` to industry math::`f`, math::`d^{\textrm{Tot}}_f(t)` is the total demand to industry math::`f` and math::`x^a_f(t)` is math::`f`'s realized production.
+        Where :
 
-        5. Updates stocks matrix. (Only if `np.allclose(stock_add, stock_use).all()` is false)
+        - :math:`\ioorders^{\textrm{Received}}(t)` is the received orders matrix,
 
-        6. Computes final demand not met due to rationing and write it.
+        - :math:`\ioy^{\textrm{Received}}(t)` is the final demand received matrix,
 
-        7. Updates rebuilding demand for each event (by substracting distributed production)
+        - :math:`\Damage^{\textrm{Repared}}(t)` is the rebuilding/repair achieved matrix,
 
-        Parameters
-        ----------
-        t : int
-            Current timestep (required to write the final demand not met)
-        events : 'list[Event]'
-            Simulation events list
-        scheme : str
-            Placeholder for future distribution scheme
-        separate_rebuilding : bool
-            If False, include the rebuilding in the proportional distribution
-            scheme (with a characteristic time) else,
+        - :math:`d^{\textrm{Tot}}_f(t)` is the total demand to industry :math:`f`,
 
-        Raises
-        ------
-        RuntimeError
-            If negative values are found in places there's should not be any
-        ValueError
-            If an attempt to run an unimplemented distribution scheme is tried
+        - :math:`x^a_f(t)` is :math:`f`'s realized production,
 
-        """
+        - :math:`o_{ff'}(t)` is the quantity of product ordered by industry :math:`f'` to industry :math:`f`,
+
+        - :math:`y_{fc}(t)` is the quantity of product ordered by household :math:`c` to industry :math:`f`,
+
+        - :math:`\gamma_{fc}(t)` is the repaired/rebuilding demand ordered to :math:`f`.
+
+    #. Updates stocks matrix. (Only if `np.allclose(stock_add, stock_use).all()` is false)
+
+        .. math::
+           :nowrap:
+
+               \begin{alignat*}{4}
+                   &\ioinv(t+1) &&= \ioinv(t) + \left ( \mathbf{I}_{\textrm{sum}} \cdot \ioorders^{\textrm{Received}}(t) \right ) - \left ( \colvec{\iox^{\textrm{a}}(t)}{\iox^{\textrm{a}}(t)} \odot \ioa^{\sectorsset} \right )\\
+               \end{alignat*}
+
+        Where :
+
+        - :math:`\ioinv` is the inventory matrix,
+        - :math:`\mathbf{I}_{\textrm{sum}}` is a row summation matrix,
+        - :math:`\ioa^{\sectorset}` is the (input not specific to region) technical coefficients matrix.
+
+    #. Computes final demand not met due to rationing and write it.
+
+    #. Updates rebuilding demand for each event (by substracting distributed production)
+
+    Parameters
+    ----------
+    t : int
+        Current timestep (required to write the final demand not met)
+    events : 'list[Event]'
+        Simulation events list
+    scheme : str
+        Placeholder for future distribution scheme
+    separate_rebuilding : bool
+        If False, include the rebuilding in the proportional distribution
+        scheme (with a characteristic time) else,
+
+    Raises
+    ------
+    RuntimeError
+        If negative values are found in places there's should not be any
+    ValueError
+        If an attempt to run an unimplemented distribution scheme is tried
+
+"""
         if scheme != 'proportional':
             raise ValueError("Scheme %s not implemented"% scheme)
 
