@@ -17,6 +17,7 @@
 '''
 Simulation module
 '''
+from contextlib import redirect_stdout
 import json
 import pickle
 import pathlib
@@ -166,7 +167,7 @@ class Simulation(object):
         FIXME: Add docs.
 
         """
-        logger.info("Starting model loop for at most {} steps".format(self.n_timesteps_to_sim))
+        logger.info("Starting model loop for at most {} steps".format(self.n_timesteps_to_sim//self.mrio.n_days_by_step+1))
         logger.info("One step is {} day(s)".format(self.mrio.n_days_by_step))
         tmp = logging.FileHandler(self.results_storage/"simulation.log")
         tmp.setLevel(logging.DEBUG)
@@ -175,9 +176,9 @@ class Simulation(object):
         logger.info("Parameters : \n {}".format(json.dumps(self.params, indent=4)))
         if progress:
             widgets = [
-                'Processed: ', progressbar.Counter('Step: %(value)d '), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
+                'Processed: ', progressbar.Counter('Step: %(value)d'), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
             ]
-            bar = progressbar.ProgressBar(widgets=widgets)
+            bar = progressbar.ProgressBar(widgets=widgets, redirect_stdout=True)
             for t in bar(range(0,self.n_timesteps_to_sim,math.floor(self.params['model_time_step']))):
                 #assert self.current_t == t
                 step_res = self.next_step()
@@ -301,11 +302,15 @@ class Simulation(object):
         self.mrio.write_production(self.current_t)
         self.mrio.write_production_max(self.current_t)
         try:
-            self.mrio.distribute_production(self.current_t, self.events, self.scheme)
+            events_to_remove = self.mrio.distribute_production(self.current_t, self.current_events, self.scheme)
         except RuntimeError as e:
             logger.exception("This exception happened:",e)
             return 1
-        self.mrio.calc_orders(self.events)
+        if events_to_remove != []:
+            self.current_events = [e for e in self.current_events if e not in events_to_remove]
+            for e in events_to_remove:
+                logger.info("Event named {} that occured at {} in {} for {} damages is completely rebuilt".format(e.name,e.occurence_time, e.aff_regions, e.q_damages))
+        self.mrio.calc_orders(self.current_events)
         if self.current_t > min_steps_check and (self.current_t % check_period == 0):
             if self.mrio.check_crash() >  min_failing_regions:
                 return 1
@@ -407,7 +412,7 @@ class Simulation(object):
         FIXME: Add docs.
 
         """
-        logger.info("Shocking model with new event")
+        logger.info("Shocking model with new event ~ Day is {}".format(self.current_t))
         logger.info("Affected regions are : {}".format(self.events[event_to_add_id].aff_regions))
         impacted_region_prod_share = self.params['impacted_region_base_production_toward_rebuilding']
         RoW_prod_share = self.params['row_base_production_toward_rebuilding']

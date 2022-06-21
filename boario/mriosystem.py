@@ -646,9 +646,14 @@ class MrioSystem(object):
         rebuild_prod_distributed = np.zeros(shape=tot_rebuilding_demand.shape)
         np.multiply(tot_rebuilding_demand_shares,rebuild_prod_broad,out=rebuild_prod_distributed)
         # update rebuilding demand
+        events_to_remove = []
         for e_id, e in enumerate(events):
             e.industry_rebuild -= rebuild_prod_distributed[:,:self.n_sectors*self.n_regions,e_id]
             e.final_demand_rebuild -= rebuild_prod_distributed[:,self.n_sectors*self.n_regions:,e_id]
+            if (e.industry_rebuild < (10/self.monetary_unit)).all() and (e.final_demand_rebuild < (10/self.monetary_unit)).all():
+                events_to_remove.append(e)
+        return events_to_remove
+
 
     def calc_orders(self, events:'list[Event]'):
         """TODO describe function
