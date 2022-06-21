@@ -116,6 +116,8 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     scriptLogger.info("Main storage dir is : {}".format(pathlib.Path(params_template["output_dir"]).resolve()))
     if rtype == "int":
         event_row = flood_gdp_df.loc[(flood_gdp_df['class'] == flood_dmg) & (flood_gdp_df['EXIO3_region'] == region)]
+        if event_row.empty:
+            raise ValueError("This tuple of region / flood class ({},{}) is does not have a representative event (it is likely a duplicate of another class)".format(region,flood_dmg))
         dmg_as_gdp_share = float(event_row['dmg_as_gdp_share'])
         total_direct_dmg = float(event_row['total_dmg'])
         duration = int(event_row['duration'])
