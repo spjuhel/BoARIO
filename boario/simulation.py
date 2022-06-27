@@ -324,6 +324,8 @@ class Simulation(object):
     def update_events(self):
         for e in self.current_events:
             e.rebuildable = (e.occurence_time + e.duration) <= self.current_t
+            if e.rebuildable:
+                logger.info("Event named {} that occured at {} in {} for {} damages has started rebuilding".format(e.name,e.occurence_time, e.aff_regions, e.q_damages))
 
     def read_events_from_list(self, events_list):
         """Import a list of events (as dicts) into the model.

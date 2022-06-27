@@ -157,6 +157,7 @@ class MrioSystem(object):
         super().__init__()
 
         ################ Parameters variables #######################
+        logger.info("IO system metadata :\n{}".format(str(pym_mrio.meta)))
         pym_mrio = lexico_reindex(pym_mrio)
         self.mrio_params = mrio_params
         self.main_inv_dur = mrio_params['main_inv_dur']
@@ -177,7 +178,8 @@ class MrioSystem(object):
             self.n_fd_cat= 1
             self.fd_cat = np.array(["Final demand"])
         self.monetary_unit = mrio_params['monetary_unit']
-        logger.info("Monetary unit is: %s", self.monetary_unit)
+        logger.info("Monetary unit from params is: %s", self.monetary_unit)
+        logger.info("Monetary unit from loaded mrio is: %s", pym_mrio.unit.unit.unique()[0])
         self.psi = simulation_params['psi_param']
         self.n_days_by_step = simulation_params['model_time_step']
         self.iotable_year_to_step_factor = simulation_params['timestep_dividing_factor'] # 365 for yearly IO tables
@@ -191,9 +193,12 @@ class MrioSystem(object):
         inv = mrio_params['inventories_dict']
         inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
         self.inv_duration = np.array(inventories)  / self.n_days_by_step
-        self.inv_duration[self.inv_duration <= 1] = 2
+        if (self.inv_duration <= 1).any() :
+            logger.warning("At least one product has inventory duration lower than the numbers of days in one step ({}), model will set it to 2 steps by default, but you should probably check this !".format(self.n_days_by_step))
+            self.inv_duration[self.inv_duration <= 1] = 2
         restoration_tau = [(self.n_days_by_step / simulation_params['inventory_restoration_time']) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
         self.restoration_tau = np.array(restoration_tau)
+        logger.info("Setting order module to 'alternative' mode (see https://doi.org/10.1038/s41562-020-0896-8 )")
         self.order_type = "alt"
         #################################################################
 
@@ -859,5 +864,5 @@ class MrioSystem(object):
             old_dur = self.main_inv_dur
         old_dur = float(old_dur) / self.n_days_by_step
         new_dur = float(new_dur) / self.n_days_by_step
-        logger.info("Changing (main) inventories duration from {} to {} days".format(old_dur, new_dur))
+        logger.info("Changing (main) inventories duration from {} to {} steps (there are {} by steps)".format(old_dur, new_dur, self.n_days_by_step))
         self.inv_duration = np.where(self.inv_duration==old_dur, new_dur, self.inv_duration)

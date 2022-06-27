@@ -76,8 +76,10 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     value_added = value_added.reindex(sorted(value_added.columns), axis=1)
     value_added[value_added < 0] = 0.0
     gdp_df = value_added.groupby("region",axis=1).sum().T["indout"]
-    # TODO : Change this hard coded value !
-    gdp_df = gdp_df*1000000
+    if mrio.unit.unit.unique()[0] != "M.EUR" :
+        scriptLogger.warning("MRIO unit appears to not be 'M.EUR'; but {} instead, which is not yet implemented. Contact the dev !".format(mrio.unit.unit.unique()[0]))
+    else:
+        gdp_df = gdp_df*(10**6)
 
     #TODO : Finish this
     if stype == "Subregions":
