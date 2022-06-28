@@ -14,14 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from boario.mriosystem import MrioSystem
+from typing import Union
+from boario.model_base import BaseARIOModel
+from boario.extended_models import ARIOModelPsi
 import warnings
 import numpy as np
 
 __all__ = ['Event']
 
 class Event(object):
-    def __init__(self, event:dict, mrio:MrioSystem) -> None:
+    def __init__(self, event:dict, mrio:Union[BaseARIOModel,ARIOModelPsi]) -> None:
         super().__init__()
 
         self.name = event['name']

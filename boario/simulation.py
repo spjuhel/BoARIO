@@ -30,7 +30,8 @@ import pymrio as pym
 from pymrio.core.mriosystem import IOSystem
 
 from boario.event import Event
-from boario.mriosystem import MrioSystem
+from boario.model_base import BaseARIOModel
+from boario.extended_models import ARIOModelPsi
 from boario import logger
 from boario.logging_conf import DEBUGFORMATTER
 
@@ -38,7 +39,7 @@ __all__=['Simulation']
 
 class Simulation(object):
     '''Simulation instance'''
-    def __init__(self, params: Union[dict, str, pathlib.Path], mrio_system: Union[IOSystem, str, pathlib.Path, None] = None) -> None:
+    def __init__(self, params: Union[dict, str, pathlib.Path], mrio_system: Union[IOSystem, str, pathlib.Path, None] = None, modeltype:str = "BaseARIO") -> None:
         """Initiate a simulation object with given parameters and IOSystem
 
         This Class wraps a MRIO System, simulation and execution parameters as
@@ -134,7 +135,10 @@ class Simulation(object):
         self.results_storage = results_storage = pathlib.Path(self.params['output_dir']+"/"+self.params['results_storage'])
         if not results_storage.exists():
             results_storage.mkdir(parents=True)
-        self.mrio = MrioSystem(mrio, mrio_params, simulation_params, results_storage)
+        if modeltype == "BaseARIO":
+            self.mrio = BaseARIOModel(mrio, mrio_params, simulation_params, results_storage)
+        else:
+            self.mrio = ARIOModelPsi(mrio, mrio_params, simulation_params, results_storage)
         self.events = []
         self.current_events = []
         self.events_timings = set()
@@ -323,8 +327,9 @@ class Simulation(object):
 
     def update_events(self):
         for e in self.current_events:
+            already_rebuilding = e.rebuildable
             e.rebuildable = (e.occurence_time + e.duration) <= self.current_t
-            if e.rebuildable:
+            if e.rebuildable and not already_rebuilding:
                 logger.info("Event named {} that occured at {} in {} for {} damages has started rebuilding".format(e.name,e.occurence_time, e.aff_regions, e.q_damages))
 
     def read_events_from_list(self, events_list):

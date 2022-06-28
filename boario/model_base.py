@@ -25,7 +25,7 @@ from boario import logger
 from boario.event import *
 from pymrio.core.mriosystem import IOSystem
 
-__all__ = ['MrioSystem']
+__all__ = ["BaseARIOModel","INV_THRESHOLD","VALUE_ADDED_NAMES","VA_idx", "lexico_reindex"]
 
 INV_THRESHOLD = 0 #20 #days
 
@@ -76,11 +76,11 @@ def lexico_reindex(mrio: pym.IOSystem) -> pym.IOSystem:
 
     return mrio
 
-class MrioSystem(object):
-    """The core of ARIO3 model. Handles the different arrays containing the mrio tables.
+class BaseARIOModel(object):
+    """The core of an ARIO3 model.  Handles the different arrays containing the mrio tables.
 
-    An mriosystem wrap all the data and functions used in the core of the ario
-    model.
+    A BaseARIOModel wrap all the data and functions used in the core of the most basic version of the ARIO
+    model (based on Hallegatte2013 and Guan2020).
 
     Attributes
     ----------
@@ -153,16 +153,16 @@ class MrioSystem(object):
                  results_storage: pathlib.Path
                  ) -> None:
 
-        logger.debug("Initiating new MrioSystem instance")
+        logger.debug("Initiating new BaseARIOModel instance")
         super().__init__()
 
         ################ Parameters variables #######################
         logger.info("IO system metadata :\n{}".format(str(pym_mrio.meta)))
         pym_mrio = lexico_reindex(pym_mrio)
-        self.mrio_params = mrio_params
+        self.mrio_params:dict = mrio_params
         self.main_inv_dur = mrio_params['main_inv_dur']
         results_storage = results_storage.absolute()
-        self.results_storage = results_storage
+        self.results_storage:pathlib.Path = results_storage
         logger.info("Results storage is: {}".format(self.results_storage))
         self.regions = np.array(sorted(list(pym_mrio.get_regions()))) #type: ignore
         self.n_regions = len(pym_mrio.get_regions()) #type: ignore
@@ -196,10 +196,6 @@ class MrioSystem(object):
         if (self.inv_duration <= 1).any() :
             logger.warning("At least one product has inventory duration lower than the numbers of days in one step ({}), model will set it to 2 steps by default, but you should probably check this !".format(self.n_days_by_step))
             self.inv_duration[self.inv_duration <= 1] = 2
-        restoration_tau = [(self.n_days_by_step / simulation_params['inventory_restoration_time']) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
-        self.restoration_tau = np.array(restoration_tau)
-        logger.info("Setting order module to 'alternative' mode (see https://doi.org/10.1038/s41562-020-0896-8 )")
-        self.order_type = "alt"
         #################################################################
 
 
@@ -246,8 +242,9 @@ class MrioSystem(object):
         self.rebuilding_demand = None
         self.total_demand = np.zeros(shape = self.X_0.shape)
         self.rebuild_demand = np.zeros(shape = np.concatenate([self.Z_0,self.Y_0],axis=1).shape)
-        self.prod_max_toward_rebuilding = None
+        # self.prod_max_toward_rebuilding = None
         self.kapital_lost = np.zeros(self.production.shape)
+        self.order_type = simulation_params['order_type']
         #################################################################
 
         ################## SIMULATION TRACKING VARIABLES ################
@@ -376,7 +373,7 @@ class MrioSystem(object):
         self.rebuild_demand = ret
 
     def calc_production_cap(self):
-        """Compute and update production capacity.
+        r"""Compute and update production capacity.
 
         Compute and update production capacity from possible kapital damage and overproduction.
 
@@ -485,8 +482,7 @@ class MrioSystem(object):
         """
         #1.
         production_opt = np.fmin(self.total_demand, self.production_cap)
-        inventory_constraints = (np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat) * self.psi
-        np.multiply(inventory_constraints, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=inventory_constraints)
+        inventory_constraints = self.calc_inventory_constraints(production_opt)
         #2.
         if (stock_constraint := (self.matrix_stock < inventory_constraints) * self.matrix_share_thresh).any():
             if not self.in_shortage:
@@ -510,6 +506,11 @@ class MrioSystem(object):
             assert not (production_opt < 0).any()
             self.production = production_opt
         return stock_constraint
+
+    def calc_inventory_constraints(self, production:np.ndarray) -> np.ndarray :
+        inventory_constraints = (np.tile(production, (self.n_sectors, 1)) * self.tech_mat)
+        np.multiply(inventory_constraints, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=inventory_constraints)
+        return inventory_constraints
 
     def distribute_production(self,
                               t: int, events: 'list[Event]',
@@ -682,7 +683,7 @@ class MrioSystem(object):
             matrix_stock_gap[np.isfinite(matrix_stock_goal)] = (matrix_stock_goal[np.isfinite(matrix_stock_goal)] - self.matrix_stock[np.isfinite(self.matrix_stock)])
         assert (not np.isnan(matrix_stock_gap).any()), "NaN in matrix stock gap"
         matrix_stock_gap[matrix_stock_gap < 0] = 0
-        matrix_stock_gap = np.expand_dims(self.restoration_tau, axis=1) * matrix_stock_gap
+        # matrix_stock_gap = np.expand_dims(self.restoration_tau, axis=1) * matrix_stock_gap
         matrix_stock_gap += (np.tile(self.production, (self.n_sectors, 1)) * self.tech_mat)
         if self.order_type == "alt":
             prod_ratio = np.divide(self.production,self.X_0, where=self.X_0!=0)
@@ -789,15 +790,12 @@ class MrioSystem(object):
         self.prod_max_toward_rebuilding = None
 
     def update_params(self, new_params):
-        self.psi = new_params['psi_param']
         self.n_days_by_step = new_params['model_time_step']
         self.iotable_year_to_step_factor = new_params['timestep_dividing_factor']
         self.rebuild_tau = new_params['rebuild_tau']
         self.overprod_max = new_params['alpha_max']
         self.overprod_tau = new_params['alpha_tau']
         self.overprod_base = new_params['alpha_base']
-        restoration_tau = [(self.n_days_by_step / new_params['inventory_restoration_time'])]# if v >= INV_THRESHOLD else v for v in inventories]
-        self.restoration_tau = np.array(restoration_tau)
         if self.results_storage != pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage']):
             self.results_storage = pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage'])
             self.reset_record_files(new_params['n_timesteps'], new_params['register_stocks'])
