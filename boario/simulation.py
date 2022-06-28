@@ -30,7 +30,7 @@ import pymrio as pym
 from pymrio.core.mriosystem import IOSystem
 
 from boario.event import Event
-from boario.model_base import BaseARIOModel
+from boario.model_base import ARIOBaseModel
 from boario.extended_models import ARIOModelPsi
 from boario import logger
 from boario.logging_conf import DEBUGFORMATTER
@@ -39,7 +39,7 @@ __all__=['Simulation']
 
 class Simulation(object):
     '''Simulation instance'''
-    def __init__(self, params: Union[dict, str, pathlib.Path], mrio_system: Union[IOSystem, str, pathlib.Path, None] = None, modeltype:str = "BaseARIO") -> None:
+    def __init__(self, params: Union[dict, str, pathlib.Path], mrio_system: Union[IOSystem, str, pathlib.Path, None] = None, modeltype:str = "ARIOBase") -> None:
         """Initiate a simulation object with given parameters and IOSystem
 
         This Class wraps a MRIO System, simulation and execution parameters as
@@ -135,10 +135,14 @@ class Simulation(object):
         self.results_storage = results_storage = pathlib.Path(self.params['output_dir']+"/"+self.params['results_storage'])
         if not results_storage.exists():
             results_storage.mkdir(parents=True)
-        if modeltype == "BaseARIO":
-            self.mrio = BaseARIOModel(mrio, mrio_params, simulation_params, results_storage)
-        else:
+        if modeltype == "ARIOBase":
+            self.mrio = ARIOBaseModel(mrio, mrio_params, simulation_params, results_storage)
+        elif modeltype == "ARIOPsi":
             self.mrio = ARIOModelPsi(mrio, mrio_params, simulation_params, results_storage)
+        else:
+            raise NotImplementedError("""This model type is not implemented : {}
+Available types are {}
+            """.format(modeltype,str(["ARIOBase","ARIOPsi"])))
         self.events = []
         self.current_events = []
         self.events_timings = set()
@@ -151,7 +155,7 @@ class Simulation(object):
         logger.info("Initialized !")
 
     def loop(self, progress:bool=True):
-        """Launch the simulation loop.
+        r"""Launch the simulation loop.
 
         This method launch the simulation for the number of steps to simulate
         described by the attribute self.n_timpesteps_to_sim, calling the

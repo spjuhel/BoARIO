@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from typing import Union
-from boario.model_base import BaseARIOModel
+from boario.model_base import ARIOBaseModel
 from boario.extended_models import ARIOModelPsi
 import warnings
 import numpy as np
@@ -23,7 +23,7 @@ import numpy as np
 __all__ = ['Event']
 
 class Event(object):
-    def __init__(self, event:dict, mrio:Union[BaseARIOModel,ARIOModelPsi]) -> None:
+    def __init__(self, event:dict, mrio:Union[ARIOBaseModel,ARIOModelPsi]) -> None:
         super().__init__()
 
         self.name = event['name']

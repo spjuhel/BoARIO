@@ -25,7 +25,7 @@ from boario import logger
 from boario.event import *
 from pymrio.core.mriosystem import IOSystem
 
-__all__ = ["BaseARIOModel","INV_THRESHOLD","VALUE_ADDED_NAMES","VA_idx", "lexico_reindex"]
+__all__ = ["ARIOBaseModel","INV_THRESHOLD","VALUE_ADDED_NAMES","VA_idx", "lexico_reindex"]
 
 INV_THRESHOLD = 0 #20 #days
 
@@ -76,10 +76,10 @@ def lexico_reindex(mrio: pym.IOSystem) -> pym.IOSystem:
 
     return mrio
 
-class BaseARIOModel(object):
+class ARIOBaseModel(object):
     """The core of an ARIO3 model.  Handles the different arrays containing the mrio tables.
 
-    A BaseARIOModel wrap all the data and functions used in the core of the most basic version of the ARIO
+    A ARIOBaseModel wrap all the data and functions used in the core of the most basic version of the ARIO
     model (based on Hallegatte2013 and Guan2020).
 
     Attributes
@@ -153,7 +153,7 @@ class BaseARIOModel(object):
                  results_storage: pathlib.Path
                  ) -> None:
 
-        logger.debug("Initiating new BaseARIOModel instance")
+        logger.debug("Initiating new ARIOBaseModel instance")
         super().__init__()
 
         ################ Parameters variables #######################
@@ -659,7 +659,6 @@ class BaseARIOModel(object):
             if (e.industry_rebuild < (10/self.monetary_unit)).all() and (e.final_demand_rebuild < (10/self.monetary_unit)).all():
                 events_to_remove.append(e)
         return events_to_remove
-
 
     def calc_orders(self, events:'list[Event]'):
         """TODO describe function

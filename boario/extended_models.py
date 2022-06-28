@@ -14,20 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import json
 import pathlib
-from signal import pthread_sigmask
-from typing import Union
-import pymrio as pym
 import numpy as np
-from nptyping import NDArray
 from boario import logger
 from boario.model_base import *
 from boario.event import *
 from pymrio.core.mriosystem import IOSystem
 
 __all__ = ['ARIOModelPsi']
-class ARIOModelPsi(BaseARIOModel):
+class ARIOModelPsi(ARIOBaseModel):
     """ An ARIO3 model with some additional features
 
     Added feature are parameter psi of production adjustment inventories constraint threshold, as well as a characteristic time of inventories resupplying and the alternative order module from Guan2020.
