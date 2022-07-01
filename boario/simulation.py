@@ -317,7 +317,7 @@ Available types are {}
         if events_to_remove != []:
             self.current_events = [e for e in self.current_events if e not in events_to_remove]
             for e in events_to_remove:
-                logger.info("Event named {} that occured at {} in {} for {} damages is completely rebuilt".format(e.name,e.occurence_time, e.aff_regions, e.q_damages))
+                logger.info("Day : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt".format(self.current_t, e.name,e.occurence_time, e.aff_regions, e.q_damages))
         self.mrio.calc_orders(self.current_events)
         if self.current_t > min_steps_check and (self.current_t % check_period == 0):
             if self.mrio.check_crash() >  min_failing_regions:
@@ -334,7 +334,7 @@ Available types are {}
             already_rebuilding = e.rebuildable
             e.rebuildable = (e.occurence_time + e.duration) <= self.current_t
             if e.rebuildable and not already_rebuilding:
-                logger.info("Event named {} that occured at {} in {} for {} damages has started rebuilding".format(e.name,e.occurence_time, e.aff_regions, e.q_damages))
+                logger.info("Day : {} ~ Event named {} that occured at {} in {} for {} damages has started rebuilding".format(self.current_t,e.name,e.occurence_time, e.aff_regions, e.q_damages))
 
     def read_events_from_list(self, events_list):
         """Import a list of events (as dicts) into the model.
@@ -423,7 +423,7 @@ Available types are {}
         FIXME: Add docs.
 
         """
-        logger.info("Shocking model with new event ~ Day is {}".format(self.current_t))
+        logger.info("Day : {} ~ Shocking model with new event".format(self.current_t))
         logger.info("Affected regions are : {}".format(self.events[event_to_add_id].aff_regions))
         impacted_region_prod_share = self.params['impacted_region_base_production_toward_rebuilding']
         RoW_prod_share = self.params['row_base_production_toward_rebuilding']
