@@ -52,6 +52,7 @@ parser.add_argument("alt_inv_dur", type=str, help="The optional alternative main
 
 def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, output_dir, flood_gdp_file, event_file, mrio_params, alt_inv_dur=None):
     with open(params) as f:
+        scriptLogger.info("Loading simulation params template from {}".format(params))
         params_template = json.load(f)
     params_template["output_dir"] = output_dir
     params_template["mrio_params_file"] = mrio_params
@@ -60,6 +61,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     flood_gdp_df = pd.read_parquet(flood_gdp_file)
 
     with open(event_file) as f:
+        scriptLogger.info("Loading event template from {}".format(event_file))
         event_template = json.load(f)
 
     mrio_path = pathlib.Path(mrios_path)
@@ -69,8 +71,12 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
 
     event = event_template.copy()
     sim_params = params_template.copy()
+    scriptLogger.info("Setting psi parameter to {}".format(float(psi.replace("_","."))))
     sim_params["psi_param"] = float(psi.replace("_","."))
     sim_params["inventory_restoration_time"] = inv_tau
+    scriptLogger.info("Setting inventory restoration time to {}".format(inv_tau))
+
+    #TODO remove this ?
     value_added = (mrio.x.T - mrio.Z.sum(axis=0))
     value_added = value_added.reindex(sorted(value_added.index), axis=0) #type: ignore
     value_added = value_added.reindex(sorted(value_added.columns), axis=1)
@@ -123,6 +129,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         dmg_as_gdp_share = float(event_row['dmg_as_gdp_share'])
         total_direct_dmg = float(event_row['total_dmg'])
         duration = int(event_row['duration'])
+        scriptLogger.info("Setting flood duration to {}".format(duration))
         event["duration"] = duration
         event["r_dmg"] = dmg_as_gdp_share
         event["q_dmg"] = total_direct_dmg
@@ -135,6 +142,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         raise ValueError("Run damage type {} is incorrect".format(rtype))
 
     event["aff-regions"] = region
+    scriptLogger.info("Setting aff-regions to {}".format(region))
     sim_params["output_dir"] = output_dir
     if alt_inv_dur:
         sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_time"])+"_inv_time_"+str(int(alt_inv_dur))

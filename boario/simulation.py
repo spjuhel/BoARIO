@@ -85,8 +85,10 @@ class Simulation(object):
                 raise FileNotFoundError("Simulation parameters file not found, it should be here: ",simulation_params_path.absolute())
             else:
                 with simulation_params_path.open() as f:
+                    logger.info("Loading simulation parameters from {}".format(simulation_params_path))
                     simulation_params = json.load(f)
         if isinstance(params, dict):
+            logger.info("Loading simulation parameters from dict")
             simulation_params = params
             if simulation_params['mrio_params_file'] is None:
                 logger.warn("Params given as a dict but 'mrio_params_file' does not exist. Will try with default one.")
@@ -181,7 +183,6 @@ Available types are {}
         tmp.setLevel(logging.DEBUG)
         tmp.setFormatter(DEBUGFORMATTER)
         logger.addHandler(tmp)
-        logger.info("Parameters : \n {}".format(json.dumps(self.params, indent=4)))
         if progress:
             widgets = [
                 'Processed: ', progressbar.Counter('Step: %(value)d'), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
