@@ -148,7 +148,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_time"])+"_inv_time_"+str(int(alt_inv_dur))
     else:
         sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_time"])
-    model = Simulation(sim_params, mrio_path)
+    model = Simulation(sim_params, mrio_path, modeltype=sim_params['model_type'])
     if alt_inv_dur:
         model.mrio.change_inv_duration(alt_inv_dur)
     model.read_events_from_list([event])
