@@ -375,6 +375,7 @@ class Indicators(object):
         logger.info("Saving computed dataframe to results folder")
         self.prod_df.to_parquet(self.storage_path/"prod_df.parquet")
         self.c_demand_df.to_parquet(self.storage_path/"c_demand_df.parquet")
+        self.r_demand_df.to_parquet(self.storage_path/"r_demand_df.parquet")
         self.df_loss.to_parquet(self.storage_path/"treated_df_loss.parquet")
         if self.df_stocks is not None:
             ddf = da.from_pandas(self.df_stocks, chunksize=10000000)
