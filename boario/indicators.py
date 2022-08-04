@@ -87,7 +87,7 @@ class Indicators(object):
         self.c_demand_df = self.c_demand_df.rename_axis('step')
         self.r_demand_df = self.r_demand_df.rename_axis('step')
         self.r_prod_df = self.r_prod_df.rename_axis('step')
-        fd_unmet_df = fd_unmet_df.rename_axis('step')
+        self.fd_unmet_df = fd_unmet_df.rename_axis('step')
 
         if stock_treatement:
             stocks_df = stocks_df.replace([np.inf, -np.inf], np.nan).dropna(how='all')
@@ -374,6 +374,9 @@ class Indicators(object):
     def save_dfs(self):
         logger.info("Saving computed dataframe to results folder")
         self.prod_df.to_parquet(self.storage_path/"prod_df.parquet")
+        self.prodmax_df.to_parquet(self.storage_path/"prodmax_df.parquet")
+        self.overprod_df.to_parquet(self.storage_path/"overprod_df.parquet")
+        self.fd_unmet_df.to_parquet(self.storage_path/"fd_unmet_df.parquet")
         self.c_demand_df.to_parquet(self.storage_path/"c_demand_df.parquet")
         self.r_demand_df.to_parquet(self.storage_path/"r_demand_df.parquet")
         self.df_loss.to_parquet(self.storage_path/"treated_df_loss.parquet")

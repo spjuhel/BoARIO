@@ -119,7 +119,6 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     else:
         raise ValueError("Simulation type {} is incorrect".format(stype))
 
-    del mrio
     scriptLogger.info("Done !")
     scriptLogger.info("Main storage dir is : {}".format(pathlib.Path(params_template["output_dir"]).resolve()))
     if rtype == "int":
@@ -127,7 +126,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         if event_row.empty:
             raise ValueError("This tuple of region / flood class ({},{}) is does not have a representative event (it is likely a duplicate of another class)".format(region,flood_dmg))
         dmg_as_gdp_share = float(event_row['dmg_as_gdp_share'])
-        total_direct_dmg = float(event_row['total_dmg'])
+        total_direct_dmg = dmg_as_gdp_share * gdp_df[region] #float(event_row['total_dmg'])
         duration = int(event_row['duration'])
         scriptLogger.info("Setting flood duration to {}".format(duration))
         event["duration"] = duration
