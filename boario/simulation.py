@@ -16,6 +16,8 @@
 
 '''
 Simulation module
+
+This module defines the Simulation object, which represent a BoARIO simulation environnement.
 '''
 from contextlib import redirect_stdout
 import json
@@ -331,6 +333,11 @@ Available types are {}
         return 0
 
     def update_events(self):
+        """Update events status
+
+        This method cycles through the events defines in the `current_events` attribute and sets their `rebuildable` attribute.
+        An event is considered rebuildable if its `duration` is over. This method also logs the moment an event starts rebuilding.
+        """
         for e in self.current_events:
             already_rebuilding = e.rebuildable
             e.rebuildable = (e.occurence_time + e.duration) <= self.current_t
@@ -338,10 +345,10 @@ Available types are {}
                 logger.info("Day : {} ~ Event named {} that occured at {} in {} for {} damages has started rebuilding".format(self.current_t,e.name,e.occurence_time, e.aff_regions, e.q_damages))
 
     def read_events_from_list(self, events_list):
-        """Import a list of events (as dicts) into the model.
+        """Import a list of events (as a list of dictionnaries) into the model.
 
-        Imports a list of events (as dictionnaries) into th model. Also does
-        various checks on the events to avoid badly written events.
+        Also performs various checks on the events to avoid badly written events.
+        See :ref:`How to define Events <boario-events>` to understand how to write events dictionnaries or JSON files.
 
         Parameters
         ----------
@@ -350,10 +357,62 @@ Available types are {}
 
         Examples
         --------
-        FIXME: Add docs.
+        >>> import sys
+        # Add boario module to python path
+        >>> sys.path.insert(1, '../ARIO3/')
 
+        >>> import boario.simulation as sim
+        >>> import pathlib
+
+        # load up model
+        >>> mrio_path = pathlib.Path("path/to/mrio_file.pkl")
+        >>> with pathlib.Path("path/to/model_params.json").open("r") as f:
+        >>>     params = json.load(f)
+        >>> model = sim.Simulation(params, mrio_path, modeltype="BaseARIO")
+        14:59:05 [INFO] - [simulation.py > __init__() > 77] - Initializing new simulation instance
+        14:59:05 [INFO] - [simulation.py > __init__() > 93] - Loading simulation parameters from dict
+        14:59:05 [DEBUG] - [model_base.py > __init__() > 156] - Initiating new ARIOBaseModel instance
+        14:59:05 [INFO] - [model_base.py > __init__() > 160] - IO system metadata :
+        >IO Table Metadata here<
+        14:59:05 [INFO] - [model_base.py > __init__() > 161] - Simulation parameters:
+        >Simulation parameters here<
+        14:59:05 [INFO] - [model_base.py > __init__() > 167] - Results storage is: path/to/results/
+        14:59:05 [INFO] - [model_base.py > __init__() > 182] - Monetary unit from params is: 1000000
+        14:59:05 [INFO] - [model_base.py > __init__() > 183] - Monetary unit from loaded mrio is: M.EUR
+        14:59:06 [INFO] - [simulation.py > __init__() > 159] - Initialized !
+
+        # Define list of events (most often this list should be generated from a JSON file
+        >>> events = [
+        >>>    {
+        >>>        "name": "Event 1",
+        >>>        "aff-regions": [
+        >>>        "region_1"
+        >>>        ],
+        >>>        "dmg-distrib-regions": [
+        >>>        1
+        >>>        ],
+        >>>        "dmg-distrib-sectors-type": "gdp",
+        >>>        "dmg-distrib-sectors": [],
+        >>>        "duration": 5,
+        >>>        "occur": 7,
+        >>>        "q_dmg": 5000000,
+        >>>        "aff-sectors": [
+        >>>        "sector_1",
+        >>>        "sector_4",
+        >>>        "sector_6"
+        >>>        ],
+        >>>        "rebuilding-sectors": {
+        >>>            'Construction (45)': 0.30,
+        >>>            'Cultivation in general': 0.005,
+        >>>            'Financial intermediation, insurance and pension funding (65)': 0.005,
+        >>>            'Manufacture of ceramic goods': 0.09,
+        >>>            'Manufacture of construction products and cement': 0.60
+        >>>        }
+        >>>    }
+        >>> ]
+        >>> model.read_events_from_list(events)
+        15:00:25 [INFO] - [simulation.py > read_events_from_list() > 417] - Reading events from given list and adding them to the model
         """
-
         logger.info("Reading events from given list and adding them to the model")
         for ev_dic in events_list:
             if ev_dic['aff-sectors'] == 'all':
