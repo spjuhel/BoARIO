@@ -18,7 +18,7 @@ import json
 import pathlib
 from signal import pthread_sigmask
 from typing import Union
-import pymrio as pym
+import pymrio
 import numpy as np
 from nptyping import NDArray
 from boario import logger
@@ -44,20 +44,20 @@ VA_idx = np.array(['Taxes less subsidies on products purchased: Total',
        'Operating surplus: Royalties on resources',
        'Operating surplus: Remaining net operating surplus'], dtype=object)
 
-def lexico_reindex(mrio: pym.IOSystem) -> pym.IOSystem:
+def lexico_reindex(mrio: pymrio.IOSystem) -> pymrio.IOSystem:
     """Reindex IOSystem lexicographicaly
 
-    Sort indexes and columns of the dataframe of a :ref:`pymrio.IOSystem` by
+    Sort indexes and columns of the dataframe of an :std:doc:`IOSystem <index>` by
     lexical order.
 
     Parameters
     ----------
-    mrio : pym.IOSystem
+    mrio : pymrio.IOSystem
         The IOSystem to sort
 
     Returns
     -------
-    pym.IOSystem
+    pymrio.IOSystem
         The sorted IOSystem
 
     Examples
@@ -790,6 +790,19 @@ class ARIOBaseModel(object):
         self.prod_max_toward_rebuilding = None
 
     def update_params(self, new_params):
+        """Update the parameters of the model.
+
+        Replace each parameters with given new ones.
+
+        .. warning::
+            Be aware this method calls :meth:`~boario.model_base.reset_record_files`, which resets the memmap files located in the results directory !
+
+        Parameters
+        ----------
+        new_params : dict
+            Dictionary of new parameters to use.
+
+        """
         self.n_days_by_step = new_params['model_time_step']
         self.iotable_year_to_step_factor = new_params['timestep_dividing_factor']
         self.rebuild_tau = new_params['rebuild_tau']
@@ -798,9 +811,22 @@ class ARIOBaseModel(object):
         self.overprod_base = new_params['alpha_base']
         if self.results_storage != pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage']):
             self.results_storage = pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage'])
-            self.reset_record_files(new_params['n_timesteps'], new_params['register_stocks'])
+        self.reset_record_files(new_params['n_timesteps'], new_params['register_stocks'])
 
     def reset_record_files(self, n_steps:int, reg_stocks: bool):
+        """Reset results memmaps
+
+        This method creates/resets the :class:`memmaps <numpy.memmap>` arrays used to track
+        production, demand, overproduction, etc.
+
+        Parameters
+        ----------
+        n_steps : int
+            number of steps of the simulation (memmaps size are predefined)
+        reg_stocks : bool
+            If true, create/reset the stock memmap (which can be huge)
+
+        """
         self.production_evolution = np.memmap(self.results_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
         self.production_cap_evolution = np.memmap(self.results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
         self.classic_demand_evolution = np.memmap(self.results_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
@@ -846,6 +872,22 @@ class ARIOBaseModel(object):
         self.limiting_stocks_evolution[t] = limiting_stock
 
     def write_index(self, index_file):
+        """Write the indexes of the different dataframes of the model in a json file.
+
+        In order to easily rebuild the dataframes from the 'raw' data, this
+        method create a JSON file with all columns and indexes names, namely :
+
+        * regions names
+        * sectors names
+        * final demand categories
+        * number of regions, sectors and industries (regions * sectors)
+
+        Parameters
+        ----------
+        index_file : pathlib.Path
+            Path to the file to save the indexes.
+        """
+
         indexes= {
             "regions":list(self.regions),
             "sectors":list(self.sectors),

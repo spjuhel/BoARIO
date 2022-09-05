@@ -66,11 +66,11 @@ html_static_path = ['_static']
 # Please feel free to post an issue at that repo if any of these mappings don't work for you,
 # or if you're having trouble constructing a mapping for a project not listed here.
 intersphinx_mapping = {
-	"python": ('https://docs.python.org/3/', None),
-	"matplotlib": ('https://matplotlib.org/stable/', None),
-	"numpy": ('https://numpy.org/doc/stable/', None),
-	"pandas": ('https://pandas.pydata.org/docs/', None),
-	"pymrio": ('https://pymrio.readthedocs.io/en/latest/', None)
+	"python": ('https://docs.python.org/3', None),
+	"matplotlib": ('https://matplotlib.org/stable', None),
+	"numpy": ('https://numpy.org/doc/stable', None),
+	"pandas": ('https://pandas.pydata.org/docs', None),
+	"pymrio": ('https://pymrio.readthedocs.io/en/latest', None)
 }
 
 html_js_files = [

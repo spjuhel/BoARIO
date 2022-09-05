@@ -357,61 +357,9 @@ Available types are {}
 
         Examples
         --------
-        >>> import sys
-        # Add boario module to python path
-        >>> sys.path.insert(1, '../ARIO3/')
 
-        >>> import boario.simulation as sim
-        >>> import pathlib
+        .. include:: ../../../../api-examples/simulation/example-read_events_from_list.rstinc
 
-        # load up model
-        >>> mrio_path = pathlib.Path("path/to/mrio_file.pkl")
-        >>> with pathlib.Path("path/to/model_params.json").open("r") as f:
-        >>>     params = json.load(f)
-        >>> model = sim.Simulation(params, mrio_path, modeltype="BaseARIO")
-        14:59:05 [INFO] - [simulation.py > __init__() > 77] - Initializing new simulation instance
-        14:59:05 [INFO] - [simulation.py > __init__() > 93] - Loading simulation parameters from dict
-        14:59:05 [DEBUG] - [model_base.py > __init__() > 156] - Initiating new ARIOBaseModel instance
-        14:59:05 [INFO] - [model_base.py > __init__() > 160] - IO system metadata :
-        >IO Table Metadata here<
-        14:59:05 [INFO] - [model_base.py > __init__() > 161] - Simulation parameters:
-        >Simulation parameters here<
-        14:59:05 [INFO] - [model_base.py > __init__() > 167] - Results storage is: path/to/results/
-        14:59:05 [INFO] - [model_base.py > __init__() > 182] - Monetary unit from params is: 1000000
-        14:59:05 [INFO] - [model_base.py > __init__() > 183] - Monetary unit from loaded mrio is: M.EUR
-        14:59:06 [INFO] - [simulation.py > __init__() > 159] - Initialized !
-
-        # Define list of events (most often this list should be generated from a JSON file
-        >>> events = [
-        >>>    {
-        >>>        "name": "Event 1",
-        >>>        "aff-regions": [
-        >>>        "region_1"
-        >>>        ],
-        >>>        "dmg-distrib-regions": [
-        >>>        1
-        >>>        ],
-        >>>        "dmg-distrib-sectors-type": "gdp",
-        >>>        "dmg-distrib-sectors": [],
-        >>>        "duration": 5,
-        >>>        "occur": 7,
-        >>>        "q_dmg": 5000000,
-        >>>        "aff-sectors": [
-        >>>        "sector_1",
-        >>>        "sector_4",
-        >>>        "sector_6"
-        >>>        ],
-        >>>        "rebuilding-sectors": {
-        >>>            'Construction (45)': 0.30,
-        >>>            'Cultivation in general': 0.005,
-        >>>            'Financial intermediation, insurance and pension funding (65)': 0.005,
-        >>>            'Manufacture of ceramic goods': 0.09,
-        >>>            'Manufacture of construction products and cement': 0.60
-        >>>        }
-        >>>    }
-        >>> ]
-        >>> model.read_events_from_list(events)
-        15:00:25 [INFO] - [simulation.py > read_events_from_list() > 417] - Reading events from given list and adding them to the model
         """
         logger.info("Reading events from given list and adding them to the model")
         for ev_dic in events_list:
@@ -588,17 +536,18 @@ Available types are {}
     def update_params(self, new_params):
         """Update the parameters of the model.
 
+        Replace the `params` attribute with `new_params` and logs the update.
+        This method also checks if the directory specified to save the results exists and create it otherwise.
+
+        .. warning::
+            Be aware this method calls :meth:`~boario.model_base.update_params`, which resets the memmap files located in the results directory !
+
         Parameters
         ----------
         new_params : dict
             New dictionnary of parameters to use.
 
-        Examples
-        --------
-        FIXME: Add docs.
-
         """
-
         logger.info('Updating model parameters')
         self.params = new_params
         results_storage = pathlib.Path(self.params['output_dir']+"/"+self.params['results_storage'])
@@ -607,16 +556,14 @@ Available types are {}
         self.mrio.update_params(self.params)
 
     def write_index(self, index_file):
-        """Write the index of the dataframes in a json file.
+        """Write the index of the dataframes used in the model in a json file.
+
+        See :meth:`~boario.model_base.ARIOBaseModel.write_index` for a more detailed documentation.
 
         Parameters
         ----------
         index_file : Union[str, pathlib.Path]
             name of the file to save the indexes to.
-
-        Examples
-        --------
-        FIXME: Add docs.
 
         """
 

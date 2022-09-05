@@ -1,11 +1,6 @@
 boario package
 ==============
 
-.. automodule:: boario
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Submodules
 ----------
 
@@ -13,7 +8,15 @@ Submodules
    :maxdepth: 4
 
    boario.event
+   boario.extended_models
    boario.indicators
-   boario.logging_conf
-   boario.mriosystem
+   boario.model_base
    boario.simulation
+
+Module contents
+---------------
+
+.. automodule:: boario
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -11,6 +11,7 @@ Welcome to BoARIO's documentation!
    math
    usage
    development
+   boario-events
    api_references
 
 Indices and tables
