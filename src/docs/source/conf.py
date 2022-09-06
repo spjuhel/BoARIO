@@ -82,6 +82,9 @@ add_module_names = False
 # Keep members order from source :
 autodoc_member_order = 'bysource'
 
+# Keep __init__ method
+autoclass_content = 'both'
+
 # Custom latex STY for mathjax
 
 # Additional stuff for the LaTeX preamble.
