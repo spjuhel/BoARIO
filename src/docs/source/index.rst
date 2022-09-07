@@ -11,6 +11,8 @@ Welcome to BoARIO's documentation!
    math
    usage
    development
+   boario-sim-params
+   boario-mrio-params
    boario-events
    api_references
 
