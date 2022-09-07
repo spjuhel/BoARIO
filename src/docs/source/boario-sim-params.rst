@@ -1,14 +1,11 @@
 .. _boario-sim-params:
 
-#########################
-Set simulation parameters
-#########################
+##########################
+Simulation parameters
+##########################
 
-===============
-Introduction
-===============
+When creating a :class:`~boario.simulation.Simulation` instance
 
-Soon !
 
 .. _contact the developer: pro@sjuhel.org
 

@@ -366,7 +366,7 @@ Available types are {}
         """Import a list of events (as a list of dictionaries) into the model.
 
         Also performs various checks on the events to avoid badly written events.
-        See :ref:`How to define Events <boario-events>` to understand how to write events dictionnaries or JSON files.
+        See :ref:`How to define Events <boario-events>` to understand how to write events dictionaries or JSON files.
 
         Parameters
         ----------

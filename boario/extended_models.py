@@ -31,9 +31,9 @@ class ARIOModelPsi(ARIOBaseModel):
     ----------
 
     psi : float
-          Value of the psi parameter. (see :doc:`math`).
+          Value of the psi parameter. (see :ref:`boario-math`).
     restoration_tau : numpy.ndarray of int
-                      Array of size `n_sector` setting for each inputs its characteristic restoration time with `model_timestep` days as unit. (see :doc:`math`).
+                      Array of size `n_sector` setting for each inputs its characteristic restoration time with `model_timestep` days as unit. (see :ref:`boario-math`).
     Raises
     ------
     RuntimeError
