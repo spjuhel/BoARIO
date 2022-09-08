@@ -101,8 +101,6 @@ class ARIOBaseModel(object):
                The numbers of final demand categories.
     monetary_unit : int
                     monetary unit prefix (i.e. if the tables unit is 10^6 € instead of 1 €, it should be set to 10^6).
-    psi : float
-          Value of the psi parameter. (see :ref:`boario-math`).
     model_timestep : int
                      The number of days between each step. (Current version of the model was not tested with other values than `1`).
     timestep_dividing_factor : int
@@ -181,7 +179,7 @@ class ARIOBaseModel(object):
         self.monetary_unit = mrio_params['monetary_unit']
         logger.info("Monetary unit from params is: %s", self.monetary_unit)
         logger.info("Monetary unit from loaded mrio is: %s", pym_mrio.unit.unit.unique()[0])
-        self.psi = simulation_params['psi_param']
+        #self.psi = simulation_params['psi_param']
         self.n_days_by_step = simulation_params['model_time_step']
         self.iotable_year_to_step_factor = simulation_params['timestep_dividing_factor'] # 365 for yearly IO tables
         if self.iotable_year_to_step_factor != 365:
@@ -452,10 +450,10 @@ class ARIOBaseModel(object):
                         \tau^{1}_1 x^{\textrm{Opt}}_{1}(t) a_{11} & \hdots & \tau^{p}_1 x^{\textrm{Opt}}_{p}(t) a_{1p}\\
                         \vdots & \ddots & \vdots\\
                         \tau^1_n x^{\textrm{Opt}}_{1}(t) a_{n1} & \hdots & \tau^{p}_n x^{\textrm{Opt}}_{p}(t) a_{np}
-                    \end{bmatrix} \cdot \psi && \\
+                    \end{bmatrix} && \\
                 \end{alignat*}
 
-        2. If stocks do not meet inventory_constraints for any inputs -> Decrease production accordingly :
+        2. If stocks do not meet ``inventory_constraints`` for any inputs, then decrease production accordingly :
 
         .. math::
            :nowrap:
@@ -467,18 +465,13 @@ class ARIOBaseModel(object):
                                                            \end{aligned} \right. \quad &&
                 \end{alignat*}
 
-        Also warns in log if such shortage happens.
+        Also warns in log if such shortages happen.
 
 
         Parameters
         ----------
         current_step : int
             current step number
-
-        Returns
-        -------
-
-        A boolean NDArray `stock_constraint` of the same shape as `matrix_sock` (ie `(n_sectors,n_regions*n_sectors)`), with True for any input not meeting the inventory constraints.
 
         """
         #1.
@@ -509,6 +502,22 @@ class ARIOBaseModel(object):
         return stock_constraint
 
     def calc_inventory_constraints(self, production:np.ndarray) -> np.ndarray :
+        """Compute inventory constraint (no psi parameter)
+
+        See :meth:`calc_production`.
+
+        Parameters
+        ----------
+        production : np.ndarray
+            production vector
+
+        Returns
+        -------
+        np.ndarray
+            A boolean NDArray `stock_constraint` of the same shape as ``matrix_stock`` (ie `(n_sectors,n_regions*n_sectors)`), with ``True`` for any input not meeting the inventory constraints.
+
+        """
+
         inventory_constraints = (np.tile(production, (self.n_sectors, 1)) * self.tech_mat)
         np.multiply(inventory_constraints, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=inventory_constraints)
         return inventory_constraints

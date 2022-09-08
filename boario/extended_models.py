@@ -96,7 +96,7 @@ class ARIOModelPsi(ARIOBaseModel):
                                                            \end{aligned} \right. \quad &&
                 \end{alignat*}
 
-        Also warns in log if such shortage happens.
+        Also warns in log if such shortages happen.
 
 
         Parameters
