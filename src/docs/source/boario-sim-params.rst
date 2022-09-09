@@ -35,6 +35,8 @@ organized, the following parameters are defined:
 * ``"mrio_params_file"`` : The path where MRIO table parameters JSON file should
   be.
 
+.. _boario-sim-params-time:
+
 Steps/Time parameters
 ==========================
 

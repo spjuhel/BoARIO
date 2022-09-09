@@ -378,7 +378,7 @@ class ARIOBaseModel(object):
 
         .. math::
 
-            x^{Cap}_{f}(t) = \\alpha_{f}(t) (1 - \Delta_{f}(t)) x_{f}(t)
+            x^{Cap}_{f}(t) = \alpha_{f}(t) (1 - \Delta_{f}(t)) x_{f}(t)
 
         Raises
         ------
