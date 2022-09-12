@@ -17,7 +17,6 @@ from __future__ import annotations
 from typing import Union
 from boario.model_base import ARIOBaseModel
 from boario.extended_models import ARIOModelPsi
-from boario.simulation import Simulation
 import warnings
 import numpy as np
 
@@ -64,7 +63,7 @@ class Event(object):
              )
         '''
 
-    def check_values(self, sim:Simulation) -> None:
+    def check_values(self, sim) -> None:
         if self.occurence_time < 0:
             raise ValueError("Event occurence time is negative, check events json")
         if self.occurence_time > sim.n_days_to_sim:
