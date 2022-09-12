@@ -11,8 +11,8 @@ Introduction
 The BoARIO model is used to study the indirect economic impacts consequent to `local` event [#local]_.
 At the moment, a shock is represented by a quantity of damages expressed in monetary value and leading to:
 
-1. A destruction of capital leading to a reduction in production capacity [#production]_
-2. A rebuilding demand, corresponding to destroyed capital and addressed to a set of rebuilding sectors [#demand]_
+1. A destruction of capital leading to a reduction in production capacity production (See :ref:`boario-math-prod`).
+2. A rebuilding demand, corresponding to destroyed capital and addressed to a set of rebuilding sectors (See :ref:`boario-math-rebuilding-demand`).
 
 To define such an event, we hence need the following information:
 
@@ -26,6 +26,9 @@ as well as time of occurrence (when studying interaction between multiple events
 
 During a simulation BoARIO uses :class:`~boario.event.Event` objects, which are created via either python ``dict`` or JSON files.
 This page details the different keys and possible associated values.
+
+.. [#local] At the moment events are local to the regional unit of the MRIO used (e.g. a country/world region in the case of Exiobase3).
+
 
 ===============================
 Define affected region(s)
@@ -66,13 +69,20 @@ The key for damages is ``"q_dmg"``. Damages should be given in the same currency
 in the MRIO, without a decimal prefix, i.e. if the MRIO uses M€, damage have to be given in € [#mrio-params]_.
 
 The key for duration is ``"duration"``. Its value should be a number of days, and represent the period
-before rebuilding can start [#demand]_.
+before rebuilding can start.
 
 The key for occurrence is ``"occur"``. Its value should be an integer comprised between 1 and the number of days simulated.
 When simulating only one event, this value is of limited use, although you may want to set it some days after the start
 for clearer visualisation (or in order to verify that the model remains stable before the shock). Note that when simulating more than
 one day per step [#daystep]_, if the given value is not a multiple of the number of days simulated by step, the event will actually
 occur during the closest upper multiple.
+
+.. [#mrio-params] This is inline with the ``"monetary_unit"`` parameter specified in the MRIO parameter file (see :ref:`boario-mrio-params`)
+
+.. [#daystep] See the ``"model_time_step"`` parameter in :ref:`boario-sim-params`.
+
+
+.. _aff-sectors-params:
 
 ============================================================
 Affected sectors and sector damage distribution
@@ -88,6 +98,7 @@ damages are distributed along the impacted sectors by either of the following:
 1. Setting ``"dmg-distrib-sectors-type"`` to ``"gdp"``, damages are distributed along the impacted sectors proportionally to their GDP contribution.
 2. Otherwise, setting the ``"dmg-distrib-sectors"`` to a list of decimal values comprised between 0 and 1 and summing to 1, where each value defines the share of the damages distributed to the corresponding sector in the ``"aff-sectors"`` list.
 
+.. _reb-sectors-params:
 
 ======================
 Rebuilding sectors
@@ -122,16 +133,6 @@ is created in the results directory with the list of events dictionaries given.
 3. Multiple checks are done when initializing an :class:`~boario.event.Event` object and during simulation, raising errors if values are incorrect.
 However, it is highly possible that some cases are not covered. Don't hesitate to `contact the developer`_ or better create an issue on the `github repository`_
 
-
-.. [#local] At the moment events are local to the regional unit of the MRIO used (e.g. a country/world region in the case of Exiobase3).
-
-.. [#production] See :ref:`<link to prod cap lost in math background>`
-
-.. [#demand] See :ref:`<link to rebuilding demand in math background>`
-
-.. [#mrio-params] This is inline with the ``"monetary_unit"`` parameter specified in the MRIO parameter file (see :ref:`boario-mrio-params`)
-
-.. [#daystep] See the ``"model_time_step"`` parameter in :ref:`boario-sim-params`.
 
 .. _contact the developer: pro@sjuhel.org
 

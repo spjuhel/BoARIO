@@ -94,6 +94,7 @@ imgmath_latex_preamble = r'''
 \usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{xparse}
+\usepackage{xcolor}
 \NewDocumentCommand{\mentry}{m O{f} O{f'} O{} O{}}{\ensuremath{#1_{#2#3}^{#4#5}}}
 \NewDocumentCommand{\colvec}{m m}{  \ensuremath{    \begin{bmatrix}      #1\\      \vdots\\      #2    \end{bmatrix}  }}
 \NewDocumentCommand{\rfirmsset}{O{R}}{\ensuremath{\mathbf{F}^{#1}}}
@@ -122,4 +123,13 @@ imgmath_latex_preamble = r'''
 \newcommand{\ioinv}{\ensuremath{\mathbf{\Omega}}}
 \newcommand{\Damage}{\ensuremath{\mathbf{\Gamma}}}
 \newcommand{\damage}{\ensuremath{\gamma}}
+\makeatletter
+\def\mathcolor#1#{\@mathcolor{#1}}
+\def\@mathcolor#1#2#3{%
+  \protect\leavevmode
+  \begingroup
+    \color#1{#2}#3%
+  \endgroup
+}
+\makeatother
 '''

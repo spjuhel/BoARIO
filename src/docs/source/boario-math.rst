@@ -21,46 +21,50 @@ Notations
 
 .. csv-table:: Notations table
     :header: Notation,Description,Dimension,Variable/Parameter name
-    :widths: auto
+    :widths: 30,30,20,20
 
-    ":math:`\Damage_{\textrm{Tot}}`","Total direct losses caused by the event","scalar",``total_demand``
     ":math:`\sectorsset{} = \{ S_1, \ldots, S_n\}`","Set of sectors indices",":math:`|\sectorsset| = n`"
     ":math:`\regionsset = \{ R_1, \ldots, R_m\}`","Set of regions indices (countries)",":math:`|\regionsset| = m`"
-    ":math:`\rfirmsset = \{f^R_1, \ldots,  f^R_n\}`","Set of country :math:`R` industries (:math:`f^R_{S}` is the industry of sector :math:`S` of region :math:`R`)",":math:`|\rfirmsset| = n`"
+    ":math:`\rfirmsset = \{f^R_1, \ldots,  f^R_n\}`","Set of industries of country :math:`R` (:math:`f^R_{S}` is the industry of sector :math:`S` of region :math:`R`)",":math:`|\rfirmsset| = n`"
     ":math:`\firmsset = \{\rfirmsset[R_1], \ldots, \mathbf{F}^{R_{m}}\}`","Global set of industries (a sector in a region) indices.",":math:`|\firmsset| = n \times  m = p`"
     ":math:`\ioz^{RR'}`","Inter-regional transaction matrix (flows are from region :math:`R` to  :math:`R'` and industry :math:`f` to :math:`f'`)",":math:`\ioz^{RR'} = (z_{ff'}^{RR'})_{\substack{f      \in \rfirmsset[R]\\f'      \in \rfirmsset[R']\\(R,R') \in \regionsset}}`"
     ":math:`\ioz = \begin{bmatrix}               \ioz^{R_1,R_1} & \hdots & \ioz^{R_1,R_m}\\        \vdots & \ddots & \vdots\\               \ioz^{R_m,R_1} & \hdots & \ioz^{R_m,R_m}      \end{bmatrix}`","Global transaction matrix",":math:`\ioz = (z_{ff'})_{f,f'    \in \firmsset}`","``Z_0``, ``intmd_demand``"
     ":math:`\ioy^{RR'}`","Inter-regional final demand matrix (flow from industry :math:`f` of  region :math:`R` towards final demand of region :math:`R'`)",":math:`\ioy^{RR'} =  (y_{f}^{RR'})_{\substack{f \in \rfirmsset\\(R,R') \in \regionsset}}`"
     ":math:`\ioy= \begin{bmatrix}          \ioy^{R_1,R_1} & \hdots & \ioy^{R_1,R_m}\\          \vdots & \ddots & \vdots\\          \ioy^{R_m,R_1} & \hdots & \ioy^{R_m,R_m}        \end{bmatrix}`","Global final demand matrix (total flow from firm indexed by :math:`f` toward  final demand)",":math:`\ioy  = (y_{f})_{f \in \firmsset}`", "``Y_0``, ``final_demand``"
-    ":math:`\iov^R =      \begin{bmatrix}        v^{R}_{11} & \hdots & v^{R}_{1n} \\        \vdots & \ddots & \vdots\\        v^{R}_{q1} & \hdots & v^{R}_{qn}\\      \end{bmatrix}`","Regional value added matrix",":math:`\iov^R =  (v_{f}^R)_{\substack{f \in \firmsset\\R \in \regionsset}}`"
-    ":math:`\iov =      \begin{bmatrix}        \iov^{R_1} & \hdots & \iov^{R_m}\\      \end{bmatrix}`","Global value added matrix",":math:`\iov =  (v_{f})_{f \in \firmsset}`", ``VA_0``
+    ":math:`\iov^R =      \begin{bmatrix}        v^{R}_{1} & \hdots & v^{R}_{n} \end{bmatrix}`","Regional value added vector",":math:`\iov^R =  (v_{f}^R)_{\substack{f \in \rfirmsset[R]\\R \in \regionsset}}`"
+    ":math:`\iov =      \begin{bmatrix}        \iov^{R_1} & \hdots & \iov^{R_m}\\      \end{bmatrix}`","Global value added vector",":math:`\iov =  (v_{f})_{f \in \firmsset}`", ``VA_0``
     ":math:`\iox`","Production vector",":math:`\iox = (x_{f})_{f \in \firmsset}`", ``production``
     ":math:`\ioa^{RR'}`","Inter-regional technical coefficients matrix",":math:`\ioa^{RR'} =  (a_{f,f'}^{RR'})_{\substack{f \in \rfirmsset[R]\\f' \in \rfirmsset[R']\\(R,R') \in \regionsset}}`"
     ":math:`\ioa=    \begin{bmatrix}      \ioa^{R_1,R_1} & \hdots & \ioa^{R_1,R_m}\\      \vdots & \ddots & \vdots\\      \ioa^{R_m,R_1} & \hdots & \ioa^{R_m,R_m}    \end{bmatrix}`","Global technical coefficients matrix",":math:`\ioa =  (a_{f,f'})_{f,f' \in \firmsset}`"
     ":math:`\ioava = (a^{\textrm{va}}_{f})_{f \in \firmsset}`","Global value added technical coefficients matrix"
     ":math:`\ioinv`","Inventories/Stocks matrix",":math:`\ioinv = (\omega^f_{i})_{\substack{f      \in      \firmsset\\ i \in \sectorsset}}`",``matrix_stock``
+    ":math:`\Damage_{\textrm{Tot}} = \begin{bmatrix} \gamma_{1} \hdots \gamma_{n \times m} \end{bmatrix}`","Total direct losses caused by the event","scalar",``rebuild_demand``
     ":math:`\cdot(t)`","Value of <:math:`\cdot`> at step :math:`t`, where <:math:`\cdot`> can be any  scalar,  vector or matrix",""
     ":math:`\psi`","Inventories heterogeneity parameter","scalar in :math:`[0,1]`",``psi`` (``"psi_param"`` in dict/json)
     ":math:`\alpha^b`","Base overproduction capacity (same for all sectors and regions)","scalar",``overprod_base`` (``"alpha_base"`` in dict/json)
     ":math:`\alpha^{\textrm{max}}`","Maximum overproduction capacity","scalar",``overprod_max`` (``"alpha_max"`` in dict/json)
     ":math:`\tau_{\alpha}`","Overproduction increase/decrease characteristic time","scalar",``overprod_tau`` (``"alpha_tau"`` in dict/json)
     ":math:`\tau_{\textrm{INV}}`","Characteristic time of inventory restoration","scalar", ``restoration_tau`` (``"inventory_restoration_time"`` in dict/json)
-    ":math:`\mathbf{S}`","Initial/Objective inventory vector",":math:`\mathbf{S} = (s_{i})_{i \in \sectorsset}`", ``inv_duration`` (``"inventory_dict"`` in dict/json)
+    ":math:`\tau_{\textrm{REBUILD}}`","Characteristic time of rebuilding", "scalar", ``rebuild_tau``
+    ":math:`\mathbf{s}`","Initial/Objective inventory vector",":math:`\mathbf{s} = (s_{i})_{i \in \sectorsset}`", ``inv_duration`` (``"inventory_dict"`` in dict/json)
+    ":math:`\mathbf{\kappa}`","Capital stock to value added ratio",":math:`\mathbf{\kappa} = (\kappa_{i})_{i \in \sectorsset}`", ``kstock_ratio_to_VA`` (``"capital_ratio_dict"`` in dict/json)
+    ":math:`\mathbf{d}`","Damage distribution vector",":math:`\mathbf{d} = (d_{i})_{i \in \firmsset}`", ``kstock_ratio_to_VA`` (``"capital_ratio_dict"`` in dict/json)
 
+.. note::
 
-Note that we use sets of indices for industries, sectors and regions to simplify the notation of matrix elements.
-As such we use both :math:`\sum_{f' \in \firmsset} (z_{ff'})` and :math:`\sum_{1 \leq f' \leq p} (z_{ff'})`
-to designate the sum of all flows from industry :math:`f` (resp. indexed by :math:`f`) to other industries.
+  We use sets of indices for industries, sectors and regions to simplify the notation of matrix elements.
+  As such we use both :math:`\sum_{f' \in \firmsset} (z_{ff'})` and :math:`\sum_{1 \leq f' \leq p} (z_{ff'})`
+  to designate the sum of all flows from industry :math:`f` (resp. indexed by :math:`f`) to other industries.
 
-Additionally, we use :math:`A = B \odot C`, the Hadamard product (element wise product) (i.e. :math:`a_{ij} = b_{ij} \cdot c_{ij}`)
+  Additionally, we use :math:`A = B \odot C`, the Hadamard product (element wise product) (i.e. :math:`a_{ij} = b_{ij} \cdot c_{ij}`)
 
 Model(s) details
 ===================
 
 .. _boario-math-init:
 
-Initial equilibrium state
-------------------------------
+Initial state
+--------------
 
 We build :math:`\ioz`, :math:`\ioy` and :math:`\iov` using input output tables.
 We compute initial production :math:`\iox_0`, technical matrix :math:`\ioa` and
@@ -81,7 +85,9 @@ Where:
 * :math:`\mathbf{i}` is a summation column vector of size :math:`s \times r` (number of sectors times regions)
 * :math:`\mathbf{\hat{x}_0}` is the diagonal matrix with the elements of :math:`\iox_0`
 
-Note that we divide these yearly values by the ``timestep_dividing_factor`` :ref:`parameter <boario-sim-params-time>` in order to obtain an approximation of the productions and demands per time unit (most often days).
+.. note::
+
+   Note that we divide these yearly values by the ``timestep_dividing_factor`` :ref:`parameter <boario-sim-params-time>` in order to obtain an approximation of the productions and demands per time unit (most often days).
 
 We also compute the following :
 
@@ -117,7 +123,12 @@ The initial inventory matrix :math:`\ioinv` is initialized as follows :
    :nowrap:
 
     \begin{equation*}
-      \ioinv(t=0) = \mdefentry{\omega}[0][i][n][f][p][][] = \colvec{s_1 \hdots s_1}{s_n \hdots s_n} \odot \underbrace{
+      \ioinv(t=0) = \mdefentry{\omega}[0][i][n][f][p][][] =
+      \begin{bmatrix}
+      \mathbf{s} \hdots \mathbf{s}
+      \end{bmatrix}
+      %% \colvec{s_1 \hdots s_1}{s_n \hdots s_n}
+      \odot \underbrace{
       \begin{bmatrix} \iox(0)\\
       \vdots\\
       \iox(0) \end{bmatrix}}_{\substack{\iox(0)\\
@@ -129,7 +140,10 @@ exact amount of product :math:`i` required by industry :math:`f` to produce
 :math:`x_{f}(0)` (i.e. the initial equilibrium production of :math:`f`) during :math:`s_i` days.
 Hence, all industries start with a stock of each of their intermediate inputs equal to the
 amount required for :math:`s_i` days of production at initial production capacity.
-Note :math:`s_i` do not differ on a per-industry basis, only on a per-product basis.
+
+.. note::
+
+  Note :math:`s_i` do not differ on a per-industry basis, only on a per-product basis.
 
 The order matrix :math:`\ioorders` is initialized to be equal to :math:`\ioz` :
 
@@ -144,15 +158,15 @@ The order matrix :math:`\ioorders` is initialized to be equal to :math:`\ioz` :
 
 And where :math:`o_{ff'}` is the order made by firm :math:`f'` to firm :math:`f`.
 
+.. _boario-math-dyn:
+
 Model dynamics
 -----------------
 
-.. _boario-math-dyn:
+.. _boario-math-prod:
 
 Production module
 ^^^^^^^^^^^^^^^^^^^^
-
-.. _boario-math-prod:
 
 At each time step :math:`t`, we compute :math:`\iox^a(t)` the vector of actual production for each industry :math:`f \in \firmsset` during this step.
 
@@ -172,7 +186,7 @@ Once we have production capacity, we can compute actual production:
    :nowrap:
 
     \begin{alignat*}{4}
-          \mathbf{D}^{\textrm{Tot}}(t) &= (d_{f}^{\textrm{Tot}}(t))_{f \in \firmsset} &&= \ioorders(t) \cdot \irowsum + \ioy \cdot \irowsum + \Damage_{\firmsset} && \text{Total demand matrix} \\
+          \mathbf{D}^{\textrm{Tot}}(t) &= (d_{f}^{\textrm{Tot}}(t))_{f \in \firmsset} &&= \ioorders(t) \cdot \irowsum + \ioy \cdot \irowsum + \Damage_{\firmsset} \cdot \tau_{\textrm{REBUILD}} && \text{Total demand matrix} \\
           \iox^{\textrm{Opt}}(t) &= (x^{\textrm{Opt}}_{f}(t))_{f \in \firmsset} &&= \left ( \min \left ( d^{\textrm{Tot}}_{f}(t), x^{\textrm{Cap}}_{f}(t) \right ) \right )_{f \in \firmsset} && \text{Optimal production}\\
           \ioinv^{\textrm{Cons}}(t) &= (\omega^{\textrm{Cons},f}_p(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} &&=
              \begin{bmatrix}
@@ -198,9 +212,13 @@ Once we have production capacity, we can compute actual production:
 
 First we compute the total demand directed towards each industry with eq. :math:`\text{Total demand matrix}`. Then we compute optimal production without inventory constraints for each industry as the minimum between production capacity (possibly reduced by damages) and total demand, assuming an industry will not produce more than its clients demand (eq. :math:`\text{Optimal production}`).
 
-We define inventory constraints :math:`\ioinv^R` for each input, as a share :math:`\psi` of the amount of stocks required to produce :math:`s_p^f` days of production at the level of production of the previous step (eq. :math:`\text{Inventory constraints}`). :class:`ARIOBaseModel` offers a simplified version of the model where :math:`\psi = 1` (among other simplification).
+We define inventory constraints :math:`\ioinv^{\textrm{Cons}}` for each input, as a share :math:`\psi` of the amount of stocks required to produce :math:`s_p^f` days of production at the level of production of the previous step (eq. :math:`\text{Inventory constraints}`).
 
-If the inventory of product :math:`p \in \sectorsset` of an industry :math:`f` is lower than its required level, then :math:`f` production is reduced. An inventory shortage of :math:`x` % (w.r.t. its constraint) leads to a :math:`x` % reduction of production.
+.. note::
+
+  :class:`ARIOBaseModel` offers a simplified version of the model where :math:`\psi = 1` (among other simplifications).
+
+If the inventory of product :math:`p \in \sectorsset` of an industry :math:`f` is lower than its required level, then :math:`f`'s production is reduced. An inventory shortage of :math:`x` % (w.r.t. its constraint) leads to a :math:`x` % reduction of production.
 
 Distribution and inventory module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -214,9 +232,11 @@ Once we have realized production, we can compute how it is distributed among cli
 
     \begin{alignat*}{4}
       &\ioorders^{\textrm{Received}}(t) &&= \left (\frac{o_{ff'}(t)}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f,f'\in \firmsset}\\
-      &\ioy^{\textrm{Received}}(t) &&= \left ( \frac{y_{f,c}}{d^{\textrm{Tot}}_f(t)}\cdot x^a_f(t) \right )_{f\in \firmsset, c \in \catfdset}\\
-      &\Damage^{\textrm{Repaired}}(t) &&= \left ( \frac{\gamma_{f,c}}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f\in \firmsset, c \in \catfdset}\\
+      &\ioy^{\textrm{Received}}(t) &&= \left ( \frac{y_{f}}{d^{\textrm{Tot}}_f(t)}\cdot x^a_f(t) \right )_{f\in \firmsset}\\
+      &\Damage^{\textrm{Repaired}}(t) &&= \left ( \frac{\gamma_{f} \cdot \tau_{\textrm{REBUILD}}}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f\in \firmsset}\\
     \end{alignat*}
+
+Where :math:`\damage_f` is the total rebuilding demand towards industry :math:`f` and :math:`\tau_{\textrm{REBUILD}}` is the rebuilding characteristic time.
 
 Once distribution is done, we can compute the new inventories:
 
@@ -224,21 +244,26 @@ Once distribution is done, we can compute the new inventories:
    :nowrap:
 
     \begin{alignat*}{4}
-      &\ioinv(t+1) &&= \ioinv(t) + \left ( \mathbf{I}_{\textrm{sum}} \cdot \ioorders^{\textrm{Received}}(t) \right ) - \left ( \colvec{\iox^{\textrm{a}}(t)}{\iox^{\textrm{a}}(t)} \odot \ioa^{\sectorsset} \right )\\
+      &\ioinv(t+1) &&= \ioinv(t) + \underbrace{\left ( \mathbf{I}_{\textrm{sum}} \cdot \ioorders^{\textrm{Received}}(t) \right )}_{\text{orders received aggregated by inputs}} - \underbrace{\left ( \colvec{\iox^{\textrm{a}}(t)}{\iox^{\textrm{a}}(t)} \odot \ioa^{\sectorsset} \right )}_{\text{inputs used during production}}\\
     \end{alignat*}
 
 Order module
 ^^^^^^^^^^^^^^
 
-Before proceeding to the next step, we compute the orders made by each industries towards their suppliers.
-Industries seek to restore the inventory of each of their input to their goal level (Note that this goal can vary during simulation as it depends on :math:`\iox^{\textrm{Opt}}_t` (and not :math:`\iox_0`)). Two variants are implemented. In :class:`ARIOBaseModel`, the 'gap' matrix is simply the difference between :math:`\ioinv^{*}(t)` and :math:`\ioinv(t)` and
-orders to suppliers are then proportional to the initial transaction matrix (:math:`\ioz`).
-
 .. _boario-math-orders:
 
-We use :math:`\iox^{\textrm{Opt}}_t` and :math:`\iox^a_t` from the production module.
+We compute the orders made by each industries towards their suppliers.
+Industries seek to restore the inventory of each of their input to their goal level.
 
-TODO: find correct notation in 3rd equation (:math:`\ioinv^{\textrm{Gap}}(t)` is incorrect, we need to repeat each row so that it is in the same dimension as :math:`\ioorders`)
+.. note::
+
+  Note that this goal can vary during simulation as it depends on :math:`\iox^{\textrm{Opt}}_t` (and not :math:`\iox_0`)).
+
+.. note::
+
+  In :class:`ARIOBaseModel`, the 'gap' matrix is simply the difference between :math:`\ioinv^{*}(t)` and :math:`\ioinv(t)` and orders to suppliers are then proportional to the initial transaction matrix (See definition of :math:`\ioz^{\textrm{Distrib}}`).
+  In :class:`ARIOModelPsi`, only a fraction of missing inventories are ordered, but in addition, the totality of inputs used for production during this step is also ordered.
+  The differences are shown in red.
 
 .. math::
    :nowrap:
@@ -246,18 +271,41 @@ TODO: find correct notation in 3rd equation (:math:`\ioinv^{\textrm{Gap}}(t)` is
     \begin{alignat*}{4}
        &\ioinv^{*}(t) &&= (\omega_p^{*,f}(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} \quad = \quad s^{f}_p \cdot \begin{bmatrix} \iox^{\textrm{Opt}}(t)\\ \vdots\\ \iox^{\textrm{Opt}}(t) \end{bmatrix} \odot  \ioa^\sectorsset && \quad && \text{Inventory goals} \\
        &\ioinv^{\textrm{Gap}}(t) &&= (\omega_p^{\textrm{Gap},f}(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} \quad = \quad \left ( \ioinv^{*} - \ioinv(t) \right )_{\geq 0} && \quad && \text{Inventory gaps}\\
-       &\ioorders(t) &&= \frac{1}{\tau_{\textrm{Inv}}} \cdot \ioinv^{\textrm{Gap}}(t) + \begin{bmatrix} \iox^a(t)\\ \vdots\\ \iox^a(t) \end{bmatrix} \odot  \ioa^\sectorsset &&\quad && \text{Intermediate demand orders}
+       &\ioorders^{\sectorsset}(t) &&= \mathcolor{red}{\frac{1}{\tau_{\textrm{Inv}}}} \cdot \ioinv^{\textrm{Gap}}(t) \mathcolor{red}{ + \begin{bmatrix} \iox^a(t)\\ \vdots\\ \iox^a(t) \end{bmatrix} \odot  \ioa^{\sectorsset}} &&\quad && \text{Intermediate demand total orders}\\
+       &\ioorders(t) &&= \left ( \ioorders^{\sectorsset}(t) \otimes \underbrace{\begin{bmatrix} 1 \\ \vdots\\ 1 \end{bmatrix}}_{\text{m-sized}} \right ) \odot  \ioz^{\textrm{Distrib}} &&\quad && \text{Intermediate demand orders}
     \end{alignat*}
 
-* In eq. \ref{invcons2} we compute inventory goals based on optimal production. Note that :math:`\Omega^* = \frac{\Omega^{\textrm{Cons}}}{\psi}`
-* In eq. \ref{invgap} we compute the inventory gaps. :math:`(\mathbf{A} - \mathbf{B})_{\geq 0}` denotes the resulting matrix of :math:`\mathbf{A} - \mathbf{B}` where negative values are replaced by 0.
-* In eq. \ref{ioorders} we compute actual orders for intermediate demands as the sum of 'longterm inventory restoration' and current step consumption.
+* In eq. :math:`\text{Inventory goals}` we compute inventory goals based on optimal production. (Note that, in the version with ``psi``, :math:`\Omega^* = \frac{\Omega^{\textrm{Cons}}}{\psi}`)
+* In eq. :math:`\text{Inventory gaps}` we compute the inventory gaps. :math:`(\mathbf{A} - \mathbf{B})_{\geq 0}` denotes the resulting matrix of :math:`\mathbf{A} - \mathbf{B}` where negative values are replaced by 0.
+* In eq. :math:`\text{Intermediate total demand orders}` we compute aggregate orders for intermediate demand.
+* In eq. :math:`\text{Intermediate demand orders}` we compute the actual order matrix, by distributing total orders along the different suppliers. [#kron]_
+  We then have two variants:
 
+  1. We multiply by the initial transaction share [#oslash]_
+
+     .. math::
+
+       \ioz^{\textrm{Distrib}} =  \ioz(0) \oslash \left ( \mathbf{I}_{\textrm{sum}} \cdot \ioz(0) \otimes \underbrace{\begin{bmatrix} 1 \\ \vdots\\ 1 \end{bmatrix}}_{\text{m-sized}} \right )
+
+  2. We multiply by the initial transaction share, weighted by suppliers current production. To do so, we replace both occurrence of :math:`\ioz(0)` in the previous formula by the following:
+
+     .. math::
+
+       \ioz^{*}(0) = \ioz(0) \odot \underbrace{\begin{bmatrix} \iox(t) \oslash \iox(0) \\ \vdots\\ \iox(t) \oslash \iox(0) \end{bmatrix}}_{\text{m-sized}}
+
+
+The first variant corresponds to the order module of [`Hallegatte 2013`_] while the other one corresponds to the one defined in [`Guan 2020`_] (See :ref:`order module parameter <order module>` for how to choose implementation).
+
+.. [#kron] We use the Kronecker product (:math:`\otimes`) to repeat :math:`m` times each row of :math:`\ioinv^{\textrm{Gap}}(t)`.
+
+.. [#oslash] Where :math:`\oslash` is the matrix element-wise division, defined such that dividing by zero gives zero. (If initial order to an industry was null, the share ordered is also null)
+
+.. _boario-math-overprod:
 
 Overproduction module
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. _boario-math-overprod:
+Lastly, we compute overproduction. If demand is higher than production, industries start overproducing to adapt. We use the same definition as in [`Hallegatte 2013`_], which uses a scarcity index :math:`\zeta(t)`:
 
 .. math::
    :nowrap:
@@ -270,35 +318,35 @@ Overproduction module
                       \end{cases}
     \end{alignat*}
 
-Where :math:`\zeta(t)` is a scarcity index.
+
+.. _boario-math-events:
 
 Event impact
 --------------
 
-.. _boario-math-events:
-
 We represent the impact of the event via two effects :
 
-1. A decrease of the production capacity of the sectors of the impacted country distributed homogeneously along the different sectors.
-2. An additional final demand from the government, household and private actors towards the Construction, Maintenance and Repair of transport equipment, Electrical and Machinery, Transport equipment, Other Manufacture, Retail and Wholesale sectors.
+1. A decrease of the production capacity of the impacted sectors.
+2. An additional final demand corresponding to the capital destroyed and addressed towards the rebuilding sectors.
 
-In the following sections, we suppose region :math:`r \in \regionsset` is impacted by an event causing :math:`\Damage_{\textrm{Tot}}(t=0)` direct losses.
+See :ref:`aff-sectors-params` and :ref:`reb-sectors-params` for the corresponding parameters.
+
+.. _boario-math-prodcapdec:
 
 Production capacity decrease
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. _boario-math-prodcapdec:
 
-We assume that the mean productivity of capital is 25%. We also assume that the event impacts the capital of all sectors indifferently. Let :math:`\Delta_{f}(0)` be the initial loss of production capacity of industry :math:`f_S^R` :
+We define :math:`\Delta_{f}(0)` the initial loss of production capacity of industry :math:`f_S^R` as the fraction of capital stock destroyed:
 
 .. math::
    :nowrap:
 
     \begin{equation*}
      \Delta_f(0) = \frac{
-                         \Damage_{\textrm{Tot}}(0)
+                         \Damage_{\textrm{f}}(0) \cdot d_f
                          }{
-                         4\sum_{f' \in \mathbf{F}^R}(v_{f'})
+                         \mathbf{\kappa}_f \cdot v_{f}
                         }
     \end{equation*}
 
@@ -313,13 +361,8 @@ We update :math:`\Delta_f` during every step according to how much damages remai
     \frac{\Damage_{\textrm{Tot}}(t)}{\Damage_{\textrm{Tot}}(0)}
        \end{equation*}
 
-
-Additional final demand
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 .. _boario-math-rebuilding-demand:
 
-In general, we note :math:`\damage_f` the total additional final demand towards industry :math:`f` and :math:`\Damage_{\firmsset}` the column vector of all total additional demand.
 
 Recovery module
 ^^^^^^^^^^^^^^^^^^
@@ -332,3 +375,8 @@ Recovery module
     \begin{equation*}
       \Damage_{\textrm{Tot}}(t+1) = \Damage_{\textrm{Tot}}(t) - \Damage^{\textrm{Repaired}}(t)
     \end{equation*}
+
+
+.. _`Hallegatte 2013`: https://doi.org/10.1111/j.1539-6924.2008.01046.x
+
+.. _`Guan 2020`: https://www.nature.com/articles/s41562-020-0896-8

@@ -57,19 +57,19 @@ ARIO parameters
   Inventory constraints are direct (no `Psi` parameter) and there is no characteristic time for inventories resupplying.
   The Psi model correspond mostly to Hallegatte2013_ version. Parameter `Psi` is used when computing inventories constraints and there is a characteristic time for inventories resupplying. See :ref:`boario-math` or the model classes in the :ref:`api-ref` for more details.
 * ``"psi`` : If model type is ``ARIOPsi``, set the value for this parameter. See :ref:`boario-math`.
-* ``"order_type"`` : If ``"alt"``, sets the order module to the one introduced by Guan2020_ version, where industries adapt there orders based on suppliers production. Else, orders stays proportional to the initial transaction matrix.
-* ``"alpha_base"`` : Initial overproduction factor. Should be ``1.0`` most of the time.
+* ``"order_type"`` : If ``"alt"``, sets the _`order module` to the one introduced by Guan2020_ version, where industries adapt there orders based on suppliers production. Else, orders stays proportional to the initial transaction matrix. See :ref:`order module <boario-math-orders>`.
+* ``"alpha_base"`` : Initial overproduction factor. Should be ``1.0`` most of the time. See :ref:`boario-math-overprod`.
 * ``"alpha_max"`` : Maximum overproduction factor. Usually set to ``1.25`` in the literature.
 * ``"alpha_tau"`` : Overproduction characteristic time, in days. Usually set to ``365`` in the literature.
 * ``"rebuild_tau"`` : Rebuilding characteristic time, in days.
-* ``"impacted_region_base_production_toward_rebuilding"`` : Maximum initial fraction of production which can be allocated towards rebuilding, in the impacted region(s).
-* ``"row_base_production_toward_rebuilding"`` : Maximum initial fraction of production which can be allocated towards rebuilding, in the non-impacted regions (Rest of the World).
+* ``"impacted_region_base_production_toward_rebuilding"`` : [WIP, not active] Maximum initial fraction of production which can be allocated towards rebuilding, in the impacted region(s).
+* ``"row_base_production_toward_rebuilding"`` : [WIP, not active] Maximum initial fraction of production which can be allocated towards rebuilding, in the non-impacted regions (Rest of the World).
 
 .. [#path] Path can be given as absolute or as relative to the working directory
            (i.e. the directory from which the program is executed, in doubt use
            absolute)
 
-.. [#name] These parameters will probably change at some point as they are quite unclear at the moment
+.. [#name] These parameters names will probably change at some point as they are quite unclear at the moment
 
 .. [#condition] Not working yet
 
