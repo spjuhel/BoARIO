@@ -21,12 +21,12 @@ This module defines the Simulation object, which represent a BoARIO simulation e
 
 '''
 
+from __future__ import annotations
 from contextlib import redirect_stdout
 import json
 import pickle
 import pathlib
 from typing import Union
-from __future__ import annotations
 import logging
 import math
 import numpy as np

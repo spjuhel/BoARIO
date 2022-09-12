@@ -14,13 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import annotations
 import pathlib
 import numpy as np
 from boario import logger
 from boario.model_base import *
 from boario.event import *
 from pymrio.core.mriosystem import IOSystem
-from __future__ import annotations
 
 __all__ = ['ARIOModelPsi']
 class ARIOModelPsi(ARIOBaseModel):

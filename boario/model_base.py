@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import annotations
 import json
 import pathlib
 from signal import pthread_sigmask
@@ -21,7 +22,6 @@ from typing import Union
 import pymrio
 import numpy as np
 from nptyping import NDArray
-from __future__ import annotations
 
 from boario import logger
 from boario.event import *

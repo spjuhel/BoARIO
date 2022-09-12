@@ -13,9 +13,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+from __future__ import annotations
 
 from typing import Union
-from __future__ import annotations
 from boario.simulation import Simulation
 import numpyencoder
 import json
