@@ -20,6 +20,7 @@ from boario import logger
 from boario.model_base import *
 from boario.event import *
 from pymrio.core.mriosystem import IOSystem
+from __future__ import annotations
 
 __all__ = ['ARIOModelPsi']
 class ARIOModelPsi(ARIOBaseModel):
@@ -60,7 +61,7 @@ class ARIOModelPsi(ARIOBaseModel):
         self.restoration_tau = np.array(restoration_tau)
         #################################################################
 
-    def calc_production(self, current_step:int):
+    def calc_production(self, current_step:int) -> np.ndarray:
         r"""Compute and update actual production
 
         1. Compute ``production_opt`` and ``inventory_constraints`` as :
@@ -106,8 +107,8 @@ class ARIOModelPsi(ARIOBaseModel):
 
         Returns
         -------
-
-        A boolean NDArray `stock_constraint` of the same shape as `matrix_sock` (ie `(n_sectors,n_regions*n_sectors)`), with True for any input not meeting the inventory constraints.
+        np.ndarray
+            A boolean NDArray `stock_constraint` of the same shape as `matrix_sock` (ie `(n_sectors,n_regions*n_sectors)`), with True for any input not meeting the inventory constraints.
 
         """
         #1.
@@ -138,7 +139,7 @@ class ARIOModelPsi(ARIOBaseModel):
             self.production = production_opt
         return stock_constraint
 
-    def calc_orders(self, events:'list[Event]'):
+    def calc_orders(self, events:list[Event]) -> None:
         """TODO describe function
 
         :param stocks_constraints:
@@ -174,7 +175,7 @@ class ARIOModelPsi(ARIOBaseModel):
         assert not (tmp < 0).any()
         self.matrix_orders = tmp
 
-    def update_params(self, new_params):
+    def update_params(self, new_params:dict) -> None:
         super().update_params(new_params)
         self.psi = new_params['psi_param']
         inv = new_params['inventories_dict']

@@ -15,8 +15,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from typing import Union
+from __future__ import annotations
 from boario.model_base import ARIOBaseModel
 from boario.extended_models import ARIOModelPsi
+from boario.simulation import Simulation
 import warnings
 import numpy as np
 
@@ -50,7 +52,7 @@ class Event(object):
 
     def __repr__(self):
         #TODO: find ways to represent long lists
-        return f'''
+        return f''' [Representation WIP]
         Event(
               name = {self.name},
               occurence_time = {self.occurence_time},
@@ -63,34 +65,34 @@ class Event(object):
              )
         '''
 
-    def check_values(self, model):
+    def check_values(self, sim:Simulation) -> None:
         if self.occurence_time < 0:
             raise ValueError("Event occurence time is negative, check events json")
-        if self.occurence_time > model.n_timesteps_to_sim:
+        if self.occurence_time > sim.n_days_to_sim:
             raise ValueError("Event occurence time is outside simulation, check events and sim json")
         if self.q_damages < 0:
             raise ValueError("Event damages are negative, check events json")
-        if not set(self.aff_regions).issubset(model.mrio.regions):
-            tmp = set(self.aff_regions).difference(set(model.mrio.regions))
+        if not set(self.aff_regions).issubset(sim.model.regions):
+            tmp = set(self.aff_regions).difference(set(sim.model.regions))
             raise ValueError("""A least one affected region is not a valid region in the mrio table, check events json
 
             suspicious regions : {}
             """.format(tmp))
-        if not set(self.aff_sectors).issubset(model.mrio.sectors):
-            tmp = set(self.aff_sectors).difference(set(model.mrio.sectors))
+        if not set(self.aff_sectors).issubset(sim.model.sectors):
+            tmp = set(self.aff_sectors).difference(set(sim.model.sectors))
             raise ValueError("""A least one affected sector is not a valid sector in the mrio table, check events json
 
             suspicious sectors : {}
             """.format(tmp))
-        if not set(self.rebuilding_sectors).issubset(model.mrio.sectors):
-            tmp = set(self.rebuilding_sectors).difference(set(model.mrio.sectors))
+        if not set(self.rebuilding_sectors).issubset(sim.model.sectors):
+            tmp = set(self.rebuilding_sectors).difference(set(sim.model.sectors))
             raise ValueError("""A least one rebuilding sector is not a valid sector in the mrio table, check events json
 
             suspicious sectors : {}
             """.format(tmp))
         if self.duration < 0:
             raise ValueError("Event duration is negative, check events json")
-        if self.occurence_time+self.duration > model.n_timesteps_to_sim:
+        if self.occurence_time+self.duration > sim.n_timesteps_to_sim:
             raise ValueError("Event occurence time + duration is outside simulation, check events and sim json")
 
         if self.dmg_distrib_across_regions is None:
