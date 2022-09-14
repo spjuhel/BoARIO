@@ -21,6 +21,7 @@ This module defines the Simulation object, which represent a BoARIO simulation e
 
 '''
 
+from __future__ import annotations
 from contextlib import redirect_stdout
 import json
 import pickle
@@ -42,9 +43,9 @@ from boario.logging_conf import DEBUGFORMATTER
 __all__=['Simulation']
 
 class Simulation(object):
-    """This class defines a simulation object with a set of parameters and an IOSystem.
+    """Defines a simulation object with a set of parameters and an IOSystem.
 
-    This Class wraps an :class:`~boario.model_base.ARIOBaseModel` or :class:`~boario.extended_models.ARIOModelPsi`, and create the context for
+    This class wraps an :class:`~boario.model_base.ARIOBaseModel` or :class:`~boario.extended_models.ARIOModelPsi`, and create the context for
     simulations using this model. It stores execution parameters as well as events perturbing
     the model.
 
@@ -207,6 +208,8 @@ Available types are {}
         tmp.setLevel(logging.DEBUG)
         tmp.setFormatter(DEBUGFORMATTER)
         logger.addHandler(tmp)
+        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_events.json").open('w') as f:
+            json.dump(self.events, f, indent=4)
         if progress:
             widgets = [
                 'Processed: ', progressbar.Counter('Step: %(value)d'), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
@@ -266,7 +269,7 @@ Available types are {}
         if progress:
             bar.finish() # type: ignore (bar possibly unbound but actually not possible)
 
-    def next_step(self, check_period : int = 10, min_steps_check : int = None, min_failing_regions = None):
+    def next_step(self, check_period : int = 10, min_steps_check : int = None, min_failing_regions : int = None):
         """Advance the model run by one step.
 
         This method wraps all computations and logging to proceed to the next
@@ -364,7 +367,7 @@ Available types are {}
             if e.rebuildable and not already_rebuilding:
                 logger.info("Day : {} ~ Event named {} that occured at {} in {} for {} damages has started rebuilding".format(self.current_day,e.name,e.occurence_time, e.aff_regions, e.q_damages))
 
-    def read_events_from_list(self, events_list):
+    def read_events_from_list(self, events_list : list[dict]):
         """Import a list of events (as a list of dictionaries) into the model.
 
         Also performs various checks on the events to avoid badly written events.
@@ -389,8 +392,6 @@ Available types are {}
             ev.check_values(self)
             self.events.append(ev)
             self.events_timings.add(ev_dic['occur'])
-        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_events.json").open('w') as f:
-            json.dump(events_list, f, indent=4)
 
     def shock(self, event_to_add_id:int):
         """Shocks the model with an event.
@@ -489,7 +490,10 @@ Available types are {}
         new_prod_max_toward_rebuilding[rebuilding_industries_RoW_idx] = RoW_prod_share
         # TODO : Differentiate industry losses and households losses
         self.events[event_to_add_id].industry_rebuild = new_rebuilding_demand
-        self.events[event_to_add_id].production_share_allocated = new_prod_max_toward_rebuilding
+
+        # Currently unused :
+        #self.events[event_to_add_id].production_share_allocated = new_prod_max_toward_rebuilding
+
         #self.model.update_kapital_lost()
 
     def reset_sim_with_same_events(self):
@@ -512,7 +516,7 @@ Available types are {}
         self.events = []
         self.events_timings = set()
 
-    def update_params(self, new_params):
+    def update_params(self, new_params:dict):
         """Update the parameters of the model.
 
         Replace the ``params`` attribute with ``new_params`` and logs the update.
@@ -534,7 +538,7 @@ Available types are {}
             results_storage.mkdir(parents=True)
         self.model.update_params(self.params)
 
-    def write_index(self, index_file):
+    def write_index(self, index_file:Union[str, pathlib.Path]):
         """Write the index of the dataframes used in the model in a json file.
 
         See :meth:`~boario.model_base.ARIOBaseModel.write_index` for a more detailed documentation.
@@ -548,11 +552,8 @@ Available types are {}
 
         self.model.write_index(index_file)
 
-    def read_events(self, events_file):
+    def read_events(self, events_file:Union[str, pathlib.Path]):
         """Read events from a json file.
-
-        .. deprecated::
-            Method wasn't checked recently.
 
         Parameters
         ----------
@@ -564,22 +565,18 @@ Available types are {}
         FileNotFoundError
             If file does not exist
 
-        Examples
-        --------
-        FIXME: Add docs.
-
         """
         logger.info("Reading events from {} and adding them to the model".format(events_file))
+        if isinstance(events_file,str):
+            events_file = pathlib.Path(events_file)
+        elif not isinstance(events_file,pathlib.Path):
+            raise TypeError("Given index file is not an str or a Path")
         if not events_file.exists():
             raise FileNotFoundError("This file does not exist: ",events_file)
         else:
             with events_file.open('r') as f:
                 events = json.load(f)
-        if events['events']:
-            for event in events['events']:
-                if event['aff-sectors'] == 'all':
-                    event['aff-sectors'] = self.model.sectors
-                ev=Event(event,self.model)
-                ev.check_values(self)
-                self.events.append(ev)
-                self.events_timings.add(event['occur'])
+        if isinstance(events,list):
+            self.read_events_from_list(events)
+        else:
+            self.read_events_from_list([events])

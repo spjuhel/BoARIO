@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import annotations
 import pathlib
 import numpy as np
 from boario import logger
@@ -60,7 +61,7 @@ class ARIOModelPsi(ARIOBaseModel):
         self.restoration_tau = np.array(restoration_tau)
         #################################################################
 
-    def calc_production(self, current_step:int):
+    def calc_production(self, current_step:int) -> np.ndarray:
         r"""Compute and update actual production
 
         1. Compute ``production_opt`` and ``inventory_constraints`` as :
@@ -96,7 +97,7 @@ class ARIOModelPsi(ARIOBaseModel):
                                                            \end{aligned} \right. \quad &&
                 \end{alignat*}
 
-        Also warns in log if such shortage happens.
+        Also warns in log if such shortages happen.
 
 
         Parameters
@@ -106,8 +107,8 @@ class ARIOModelPsi(ARIOBaseModel):
 
         Returns
         -------
-
-        A boolean NDArray `stock_constraint` of the same shape as `matrix_sock` (ie `(n_sectors,n_regions*n_sectors)`), with True for any input not meeting the inventory constraints.
+        np.ndarray
+            A boolean NDArray `stock_constraint` of the same shape as `matrix_sock` (ie `(n_sectors,n_regions*n_sectors)`), with True for any input not meeting the inventory constraints.
 
         """
         #1.
@@ -139,7 +140,7 @@ class ARIOModelPsi(ARIOBaseModel):
             self.production = production_opt
         return stock_constraint
 
-    def calc_orders(self, events:'list[Event]'):
+    def calc_orders(self, events:list[Event]) -> None:
         """TODO describe function
 
         :param stocks_constraints:
@@ -176,7 +177,7 @@ class ARIOModelPsi(ARIOBaseModel):
         assert not (tmp < 0).any()
         self.matrix_orders = tmp
 
-    def update_params(self, new_params):
+    def update_params(self, new_params:dict) -> None:
         super().update_params(new_params)
         self.psi = new_params['psi_param']
         inv = new_params['inventories_dict']

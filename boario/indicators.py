@@ -13,6 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+from __future__ import annotations
 
 from typing import Union
 from boario.simulation import Simulation
@@ -30,12 +31,12 @@ __all__ = ['Indicators']
 
 
 
-def df_from_memmap(memmap, indexes):
+def df_from_memmap(memmap:np.memmap, indexes:dict) -> pd.DataFrame:
     a = pd.DataFrame(memmap, columns=pd.MultiIndex.from_product([indexes["regions"], indexes["sectors"]]))
     a['step'] = a.index
     return a
 
-def stock_df_from_memmap(memmap, indexes, timesteps, timesteps_simulated):
+def stock_df_from_memmap(memmap:np.memmap, indexes:dict, timesteps:int, timesteps_simulated:int) -> pd.DataFrame:
     a = pd.DataFrame(memmap.reshape(timesteps*indexes["n_sectors"],-1), index=pd.MultiIndex.from_product([timesteps, indexes["sectors"]], names=['step', 'stock of']), columns=pd.MultiIndex.from_product([indexes["regions"], indexes["sectors"]]))
     a = a.loc[pd.IndexSlice[:timesteps_simulated,:]]
     return a
@@ -54,7 +55,7 @@ class Indicators(object):
 
     params_list = ["simulated_params", "simulated_events"]
 
-    def __init__(self, data_dict, include_crash:bool = False) -> None:
+    def __init__(self, data_dict:dict, include_crash:bool = False) -> None:
         logger.info("Instanciating indicators")
         super().__init__()
         if not include_crash:
@@ -154,36 +155,36 @@ class Indicators(object):
         self.save_dfs()
 
     @classmethod
-    def from_model(cls, model : Simulation, include_crash:bool = False):
+    def from_model(cls, sim : Simulation, include_crash:bool = False):
         data_dict = {}
-        data_dict['params'] = model.params
-        data_dict["n_timesteps_to_sim"] = model.n_timesteps_to_sim
-        data_dict["n_timesteps_simulated"] = model.n_steps_simulated
-        data_dict["has_crashed"] = model.has_crashed
-        data_dict["regions"] = model.mrio.regions
-        data_dict["sectors"] = model.mrio.sectors
-        with (pathlib.Path(model.params["results_storage"])/".simulated_events.json").open() as f:
+        data_dict['params'] = sim.params
+        data_dict["n_timesteps_to_sim"] = sim.n_days_to_sim
+        data_dict["n_timesteps_simulated"] = sim.n_steps_simulated
+        data_dict["has_crashed"] = sim.has_crashed
+        data_dict["regions"] = sim.model.regions
+        data_dict["sectors"] = sim.model.sectors
+        with (pathlib.Path(sim.params["results_storage"])/".simulated_events.json").open() as f:
             events = json.load(f)
 
         data_dict["events"] = events
-        data_dict["prod"] = model.mrio.production_evolution
-        data_dict["prodmax"] = model.mrio.production_cap_evolution
-        data_dict["overprod"] = model.mrio.overproduction_evolution
-        data_dict["c_demand"] = model.mrio.classic_demand_evolution
-        data_dict["r_demand"] = model.mrio.rebuild_demand_evolution
-        data_dict["r_prod"] = model.mrio.rebuild_production_evolution
-        data_dict["fd_unmet"] = model.mrio.final_demand_unmet_evolution
-        if model.params['register_stocks']:
-            data_dict["stocks"] = model.mrio.stocks_evolution
-        data_dict["limiting_stocks"] = model.mrio.limiting_stocks_evolution
+        data_dict["prod"] = sim.model.production_evolution
+        data_dict["prodmax"] = sim.model.production_cap_evolution
+        data_dict["overprod"] = sim.model.overproduction_evolution
+        data_dict["c_demand"] = sim.model.classic_demand_evolution
+        data_dict["r_demand"] = sim.model.rebuild_demand_evolution
+        data_dict["r_prod"] = sim.model.rebuild_production_evolution
+        data_dict["fd_unmet"] = sim.model.final_demand_unmet_evolution
+        if sim.params['register_stocks']:
+            data_dict["stocks"] = sim.model.stocks_evolution
+        data_dict["limiting_stocks"] = sim.model.limiting_stocks_evolution
         return cls(data_dict, include_crash)
 
     @classmethod
-    def from_storage_path(cls, storage_path, params=None, include_crash:bool = False):
+    def from_storage_path(cls, storage_path:str, params=None, include_crash:bool = False) -> Indicators:
         return cls(cls.dict_from_storage_path(storage_path, params=params), include_crash)
 
     @classmethod
-    def from_folder(cls, folder: Union[str, pathlib.Path], indexes_file: Union[str, pathlib.Path], include_crash:bool = False):
+    def from_folder(cls, folder: Union[str, pathlib.Path], indexes_file: Union[str, pathlib.Path], include_crash:bool = False) -> Indicators:
         data_dict = {}
         if not isinstance(indexes_file, pathlib.Path):
             indexes_file = pathlib.Path(indexes_file)
@@ -241,7 +242,7 @@ class Indicators(object):
 
 
     @classmethod
-    def dict_from_storage_path(cls, storage_path, params=None):
+    def dict_from_storage_path(cls, storage_path:Union[str,pathlib.Path], params=None) -> dict:
         data_dict = {}
         if not isinstance(storage_path, pathlib.Path):
             storage_path = pathlib.Path(storage_path)
