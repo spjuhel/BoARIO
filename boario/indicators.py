@@ -158,8 +158,8 @@ class Indicators(object):
     def from_model(cls, sim : Simulation, include_crash:bool = False):
         data_dict = {}
         data_dict['params'] = sim.params
-        data_dict["n_timesteps_to_sim"] = sim.n_days_to_sim
-        data_dict["n_timesteps_simulated"] = sim.n_steps_simulated
+        data_dict["n_timesteps_to_sim"] = sim.n_temporal_units_to_sim
+        data_dict["n_timesteps_simulated"] = sim.n_temporal_units_simulated
         data_dict["has_crashed"] = sim.has_crashed
         data_dict["regions"] = sim.model.regions
         data_dict["sectors"] = sim.model.sectors

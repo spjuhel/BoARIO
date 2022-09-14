@@ -90,7 +90,7 @@ class Event(object):
             """.format(tmp))
         if self.duration < 0:
             raise ValueError("Event duration is negative, check events json")
-        if self.occurence_time+self.duration > sim.n_timesteps_to_sim:
+        if self.occurence_time+self.duration > sim.n_temporal_units_to_sim:
             raise ValueError("Event occurence time + duration is outside simulation, check events and sim json")
 
         if self.dmg_distrib_across_regions is None:

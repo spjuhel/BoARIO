@@ -34,7 +34,7 @@ class ARIOModelPsi(ARIOBaseModel):
     psi : float
           Value of the psi parameter. (see :ref:`boario-math`).
     restoration_tau : numpy.ndarray of int
-                      Array of size `n_sector` setting for each inputs its characteristic restoration time with `model_timestep` days as unit. (see :ref:`boario-math`).
+                      Array of size `n_sector` setting for each inputs its characteristic restoration time in `temporal_units_by_step`. (see :ref:`boario-math`).
     Raises
     ------
     RuntimeError
@@ -57,11 +57,11 @@ class ARIOModelPsi(ARIOBaseModel):
         self.psi = simulation_params['psi_param']
         inv = mrio_params['inventories_dict']
         inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
-        restoration_tau = [(self.n_days_by_step / simulation_params['inventory_restoration_time']) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
+        restoration_tau = [(self.n_temporal_units_by_step / simulation_params['inventory_restoration_tau']) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
         self.restoration_tau = np.array(restoration_tau)
         #################################################################
 
-    def calc_production(self, current_step:int) -> np.ndarray:
+    def calc_production(self, current_temporal_unit:int) -> np.NDArray:
         r"""Compute and update actual production
 
         1. Compute ``production_opt`` and ``inventory_constraints`` as :
@@ -102,7 +102,7 @@ class ARIOModelPsi(ARIOBaseModel):
 
         Parameters
         ----------
-        current_step : int
+        current_temporal_unit : int
             current step number
 
         Returns
@@ -118,7 +118,7 @@ class ARIOModelPsi(ARIOBaseModel):
         #2.
         if (stock_constraint := (self.matrix_stock < inventory_constraints) * self.matrix_share_thresh).any():
             if not self.in_shortage:
-                logger.info('At least one industry entered shortage regime. (step:{})'.format(current_step))
+                logger.info('At least one industry entered shortage regime. (current temporal unit:{})'.format(current_temporal_unit))
             self.in_shortage = True
             self.had_shortage = True
             production_ratio_stock = np.ones(shape=self.matrix_stock.shape)
@@ -134,7 +134,7 @@ class ARIOModelPsi(ARIOBaseModel):
         else:
             if self.in_shortage:
                 self.in_shortage = False
-                logger.info('All industries exited shortage regime. (step:{})'.format(current_step))
+                logger.info('All industries exited shortage regime. (current temporal unit:{})'.format(current_temporal_unit))
             assert not (production_opt < 0).any()
             self.production = production_opt
         return stock_constraint
@@ -180,5 +180,5 @@ class ARIOModelPsi(ARIOBaseModel):
         self.psi = new_params['psi_param']
         inv = new_params['inventories_dict']
         inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
-        restoration_tau = [(self.n_days_by_step / new_params['inventory_restoration_time']) if v >= INV_THRESHOLD else v for v in inventories]
+        restoration_tau = [(self.n_temporal_units_by_step / new_params['inventory_restoration_tau']) if v >= INV_THRESHOLD else v for v in inventories]
         self.restoration_tau = np.array(restoration_tau)

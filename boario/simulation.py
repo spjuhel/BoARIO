@@ -61,12 +61,12 @@ class Simulation(object):
     model : Union[ARIOBaseModel, ARIOModelPsi]
         The model to run the simulation with.
 
-    current_day : int
-        Tracks the number of `days` elapsed since simulation start.
-        This may differs from the number of `steps` if the parameter `model_time_step` differs from 1 day as `current_day` is actually `step` * `model_time_step`.
+    current_temporal_unit : int
+        Tracks the number of `temporal_units` elapsed since simulation start.
+        This may differs from the number of `steps` if the parameter `model_time_step` differs from 1 temporal_unit as `current_temporal_unit` is actually `step` * `model_time_step`.
 
-    n_days_to_sim : int
-        The total number of `days` to simulate.
+    n_temporal_units_to_sim : int
+        The total number of `temporal_units` to simulate.
 
     events : list[Event]
         The list of events to shock the model with during the simulation.
@@ -84,7 +84,7 @@ class Simulation(object):
         the simulation was not found and should print out which one.
     """
 
-    def __init__(self, params: Union[dict, str, pathlib.Path], mrio_system: Union[IOSystem, str, pathlib.Path, None] = None, modeltype:str = "ARIOBase") -> None:
+    def __init__(self, params: Union[dict, str, pathlib.Path], mrio_system: Union[IOSystem, str, pathlib.Path, None] = None, mrio_params: dict = None, modeltype:str = "ARIOBase") -> None:
         """Initialisation of a Simulation object uses these parameters
 
         Parameters
@@ -119,13 +119,17 @@ class Simulation(object):
         if isinstance(params, dict):
             logger.info("Loading simulation parameters from dict")
             simulation_params = params
-            if simulation_params['mrio_params_file'] is None:
-                logger.warn("Params given as a dict but 'mrio_params_file' does not exist. Will try with default one.")
+            if "mrio_params_file" in simulation_params.keys() and simulation_params["mrio_params_file"] is None:
+                logger.warn("params given as a dict but 'mrio_params_file' does not exist. Will try with default one.")
         else:
             raise TypeError("params must be either a dict, a str or a pathlib.Path, not a %s", str(type(params)))
 
-        mrio_params = None
-        if simulation_params['mrio_params_file'] is not None:
+        #mrio_params = None
+        if mrio_params is not None:
+            if not isinstance(mrio_params, dict):
+                raise TypeError("given MRIO parameters is of type {} where a dict is expected".format(str(type(mrio_params))))
+            logger.info("MRIO parameters given as dictionary")
+        elif simulation_params['mrio_params_file'] is not None:
             mrio_params_path = pathlib.Path(simulation_params['mrio_params_file'])
             if not mrio_params_path.exists():
                 logger.warning('MRIO parameters file specified in simulation params was not found, trying the default one.')
@@ -177,9 +181,9 @@ Available types are {}
         self.events = []
         self.current_events = []
         self.events_timings = set()
-        self.n_days_to_sim = simulation_params['n_timesteps']
-        self.current_day = 0
-        self.n_steps_simulated = 0
+        self.n_temporal_units_to_sim = simulation_params['n_temporal_units_to_sim']
+        self.current_temporal_unit = 0
+        self.n_temporal_units_simulated = 0
         self._monotony_checker = 0
         self.scheme = 'proportional'
         self.has_crashed = False
@@ -189,7 +193,7 @@ Available types are {}
         r"""Launch the simulation loop.
 
         This method launch the simulation for the number of steps to simulate
-        described by the attribute ``n_days_to_sim``, calling the
+        described by the attribute ``n_temporal_units_to_sim``, calling the
         :meth:`next_step` method. For convenience, it dumps the
         parameters used in the logs just before running the loop. Once the loop
         is completed, it flushes the different memmaps generated.
@@ -200,8 +204,8 @@ Available types are {}
         progress: bool, default: True
             If True show a progress bar of the loop in the console.
         """
-        logger.info("Starting model loop for at most {} steps".format(self.n_days_to_sim//self.model.n_days_by_step+1))
-        logger.info("One step is {} day(s)".format(self.model.n_days_by_step))
+        logger.info("Starting model loop for at most {} steps".format(self.n_temporal_units_to_sim//self.model.n_temporal_units_by_step+1))
+        logger.info("One step is {} temporal_unit(s)".format(self.model.n_temporal_units_by_step))
         tmp = logging.FileHandler(self.results_storage/"simulation.log")
         tmp.setLevel(logging.DEBUG)
         tmp.setFormatter(DEBUGFORMATTER)
@@ -213,38 +217,38 @@ Available types are {}
                 'Processed: ', progressbar.Counter('Step: %(value)d'), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
             ]
             bar = progressbar.ProgressBar(widgets=widgets, redirect_stdout=True)
-            for t in bar(range(0,self.n_days_to_sim,math.floor(self.params['model_time_step']))):
-                #assert self.current_day == t
+            for t in bar(range(0,self.n_temporal_units_to_sim,math.floor(self.params['model_time_step']))):
+                #assert self.current_temporal_unit == t
                 step_res = self.next_step()
-                self.n_steps_simulated = self.current_day
+                self.n_temporal_units_simulated = self.current_temporal_unit
                 if step_res == 1:
                     self.has_crashed = True
                     logger.warning(f"""Economy seems to have crashed.
-                    - At step : {self.current_day}
+                    - At step : {self.current_temporal_unit}
                     """
                     )
                     break
                 elif self._monotony_checker > 3:
                     logger.warning(f"""Economy seems to have found an equilibrium
-                    - At step : {self.current_day}
+                    - At step : {self.current_temporal_unit}
                     """
                     )
                     break
         else:
-            for t in range(0,self.n_days_to_sim,math.floor(self.params['model_time_step'])):
-                #assert self.current_day == t
+            for t in range(0,self.n_temporal_units_to_sim,math.floor(self.params['model_time_step'])):
+                #assert self.current_temporal_unit == t
                 step_res = self.next_step()
-                self.n_steps_simulated = self.current_day
+                self.n_temporal_units_simulated = self.current_temporal_unit
                 if step_res == 1:
                     self.has_crashed = True
                     logger.warning(f"""Economy seems to have crashed.
-                    - At step : {self.current_day}
+                    - At step : {self.current_temporal_unit}
                     """
                     )
                     break
                 elif self._monotony_checker > 3:
                     logger.warning(f"""Economy seems to have found an equilibrium
-                    - At step : {self.current_day}
+                    - At step : {self.current_temporal_unit}
                     """
                     )
                     break
@@ -259,7 +263,7 @@ Available types are {}
             self.model.stocks_evolution.flush()
         self.model.overproduction_evolution.flush()
         self.model.production_cap_evolution.flush()
-        self.params['n_timesteps_simulated'] = self.n_steps_simulated
+        self.params['n_temporal_units_simulated'] = self.n_temporal_units_simulated
         self.params['has_crashed'] = self.has_crashed
         with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_params.json").open('w') as f:
             json.dump(self.params, f, indent=4)
@@ -303,11 +307,11 @@ Available types are {}
 
         """
         if min_steps_check is None:
-            min_steps_check = self.n_days_to_sim // 5
+            min_steps_check = self.n_temporal_units_to_sim // 5
         if min_failing_regions is None:
             min_failing_regions = self.model.n_regions*self.model.n_sectors // 3
 
-        new_events = [(e_id,e) for e_id, e in enumerate(self.events) if ((self.current_day-self.params['model_time_step']) <= e.occurence_time <= self.current_day)]
+        new_events = [(e_id,e) for e_id, e in enumerate(self.events) if ((self.current_temporal_unit-self.params['model_time_step']) <= e.occurence_time <= self.current_temporal_unit)]
         for (e_id,e) in new_events:
             # print(e)
             if e not in self.current_events:
@@ -318,52 +322,52 @@ Available types are {}
             self.update_events()
             self.model.update_system_from_events(self.current_events)
         if self.params['register_stocks']:
-            self.model.write_stocks(self.current_day)
+            self.model.write_stocks(self.current_temporal_unit)
         self.model.calc_prod_reqby_demand(self.current_events)
-        if self.current_day > 1:
+        if self.current_temporal_unit > 1:
                 self.model.calc_overproduction()
-        self.model.write_overproduction(self.current_day)
-        self.model.write_rebuild_demand(self.current_day)
-        self.model.write_classic_demand(self.current_day)
+        self.model.write_overproduction(self.current_temporal_unit)
+        self.model.write_rebuild_demand(self.current_temporal_unit)
+        self.model.write_classic_demand(self.current_temporal_unit)
         self.model.calc_production_cap()
-        constraints = self.model.calc_production(self.current_day)
-        self.model.write_limiting_stocks(self.current_day, constraints)
-        self.model.write_production(self.current_day)
-        self.model.write_production_max(self.current_day)
+        constraints = self.model.calc_production(self.current_temporal_unit)
+        self.model.write_limiting_stocks(self.current_temporal_unit, constraints)
+        self.model.write_production(self.current_temporal_unit)
+        self.model.write_production_max(self.current_temporal_unit)
         try:
-            events_to_remove = self.model.distribute_production(self.current_day, self.current_events, self.scheme)
+            events_to_remove = self.model.distribute_production(self.current_temporal_unit, self.current_events, self.scheme)
         except RuntimeError as e:
             logger.exception("This exception happened:",e)
             return 1
         if events_to_remove != []:
             self.current_events = [e for e in self.current_events if e not in events_to_remove]
             for e in events_to_remove:
-                logger.info("Day : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt".format(self.current_day, e.name,e.occurence_time, e.aff_regions, e.q_damages))
+                logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt".format(self.current_temporal_unit, e.name,e.occurence_time, e.aff_regions, e.q_damages))
         self.model.calc_orders(self.current_events)
         # TODO : Redo this properly
         if False:
-            if self.current_day > min_steps_check and (self.current_day % check_period == 0):
+            if self.current_temporal_unit > min_steps_check and (self.current_temporal_unit % check_period == 0):
                 if self.model.check_crash() >  min_failing_regions:
                     return 1
-                if self.current_day >= self.params['min_duration'] and self.model.rebuilding_demand.sum() == 0 and self.model.check_production_eq_soft(self.current_day, period = check_period):
+                if self.current_temporal_unit >= self.params['min_duration'] and self.model.rebuilding_demand.sum() == 0 and self.model.check_production_eq_soft(self.current_temporal_unit, period = check_period):
                     self._monotony_checker +=1
                 else:
                     self._monotony_checker = 0
-        self.current_day+= self.params['model_time_step']
+        self.current_temporal_unit += self.params['model_time_step']
         return 0
 
     def update_events(self):
         """Update events status
 
         This method cycles through the events defines in the ``current_events`` attribute and sets their ``rebuildable`` attribute.
-        An event is considered rebuildable if its ``duration`` is over (i.e. the number of days elapsed since it shocked the model is greater than ``occurence_time`` + ``duration``).
+        An event is considered rebuildable if its ``duration`` is over (i.e. the number of temporal_units elapsed since it shocked the model is greater than ``occurence_time`` + ``duration``).
         This method also logs the moment an event starts rebuilding.
         """
         for e in self.current_events:
             already_rebuilding = e.rebuildable
-            e.rebuildable = (e.occurence_time + e.duration) <= self.current_day
+            e.rebuildable = (e.occurence_time + e.duration) <= self.current_temporal_unit
             if e.rebuildable and not already_rebuilding:
-                logger.info("Day : {} ~ Event named {} that occured at {} in {} for {} damages has started rebuilding".format(self.current_day,e.name,e.occurence_time, e.aff_regions, e.q_damages))
+                logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages has started rebuilding".format(self.current_temporal_unit,e.name,e.occurence_time, e.aff_regions, e.q_damages))
 
     def read_events_from_list(self, events_list : list[dict]):
         """Import a list of events (as a list of dictionaries) into the model.
@@ -375,11 +379,6 @@ Available types are {}
         ----------
         events_list :
             List of events as dictionnaries.
-
-        Examples
-        --------
-
-        .. include:: ../../../../api-examples/simulation/example-read_events_from_list.rstinc
 
         """
         logger.info("Reading events from given list and adding them to the model")
@@ -419,7 +418,7 @@ Available types are {}
             Raised if the production share allocated to rebuilding (in either
             the impacted regions or the others) is not in [0,1].
         """
-        logger.info("Day : {} ~ Shocking model with new event".format(self.current_day))
+        logger.info("Temporal_Unit : {} ~ Shocking model with new event".format(self.current_temporal_unit))
         logger.info("Affected regions are : {}".format(self.events[event_to_add_id].aff_regions))
         impacted_region_prod_share = self.params['impacted_region_base_production_toward_rebuilding']
         RoW_prod_share = self.params['row_base_production_toward_rebuilding']
@@ -499,9 +498,9 @@ Available types are {}
         """
 
         logger.info('Resetting model to initial status (with same events)')
-        self.current_day = 0
+        self.current_temporal_unit = 0
         self._monotony_checker = 0
-        self.n_steps_simulated = 0
+        self.n_temporal_units_simulated = 0
         self.has_crashed = False
         self.model.reset_module(self.params)
 
