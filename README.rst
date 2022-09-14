@@ -130,7 +130,7 @@ simulation. We suppose we run the following script from ``~/boario/``
         # The quantity of damages caused by the event (in IO table monetary)
         "q_dmg":100000000,
         # The sectors mobilised to answer the rebuilding demand
-        # and the share of the demand they answer
+        # and the share of the demand they answer. Names comply with EXIOBASE3.
         "rebuilding-sectors": {
             "Construction work (45)":0.15,
             "Machinery and equipment n.e.c. (29)" : 0.20,
