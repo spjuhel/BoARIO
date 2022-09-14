@@ -70,20 +70,20 @@ class Event(object):
             raise ValueError("Event occurence time is outside simulation, check events and sim json")
         if self.q_damages < 0:
             raise ValueError("Event damages are negative, check events json")
-        if not set(self.aff_regions).issubset(model.mrio.regions):
-            tmp = set(self.aff_regions).difference(set(model.mrio.regions))
+        if not set(self.aff_regions).issubset(model.model.regions):
+            tmp = set(self.aff_regions).difference(set(model.model.regions))
             raise ValueError("""A least one affected region is not a valid region in the mrio table, check events json
 
             suspicious regions : {}
             """.format(tmp))
-        if not set(self.aff_sectors).issubset(model.mrio.sectors):
-            tmp = set(self.aff_sectors).difference(set(model.mrio.sectors))
+        if not set(self.aff_sectors).issubset(model.model.sectors):
+            tmp = set(self.aff_sectors).difference(set(model.model.sectors))
             raise ValueError("""A least one affected sector is not a valid sector in the mrio table, check events json
 
             suspicious sectors : {}
             """.format(tmp))
-        if not set(self.rebuilding_sectors).issubset(model.mrio.sectors):
-            tmp = set(self.rebuilding_sectors).difference(set(model.mrio.sectors))
+        if not set(self.rebuilding_sectors).issubset(model.model.sectors):
+            tmp = set(self.rebuilding_sectors).difference(set(model.model.sectors))
             raise ValueError("""A least one rebuilding sector is not a valid sector in the mrio table, check events json
 
             suspicious sectors : {}

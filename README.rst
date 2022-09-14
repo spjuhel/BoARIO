@@ -77,7 +77,7 @@ simulation. We suppose we run the following script from ``~/boario/``
 
     params = {
         # The name of the working directory to use (relative to current wd)
-        "storage_dir": "storage",
+        "output_dir": "storage",
         # The directory to use to store results (relative to storage_dir)
         # i.e. here, the model will look for files in ~/boario/storage/ and
         # store results in ~/boario/storage/results/
@@ -101,6 +101,8 @@ simulation. We suppose we run the following script from ``~/boario/``
        "impacted_region_base_production_toward_rebuilding": 0.001,
        "row_base_production_toward_rebuilding": 0.0,
        "mrio_params_file":"mrio_params.json"
+       "order_type" : "",
+       "n_timesteps_to_sim": 400
     }
 
     # Here we define the event perturbing the simulation
@@ -130,10 +132,10 @@ simulation. We suppose we run the following script from ``~/boario/``
         # The sectors mobilised to answer the rebuilding demand
         # and the share of the demand they answer
         "rebuilding-sectors": {
-            "Construction (45)":0.15,
-            "Manufacture of machinery and equipment n.e.c. (29)" : 0.20,
-            "Manufacture of furniture; manufacturing n.e.c. (36)" : 0.20,
-            "Manufacture of office machinery and computers (30)": 0.15,
+            "Construction work (45)":0.15,
+            "Machinery and equipment n.e.c. (29)" : 0.20,
+            "Furniture; other manufactured goods n.e.c. (36)" : 0.20,
+            "Office machinery and computers (30)": 0.15,
         }
     }
 
@@ -142,7 +144,7 @@ simulation. We suppose we run the following script from ``~/boario/``
     mrio_path = pathlib.Path(params['storage_dir'])/"mrio.pkl"
 
     # We initiate a model instance ...
-    model = sim.Simulation(mrio_path, params)
+    model = sim.Simulation(params, mrio_path)
 
     # ... add the list of events (just one here) to the model ...
     model.read_events_from_list([event])
