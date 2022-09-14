@@ -91,15 +91,21 @@ Where:
 
 We also compute the following :
 
+.. _boario-math-z-agg:
+
 .. math::
    :nowrap:
 
    \begin{gather*}
-    \ioa^{\sectorsset} = \mathbf{I_{\textrm{sum}}} \cdot  \ioa
+    \ioa^{\sectorsset} = \mathbf{I_{\textrm{sum}}} \cdot  \ioa\\
+    \ioz^{\sectorsset} = \mathbf{I_{\textrm{sum}}} \cdot  \ioz\\
+    \ioz^{\textrm{Share}} =  \ioz \oslash \left ( \ioz^{\sectorsset} \otimes \underbrace{\begin{bmatrix} 1 \\ \vdots\\ 1 \end{bmatrix}}_{\text{m-sized}} \right )
    \end{gather*}
 
-Where :math:`\mathbf{I_{\textrm{sum}}}` is a row summation matrix which aggregates by
-sector :
+Where :
+
+* :math:`\mathbf{I_{\textrm{sum}}}` is a row summation matrix which aggregates by sector.
+
 
 .. math::
 
@@ -112,8 +118,12 @@ sector :
         \end{bmatrix}
       }_{r \times s} s
 
+* :math:`\otimes` is the Kronecker product which repeat :math:`m` times each row of :math:`\ioz^{\sectorsset}`.
 
-:math:`\ioa^{\sectorsset}` is the technical matrix aggregated by sector
+* :math:`\oslash` is the matrix element-wise division, defined such that dividing by zero gives zero. (If initial order to an industry was null, the share ordered is also null)
+
+
+Hence, :math:`\ioa^{\sectorsset}` and :math:`\ioz^{\sectorsset}` are respectfully the technical matrix and the intermediate demand matrix, aggregated by sector. :math:`\ioz^{\textrm{Share}}` represents for each firm and for each of their input, the share of the total ordered to a supplier, initially (i.e. :math:`\ioz` normalized for each input).
 
 .. _boario-math-initial-inv:
 
@@ -143,7 +153,7 @@ amount required for :math:`s_i` days of production at initial production capacit
 
 .. note::
 
-  Note :math:`s_i` do not differ on a per-industry basis, only on a per-product basis.
+  :math:`s_i` does not differ on a per-industry basis, only on a per-product basis, (although this could be implemented easily).
 
 The order matrix :math:`\ioorders` is initialized to be equal to :math:`\ioz` :
 
@@ -187,7 +197,9 @@ Once we have production capacity, we can compute actual production:
 
     \begin{alignat*}{4}
           \mathbf{D}^{\textrm{Tot}}(t) &= (d_{f}^{\textrm{Tot}}(t))_{f \in \firmsset} &&= \ioorders(t) \cdot \irowsum + \ioy \cdot \irowsum + \Damage_{\firmsset} \cdot \tau_{\textrm{REBUILD}} && \text{Total demand matrix} \\
+          & && &&\\
           \iox^{\textrm{Opt}}(t) &= (x^{\textrm{Opt}}_{f}(t))_{f \in \firmsset} &&= \left ( \min \left ( d^{\textrm{Tot}}_{f}(t), x^{\textrm{Cap}}_{f}(t) \right ) \right )_{f \in \firmsset} && \text{Optimal production}\\
+          & && &&\\
           \ioinv^{\textrm{Cons}}(t) &= (\omega^{\textrm{Cons},f}_p(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} &&=
              \begin{bmatrix}
                s^{1}_1 & \hdots & s^{p}_1 \\
@@ -203,6 +215,7 @@ Once we have production capacity, we can compute actual production:
     s^1_n x^{\textrm{Opt}}_{1}(t) a_{n1} & \hdots & s^{p}_n x^{\textrm{Opt}}_{p}(t) a_{np}
     \end{bmatrix}
     \cdot \psi && \text{Inventory constraints}  \\
+    & && &&\\
           \iox^{a}(t) &= (x^{a}_{f}(t))_{f \in \firmsset} &&= \left \{ \begin{aligned}
                                                                           & x^{\textrm{Opt}}_{f}(t) & \text{if $\omega_{p}^f(t) \geq \omega^{\textrm{Cons},f}_p(t)$} \forall p\\
                                                                           & x^{\textrm{Opt}}_{f}(t) \cdot \min_{p \in \sectorsset} \left ( \frac{\omega^s_{p}(t)}{\omega^{\textrm{Cons,f}}_p(t)} \right ) & \text{if $\omega_{p}^f(t) < \omega^{\textrm{Cons},f}_p(t)$}
@@ -261,7 +274,7 @@ Industries seek to restore the inventory of each of their input to their goal le
 
 .. note::
 
-  In :class:`ARIOBaseModel`, the 'gap' matrix is simply the difference between :math:`\ioinv^{*}(t)` and :math:`\ioinv(t)` and orders to suppliers are then proportional to the initial transaction matrix (See definition of :math:`\ioz^{\textrm{Distrib}}`).
+  In :class:`ARIOBaseModel`, the 'gap' matrix is simply the difference between :math:`\ioinv^{*}(t)` and :math:`\ioinv(t)` and orders to suppliers are then proportional to the initial transaction matrix (See definition of :math:`\ioz^{\textrm{Share}}`).
   In :class:`ARIOModelPsi`, only a fraction of missing inventories are ordered, but in addition, the totality of inputs used for production during this step is also ordered.
   The differences are shown in red.
 
@@ -272,22 +285,18 @@ Industries seek to restore the inventory of each of their input to their goal le
        &\ioinv^{*}(t) &&= (\omega_p^{*,f}(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} \quad = \quad s^{f}_p \cdot \begin{bmatrix} \iox^{\textrm{Opt}}(t)\\ \vdots\\ \iox^{\textrm{Opt}}(t) \end{bmatrix} \odot  \ioa^\sectorsset && \quad && \text{Inventory goals} \\
        &\ioinv^{\textrm{Gap}}(t) &&= (\omega_p^{\textrm{Gap},f}(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} \quad = \quad \left ( \ioinv^{*} - \ioinv(t) \right )_{\geq 0} && \quad && \text{Inventory gaps}\\
        &\ioorders^{\sectorsset}(t) &&= \mathcolor{red}{\frac{1}{\tau_{\textrm{Inv}}}} \cdot \ioinv^{\textrm{Gap}}(t) \mathcolor{red}{ + \begin{bmatrix} \iox^a(t)\\ \vdots\\ \iox^a(t) \end{bmatrix} \odot  \ioa^{\sectorsset}} &&\quad && \text{Intermediate demand total orders}\\
-       &\ioorders(t) &&= \left ( \ioorders^{\sectorsset}(t) \otimes \underbrace{\begin{bmatrix} 1 \\ \vdots\\ 1 \end{bmatrix}}_{\text{m-sized}} \right ) \odot  \ioz^{\textrm{Distrib}} &&\quad && \text{Intermediate demand orders}
+       &\ioorders(t) &&= \left ( \ioorders^{\sectorsset}(t) \otimes \underbrace{\begin{bmatrix} 1 \\ \vdots\\ 1 \end{bmatrix}}_{\text{m-sized}} \right ) \odot  \ioz^{\textrm{Share}} &&\quad && \text{Intermediate demand orders}
     \end{alignat*}
 
 * In eq. :math:`\text{Inventory goals}` we compute inventory goals based on optimal production. (Note that, in the version with ``psi``, :math:`\Omega^* = \frac{\Omega^{\textrm{Cons}}}{\psi}`)
 * In eq. :math:`\text{Inventory gaps}` we compute the inventory gaps. :math:`(\mathbf{A} - \mathbf{B})_{\geq 0}` denotes the resulting matrix of :math:`\mathbf{A} - \mathbf{B}` where negative values are replaced by 0.
 * In eq. :math:`\text{Intermediate total demand orders}` we compute aggregate orders for intermediate demand.
-* In eq. :math:`\text{Intermediate demand orders}` we compute the actual order matrix, by distributing total orders along the different suppliers. [#kron]_
+* In eq. :math:`\text{Intermediate demand orders}` we compute the actual order matrix, by distributing total orders along the different suppliers.
   We then have two variants:
 
-  1. We multiply by the initial transaction share [#oslash]_
+  1. We multiply by the initial transaction share :math:`\ioz^{\textrm{Share}}`
 
-     .. math::
-
-       \ioz^{\textrm{Distrib}} =  \ioz(0) \oslash \left ( \mathbf{I}_{\textrm{sum}} \cdot \ioz(0) \otimes \underbrace{\begin{bmatrix} 1 \\ \vdots\\ 1 \end{bmatrix}}_{\text{m-sized}} \right )
-
-  2. We multiply by the initial transaction share, weighted by suppliers current production. To do so, we replace both occurrence of :math:`\ioz(0)` in the previous formula by the following:
+  2. We multiply by the initial transaction share, weighted by suppliers current production. To do so, we replace both occurrence of :math:`\ioz` in :math:`\ioz^{\textrm{Share}}` by the following:
 
      .. math::
 
@@ -296,9 +305,6 @@ Industries seek to restore the inventory of each of their input to their goal le
 
 The first variant corresponds to the order module of [`Hallegatte 2013`_] while the other one corresponds to the one defined in [`Guan 2020`_] (See :ref:`order module parameter <order module>` for how to choose implementation).
 
-.. [#kron] We use the Kronecker product (:math:`\otimes`) to repeat :math:`m` times each row of :math:`\ioinv^{\textrm{Gap}}(t)`.
-
-.. [#oslash] Where :math:`\oslash` is the matrix element-wise division, defined such that dividing by zero gives zero. (If initial order to an industry was null, the share ordered is also null)
 
 .. _boario-math-overprod:
 
