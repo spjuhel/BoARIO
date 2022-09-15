@@ -215,7 +215,7 @@ class ARIOBaseModel(object):
         value_added[value_added < 0] = 0.0
         self.gdp_df = value_added.groupby('region',axis=1).sum()
         self.VA_0 = (value_added.to_numpy().flatten())
-        self.tech_mat = ((self._matrix_I_sum @ pym_mrio.A)) #.to_numpy()) #to_numpy is superfluous ?
+        self.tech_mat = ((self._matrix_I_sum @ pym_mrio.A).to_numpy()) #type: ignore #to_numpy is not superfluous !
         kratio = mrio_params['capital_ratio_dict']
         kratio_ordered = [kratio[k] for k in sorted(kratio.keys())]
         self.kstock_ratio_to_VA = np.tile(np.array(kratio_ordered),self.n_regions)
@@ -300,7 +300,7 @@ class ARIOBaseModel(object):
         MrioSystem.
 
         Parameters
-        ---------- 
+        ----------
         events : 'list[Event]'
             A list of Event objects
 
@@ -516,8 +516,8 @@ class ARIOBaseModel(object):
         """
 
         inventory_constraints = (np.tile(production, (self.n_sectors, 1)) * self.tech_mat)
-        np.multiply(inventory_constraints, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=inventory_constraints)
-        return inventory_constraints
+        tmp = np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors))
+        return inventory_constraints * tmp
 
     def distribute_production(self,
                               current_temporal_unit: int, events: 'list[Event]',
