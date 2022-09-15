@@ -1,3 +1,8 @@
+.. role:: pythoncode(code)
+   :language: python
+
+.. _boario-quickstart:
+
 Detailled examples
 =======================
 
@@ -28,9 +33,10 @@ For the sake of simplicity, the script generates a 7-sectors MRIO from the sourc
 To do so, place yourself in the BoARIO source directory and use the following commands:
 
 .. code:: console
-          cd other/ && wget https://zenodo.org/record/5589597/files/IOT_2011_ixi.zip
-          cd ../
-          python scripts/generate-example-files.py -o ~/BoARIO/testing ./other/
+
+   cd other/ && wget https://zenodo.org/record/5589597/files/IOT_2011_ixi.zip
+   cd ../
+   python scripts/generate-example-files.py -o ~/BoARIO/testing ./other/
 
 
 .. note::
@@ -55,36 +61,39 @@ using a python or IPython console, or a script directly.
 First, load BoARIO with the following:
 
 .. code:: python
-          import sys
-          # We need the following because BoARIO is not yet installable
-          sys.path.insert(1, '~/BoARIO/')
-          # We import the base for simulation
-          import boario.simulation as sim
-          # pathlib is a very useful library for handling paths, although you can use strings directly
-          import pathlib
+
+  import sys
+  # We need the following because BoARIO is not yet installable
+  sys.path.insert(1, '~/BoARIO/')
+  # We import the base for simulation
+  import boario.simulation as sim
+  # pathlib is a very useful library for handling paths, although you can use strings directly
+  import pathlib
 
 Then you can create the simulation environment with (we recommend using the "ARIOPsi" version at the moment, which is more stable than the base version):
 
 .. code:: python
-          mrio_path = pathlib.Path("~/BoARIO/testing/exiobase3_minimal.pkl")
-          params_path = pathlib.Path("~/BoARIO/testing/params.json")
-          mrio_params_path = pathlib.Path("~/BoARIO/testing/mrio_params.json")
-          simulation_test = sim.Simulation(params_path, mrio_path, mrio_params=mrio_params_path, modeltype="ARIOPsi")
 
+  mrio_path = pathlib.Path("~/BoARIO/testing/exiobase3_minimal.pkl")
+  params_path = pathlib.Path("~/BoARIO/testing/params.json")
+  mrio_params_path = pathlib.Path("~/BoARIO/testing/mrio_params.json")
+  simulation_test = sim.Simulation(params_path, mrio_path, mrio_params=mrio_params_path, modeltype="ARIOPsi")
 
 Initialisation shows a lot of logs which should be self-explanatory.
 Once you see:
 
 .. code:: console
-          [INFO] - [simulation.py > __init__() > 239] - Initialized !
+
+  [INFO] - [simulation.py > __init__() > 239] - Initialized !
 
 The simulation context is ready.
 
 You can then load the event(s) and launch the simulation with:
 
 .. code:: python
-          simulation_test.read_events(event_path)
-          simulation_test.loop()
+
+  simulation_test.read_events(event_path)
+  simulation_test.loop()
 
 Once again, a lot of logs should pop-up and the run should execute. An ETA shows how long the run should take.
 
@@ -128,7 +137,8 @@ Indicators and parquet files
 
 You may also run:
 
-.. code::
+.. code:: python
+
    from boario.indicators import Indicators
    indic = Indicators.from_folder(
                                pathlib.Path("~/BoARIO/testing/results"),
@@ -137,10 +147,11 @@ You may also run:
    indic.write_indicators()
 
 
-Which generate easier to read parquet files (using :py:function:`read_parquet`) as well as ``indicators.json``, ``fd_loss.json`` and ``prod_chg.json`` which show various indicators.
+Which generate easier to read parquet files (using :py:func:`read_parquet`) as well as ``indicators.json``, ``fd_loss.json`` and ``prod_chg.json`` which show various indicators.
 
 .. note::
    The script also generate:
+
    - ``simulated_events.json`` : A json record of the events that were simulated during the loop.
    - ``simulated_params.json`` : A json record of parameters that were used during the loop.
 
@@ -173,4 +184,4 @@ ______________
 
 In the following example we show how to set up a simple mono-event simulation, using parameters defined directly as dictionaries:
 
-.. include:: ../../../../api-examples/simulation/example-read_events_from_list.rstinc
+.. include:: ../../../api-examples/simulation/example-read_events_from_list.rstinc

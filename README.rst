@@ -53,6 +53,11 @@ in order to produce the following outputs:
 
 - more to come
 
+example of use
+=================
+
+See :ref:`boario-quickstart`
+
 Useful scripts
 =================
 
