@@ -57,6 +57,7 @@ class Indicators(object):
 
     def __init__(self, data_dict:dict, include_crash:bool = False) -> None:
         logger.info("Instanciating indicators")
+        print(data_dict['events'])
         super().__init__()
         if not include_crash:
             if data_dict["has_crashed"]:
@@ -110,18 +111,18 @@ class Indicators(object):
                                         columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
         self.aff_regions = []
         for e in data_dict["events"]:
-            self.aff_regions.append(e['aff-regions'])
+            self.aff_regions.append(e['aff_regions'])
 
         self.aff_regions = list(misc.flatten(self.aff_regions))
 
         self.aff_sectors = []
         for e in data_dict["events"]:
-            self.aff_sectors.append(e['aff-sectors'])
+            self.aff_sectors.append(e['aff_sectors'])
         self.aff_sectors = list(misc.flatten(self.aff_sectors))
 
         self.rebuilding_sectors = []
         for e in data_dict["events"]:
-            self.rebuilding_sectors.append(e['rebuilding-sectors'].keys())
+            self.rebuilding_sectors.append(e['rebuilding_sectors'].keys())
             self.rebuilding_sectors = list(misc.flatten(self.rebuilding_sectors))
 
         if 'r_dmg' in data_dict['events'][0]:
@@ -147,7 +148,7 @@ class Indicators(object):
             "prod_lost_unaff": "unset",
             "psi" : data_dict['params']['psi_param'],
             "inv_tau" : data_dict['params']['inventory_restoration_time'],
-            "n_timesteps" : data_dict['n_temporal_units_simulated'],
+            "n_temporal_units_to_sim" : data_dict['n_temporal_units_simulated'],
             "has_crashed" : data_dict['has_crashed'],
         }
         self.storage = (pathlib.Path(data_dict['results_storage'])/'indicators.json').resolve()
@@ -218,7 +219,7 @@ class Indicators(object):
         else:
             data_dict["has_crashed"] = False
         results_path = data_dict["results_storage"] = folder.absolute()
-        t = data_dict["n_temporal_units_to_sim"] = params['n_timesteps']
+        t = data_dict["n_temporal_units_to_sim"] = params['n_temporal_units_to_sim']
         data_dict['params'] = params
         data_dict["n_temporal_units_simulated"] = params['n_temporal_units_simulated']
         data_dict["regions"] = indexes["regions"]
@@ -259,7 +260,7 @@ class Indicators(object):
             indexes = json.load(f)
         with (storage_path/simulation_params['results_storage']/"simulated_events.json").open() as f:
             events = json.load(f)
-        t = simulation_params["n_timesteps"]
+        t = simulation_params["n_temporal_units_to_sim"]
         if indexes['fd_cat'] is None:
             indexes['fd_cat'] = np.array(["Final demand"])
         results_path = storage_path/pathlib.Path(simulation_params['results_storage'])

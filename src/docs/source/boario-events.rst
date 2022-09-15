@@ -36,8 +36,8 @@ Define affected region(s)
 
 There are two ``key:value`` pairs governing the affected region(s):
 
-1. ``"aff-regions" : [list of affected regions]``
-2. ``"dmg-distrib-regions" : [list of floats]``
+1. ``"aff_regions" : [list of affected regions]``
+2. ``"dmg_distrib_regions" : [list of floats]``
 
 The first list has to contain the `region id(s)` (at least one) of the affected regions. The id(s) have to correspond to valid indexes in the MRIO used.
 For example, Exiobase3 uses ISO-ALPHA2 codes (``FR`` for France, ``DE`` for Germany, ``CN`` for China, etc.) and custom 2-letters code for world regions.
@@ -51,10 +51,10 @@ The following would define an event affecting both France and Germany, and where
 .. code-block:: json
 
    {
-   "aff-regions": [
+   "aff_regions": [
                 "FR", "DE"
                 ],
-   "dmg-distrib-regions": [
+   "dmg_distrib_regions": [
                 0.3, 0.7
                 ],
    }
@@ -88,15 +88,15 @@ occur during the closest upper multiple.
 Affected sectors and sector damage distribution
 ============================================================
 
-Affected sectors are defined by the ``"aff-sectors" : [list of affected sectors]`` key:value pair.
+Affected sectors are defined by the ``"aff_sectors" : [list of affected sectors]`` key:value pair.
 The list has to contain valid sector names in the MRIO used. It is also possible to replace the list
 by the ``"all"`` value, if all sectors are considered impacted.
 
 As different events (as well as contexts) may affect different sectors differently, it is possible to define how
 damages are distributed along the impacted sectors by either of the following:
 
-1. Setting ``"dmg-distrib-sectors-type"`` to ``"gdp"``, damages are distributed along the impacted sectors proportionally to their GDP contribution.
-2. Otherwise, setting the ``"dmg-distrib-sectors"`` to a list of decimal values comprised between 0 and 1 and summing to 1, where each value defines the share of the damages distributed to the corresponding sector in the ``"aff-sectors"`` list.
+1. Setting ``"dmg_distrib_sectors_type"`` to ``"gdp"``, damages are distributed along the impacted sectors proportionally to their GDP contribution.
+2. Otherwise, setting the ``"dmg_distrib_sectors"`` to a list of decimal values comprised between 0 and 1 and summing to 1, where each value defines the share of the damages distributed to the corresponding sector in the ``"aff_sectors"`` list.
 
 .. _reb-sectors-params:
 

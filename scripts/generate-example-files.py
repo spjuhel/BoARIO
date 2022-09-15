@@ -124,20 +124,20 @@ def params_from_ods(ods_file,monetary,main_inv_dur):
 
 def event_tmpl_from_ods(ods_file):
     event_params = {}
-    event_params["aff-regions"] = ["FR"]
-    event_params["dmg-distrib-regions"] = [1]
-    event_params["dmg-distrib-sectors-type"] = "gdp"
-    event_params["dmg-distrib-sectors"] = []
+    event_params["aff_regions"] = ["FR"]
+    event_params["dmg_distrib_regions"] = [1]
+    event_params["dmg_distrib_sectors_type"] = "gdp"
+    event_params["dmg_distrib_sectors"] = []
     event_params["duration"] = 5
     event_params["name"] = "Test-event"
     event_params["occur"] = 7
     event_params["q_dmg"] = 1000000
     df = pd.read_excel(ods_file) #type: ignore
-    event_params["aff-sectors"] = df.loc[(df.Affected=="yes"),"Aggregated version sector"].to_list()
-    event_params["rebuilding-sectors"] = df.loc[(df["Rebuilding factor"] > 0),["Aggregated version sector", "Rebuilding factor"]].set_index("Aggregated version sector").to_dict()['Rebuilding factor']
+    event_params["aff_sectors"] = df.loc[(df.Affected=="yes"),"Aggregated version sector"].to_list()
+    event_params["rebuilding_sectors"] = df.loc[(df["Rebuilding factor"] > 0),["Aggregated version sector", "Rebuilding factor"]].set_index("Aggregated version sector").to_dict()['Rebuilding factor']
     return event_params
 
-parser = argparse.ArgumentParser(description='Build a minimal example for BoARIO, from EXIOBASE3 MRIO table zip file')
+parser = argparse.ArgumentParser(description="Build a minimal example for BoARIO, from EXIOBASE3 MRIO table zip file")
 parser.add_argument('source_path', type=str, help='The str path to the directory with source materials')
 parser.add_argument('-o', "--output", type=str, help='The path to the example directory to create', nargs='?', default='./testing-directory/')
 

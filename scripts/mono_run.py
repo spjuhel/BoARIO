@@ -107,11 +107,11 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
                     raise ValueError("Impacted region ({}) is different from the splited region ({})".format(str(region, splited_region)))
                 event["main_region"] = match['main_region']
                 if match['subregion'] == "all":
-                    event["aff-regions"] = [event["main_region"]+"_"+str(i) for i in range(split_number)]
+                    event["aff_regions"] = [event["main_region"]+"_"+str(i) for i in range(split_number)]
                 elif match['subregion'] == "one":
-                    event["aff-regions"] = event["main_region"]+"_1"
+                    event["aff_regions"] = event["main_region"]+"_1"
                 else:
-                    event["aff-regions"] = match['sregionname']+"_"+match['n']
+                    event["aff_regions"] = match['sregionname']+"_"+match['n']
     elif stype == "RoW":
         pass
     elif stype== "Full":
@@ -140,8 +140,8 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     else:
         raise ValueError("Run damage type {} is incorrect".format(rtype))
 
-    event["aff-regions"] = region
-    scriptLogger.info("Setting aff-regions to {}".format(region))
+    event["aff_regions"] = region
+    scriptLogger.info("Setting aff_regions to {}".format(region))
     sim_params["output_dir"] = output_dir
     if alt_inv_dur:
         sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_time"])+"_inv_time_"+str(int(alt_inv_dur))

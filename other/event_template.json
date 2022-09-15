@@ -1,8 +1,8 @@
 {
-    "aff-regions": [
+    "aff_regions": [
         "FR"
     ],
-    "aff-sectors": [
+    "aff_sectors": [
         "Mining of coal and lignite; extraction of peat (10)",
         "Extraction of crude petroleum, gas and other",
         "Mining of uranium and thorium ores (12)",
@@ -47,11 +47,11 @@
         "Other land transport",
         "Post and telecommunications (64)"
     ],
-    "dmg-distrib-regions": [
+    "dmg_distrib_regions": [
         1
     ],
-    "dmg-distrib-sectors-type": "gdp",
-    "dmg-distrib-sectors": [],
+    "dmg_distrib_sectors_type": "gdp",
+    "dmg_distrib_sectors": [],
     "duration": 1,
     "name": "0",
     "occur": 5,

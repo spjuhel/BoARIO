@@ -109,18 +109,18 @@ simulation. We suppose we run the following script from ``~/boario/``
     event = {
         # The list of affected regions (their index in the mrio table)
         # Here we just have France
-        "aff-regions": ["FR"],
+        "aff_regions": ["FR"],
         # The list of affected sectors
         # (here we specify that all sectors are impacted)
-        "aff-sectors": "all",
+        "aff_sectors": "all",
         # The shares of the damages distributed between regions
         # (1 as we have only one region)
-        "dmg-distrib-regions": [ 1 ],
+        "dmg_distrib_regions": [ 1 ],
         # The type of distribution of damages for the sectors
         # (more on that in the doc)
-        "dmg-distrib-sectors-type": "gdp",
+        "dmg_distrib_sectors_type": "gdp",
         # 'gdp' distribution doesn't require this parameter to be set
-        "dmg-distrib-sectors": [],
+        "dmg_distrib_sectors": [],
         # The duration of the event.
         "duration": 1,
         # A name for the event (usefull when simulating multiple events)

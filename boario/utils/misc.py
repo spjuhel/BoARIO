@@ -27,6 +27,7 @@ class EventEncoder(JSONEncoder):
         del dic["industry_rebuild_share"]
         del dic["production_share_allocated"]
         del dic["rebuildable"]
+        return dic
 
 
 def flatten(l):

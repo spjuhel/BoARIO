@@ -24,18 +24,18 @@
 >>> events = [
 >>>    {
 >>>        "name": "Event 1",
->>>        "aff-regions": [
+>>>        "aff_regions": [
 >>>        "region_1"
 >>>        ],
->>>        "dmg-distrib-regions": [
+>>>        "dmg_distrib_regions": [
 >>>        1
 >>>        ],
->>>        "dmg-distrib-sectors-type": "gdp",
->>>        "dmg-distrib-sectors": [],
+>>>        "dmg_distrib_sectors_type": "gdp",
+>>>        "dmg_distrib_sectors": [],
 >>>        "duration": 5,
 >>>        "occur": 7,
 >>>        "q_dmg": 5000000,
->>>        "aff-sectors": [
+>>>        "aff_sectors": [
 >>>        "sector_1",
 >>>        "sector_4",
 >>>        "sector_6"

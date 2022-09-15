@@ -432,8 +432,8 @@ Available types are {}
         """
         logger.info("Reading events from given list and adding them to the model")
         for ev_dic in events_list:
-            if ev_dic['aff-sectors'] == 'all':
-                ev_dic['aff-sectors'] = list(self.model.sectors)
+            if ev_dic['aff_sectors'] == 'all':
+                ev_dic['aff_sectors'] = list(self.model.sectors)
             ev = Event(ev_dic,self.model)
             ev.check_values(self)
             self.events.append(ev)
