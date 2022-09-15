@@ -39,6 +39,7 @@ from boario.model_base import ARIOBaseModel
 from boario.extended_models import ARIOModelPsi
 from boario import logger
 from boario.logging_conf import DEBUGFORMATTER
+from boario.utils.misc import EventEncoder
 
 __all__=['Simulation']
 
@@ -63,7 +64,7 @@ class Simulation(object):
 
     current_temporal_unit : int
         Tracks the number of `temporal_units` elapsed since simulation start.
-        This may differs from the number of `steps` if the parameter `model_time_step` differs from 1 temporal_unit as `current_temporal_unit` is actually `step` * `model_time_step`.
+        This may differs from the number of `steps` if the parameter `temporal_units_by_step` differs from 1 temporal_unit as `current_temporal_unit` is actually `step` * `temporal_units_by_step`.
 
     n_temporal_units_to_sim : int
         The total number of `temporal_units` to simulate.
@@ -102,50 +103,97 @@ class Simulation(object):
         """
         logger.info("Initializing new simulation instance")
         super().__init__()
-        if isinstance(params, str):
-            params_path=pathlib.Path(params)
-        if isinstance(params, pathlib.Path):
-            params_path=params
-            if not params_path.is_dir():
-                raise FileNotFoundError("This path should be a directory containing the different simulation parameters files:", params)
-            simulation_params_path = params_path / 'params.json'
-            if not simulation_params_path.exists():
-                raise FileNotFoundError("Simulation parameters file not found, it should be here: ",simulation_params_path.absolute())
-            else:
-                with simulation_params_path.open() as f:
-                    logger.info("Loading simulation parameters from {}".format(simulation_params_path))
-                    simulation_params = json.load(f)
+
+        # SIMULATION PARAMETER LOADING
+        simulation_params = None
+        params_path = None
+
+        # CASE DICT
         if isinstance(params, dict):
             logger.info("Loading simulation parameters from dict")
             simulation_params = params
-            if "mrio_params_file" in simulation_params.keys() and simulation_params["mrio_params_file"] is None:
-                logger.warn("params given as a dict but 'mrio_params_file' does not exist. Will try with default one.")
-        else:
-            raise TypeError("params must be either a dict, a str or a pathlib.Path, not a %s", str(type(params)))
 
-        #mrio_params = None
+        # CASE STR|PATH
+        elif isinstance(params, str):
+            params_path=pathlib.Path(params)
+        elif isinstance(params, pathlib.Path):
+            params_path=params
+
+        # OTHERWISE ERROR
+        else:
+            raise TypeError("params must be either a dict, a str or a pathlib.Path, not a {}".format(type(params)))
+
+        # IF NOT DEFINED, then its a path to the file, or a directory with the file.
+        if simulation_params is None:
+            if params_path.is_dir():
+                simulation_params_path = params_path / 'params.json'
+                if not simulation_params_path.exists():
+                    raise FileNotFoundError("Simulation parameters file not found, it should be here: ",simulation_params_path.absolute())
+                else:
+                    with simulation_params_path.open() as f:
+                        logger.info("Loading simulation parameters from {}".format(simulation_params_path))
+                        simulation_params = json.load(f)
+            else:
+                if not params_path.exists():
+                    raise FileNotFoundError("Simulation parameters file not found, it should be here: ",params_path.absolute())
+                else:
+                    with params_path.open() as f:
+                        logger.info("Loading simulation parameters from {}".format(params_path))
+                        simulation_params = json.load(f)
+
+        # MRIO PARAMETERS LOADING
+        mrio_params_loaded = None
+        mrio_params_path = None
+        # CASE: given as parameter
         if mrio_params is not None:
-            if not isinstance(mrio_params, dict):
-                raise TypeError("given MRIO parameters is of type {} where a dict is expected".format(str(type(mrio_params))))
-            logger.info("MRIO parameters given as dictionary")
-        elif simulation_params['mrio_params_file'] is not None:
+            # Is it directly a dict ?
+            if isinstance(mrio_params, dict):
+                logger.info("Loading MRIO parameters from dict")
+                mrio_params_loaded = mrio_params
+            # If it is a str, convert to path
+            elif isinstance(mrio_params, str):
+                mrio_params_path=pathlib.Path(mrio_params)
+            # Already a path
+            elif isinstance(mrio_params, pathlib.Path):
+                mrio_params_path=mrio_params
+            # Else error !
+            else:
+                raise TypeError("params must be either a dict, a str or a pathlib.Path, not a {}".format(type(params)))
+
+            # Still in the case where it is an argument
+            if mrio_params_loaded is None:
+                if params_path.is_dir():
+                    mrio_params_path = params_path / 'mrio_params.json'
+                    if not mrio_params_path.exists():
+                        raise FileNotFoundError("MRIO parameters file not found, it should be here: ",mrio_params_path.absolute())
+                    else:
+                        with mrio_params_path.open() as f:
+                            logger.info("Loading MRIO parameters from {}".format(mrio_params_path))
+                            mrio_params_loaded = json.load(f)
+                else:
+                    if not params_path.exists():
+                        raise FileNotFoundError("MRIO parameters file not found, it should be here: ",mrio_params_path.absolute())
+                    else:
+                        with mrio_params_path.open() as f:
+                            logger.info("Loading MRIO parameters from {}".format(mrio_params_path))
+                            mrio_params_loaded = json.load(f)
+
+        # In case it is not given as an argument :
+        elif 'mrio_params_file' not in simulation_params.keys():
+            raise FileNotFoundError("Unable to load MRIO parameters file from arguments and the path to it is not set in the simulation parameters file")
+        else:
             mrio_params_path = pathlib.Path(simulation_params['mrio_params_file'])
             if not mrio_params_path.exists():
-                logger.warning('MRIO parameters file specified in simulation params was not found, trying the default one.')
+                logger.warning('MRIO parameters file specified in simulation params was not found')
             else:
                 with mrio_params_path.open() as f:
-                    mrio_params = json.load(f)
-            if pathlib.Path('mrio_sectors_params.json').exists():
-                # Default values seem to require a file from the user, shouldn't they instead be hardcoded (otherwise they are not default)?
-                if simulation_params['mrio_params_file'] is not None and simulation_params['mrio_params_file'] != ('mrio_sectors_params.json'):
-                    logger.warning("A json file (%s) for MRIO parameters has been found but differs from the file specified in the simulation parameters (%s)", 'mrio_sectors_params.json', simulation_params['mrio_params_file'])
-                    logger.warning("Loading the json file")
-                    mrio_params_path = pathlib.Path('mrio_sectors_params.json')
-                    with mrio_params_path.open() as f:
-                        mrio_params = json.load(f)
-        if mrio_params is None:
+                    mrio_params_loaded = json.load(f)
+
+        # Probably useless now
+        if mrio_params_loaded is None:
             raise FileNotFoundError("Couldn't load the MRIO params (tried with simulation params and the default file)")
 
+        # LOAD MRIO system
         if isinstance(mrio_system, str):
             mrio_system = pathlib.Path(mrio_system)
         if isinstance(mrio_system, pathlib.Path):
@@ -166,14 +214,14 @@ class Simulation(object):
         if not isinstance(mrio, IOSystem):
             raise TypeError("At this point, mrio should be an IOSystem, not a %s", str(type(mrio)))
 
-        self.params = params
+        self.params = simulation_params
         self.results_storage = results_storage = pathlib.Path(self.params['output_dir']+"/"+self.params['results_storage'])
         if not results_storage.exists():
             results_storage.mkdir(parents=True)
         if modeltype == "ARIOBase":
-            self.model = ARIOBaseModel(mrio, mrio_params, simulation_params, results_storage)
+            self.model = ARIOBaseModel(mrio, mrio_params_loaded, simulation_params, results_storage)
         elif modeltype == "ARIOPsi":
-            self.model = ARIOModelPsi(mrio, mrio_params, simulation_params, results_storage)
+            self.model = ARIOModelPsi(mrio, mrio_params_loaded, simulation_params, results_storage)
         else:
             raise NotImplementedError("""This model type is not implemented : {}
 Available types are {}
@@ -206,19 +254,19 @@ Available types are {}
             If True show a progress bar of the loop in the console.
         """
         logger.info("Starting model loop for at most {} steps".format(self.n_temporal_units_to_sim//self.model.n_temporal_units_by_step+1))
-        logger.info("One step is {} temporal_unit(s)".format(self.model.n_temporal_units_by_step))
+        logger.info("One step is {}/{} of a year".format(self.model.n_temporal_units_by_step, self.model.iotable_year_to_temporal_unit_factor))
         tmp = logging.FileHandler(self.results_storage/"simulation.log")
         tmp.setLevel(logging.DEBUG)
         tmp.setFormatter(DEBUGFORMATTER)
         logger.addHandler(tmp)
         with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_events.json").open('w') as f:
-            json.dump(self.events, f, indent=4)
+            json.dump(self.events, f, indent=4, cls=EventEncoder)
         if progress:
             widgets = [
                 'Processed: ', progressbar.Counter('Step: %(value)d'), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
             ]
             bar = progressbar.ProgressBar(widgets=widgets, redirect_stdout=True)
-            for t in bar(range(0,self.n_temporal_units_to_sim,math.floor(self.params['model_time_step']))):
+            for t in bar(range(0,self.n_temporal_units_to_sim,math.floor(self.params['temporal_units_by_step']))):
                 #assert self.current_temporal_unit == t
                 step_res = self.next_step()
                 self.n_temporal_units_simulated = self.current_temporal_unit
@@ -236,7 +284,7 @@ Available types are {}
                     )
                     break
         else:
-            for t in range(0,self.n_temporal_units_to_sim,math.floor(self.params['model_time_step'])):
+            for t in range(0,self.n_temporal_units_to_sim,math.floor(self.params['temporal_units_by_step'])):
                 #assert self.current_temporal_unit == t
                 step_res = self.next_step()
                 self.n_temporal_units_simulated = self.current_temporal_unit
@@ -312,7 +360,7 @@ Available types are {}
         if min_failing_regions is None:
             min_failing_regions = self.model.n_regions*self.model.n_sectors // 3
 
-        new_events = [(e_id,e) for e_id, e in enumerate(self.events) if ((self.current_temporal_unit-self.params['model_time_step']) <= e.occurence_time <= self.current_temporal_unit)]
+        new_events = [(e_id,e) for e_id, e in enumerate(self.events) if ((self.current_temporal_unit-self.params['temporal_units_by_step']) <= e.occurence_time <= self.current_temporal_unit)]
         for (e_id,e) in new_events:
             # print(e)
             if e not in self.current_events:
@@ -354,7 +402,7 @@ Available types are {}
                     self._monotony_checker +=1
                 else:
                     self._monotony_checker = 0
-        self.current_temporal_unit += self.params['model_time_step']
+        self.current_temporal_unit += self.params['temporal_units_by_step']
         return 0
 
     def update_events(self):
@@ -379,7 +427,7 @@ Available types are {}
         Parameters
         ----------
         events_list :
-            List of events as dictionnaries.
+            List of events as dictionaries.
 
         """
         logger.info("Reading events from given list and adding them to the model")
@@ -421,13 +469,13 @@ Available types are {}
         """
         logger.info("Temporal_Unit : {} ~ Shocking model with new event".format(self.current_temporal_unit))
         logger.info("Affected regions are : {}".format(self.events[event_to_add_id].aff_regions))
-        impacted_region_prod_share = self.params['impacted_region_base_production_toward_rebuilding']
-        RoW_prod_share = self.params['row_base_production_toward_rebuilding']
+        #impacted_region_prod_share = self.params['impacted_region_base_production_toward_rebuilding']
+        #RoW_prod_share = self.params['row_base_production_toward_rebuilding']
         self.events[event_to_add_id].check_values(self)
-        if (impacted_region_prod_share > 1.0 or impacted_region_prod_share < 0.0):
-            raise ValueError("Impacted production share should be in [0.0,1.0], (%f)", impacted_region_prod_share)
-        if (RoW_prod_share > 1.0 or RoW_prod_share < 0.0):
-            raise ValueError("RoW production share should be in [0.0,1.0], (%f)", RoW_prod_share)
+        #if (impacted_region_prod_share > 1.0 or impacted_region_prod_share < 0.0):
+        #    raise ValueError("Impacted production share should be in [0.0,1.0], (%f)", impacted_region_prod_share)
+        #if (RoW_prod_share > 1.0 or RoW_prod_share < 0.0):
+        #    raise ValueError("RoW production share should be in [0.0,1.0], (%f)", RoW_prod_share)
         regions_idx = np.arange(self.model.regions.size)
         aff_regions_idx = np.searchsorted(self.model.regions, self.events[event_to_add_id].aff_regions)
         n_regions_aff = aff_regions_idx.size
@@ -483,9 +531,9 @@ Available types are {}
         mask = np.ix_(np.union1d(rebuilding_industries_RoW_idx, rebuilding_industries_idx), aff_industries_idx)
         new_rebuilding_demand[mask] = self.model.Z_distrib[mask] * np.tile(rebuilding_demand, (self.model.n_regions,1)) # type: ignore (strange __getitem__ warning)
         #new_rebuilding_demand[] = q_dmg_regions_sectors * rebuild_share.reshape(rebuilding_sectors_idx.size,1)
-        new_prod_max_toward_rebuilding = np.full(self.model.production.shape, 0.0)
-        new_prod_max_toward_rebuilding[rebuilding_industries_idx] = impacted_region_prod_share
-        new_prod_max_toward_rebuilding[rebuilding_industries_RoW_idx] = RoW_prod_share
+        #new_prod_max_toward_rebuilding = np.full(self.model.production.shape, 0.0)
+        #new_prod_max_toward_rebuilding[rebuilding_industries_idx] = impacted_region_prod_share
+        #new_prod_max_toward_rebuilding[rebuilding_industries_RoW_idx] = RoW_prod_share
         # TODO : Differentiate industry losses and households losses
         self.events[event_to_add_id].industry_rebuild = new_rebuilding_demand
 

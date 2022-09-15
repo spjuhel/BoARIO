@@ -19,6 +19,8 @@ from boario.model_base import ARIOBaseModel
 from boario.extended_models import ARIOModelPsi
 import warnings
 import numpy as np
+from boario import logger
+from boario.logging_conf import DEBUGFORMATTER
 
 __all__ = ['Event']
 
@@ -36,7 +38,6 @@ class Event(object):
         self.aff_sectors = event['aff-sectors']
         if type(self.aff_sectors) is str:
             self.aff_sectors = [self.aff_sectors]
-        self.duration = event['duration']
         self.dmg_distrib_across_regions = event['dmg-distrib-regions']
         self.dmg_distrib_across_sectors_type = event['dmg-distrib-sectors-type']
         self.dmg_distrib_across_sectors = event['dmg-distrib-sectors']
@@ -66,7 +67,7 @@ class Event(object):
     def check_values(self, sim) -> None:
         if self.occurence_time < 0:
             raise ValueError("Event occurence time is negative, check events json")
-        if self.occurence_time > sim.n_days_to_sim:
+        if self.occurence_time > sim.n_temporal_units_to_sim:
             raise ValueError("Event occurence time is outside simulation, check events and sim json")
         if self.q_damages < 0:
             raise ValueError("Event damages are negative, check events json")
