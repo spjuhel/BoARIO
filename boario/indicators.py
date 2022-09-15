@@ -255,7 +255,7 @@ class Indicators(object):
         if (storage_path/simulation_params['results_storage']/"simulated_params.json").exists():
             with (storage_path/simulation_params['results_storage']/"simulated_params.json").open() as f:
                 simulation_params = json.load(f)
-        with (storage_path/"indexes.json").open() as f:
+        with (storage_path/simulation_params['results_storage']/"indexes.json").open() as f:
             indexes = json.load(f)
         with (storage_path/simulation_params['results_storage']/"simulated_events.json").open() as f:
             events = json.load(f)

@@ -159,6 +159,7 @@ class ARIOBaseModel(object):
         pym_mrio = lexico_reindex(pym_mrio)
         self.mrio_params:dict = mrio_params
         self.main_inv_dur = mrio_params['main_inv_dur']
+
         results_storage = results_storage.absolute()
         self.results_storage:pathlib.Path = results_storage
         logger.info("Results storage is: {}".format(self.results_storage))
@@ -299,7 +300,7 @@ class ARIOBaseModel(object):
         MrioSystem.
 
         Parameters
-        ----------
+        ---------- 
         events : 'list[Event]'
             A list of Event objects
 

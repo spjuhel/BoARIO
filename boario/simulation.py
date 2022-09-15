@@ -83,7 +83,6 @@ class Simulation(object):
         This error is raised when one of the required file to initialize
         the simulation was not found and should print out which one.
     """
-
     def __init__(self, params: Union[dict, str, pathlib.Path], mrio_system: Union[IOSystem, str, pathlib.Path, None] = None, mrio_params: dict = None, modeltype:str = "ARIOBase") -> None:
         """Initialisation of a Simulation object uses these parameters
 
@@ -137,6 +136,7 @@ class Simulation(object):
                 with mrio_params_path.open() as f:
                     mrio_params = json.load(f)
             if pathlib.Path('mrio_sectors_params.json').exists():
+                # Default values seem to require a file from the user, shouldn't they instead be hardcoded (otherwise they are not default)?
                 if simulation_params['mrio_params_file'] is not None and simulation_params['mrio_params_file'] != ('mrio_sectors_params.json'):
                     logger.warning("A json file (%s) for MRIO parameters has been found but differs from the file specified in the simulation parameters (%s)", 'mrio_sectors_params.json', simulation_params['mrio_params_file'])
                     logger.warning("Loading the json file")
@@ -183,6 +183,7 @@ Available types are {}
         self.events_timings = set()
         self.n_temporal_units_to_sim = simulation_params['n_temporal_units_to_sim']
         self.current_temporal_unit = 0
+
         self.n_temporal_units_simulated = 0
         self._monotony_checker = 0
         self.scheme = 'proportional'
@@ -472,7 +473,7 @@ Available types are {}
         else:
             raise ValueError("damage <-> sectors distribution %s not implemented", self.events[event_to_add_id].dmg_distrib_across_sectors)
 
-        rebuilding_sectors_idx = np.searchsorted(self.model.sectors, np.array(self.events[event_to_add_id].rebuilding_sectors.keys()))
+        rebuilding_sectors_idx = np.searchsorted(self.model.sectors, np.array(list(self.events[event_to_add_id].rebuilding_sectors.keys())))
         rebuilding_industries_idx = np.array([self.model.n_sectors * ri + si for ri in aff_regions_idx for si in rebuilding_sectors_idx]) # type: ignore (aff_regions_idx not considered as array)
         rebuilding_industries_RoW_idx = np.array([self.model.n_sectors * ri + si for ri in regions_idx if ri not in aff_regions_idx for si in rebuilding_sectors_idx])
         rebuild_share = np.array([self.events[event_to_add_id].rebuilding_sectors[k] for k in sorted(self.events[event_to_add_id].rebuilding_sectors.keys())])
