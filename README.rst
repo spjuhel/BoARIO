@@ -91,7 +91,7 @@ simulation. We suppose we run the following script from ``~/boario/``
        "psi_param": 0.9,
        "model_time_step": 1,
        "timestep_dividing_factor": 365,
-       "inventory_restoration_time": 90,
+       "inventory_restoration_tau": 90,
        "alpha_base": 1.0,
        "alpha_max": 1.25,
        "alpha_tau": 365,

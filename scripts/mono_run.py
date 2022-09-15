@@ -73,7 +73,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     sim_params = params_template.copy()
     scriptLogger.info("Setting psi parameter to {}".format(float(psi.replace("_","."))))
     sim_params["psi_param"] = float(psi.replace("_","."))
-    sim_params["inventory_restoration_time"] = inv_tau
+    sim_params["inventory_restoration_tau"] = inv_tau
     scriptLogger.info("Setting inventory restoration time to {}".format(inv_tau))
 
     #TODO remove this ?
@@ -144,9 +144,9 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     scriptLogger.info("Setting aff_regions to {}".format(region))
     sim_params["output_dir"] = output_dir
     if alt_inv_dur:
-        sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_time"])+"_inv_time_"+str(int(alt_inv_dur))
+        sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_tau"])+"_inv_time_"+str(int(alt_inv_dur))
     else:
-        sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_time"])
+        sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_tau"])
     model = Simulation(sim_params, mrio_path, modeltype=sim_params['model_type'])
     if alt_inv_dur:
         model.mrio.change_inv_duration(alt_inv_dur)

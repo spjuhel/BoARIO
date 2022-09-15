@@ -4,7 +4,7 @@
     "psi_param": 0.85,
     "model_time_step": 1,
     "timestep_dividing_factor": 365,
-    "inventory_restoration_time": 6,
+    "inventory_restoration_tau": 6,
     "alpha_base": 1.0,
     "alpha_max": 1.25,
     "alpha_tau": 365,

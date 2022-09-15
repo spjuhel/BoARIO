@@ -44,7 +44,7 @@ Notations
     ":math:`\alpha^b`","Base overproduction capacity (same for all sectors and regions)","scalar",``overprod_base`` (``"alpha_base"`` in dict/json)
     ":math:`\alpha^{\textrm{max}}`","Maximum overproduction capacity","scalar",``overprod_max`` (``"alpha_max"`` in dict/json)
     ":math:`\tau_{\alpha}`","Overproduction increase/decrease characteristic time","scalar",``overprod_tau`` (``"alpha_tau"`` in dict/json)
-    ":math:`\tau_{\textrm{INV}}`","Characteristic time of inventory restoration","scalar", ``restoration_tau`` (``"inventory_restoration_time"`` in dict/json)
+    ":math:`\tau_{\textrm{INV}}`","Characteristic time of inventory restoration","scalar", ``restoration_tau`` (``"inventory_restoration_tau"`` in dict/json)
     ":math:`\tau_{\textrm{REBUILD}}`","Characteristic time of rebuilding", "scalar", ``rebuild_tau``
     ":math:`\mathbf{s}`","Initial/Objective inventory vector",":math:`\mathbf{s} = (s_{i})_{i \in \sectorsset}`", ``inv_duration`` (``"inventory_dict"`` in dict/json)
     ":math:`\mathbf{\kappa}`","Capital stock to value added ratio",":math:`\mathbf{\kappa} = (\kappa_{i})_{i \in \sectorsset}`", ``kstock_ratio_to_VA`` (``"capital_ratio_dict"`` in dict/json)

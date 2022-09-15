@@ -147,7 +147,7 @@ class Indicators(object):
             "prod_gain_unaff": "unset",
             "prod_lost_unaff": "unset",
             "psi" : data_dict['params']['psi_param'],
-            "inv_tau" : data_dict['params']['inventory_restoration_time'],
+            "inv_tau" : data_dict['params']['inventory_restoration_tau'],
             "n_temporal_units_to_sim" : data_dict['n_temporal_units_simulated'],
             "has_crashed" : data_dict['has_crashed'],
         }
