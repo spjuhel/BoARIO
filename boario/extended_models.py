@@ -30,7 +30,7 @@ class ARIOModelPsi(ARIOBaseModel):
 
     Attributes
     ----------
-
+    
     psi : float
           Value of the psi parameter. (see :ref:`boario-math`).
     restoration_tau : numpy.ndarray of int
@@ -113,6 +113,7 @@ class ARIOModelPsi(ARIOBaseModel):
         """
         #1.
         production_opt = np.fmin(self.total_demand, self.production_cap)
+        # the following line is the same as in the ARIO base class except the multiplication by self.psi
         inventory_constraints = (np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat) * self.psi
         np.multiply(inventory_constraints, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=inventory_constraints)
         #2.
@@ -161,6 +162,7 @@ class ARIOModelPsi(ARIOBaseModel):
             matrix_stock_gap[np.isfinite(matrix_stock_goal)] = (matrix_stock_goal[np.isfinite(matrix_stock_goal)] - self.matrix_stock[np.isfinite(self.matrix_stock)])
         assert (not np.isnan(matrix_stock_gap).any()), "NaN in matrix stock gap"
         matrix_stock_gap[matrix_stock_gap < 0] = 0
+        # the following line is the only difference with respect to the same function in ARIO base. This should be what defines Guan's change.
         matrix_stock_gap = np.expand_dims(self.restoration_tau, axis=1) * matrix_stock_gap
         matrix_stock_gap += (np.tile(self.production, (self.n_sectors, 1)) * self.tech_mat)
         if self.order_type == "alt":
