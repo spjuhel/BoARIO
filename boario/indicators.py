@@ -61,7 +61,7 @@ class Indicators(object):
         if not include_crash:
             if data_dict["has_crashed"]:
                 raise RuntimeError("Simulation crashed and include_crash is False, I won't compute indicators")
-        steps = [i for i in range(data_dict["n_timesteps_to_sim"])]
+        steps = [i for i in range(data_dict["n_temporal_units_to_sim"])]
 
         if "stocks" in data_dict:
             stock_treatement = True
@@ -76,10 +76,10 @@ class Indicators(object):
         self.r_prod_df = pd.DataFrame(data_dict["r_prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
         fd_unmet_df = pd.DataFrame(data_dict["fd_unmet"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
         if stock_treatement:
-            stocks_df = pd.DataFrame(data_dict["stocks"].reshape(data_dict["n_timesteps_to_sim"]*data_dict["n_sectors"],-1),
+            stocks_df = pd.DataFrame(data_dict["stocks"].reshape(data_dict["n_temporal_units_to_sim"]*data_dict["n_sectors"],-1),
                                      index=pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of']),
                                      columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
-            stocks_df = stocks_df.loc[pd.IndexSlice[:data_dict["n_timesteps_simulated"],:]]
+            stocks_df = stocks_df.loc[pd.IndexSlice[:data_dict["n_temporal_units_simulated"],:]]
         else:
             stocks_df = None
         self.prod_df = self.prod_df.rename_axis('step')
@@ -105,7 +105,7 @@ class Indicators(object):
 
         self.df_loss = self.fd_unmet_df.melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'fd_cat', 'value':'fdloss'}).reset_index()
 
-        self.df_limiting = pd.DataFrame(data_dict["limiting_stocks"].reshape(data_dict["n_timesteps_to_sim"]*data_dict["n_sectors"],-1),
+        self.df_limiting = pd.DataFrame(data_dict["limiting_stocks"].reshape(data_dict["n_temporal_units_to_sim"]*data_dict["n_sectors"],-1),
                                         index=pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of']),
                                         columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
         self.aff_regions = []
@@ -147,7 +147,7 @@ class Indicators(object):
             "prod_lost_unaff": "unset",
             "psi" : data_dict['params']['psi_param'],
             "inv_tau" : data_dict['params']['inventory_restoration_time'],
-            "n_timesteps" : data_dict['n_timesteps_simulated'],
+            "n_timesteps" : data_dict['n_temporal_units_simulated'],
             "has_crashed" : data_dict['has_crashed'],
         }
         self.storage = (pathlib.Path(data_dict['results_storage'])/'indicators.json').resolve()
@@ -158,8 +158,8 @@ class Indicators(object):
     def from_model(cls, sim : Simulation, include_crash:bool = False):
         data_dict = {}
         data_dict['params'] = sim.params
-        data_dict["n_timesteps_to_sim"] = sim.n_temporal_units_to_sim
-        data_dict["n_timesteps_simulated"] = sim.n_temporal_units_simulated
+        data_dict["n_temporal_units_to_sim"] = sim.n_temporal_units_to_sim
+        data_dict["n_temporal_units_simulated"] = sim.n_temporal_units_simulated
         data_dict["has_crashed"] = sim.has_crashed
         data_dict["regions"] = sim.model.regions
         data_dict["sectors"] = sim.model.sectors
@@ -218,9 +218,9 @@ class Indicators(object):
         else:
             data_dict["has_crashed"] = False
         results_path = data_dict["results_storage"] = folder.absolute()
-        t = data_dict["n_timesteps_to_sim"] = params['n_timesteps']
+        t = data_dict["n_temporal_units_to_sim"] = params['n_timesteps']
         data_dict['params'] = params
-        data_dict["n_timesteps_simulated"] = params['n_timesteps_simulated']
+        data_dict["n_temporal_units_simulated"] = params['n_temporal_units_simulated']
         data_dict["regions"] = indexes["regions"]
         data_dict["n_regions"] = indexes["n_regions"]
         data_dict["sectors"] = indexes["sectors"]
@@ -267,8 +267,8 @@ class Indicators(object):
             data_dict["has_crashed"] = simulation_params["has_crashed"]
         data_dict['params'] = simulation_params
         data_dict["results_storage"] = results_path
-        data_dict["n_timesteps_to_sim"] = t
-        data_dict["n_timesteps_simulated"] = simulation_params['n_timesteps_simulated']
+        data_dict["n_temporal_units_to_sim"] = t
+        data_dict["n_temporal_units_simulated"] = simulation_params['n_temporal_units_simulated']
         data_dict["regions"] = indexes["regions"]
         data_dict["n_regions"] = indexes["n_regions"]
         data_dict["sectors"] = indexes["sectors"]
