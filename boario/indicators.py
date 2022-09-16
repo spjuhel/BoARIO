@@ -29,8 +29,6 @@ from boario import logger
 
 __all__ = ['Indicators']
 
-
-
 def df_from_memmap(memmap:np.memmap, indexes:dict) -> pd.DataFrame:
     a = pd.DataFrame(memmap, columns=pd.MultiIndex.from_product([indexes["regions"], indexes["sectors"]]))
     a['step'] = a.index

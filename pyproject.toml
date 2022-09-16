@@ -21,6 +21,7 @@ dependencies = [
 authors = [
   { name="Samuel Juhel", email="pro@sjuhel.org" },
 ]
+
 description = "A python implementation of ARIO models"
 readme = "README.md"
 license = { text="GNU GPLv3+" }
