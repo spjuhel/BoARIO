@@ -1,29 +1,29 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "boario"
-version = "0.9"
+version = "0.0.1"
 dependencies = [
-   "pymrio",
-   "coloredlogs",
-   "progressbar2",
-   "nptyping",
-   "numpyencoder",
-   "dask",
-   "pyarrow",
-   "fastparquet",
-   "pandas",
-   "numpy",
-   "country_converter"
+   'pymrio >= 0.4.7',
+   'coloredlogs >= 15.0',
+   'progressbar2 >= 4.0.0',
+   'nptyping >= 2.0.0',
+   'numpyencoder >= 0.3.0',
+   'dask >= 2022.5.0',
+   'pyarrow >= 7.0.0',
+   'fastparquet >= 0.8.0',
+   'pandas >= 1.4.0',
+   'numpy >= 1.22.0',
+   'country_converter >= 0.7.0',
 ]
 authors = [
   { name="Samuel Juhel", email="pro@sjuhel.org" },
 ]
-description = "A python implementation of ARIO model(s)"
-readme = "README.rst"
-license = { file="LICENSE" }
+description = "A python implementation of ARIO models"
+readme = "README.md"
+license = { text="GNU GPLv3+" }
 keywords = [
     "mrio",
     "ario",
@@ -37,9 +37,14 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
-    "Topic :: Scientific/Engineering :: Mathematics"
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Intended Audience :: Science/Research"
 ]
 
 [project.urls]
 "Github" = "https://github.com/spjuhel/BoARIO"
 "Documentation" = "https://spjuhel.github.io/BoARIO/index.html"
+
+[tool.setuptools.packages.find]
+
+where = ["boario"]
