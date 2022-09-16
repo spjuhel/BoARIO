@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "boario"
+version = "0.9"
+dependencies = [
+   "pymrio",
+   "coloredlogs",
+   "progressbar2",
+   "nptyping",
+   "numpyencoder",
+   "dask",
+   "pyarrow",
+   "fastparquet",
+   "pandas",
+   "numpy",
+   "country_converter"
+]
+authors = [
+  { name="Samuel Juhel", email="pro@sjuhel.org" },
+]
+description = "A python implementation of ARIO model(s)"
+readme = "README.rst"
+license = { file="LICENSE" }
+keywords = [
+    "mrio",
+    "ario",
+    "economics",
+    "extreme events",
+    "indirect impacts"
+]
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Mathematics"
+]
+
+[project.urls]
+"Github" = "https://github.com/spjuhel/BoARIO"
+"Documentation" = "https://spjuhel.github.io/BoARIO/index.html"
