@@ -22,7 +22,7 @@ authors = [
   { name="Samuel Juhel", email="pro@sjuhel.org" },
 ]
 description = "A python implementation of ARIO model(s)"
-readme = "README.rst"
+#readme = "README.rst"
 license = { file="LICENSE" }
 keywords = [
     "mrio",

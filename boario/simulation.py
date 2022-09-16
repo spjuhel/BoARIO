@@ -22,7 +22,6 @@ This module defines the Simulation object, which represent a BoARIO simulation e
 '''
 
 from __future__ import annotations
-from contextlib import redirect_stdout
 import json
 import pickle
 import pathlib
@@ -38,7 +37,7 @@ from boario.event import Event
 from boario.model_base import ARIOBaseModel
 from boario.extended_models import ARIOModelPsi
 from boario import logger
-from boario.logging_conf import DEBUGFORMATTER
+from boario import DEBUGFORMATTER
 from boario.utils.misc import EventEncoder
 
 __all__=['Simulation']

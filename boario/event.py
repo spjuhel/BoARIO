@@ -19,8 +19,6 @@ from boario.model_base import ARIOBaseModel
 from boario.extended_models import ARIOModelPsi
 import warnings
 import numpy as np
-from boario import logger
-from boario.logging_conf import DEBUGFORMATTER
 
 __all__ = ['Event']
 

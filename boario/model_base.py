@@ -17,8 +17,6 @@
 from __future__ import annotations
 import json
 import pathlib
-from signal import pthread_sigmask
-from typing import Union
 import pymrio
 import numpy as np
 from nptyping import NDArray
