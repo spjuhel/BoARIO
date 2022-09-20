@@ -9,7 +9,7 @@ testing
 
 snakejob.*
 *.~undo-tree~
-.envrc
+.envrc*
 .Rhistory
 .snakemake
 launch.json
