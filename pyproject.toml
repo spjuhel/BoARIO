@@ -22,7 +22,8 @@ dependencies = [
 "numpyencoder>=0.3.0",
 "pandas>=1.4.1",
 "progressbar33>=2.4",
-"pymrio>=0.4.6"
+"pymrio>=0.4.6",
+"odfpy>=1.4.1"
 ]
 authors = [
     { name = "Samuel JUHEL", email = "pro@sjuhel.org" },
