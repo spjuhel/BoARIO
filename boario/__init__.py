@@ -17,7 +17,7 @@
 import coloredlogs
 import logging
 
-__version__ = "v0.9.4.dev0"
+__version__ = "v0.2.0.b"
 
 # Create a logger object.
 logger = logging.getLogger(__name__)
