@@ -2,26 +2,33 @@
 Installation
 ###############
 
-The source-code is available at the GitHub repo: https://github.com/spjuhel/BoARIO
+Install via pip
+==================
 
-At the moment there is not a BoARIO python package. But this will come once I take a look into it !
+There is a pip package available, which you can install with:
+
+.. code-block:: console
+
+   pip install boario
+
+
+Otherwise the source-code is available at the GitHub repo: https://github.com/spjuhel/BoARIO
+
+If you encounter any problems while installing the package, please `raise an issue`_
+on the repository, or `contact the developer`_.
+
+.. _raise an issue: https://github.com/spjuhel/BoARIO/issues/new
+
+.. _contact the developer: pro@sjuhel.org
+
 
 Requirements
 ===============
 
-BoARIO is currently developed using python ``3.8``.
+BoARIO is currently developed using python ``3.8``. It might work with older python versions, but no check has been made regarding this.
 
-An ``environment.yml`` file should list all python packages required to run the model.
-Creating an environment with :
+Installing via pip should install all the required dependencies.
 
-.. code-block:: console
+You can also check the ``pyproject.toml`` file in the sources to see all current dependencies.
 
-   conda env create -f environment.yml
-
-should create an ``ario3`` the correct conda environment.
-
-If you are experiencing difficulties in setting up a working environment feel free to `open an issue`_ on the github repository or to `contact the developer`_
-
-.. _open an issue: https://github.com/spjuhel/BoARIO/issues/new
-
-.. _contact the developer: pro@sjuhel.org
+If you are experiencing difficulties in setting up a working environment feel free to open an issue on the github repository or to contact the developer.

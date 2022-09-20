@@ -3,19 +3,13 @@
 
 .. _boario-quickstart:
 
-Detailled examples
-=======================
+Quickstart and examples
+==============================
 
-For the following examples, we assume you have a working python environment,
-with all required packages [#requirements]_. These examples were tested using ``Ubuntu 20.04``,
-``conda 4.12.0`` and ``python 3.8.8``.
-
-We also assume BoARIO source files are located in ``~/BoARIO/``.
+For the following examples, we assume you have followed installation instructions.
 
 If you encounter any problems with one of the examples bellow, please `raise an issue`_
 on the repository, or `contact the developer`_.
-
-.. [#requirements] This list will come soon !
 
 .. _raise an issue: https://github.com/spjuhel/BoARIO/issues/new
 
@@ -62,9 +56,6 @@ First, load BoARIO with the following:
 
 .. code:: python
 
-  import sys
-  # We need the following because BoARIO is not yet installable
-  sys.path.insert(1, '~/BoARIO/')
   # We import the base for simulation
   import boario.simulation as sim
   # pathlib is a very useful library for handling paths, although you can use strings directly
@@ -74,9 +65,10 @@ Then you can create the simulation environment with (we recommend using the "ARI
 
 .. code:: python
 
-  mrio_path = pathlib.Path("~/BoARIO/testing/exiobase3_minimal.pkl")
-  params_path = pathlib.Path("~/BoARIO/testing/params.json")
-  mrio_params_path = pathlib.Path("~/BoARIO/testing/mrio_params.json")
+  # ".expanduser()" is required to convert "~" to your home directory
+  mrio_path = pathlib.Path("~/BoARIO/testing/exiobase3_minimal.pkl").expanduser()
+  params_path = pathlib.Path("~/BoARIO/testing/params.json").expanduser()
+  mrio_params_path = pathlib.Path("~/BoARIO/testing/mrio_params.json").expanduser()
   simulation_test = sim.Simulation(params_path, mrio_path, mrio_params=mrio_params_path, modeltype="ARIOPsi")
 
 Initialisation shows a lot of logs which should be self-explanatory.
@@ -92,8 +84,9 @@ You can then load the event(s) and launch the simulation with:
 
 .. code:: python
 
-  simulation_test.read_events(event_path)
-  simulation_test.loop()
+   event_path = pathlib.Path("~/BoARIO/testing/event.json").expanduser()
+   simulation_test.read_events(event_path)
+   simulation_test.loop()
 
 Once again, a lot of logs should pop-up and the run should execute. An ETA shows how long the run should take.
 
@@ -140,9 +133,7 @@ You may also run:
 .. code:: python
 
    from boario.indicators import Indicators
-   indic = Indicators.from_folder(
-                               pathlib.Path("~/BoARIO/testing/results"),
-                               indexes_file=pathlib.Path("~/BoARIO/testing/results/indexes.json"))
+   indic = Indicators.from_folder(pathlib.Path("~/BoARIO/testing/results").expanduser(), indexes_file=pathlib.Path("~/BoARIO/testing/results/indexes.json").expanduser())
    indic.update_indicators()
    indic.write_indicators()
 
