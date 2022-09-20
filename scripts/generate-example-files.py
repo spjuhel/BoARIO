@@ -155,7 +155,7 @@ scriptLogger.propagate = False
 if __name__ == '__main__':
     args = parser.parse_args()
     scriptLogger.info("Make sure you use the same python environment when you use the minimal example as now.")
-    scriptLogger.info("Your current environment is: {}".format(sys.executable)
+    scriptLogger.info("Your current environment is: {}".format(sys.executable))
 
     sec_agg_ods = pathlib.Path(args.source_path)/SEC_AGG_ODS_FILENAME
     params_ods = pathlib.Path(args.source_path)/PARAMS_ODS_FILENAME
