@@ -4,7 +4,6 @@ import pathlib
 import pandas as pd
 import pymrio as pym
 import pickle as pkl
-import sys
 import logging
 import argparse
 import json
