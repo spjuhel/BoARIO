@@ -14,7 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import coloredlogs, logging
+import coloredlogs
+import logging
+
+__version__ = "v0.9.4.dev0"
 
 # Create a logger object.
 logger = logging.getLogger(__name__)
