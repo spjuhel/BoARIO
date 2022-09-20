@@ -14,8 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import coloredlogs, logging
-from boario.logging_conf import INFOFORMATTER, DEBUGFORMATTER
+import coloredlogs
+import logging
+
+__version__ = "v0.9.4.dev0"
 
 # Create a logger object.
 logger = logging.getLogger(__name__)
@@ -37,6 +39,12 @@ coloredlogs.install(level=logging.DEBUG,
                     datefmt='%H:%M:%S',
                     field_styles=fieldstyle,
                     level_styles=levelstyles)
+
+DEBUGFORMATTER = logging.Formatter(fmt='%(asctime)s [%(levelname)s] - [%(filename)s > %(funcName)s() > %(lineno)s] - %(message)s',datefmt='%H:%M:%S',)
+"""Debug file formatter."""
+
+INFOFORMATTER = logging.Formatter(fmt='%(asctime)s [%(levelname)s] - %(message)s',datefmt='%H:%M:%S',)
+"""Log file and stream output formatter."""
 
 #logger.setLevel(logging.DEBUG)
 #print("c")

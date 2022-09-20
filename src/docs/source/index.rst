@@ -2,16 +2,13 @@ Welcome to BoARIO's documentation!
 ==================================
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
    :caption: Contents:
 
-   intro
-   installation
-   terminology
-   math
-   usage
-   development
+   user-guide
    api_references
+   development
+   release-note
 
 Indices and tables
 ==================

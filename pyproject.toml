@@ -1,0 +1,99 @@
+[build-system]
+requires = [
+    "hatchling>=1.9.0",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "boario"
+dynamic = [
+    "version",
+]
+description = "A Python implementation of ARIO models"
+readme = "README.md"
+license = ""
+requires-python = ">=3.7, <4"
+dependencies = [
+"numpy>=1.17.4",
+"dask>=2021.9.0",
+"coloredlogs>=15.0.1",
+"country_converter>=0.7.4",
+"nptyping>=1.4.4",
+"numpyencoder>=0.3.0",
+"pandas>=1.4.1",
+"progressbar33>=2.4",
+"pymrio>=0.4.6"
+]
+authors = [
+    { name = "Samuel JUHEL", email = "pro@sjuhel.org" },
+]
+keywords = [
+    "ario",
+    "economics",
+    "events",
+    "extreme",
+    "impact",
+    "indirect",
+    "input-output",
+    "modeling",
+    "mrio",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+
+[project.urls]
+"Bug Reports" = "https://github.com/spjuhel/BoARIO/issues"
+Documentation = "https://spjuhel.github.io/BoARIO/index.html"
+Homepage = "https://github.com/spjuhel/BoARIO"
+Source = "https://github.com/spjuhel/BoARIO/"
+
+[tool.hatch.version]
+path = "boario/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.github",
+    "/docs",
+    "/.git",
+    "/imgs",
+    "/src",
+    "/testing",
+    "/.snakemake",
+    "/JupyNotebooks",
+    "/other",
+    "/new_docs",
+    "/pyrightconfig.json",
+    "/DOC_BUILDING_REMINDER",
+    "/launch.json",
+    "/.envrc",
+    "/.gitignore",
+    "/api-examples",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "boario",
+]
+
+[[tool.hatch.envs.test.matrix]]
+python = [
+    "37",
+    "38",
+    "39",
+    "310",
+    "311",
+]
+
+[tool.hatch.envs.test]
+python = "3.7"

@@ -66,11 +66,11 @@ html_static_path = ['_static']
 # Please feel free to post an issue at that repo if any of these mappings don't work for you,
 # or if you're having trouble constructing a mapping for a project not listed here.
 intersphinx_mapping = {
-	"python": ('https://docs.python.org/3/', None),
-	"matplotlib": ('https://matplotlib.org/stable/', None),
-	"numpy": ('https://numpy.org/doc/stable/', None),
-	"pandas": ('https://pandas.pydata.org/docs/', None),
-	"pymrio": ('https://pymrio.readthedocs.io/en/latest/', None)
+	"python": ('https://docs.python.org/3', None),
+	"matplotlib": ('https://matplotlib.org/stable', None),
+	"numpy": ('https://numpy.org/doc/stable', None),
+	"pandas": ('https://pandas.pydata.org/docs', None),
+	"pymrio": ('https://pymrio.readthedocs.io/en/latest', None)
 }
 
 html_js_files = [
@@ -82,6 +82,9 @@ add_module_names = False
 # Keep members order from source :
 autodoc_member_order = 'bysource'
 
+# Keep __init__ method
+autoclass_content = 'both'
+
 # Custom latex STY for mathjax
 
 # Additional stuff for the LaTeX preamble.
@@ -91,6 +94,7 @@ imgmath_latex_preamble = r'''
 \usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{xparse}
+\usepackage{xcolor}
 \NewDocumentCommand{\mentry}{m O{f} O{f'} O{} O{}}{\ensuremath{#1_{#2#3}^{#4#5}}}
 \NewDocumentCommand{\colvec}{m m}{  \ensuremath{    \begin{bmatrix}      #1\\      \vdots\\      #2    \end{bmatrix}  }}
 \NewDocumentCommand{\rfirmsset}{O{R}}{\ensuremath{\mathbf{F}^{#1}}}
@@ -119,4 +123,13 @@ imgmath_latex_preamble = r'''
 \newcommand{\ioinv}{\ensuremath{\mathbf{\Omega}}}
 \newcommand{\Damage}{\ensuremath{\mathbf{\Gamma}}}
 \newcommand{\damage}{\ensuremath{\gamma}}
+\makeatletter
+\def\mathcolor#1#{\@mathcolor{#1}}
+\def\@mathcolor#1#2#3{%
+  \protect\leavevmode
+  \begingroup
+    \color#1{#2}#3%
+  \endgroup
+}
+\makeatother
 '''

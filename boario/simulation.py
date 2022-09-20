@@ -16,8 +16,12 @@
 
 '''
 Simulation module
+
+This module defines the Simulation object, which represent a BoARIO simulation environment.
+
 '''
-from contextlib import redirect_stdout
+
+from __future__ import annotations
 import json
 import pickle
 import pathlib
@@ -30,20 +34,57 @@ import pymrio as pym
 from pymrio.core.mriosystem import IOSystem
 
 from boario.event import Event
-from boario.mriosystem import MrioSystem
+from boario.model_base import ARIOBaseModel
+from boario.extended_models import ARIOModelPsi
 from boario import logger
-from boario.logging_conf import DEBUGFORMATTER
+from boario import DEBUGFORMATTER
+from boario.utils.misc import EventEncoder
 
 __all__=['Simulation']
 
 class Simulation(object):
-    '''Simulation instance'''
-    def __init__(self, params: Union[dict, str, pathlib.Path], mrio_system: Union[IOSystem, str, pathlib.Path, None] = None) -> None:
-        """Initiate a simulation object with given parameters and IOSystem
+    """Defines a simulation object with a set of parameters and an IOSystem.
 
-        This Class wraps a MRIO System, simulation and execution parameters as
-        well as events perturbing the model in the perspective of running a
-        full ARIO simulation.
+    This class wraps an :class:`~boario.model_base.ARIOBaseModel` or :class:`~boario.extended_models.ARIOModelPsi`, and create the context for
+    simulations using this model. It stores execution parameters as well as events perturbing
+    the model.
+
+    Attributes
+    ----------
+    params : dict
+        Parameters to run the simulation with. If str or Path, it must lead
+        to a json file containing a dictionary of the parameters.
+
+    results_storage : pathlib.Path
+        Path to store the results to.
+
+    model : Union[ARIOBaseModel, ARIOModelPsi]
+        The model to run the simulation with.
+
+    current_temporal_unit : int
+        Tracks the number of `temporal_units` elapsed since simulation start.
+        This may differs from the number of `steps` if the parameter `temporal_units_by_step` differs from 1 temporal_unit as `current_temporal_unit` is actually `step` * `temporal_units_by_step`.
+
+    n_temporal_units_to_sim : int
+        The total number of `temporal_units` to simulate.
+
+    events : list[Event]
+        The list of events to shock the model with during the simulation.
+
+    current_events : list[Event]
+        The list of events that
+
+    Raises
+    ------
+    TypeError
+        This error is raised when parameters files (for either the simulation or the mrio table) is not of a correct type.
+
+    FileNotFoundError
+        This error is raised when one of the required file to initialize
+        the simulation was not found and should print out which one.
+    """
+    def __init__(self, params: Union[dict, str, pathlib.Path], mrio_system: Union[IOSystem, str, pathlib.Path, None] = None, mrio_params: dict = None, modeltype:str = "ARIOBase") -> None:
+        """Initialisation of a Simulation object uses these parameters
 
         Parameters
         ----------
@@ -51,65 +92,107 @@ class Simulation(object):
             Parameters to run the simulation with. If str or Path, it must lead
             to a json file containing a dictionary of the parameters.
         mrio_system : Union[IOSystem, str, pathlib.Path, None], default: None
-            pymrio.IOSystem to run the simulation with. If str or Path, it must
-            lead to either 1) a pickle file of an IOSystem that was previously
+            ``pymrio.IOSystem`` to run the simulation with. If str or Path, it must
+            lead to either :
+
+            1) a pickle file of an IOSystem that was previously
             generated with the pymrio package (be careful that such files are
-            not cross-system compatible) or 2) a directory loadable with
-            pymrio.load_all().
-
-        Raises
-        ------
-        TypeError
-
-        FileNotFoundError
-            This error is raised when one of the required file to initialize
-            the simulation was not found.
-
-        Examples
-        --------
-        FIXME: Add docs.
-
-
+            not cross-system compatible) or,
+            2) a directory loadable with ``pymrio.load_all`` (see `Loading, saving and exporting pymrio data <https://pymrio.readthedocs.io/en/latest/notebooks/load_save_export.html>`_).
         """
         logger.info("Initializing new simulation instance")
         super().__init__()
-        if isinstance(params, str):
-            params_path=pathlib.Path(params)
-        if isinstance(params, pathlib.Path):
-            params_path=params
-            if not params_path.is_dir():
-                raise FileNotFoundError("This path should be a directory containing the different simulation parameters files:", params)
-            simulation_params_path = params_path / 'params.json'
-            if not simulation_params_path.exists():
-                raise FileNotFoundError("Simulation parameters file not found, it should be here: ",simulation_params_path.absolute())
-            else:
-                with simulation_params_path.open() as f:
-                    simulation_params = json.load(f)
-        if isinstance(params, dict):
-            simulation_params = params
-            if simulation_params['mrio_params_file'] is None:
-                logger.warn("Params given as a dict but 'mrio_params_file' does not exist. Will try with default one.")
-        else:
-            raise TypeError("params must be either a dict, a str or a pathlib.Path, not a %s", str(type(params)))
 
-        mrio_params = None
-        if simulation_params['mrio_params_file'] is not None:
+        # SIMULATION PARAMETER LOADING
+        simulation_params = None
+        params_path = None
+
+        # CASE DICT
+        if isinstance(params, dict):
+            logger.info("Loading simulation parameters from dict")
+            simulation_params = params
+
+        # CASE STR|PATH
+        elif isinstance(params, str):
+            params_path=pathlib.Path(params)
+        elif isinstance(params, pathlib.Path):
+            params_path=params
+
+        # OTHERWISE ERROR
+        else:
+            raise TypeError("params must be either a dict, a str or a pathlib.Path, not a {}".format(type(params)))
+
+        # IF NOT DEFINED, then its a path to the file, or a directory with the file.
+        if simulation_params is None:
+            if params_path.is_dir():
+                simulation_params_path = params_path / 'params.json'
+                if not simulation_params_path.exists():
+                    raise FileNotFoundError("Simulation parameters file not found, it should be here: ",simulation_params_path.absolute())
+                else:
+                    with simulation_params_path.open() as f:
+                        logger.info("Loading simulation parameters from {}".format(simulation_params_path))
+                        simulation_params = json.load(f)
+            else:
+                if not params_path.exists():
+                    raise FileNotFoundError("Simulation parameters file not found, it should be here: ",params_path.absolute())
+                else:
+                    with params_path.open() as f:
+                        logger.info("Loading simulation parameters from {}".format(params_path))
+                        simulation_params = json.load(f)
+
+        # MRIO PARAMETERS LOADING
+        mrio_params_loaded = None
+        mrio_params_path = None
+        # CASE: given as parameter
+        if mrio_params is not None:
+            # Is it directly a dict ?
+            if isinstance(mrio_params, dict):
+                logger.info("Loading MRIO parameters from dict")
+                mrio_params_loaded = mrio_params
+            # If it is a str, convert to path
+            elif isinstance(mrio_params, str):
+                mrio_params_path=pathlib.Path(mrio_params)
+            # Already a path
+            elif isinstance(mrio_params, pathlib.Path):
+                mrio_params_path=mrio_params
+            # Else error !
+            else:
+                raise TypeError("params must be either a dict, a str or a pathlib.Path, not a {}".format(type(params)))
+
+            # Still in the case where it is an argument
+            if mrio_params_loaded is None:
+                if params_path.is_dir():
+                    mrio_params_path = params_path / 'mrio_params.json'
+                    if not mrio_params_path.exists():
+                        raise FileNotFoundError("MRIO parameters file not found, it should be here: ",mrio_params_path.absolute())
+                    else:
+                        with mrio_params_path.open() as f:
+                            logger.info("Loading MRIO parameters from {}".format(mrio_params_path))
+                            mrio_params_loaded = json.load(f)
+                else:
+                    if not params_path.exists():
+                        raise FileNotFoundError("MRIO parameters file not found, it should be here: ",mrio_params_path.absolute())
+                    else:
+                        with mrio_params_path.open() as f:
+                            logger.info("Loading MRIO parameters from {}".format(mrio_params_path))
+                            mrio_params_loaded = json.load(f)
+
+        # In case it is not given as an argument :
+        elif 'mrio_params_file' not in simulation_params.keys():
+            raise FileNotFoundError("Unable to load MRIO parameters file from arguments and the path to it is not set in the simulation parameters file")
+        else:
             mrio_params_path = pathlib.Path(simulation_params['mrio_params_file'])
             if not mrio_params_path.exists():
-                logger.warning('MRIO parameters file specified in simulation params was not found, trying the default one.')
+                logger.warning('MRIO parameters file specified in simulation params was not found')
             else:
                 with mrio_params_path.open() as f:
-                    mrio_params = json.load(f)
-            if pathlib.Path('mrio_sectors_params.json').exists():
-                if simulation_params['mrio_params_file'] is not None and simulation_params['mrio_params_file'] != ('mrio_sectors_params.json'):
-                    logger.warning("A json file (%s) for MRIO parameters has been found but differs from the file specified in the simulation parameters (%s)", 'mrio_sectors_params.json', simulation_params['mrio_params_file'])
-                    logger.warning("Loading the json file")
-                    mrio_params_path = pathlib.Path('mrio_sectors_params.json')
-                    with mrio_params_path.open() as f:
-                        mrio_params = json.load(f)
-        if mrio_params is None:
+                    mrio_params_loaded = json.load(f)
+
+        # Probably useless now
+        if mrio_params_loaded is None:
             raise FileNotFoundError("Couldn't load the MRIO params (tried with simulation params and the default file)")
 
+        # LOAD MRIO system
         if isinstance(mrio_system, str):
             mrio_system = pathlib.Path(mrio_system)
         if isinstance(mrio_system, pathlib.Path):
@@ -130,128 +213,131 @@ class Simulation(object):
         if not isinstance(mrio, IOSystem):
             raise TypeError("At this point, mrio should be an IOSystem, not a %s", str(type(mrio)))
 
-        self.params = params
+        self.params = simulation_params
         self.results_storage = results_storage = pathlib.Path(self.params['output_dir']+"/"+self.params['results_storage'])
         if not results_storage.exists():
             results_storage.mkdir(parents=True)
-        self.mrio = MrioSystem(mrio, mrio_params, simulation_params, results_storage)
+        if modeltype == "ARIOBase":
+            self.model = ARIOBaseModel(mrio, mrio_params_loaded, simulation_params, results_storage)
+        elif modeltype == "ARIOPsi":
+            self.model = ARIOModelPsi(mrio, mrio_params_loaded, simulation_params, results_storage)
+        else:
+            raise NotImplementedError("""This model type is not implemented : {}
+Available types are {}
+            """.format(modeltype,str(["ARIOBase","ARIOPsi"])))
         self.events = []
         self.current_events = []
         self.events_timings = set()
-        self.n_timesteps_to_sim = simulation_params['n_timesteps']
-        self.current_t = 0
-        self.n_steps_simulated = 0
+        self.n_temporal_units_to_sim = simulation_params['n_temporal_units_to_sim']
+        self.current_temporal_unit = 0
+
+        self.n_temporal_units_simulated = 0
         self._monotony_checker = 0
         self.scheme = 'proportional'
         self.has_crashed = False
         logger.info("Initialized !")
 
     def loop(self, progress:bool=True):
-        """Launch the simulation loop.
+        r"""Launch the simulation loop.
 
         This method launch the simulation for the number of steps to simulate
-        described by the attribute self.n_timpesteps_to_sim, calling the
-        next_step() method in a for loop. For convenience, it dumps the
-        parameters used in the log just before running the loop. Once the loop
-        is completed, it flushes the different memmaps generated by the mrio
-        subsystem.
+        described by the attribute ``n_temporal_units_to_sim``, calling the
+        :meth:`next_step` method. For convenience, it dumps the
+        parameters used in the logs just before running the loop. Once the loop
+        is completed, it flushes the different memmaps generated.
 
         Parameters
         ----------
 
         progress: bool, default: True
             If True show a progress bar of the loop in the console.
-
-        Examples
-        --------
-        FIXME: Add docs.
-
         """
-        logger.info("Starting model loop for at most {} steps".format(self.n_timesteps_to_sim//self.mrio.n_days_by_step+1))
-        logger.info("One step is {} day(s)".format(self.mrio.n_days_by_step))
+        logger.info("Starting model loop for at most {} steps".format(self.n_temporal_units_to_sim//self.model.n_temporal_units_by_step+1))
+        logger.info("One step is {}/{} of a year".format(self.model.n_temporal_units_by_step, self.model.iotable_year_to_temporal_unit_factor))
         tmp = logging.FileHandler(self.results_storage/"simulation.log")
         tmp.setLevel(logging.DEBUG)
         tmp.setFormatter(DEBUGFORMATTER)
         logger.addHandler(tmp)
-        logger.info("Parameters : \n {}".format(json.dumps(self.params, indent=4)))
+        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_events.json").open('w') as f:
+            json.dump(self.events, f, indent=4, cls=EventEncoder)
         if progress:
             widgets = [
                 'Processed: ', progressbar.Counter('Step: %(value)d'), ' ~ ', progressbar.Percentage(), ' ', progressbar.ETA(),
             ]
             bar = progressbar.ProgressBar(widgets=widgets, redirect_stdout=True)
-            for t in bar(range(0,self.n_timesteps_to_sim,math.floor(self.params['model_time_step']))):
-                #assert self.current_t == t
+            for t in bar(range(0,self.n_temporal_units_to_sim,math.floor(self.params['temporal_units_by_step']))):
+                #assert self.current_temporal_unit == t
                 step_res = self.next_step()
-                self.n_steps_simulated = self.current_t
+                self.n_temporal_units_simulated = self.current_temporal_unit
                 if step_res == 1:
                     self.has_crashed = True
                     logger.warning(f"""Economy seems to have crashed.
-                    - At step : {self.current_t}
+                    - At step : {self.current_temporal_unit}
                     """
                     )
                     break
                 elif self._monotony_checker > 3:
                     logger.warning(f"""Economy seems to have found an equilibrium
-                    - At step : {self.current_t}
+                    - At step : {self.current_temporal_unit}
                     """
                     )
                     break
         else:
-            for t in range(0,self.n_timesteps_to_sim,math.floor(self.params['model_time_step'])):
-                #assert self.current_t == t
+            for t in range(0,self.n_temporal_units_to_sim,math.floor(self.params['temporal_units_by_step'])):
+                #assert self.current_temporal_unit == t
                 step_res = self.next_step()
-                self.n_steps_simulated = self.current_t
+                self.n_temporal_units_simulated = self.current_temporal_unit
                 if step_res == 1:
                     self.has_crashed = True
                     logger.warning(f"""Economy seems to have crashed.
-                    - At step : {self.current_t}
+                    - At step : {self.current_temporal_unit}
                     """
                     )
                     break
                 elif self._monotony_checker > 3:
                     logger.warning(f"""Economy seems to have found an equilibrium
-                    - At step : {self.current_t}
+                    - At step : {self.current_temporal_unit}
                     """
                     )
                     break
 
-        self.mrio.rebuild_demand_evolution.flush()
-        self.mrio.final_demand_unmet_evolution.flush()
-        self.mrio.classic_demand_evolution.flush()
-        self.mrio.production_evolution.flush()
-        self.mrio.limiting_stocks_evolution.flush()
-        self.mrio.rebuild_production_evolution.flush()
+        self.model.rebuild_demand_evolution.flush()
+        self.model.final_demand_unmet_evolution.flush()
+        self.model.classic_demand_evolution.flush()
+        self.model.production_evolution.flush()
+        self.model.limiting_stocks_evolution.flush()
+        self.model.rebuild_production_evolution.flush()
         if self.params['register_stocks']:
-            self.mrio.stocks_evolution.flush()
-        self.mrio.overproduction_evolution.flush()
-        self.mrio.production_cap_evolution.flush()
-        self.params['n_timesteps_simulated'] = self.n_steps_simulated
+            self.model.stocks_evolution.flush()
+        self.model.overproduction_evolution.flush()
+        self.model.production_cap_evolution.flush()
+        self.params['n_temporal_units_simulated'] = self.n_temporal_units_simulated
         self.params['has_crashed'] = self.has_crashed
         with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_params.json").open('w') as f:
             json.dump(self.params, f, indent=4)
         logger.info('Loop complete')
         if progress:
-            bar.finish()
+            bar.finish() # type: ignore (bar possibly unbound but actually not possible)
 
-    def next_step(self, check_period : int = 10, min_steps_check : int = None, min_failing_regions = None):
+    def next_step(self, check_period : int = 10, min_steps_check : int = None, min_failing_regions : int = None):
         """Advance the model run by one step.
 
         This method wraps all computations and logging to proceed to the next
         step of the simulation run. First it checks if an event is planned to
-        occur at the current step and if so, shock the model with the
+        occur at the current step and if so, shocks the model with the
         corresponding event. Then it :
 
-        1) Computes the production capacity vector of the current step (using calc_production_cap())
+        1) Computes the production required by demand (using :meth:`~boario.model_base.ARIOBaseModel.calc_prod_reqby_demand`)
 
-        2) Computes the actual production vector for the step.
+        2) Computes the production capacity vector of the current step (using :meth:`~boario.model_base.ARIOBaseModel.calc_production_cap`)
 
-        3) Distribute the actual production towards the different demands (intermediate, final, rebuilding) and the changes in the stocks matrix.
+        3) Computes the actual production vector for the step (using :meth:`~boario.model_base.ARIOBaseModel.calc_production`)
 
-        4) Computes the orders matrix for the next step.
+        4) Distribute the actual production towards the different demands (intermediate, final, rebuilding) and the changes in the stocks matrix (using :meth:`~boario.model_base.ARIOBaseModel.distribute_production`)
 
-        5) Computes the new overproduction vector for the next step.
+        5) Computes the orders matrix for the next step (using :meth:`~boario.model_base.ARIOBaseModel.calc_orders`)
 
-        6) If at least min_steps_check steps of the simulation were run, it checks for a possible crash of the economy in the model (a crash being defined by more than a third of all industries having close to null production) or an equilibrium (see :func:`~ario3.mriosystem.MrioSystem.check_crash` and :func:`ario3.mriosystem:MrioSystem.check_production_eq_soft`).
+        6) Computes the new overproduction vector for the next step (using :meth:`~boario.model_base.ARIOBaseModel.calc_overproduction`)
 
         See :ref:`Mathematical background <boario-math>` section for more in depth information.
 
@@ -259,26 +345,21 @@ class Simulation(object):
         ----------
 
         check_period : int, default: 10
-            Number of steps between each crash/equilibrium checking.
+            [Deprecated] Number of steps between each crash/equilibrium checking.
 
         min_steps_check : int, default: None
-            Minimum number of steps before checking for crash/equilibrium. If none, it is set to a fifth of the number of steps to simulate.
+            [Deprecated] Minimum number of steps before checking for crash/equilibrium. If none, it is set to a fifth of the number of steps to simulate.
 
         min_failing_regions : int, default: None
-            Minimum number of 'failing regions' required to consider the economy has 'crashed' (see :func:`~ario3.mriosystem.MrioSystem.check_crash`:).
-
-        Examples
-        --------
-        FIXME: Add docs.
+            [Deprecated] Minimum number of 'failing regions' required to consider the economy has 'crashed' (see :func:`~ario3.mriosystem.MrioSystem.check_crash`:).
 
         """
-        #print(self.current_t)
         if min_steps_check is None:
-            min_steps_check = self.n_timesteps_to_sim // 5
+            min_steps_check = self.n_temporal_units_to_sim // 5
         if min_failing_regions is None:
-            min_failing_regions = self.mrio.n_regions*self.mrio.n_sectors // 3
+            min_failing_regions = self.model.n_regions*self.model.n_sectors // 3
 
-        new_events = [(e_id,e) for e_id, e in enumerate(self.events) if ((self.current_t-self.params['model_time_step']) <= e.occurence_time <= self.current_t)]
+        new_events = [(e_id,e) for e_id, e in enumerate(self.events) if ((self.current_temporal_unit-self.params['temporal_units_by_step']) <= e.occurence_time <= self.current_temporal_unit)]
         for (e_id,e) in new_events:
             # print(e)
             if e not in self.current_events:
@@ -287,151 +368,121 @@ class Simulation(object):
 
         if self.current_events != []:
             self.update_events()
-            self.mrio.update_system_from_events(self.current_events)
+            self.model.update_system_from_events(self.current_events)
         if self.params['register_stocks']:
-            self.mrio.write_stocks(self.current_t)
-        self.mrio.calc_prod_reqby_demand(self.current_events)
-        if self.current_t > 1:
-                self.mrio.calc_overproduction()
-        self.mrio.write_overproduction(self.current_t)
-        self.mrio.write_rebuild_demand(self.current_t)
-        self.mrio.write_classic_demand(self.current_t)
-        self.mrio.calc_production_cap()
-        constraints = self.mrio.calc_production(self.current_t)
-        self.mrio.write_limiting_stocks(self.current_t, constraints)
-        self.mrio.write_production(self.current_t)
-        self.mrio.write_production_max(self.current_t)
+            self.model.write_stocks(self.current_temporal_unit)
+        self.model.calc_prod_reqby_demand(self.current_events)
+        if self.current_temporal_unit > 1:
+                self.model.calc_overproduction()
+        self.model.write_overproduction(self.current_temporal_unit)
+        self.model.write_rebuild_demand(self.current_temporal_unit)
+        self.model.write_classic_demand(self.current_temporal_unit)
+        self.model.calc_production_cap()
+        constraints = self.model.calc_production(self.current_temporal_unit)
+        self.model.write_limiting_stocks(self.current_temporal_unit, constraints)
+        self.model.write_production(self.current_temporal_unit)
+        self.model.write_production_max(self.current_temporal_unit)
         try:
-            events_to_remove = self.mrio.distribute_production(self.current_t, self.current_events, self.scheme)
+            events_to_remove = self.model.distribute_production(self.current_temporal_unit, self.current_events, self.scheme)
         except RuntimeError as e:
             logger.exception("This exception happened:",e)
             return 1
         if events_to_remove != []:
             self.current_events = [e for e in self.current_events if e not in events_to_remove]
             for e in events_to_remove:
-                logger.info("Event named {} that occured at {} in {} for {} damages is completely rebuilt".format(e.name,e.occurence_time, e.aff_regions, e.q_damages))
-        self.mrio.calc_orders(self.current_events)
-        if self.current_t > min_steps_check and (self.current_t % check_period == 0):
-            if self.mrio.check_crash() >  min_failing_regions:
-                return 1
-            if self.current_t >= self.params['min_duration'] and self.mrio.rebuilding_demand.sum() == 0 and self.mrio.check_production_eq_soft(self.current_t, period = check_period):
-                self._monotony_checker +=1
-            else:
-                self._monotony_checker = 0
-        self.current_t+= self.params['model_time_step']
+                logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt".format(self.current_temporal_unit, e.name,e.occurence_time, e.aff_regions, e.q_damages))
+        self.model.calc_orders(self.current_events)
+        # TODO : Redo this properly
+        if False:
+            if self.current_temporal_unit > min_steps_check and (self.current_temporal_unit % check_period == 0):
+                if self.model.check_crash() >  min_failing_regions:
+                    return 1
+                if self.current_temporal_unit >= self.params['min_duration'] and self.model.rebuilding_demand.sum() == 0 and self.model.check_production_eq_soft(self.current_temporal_unit, period = check_period):
+                    self._monotony_checker +=1
+                else:
+                    self._monotony_checker = 0
+        self.current_temporal_unit += self.params['temporal_units_by_step']
         return 0
 
     def update_events(self):
+        """Update events status
+
+        This method cycles through the events defines in the ``current_events`` attribute and sets their ``rebuildable`` attribute.
+        An event is considered rebuildable if its ``duration`` is over (i.e. the number of temporal_units elapsed since it shocked the model is greater than ``occurence_time`` + ``duration``).
+        This method also logs the moment an event starts rebuilding.
+        """
         for e in self.current_events:
             already_rebuilding = e.rebuildable
-            if not already_rebuilding:
-                logger.info("Event named {} that occured at {} in {} for {} damages has started rebuilding".format(e.name,e.occurence_time, e.aff_regions, e.q_damages))
-                e.rebuildable = (e.occurence_time + e.duration) <= self.current_t
+            e.rebuildable = (e.occurence_time + e.duration) <= self.current_temporal_unit
+            if e.rebuildable and not already_rebuilding:
+                logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages has started rebuilding".format(self.current_temporal_unit,e.name,e.occurence_time, e.aff_regions, e.q_damages))
 
-    def read_events_from_list(self, events_list):
-        """Import a list of events (as dicts) into the model.
+    def read_events_from_list(self, events_list : list[dict]):
+        """Import a list of events (as a list of dictionaries) into the model.
 
-        Imports a list of events (as dictionnaries) into th model. Also does
-        various checks on the events to avoid badly written events.
+        Also performs various checks on the events to avoid badly written events.
+        See :ref:`How to define Events <boario-events>` to understand how to write events dictionaries or JSON files.
 
         Parameters
         ----------
         events_list :
-            List of events as dictionnaries.
-
-        Examples
-        --------
-        FIXME: Add docs.
+            List of events as dictionaries.
 
         """
-
         logger.info("Reading events from given list and adding them to the model")
         for ev_dic in events_list:
-            if ev_dic['aff-sectors'] == 'all':
-                ev_dic['aff-sectors'] = list(self.mrio.sectors)
-            ev = Event(ev_dic,self.mrio)
+            if ev_dic['aff_sectors'] == 'all':
+                ev_dic['aff_sectors'] = list(self.model.sectors)
+            ev = Event(ev_dic,self.model)
             ev.check_values(self)
             self.events.append(ev)
             self.events_timings.add(ev_dic['occur'])
-        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_events.json").open('w') as f:
-            json.dump(events_list, f, indent=4)
-
-    def read_events(self, events_file):
-        """Read events from a json file.
-
-        .. deprecated::
-            Method wasn't checked recently.
-
-        Parameters
-        ----------
-        events_file :
-            path to a json file
-
-        Raises
-        ------
-        FileNotFoundError
-            If file does not exist
-
-        Examples
-        --------
-        FIXME: Add docs.
-
-        """
-
-        logger.info("Reading events from {} and adding them to the model".format(events_file))
-        if not events_file.exists():
-            raise FileNotFoundError("This file does not exist: ",events_file)
-        else:
-            with events_file.open('r') as f:
-                events = json.load(f)
-        if events['events']:
-            for event in events['events']:
-                if event['aff-sectors'] == 'all':
-                    event['aff-sectors'] = self.mrio.sectors
-                ev=Event(event,self.mrio)
-                ev.check_values(self)
-                self.events.append(ev)
-                self.events_timings.add(event['occur'])
 
     def shock(self, event_to_add_id:int):
         """Shocks the model with an event.
 
         Sets the rebuilding demand and the share of production allocated toward
-        it in the mrio system.
+        it in the model.
+
+        First, if multiple regions are affected, it computes the vector of how damages are distributed across these,
+        using the ``dmg_distrib_across_regions`` attribute of the :class:`~boario.event.Event` object.
+        Then it computes the vector of how regional damages are distributed across affected sectors using
+        the ``dmg_distrib_across_sector`` and ``dmg_distrib_across_sector_type`` attributes.
+        This ``n_regions`` * ``n_sectors`` sized vector hence stores the damage (i.e. capital destroyed) for all industries.
+
+        This method also computes the `rebuilding demand` matrix, the demand addressed to the rebuilding
+        industries consequent to the shock, and sets the initial vector of production share dedicated to rebuilding.
+
+        See :ref:`How to define Events <boario-events>` for further detail on how to parameter these distribution.
 
         Parameters
         ----------
-        event_to_add : Event
-            The event to shock the model with.
+        event_to_add_id : int
+            The id (rank it the ``events`` list) of the event to shock the model with.
 
         Raises
         ------
         ValueError
             Raised if the production share allocated to rebuilding (in either
             the impacted regions or the others) is not in [0,1].
-
-        Examples
-        --------
-        FIXME: Add docs.
-
         """
-        logger.info("Shocking model with new event ~ Day is {}".format(self.current_t))
+        logger.info("Temporal_Unit : {} ~ Shocking model with new event".format(self.current_temporal_unit))
         logger.info("Affected regions are : {}".format(self.events[event_to_add_id].aff_regions))
-        impacted_region_prod_share = self.params['impacted_region_base_production_toward_rebuilding']
-        RoW_prod_share = self.params['row_base_production_toward_rebuilding']
+        #impacted_region_prod_share = self.params['impacted_region_base_production_toward_rebuilding']
+        #RoW_prod_share = self.params['row_base_production_toward_rebuilding']
         self.events[event_to_add_id].check_values(self)
-        if (impacted_region_prod_share > 1.0 or impacted_region_prod_share < 0.0):
-            raise ValueError("Impacted production share should be in [0.0,1.0], (%f)", impacted_region_prod_share)
-        if (RoW_prod_share > 1.0 or RoW_prod_share < 0.0):
-            raise ValueError("RoW production share should be in [0.0,1.0], (%f)", RoW_prod_share)
-        regions_idx = np.arange(self.mrio.regions.size)
-        aff_regions_idx = np.searchsorted(self.mrio.regions, self.events[event_to_add_id].aff_regions)
+        #if (impacted_region_prod_share > 1.0 or impacted_region_prod_share < 0.0):
+        #    raise ValueError("Impacted production share should be in [0.0,1.0], (%f)", impacted_region_prod_share)
+        #if (RoW_prod_share > 1.0 or RoW_prod_share < 0.0):
+        #    raise ValueError("RoW production share should be in [0.0,1.0], (%f)", RoW_prod_share)
+        regions_idx = np.arange(self.model.regions.size)
+        aff_regions_idx = np.searchsorted(self.model.regions, self.events[event_to_add_id].aff_regions)
         n_regions_aff = aff_regions_idx.size
-        aff_sectors_idx = np.searchsorted(self.mrio.sectors, self.events[event_to_add_id].aff_sectors)
+        aff_sectors_idx = np.searchsorted(self.model.sectors, self.events[event_to_add_id].aff_sectors)
         n_sectors_aff = aff_sectors_idx.size
-        aff_industries_idx = np.array([self.mrio.n_sectors * ri + si for ri in aff_regions_idx for si in aff_sectors_idx])
-        q_dmg = self.events[event_to_add_id].q_damages / self.mrio.monetary_unit
-        logger.info("Damages are {} times {} [unit (ie $/€/£)]".format(q_dmg,self.mrio.monetary_unit))
+        aff_industries_idx = np.array([self.model.n_sectors * ri + si for ri in aff_regions_idx for si in aff_sectors_idx]) # type: ignore (aff_regions_idx not considered as array)
+        q_dmg = self.events[event_to_add_id].q_damages / self.model.monetary_unit
+        logger.info("Damages are {} times {} [unit (ie $/€/£)]".format(q_dmg,self.model.monetary_unit))
         # print(f'''
         # regions_idx = {regions_idx},
         # aff_regions_idx = {aff_regions_idx}
@@ -455,7 +506,7 @@ class Simulation(object):
 
         # DAMAGE DISTRIBUTION ACROSS SECTORS
         if self.events[event_to_add_id].dmg_distrib_across_sectors_type == "gdp":
-            shares = self.mrio.gdp_share_sector.reshape((self.mrio.n_regions,self.mrio.n_sectors))
+            shares = self.model.gdp_share_sector.reshape((self.model.n_regions,self.model.n_sectors))
             if shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[0] == 0:
                 raise ValueError("The sum of the affected sectors value added is 0 (meaning they probably don't exist in this regions)")
             q_dmg_regions_sectors = q_dmg_regions * (shares[aff_regions_idx][:,aff_sectors_idx]/shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[:,np.newaxis])
@@ -464,52 +515,45 @@ class Simulation(object):
         elif type(self.events[event_to_add_id].dmg_distrib_across_sectors) == list:
             q_dmg_regions_sectors = q_dmg_regions * np.array(self.events[event_to_add_id].dmg_distrib_across_sectors)
         elif type(self.events[event_to_add_id].dmg_distrib_across_sectors) == str and self.events[event_to_add_id].dmg_distrib_across_sectors == 'GDP':
-            shares = self.mrio.gdp_share_sector.reshape((self.mrio.n_regions,self.mrio.n_sectors))
+            shares = self.model.gdp_share_sector.reshape((self.model.n_regions,self.model.n_sectors))
             q_dmg_regions_sectors = q_dmg_regions * (shares[aff_regions_idx][:,aff_sectors_idx]/shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[:,np.newaxis])
         else:
             raise ValueError("damage <-> sectors distribution %s not implemented", self.events[event_to_add_id].dmg_distrib_across_sectors)
 
-        rebuilding_sectors_idx = np.searchsorted(self.mrio.sectors, list(self.events[event_to_add_id].rebuilding_sectors.keys()))
-        rebuilding_industries_idx = np.array([self.mrio.n_sectors * ri + si for ri in aff_regions_idx for si in rebuilding_sectors_idx])
-        rebuilding_industries_RoW_idx = np.array([self.mrio.n_sectors * ri + si for ri in regions_idx if ri not in aff_regions_idx for si in rebuilding_sectors_idx])
+        rebuilding_sectors_idx = np.searchsorted(self.model.sectors, np.array(list(self.events[event_to_add_id].rebuilding_sectors.keys())))
+        rebuilding_industries_idx = np.array([self.model.n_sectors * ri + si for ri in aff_regions_idx for si in rebuilding_sectors_idx]) # type: ignore (aff_regions_idx not considered as array)
+        rebuilding_industries_RoW_idx = np.array([self.model.n_sectors * ri + si for ri in regions_idx if ri not in aff_regions_idx for si in rebuilding_sectors_idx])
         rebuild_share = np.array([self.events[event_to_add_id].rebuilding_sectors[k] for k in sorted(self.events[event_to_add_id].rebuilding_sectors.keys())])
         rebuilding_demand = np.outer(rebuild_share, q_dmg_regions_sectors)
-        new_rebuilding_demand = np.full(self.mrio.Z_0.shape, 0.0)
+        new_rebuilding_demand = np.full(self.model.Z_0.shape, 0.0)
         # build the mask of rebuilding sectors (worldwide)
         mask = np.ix_(np.union1d(rebuilding_industries_RoW_idx, rebuilding_industries_idx), aff_industries_idx)
-        new_rebuilding_demand[mask] = self.mrio.Z_distrib[mask] * np.tile(rebuilding_demand, (self.mrio.n_regions,1)) #np.full(self.mrio.Z_0.shape,0.0)
+        new_rebuilding_demand[mask] = self.model.Z_distrib[mask] * np.tile(rebuilding_demand, (self.model.n_regions,1)) # type: ignore (strange __getitem__ warning)
         #new_rebuilding_demand[] = q_dmg_regions_sectors * rebuild_share.reshape(rebuilding_sectors_idx.size,1)
-        new_prod_max_toward_rebuilding = np.full(self.mrio.production.shape, 0.0)
-        new_prod_max_toward_rebuilding[rebuilding_industries_idx] = impacted_region_prod_share
-        new_prod_max_toward_rebuilding[rebuilding_industries_RoW_idx] = RoW_prod_share
+        #new_prod_max_toward_rebuilding = np.full(self.model.production.shape, 0.0)
+        #new_prod_max_toward_rebuilding[rebuilding_industries_idx] = impacted_region_prod_share
+        #new_prod_max_toward_rebuilding[rebuilding_industries_RoW_idx] = RoW_prod_share
         # TODO : Differentiate industry losses and households losses
         self.events[event_to_add_id].industry_rebuild = new_rebuilding_demand
-        self.events[event_to_add_id].production_share_allocated = new_prod_max_toward_rebuilding
-        #self.mrio.update_kapital_lost()
+
+        # Currently unused :
+        #self.events[event_to_add_id].production_share_allocated = new_prod_max_toward_rebuilding
+
+        #self.model.update_kapital_lost()
 
     def reset_sim_with_same_events(self):
         """Resets the model to its initial status (without removing the events).
-
-        Examples
-        --------
-        FIXME: Add docs.
-
         """
 
         logger.info('Resetting model to initial status (with same events)')
-        self.current_t = 0
+        self.current_temporal_unit = 0
         self._monotony_checker = 0
-        self.n_steps_simulated = 0
+        self.n_temporal_units_simulated = 0
         self.has_crashed = False
-        self.mrio.reset_module(self.params)
+        self.model.reset_module(self.params)
 
     def reset_sim_full(self):
         """Resets the model to its initial status and remove all events.
-
-        Examples
-        --------
-        FIXME: Add docs.
-
         """
 
         self.reset_sim_with_same_events()
@@ -517,39 +561,67 @@ class Simulation(object):
         self.events = []
         self.events_timings = set()
 
-    def update_params(self, new_params):
+    def update_params(self, new_params:dict):
         """Update the parameters of the model.
+
+        Replace the ``params`` attribute with ``new_params`` and logs the update.
+        This method also checks if the directory specified to save the results exists and create it otherwise.
+
+        .. warning::
+            Be aware this method calls :meth:`~boario.model_base.ARIOBaseModel.update_params`, which resets the memmap files located in the results directory !
 
         Parameters
         ----------
         new_params : dict
             New dictionnary of parameters to use.
 
-        Examples
-        --------
-        FIXME: Add docs.
-
         """
-
         logger.info('Updating model parameters')
         self.params = new_params
         results_storage = pathlib.Path(self.params['output_dir']+"/"+self.params['results_storage'])
         if not results_storage.exists():
             results_storage.mkdir(parents=True)
-        self.mrio.update_params(self.params)
+        self.model.update_params(self.params)
 
-    def write_index(self, index_file):
-        """Write the index of the dataframes in a json file.
+    def write_index(self, index_file:Union[str, pathlib.Path]):
+        """Write the index of the dataframes used in the model in a json file.
+
+        See :meth:`~boario.model_base.ARIOBaseModel.write_index` for a more detailed documentation.
 
         Parameters
         ----------
         index_file : Union[str, pathlib.Path]
             name of the file to save the indexes to.
 
-        Examples
-        --------
-        FIXME: Add docs.
-
         """
 
-        self.mrio.write_index(index_file)
+        self.model.write_index(index_file)
+
+    def read_events(self, events_file:Union[str, pathlib.Path]):
+        """Read events from a json file.
+
+        Parameters
+        ----------
+        events_file :
+            path to a json file
+
+        Raises
+        ------
+        FileNotFoundError
+            If file does not exist
+
+        """
+        logger.info("Reading events from {} and adding them to the model".format(events_file))
+        if isinstance(events_file,str):
+            events_file = pathlib.Path(events_file)
+        elif not isinstance(events_file,pathlib.Path):
+            raise TypeError("Given index file is not an str or a Path")
+        if not events_file.exists():
+            raise FileNotFoundError("This file does not exist: ",events_file)
+        else:
+            with events_file.open('r') as f:
+                events = json.load(f)
+        if isinstance(events,list):
+            self.read_events_from_list(events)
+        else:
+            self.read_events_from_list([events])

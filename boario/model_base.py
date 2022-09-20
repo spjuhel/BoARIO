@@ -14,20 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import annotations
 import json
 import pathlib
-from signal import pthread_sigmask
-from typing import Union
-import pymrio as pym
+import pymrio
 import numpy as np
 from nptyping import NDArray
+
 from boario import logger
 from boario.event import *
 from pymrio.core.mriosystem import IOSystem
 
-__all__ = ['MrioSystem']
+__all__ = ["ARIOBaseModel","INV_THRESHOLD","VALUE_ADDED_NAMES","VA_idx", "lexico_reindex"]
 
-INV_THRESHOLD = 0 #20 #days
+INV_THRESHOLD = 0 #20 #temporal_units
 
 VALUE_ADDED_NAMES = ['VA', 'Value Added', 'value added',
                         'factor inputs', 'factor_inputs', 'Factors Inputs',
@@ -44,25 +44,22 @@ VA_idx = np.array(['Taxes less subsidies on products purchased: Total',
        'Operating surplus: Royalties on resources',
        'Operating surplus: Remaining net operating surplus'], dtype=object)
 
-def lexico_reindex(mrio: pym.IOSystem) -> pym.IOSystem:
+def lexico_reindex(mrio: pymrio.IOSystem) -> pymrio.IOSystem:
     """Reindex IOSystem lexicographicaly
 
-    Sort indexes and columns of the dataframe of a :ref:`pymrio.IOSystem` by
+    Sort indexes and columns of the dataframe of a ``pymrio`` `IOSystem <https://pymrio.readthedocs.io/en/latest/intro.html>` by
     lexical order.
 
     Parameters
     ----------
-    mrio : pym.IOSystem
+    mrio : pymrio.IOSystem
         The IOSystem to sort
 
     Returns
     -------
-    pym.IOSystem
+    pymrio.IOSystem
         The sorted IOSystem
 
-    Examples
-    --------
-    FIXME: Add docs.
 
     """
 
@@ -76,11 +73,11 @@ def lexico_reindex(mrio: pym.IOSystem) -> pym.IOSystem:
 
     return mrio
 
-class MrioSystem(object):
-    """The core of ARIO3 model. Handles the different arrays containing the mrio tables.
+class ARIOBaseModel(object):
+    r"""The core of an ARIO3 model.  Handles the different arrays containing the mrio tables.
 
-    An mriosystem wrap all the data and functions used in the core of the ario
-    model.
+    A ARIOBaseModel wrap all the data and functions used in the core of the most basic version of the ARIO
+    model (based on Hallegatte2013 and Guan2020).
 
     Attributes
     ----------
@@ -90,53 +87,51 @@ class MrioSystem(object):
     regions : numpy.ndarray of str
               An array of the regions of the model.
     n_regions : int
-                The numbers of regions.
+                The number :math:`m` of regions.
     sectors : numpy.ndarray of str
               An array of the sectors of the model.
     n_sectors : int
-                The numbers of sectors of the model.
+                The number :math:`n` of sectors.
     fd_cat : numpy.ndarray of str
-             An array of the final demand categories of the model (`["Final demand"]` if there is only one)
+             An array of the final demand categories of the model (``["Final demand"]`` if there is only one)
     n_fd_cat : int
                The numbers of final demand categories.
     monetary_unit : int
                     monetary unit prefix (i.e. if the tables unit is 10^6 € instead of 1 €, it should be set to 10^6).
-    psi : float
-          Value of the psi parameter. (see :doc:`math`).
-    model_timestep : int
-                     The number of days between each step. (Current version of the model was not tested with other values than `1`).
-    timestep_dividing_factor : int
-                               Kinda deprecated, should be equal to `model_timestep`.
+    temporal_units_by_step : int
+                     The number of temporal_units between each step. (Current version of the model was not tested with values other than `1`).
+    year_to_temporal_unit_factor : int
+                               Kinda deprecated, should be equal to `temporal_units_by_step`.
     rebuild_tau : int
-                  Value governing the rebuilding speed (see :doc:`math`).
+                  Rebuilding characteristic time :math:`\tau_{\textrm{REBUILD}}` (see :ref:`boario-math`).
     overprod_max : float
-                   Maximum factor of overproduction (default should be 1.25).
+                   Maximum factor of overproduction :math:`\alpha^{\textrm{max}}` (default should be 1.25).
     overprod_tau : float
-                   Characteristic time of overproduction in number of `model_timestep` (default should be 365).
+                   Characteristic time of overproduction :math:`\tau_{\alpha}` in ``temporal_units_by_step`` (default should be 365 days).
     overprod_base : float
-                    Base value of overproduction (Default to 0).
+                    Base value of overproduction factor :math:`\alpha^{b}` (Default to 1.0).
     inv_duration : numpy.ndarray of int
-                   Array of size `n_sectors` setting for each inputs the initial number of `model_timestep` of stock for the input. (see :doc:`math`).
+                   Array :math:`\mathbf{s}` of size :math:`n` (sectors), setting for each input the initial number of ``temporal_units_by_step`` of stock for the input. (see :ref:`boario-math`).
     restoration_tau : numpy.ndarray of int
-                      Array of size `n_sector` setting for each inputs its characteristic restoration time with `model_timestep` days as unit. (see :doc:`math`).
+                      Array of size :math:`n` setting for each inputs its characteristic restoration time :math:`\tau_{\textrm{INV}}` in ``temporal_units_by_step``. (see :ref:`boario-math`).
     Z_0 : numpy.ndarray of float
-          2-dim array of size `(n_sectors * n_regions,n_sectors * n_regions)` representing the intermediate (transaction) matrix (see :doc:`math`).
+          2-dim square matrix array :math:`\ioz` of size :math:`(n \times m, n \times m)` representing the intermediate (transaction) matrix (see :ref:`boario-math-init`).
     Z_C : numpy.ndarray of float
-          2-dim array of size `(n_sectors, n_sectors * n_regions)` representing the intermediate (transaction) matrix aggregated by inputs (see :doc:`math`).
+          2-dim matrix array :math:`\ioz^{\sectorsset}` of size :math:`(n, n \times m)` representing the intermediate (transaction) matrix aggregated by inputs (see :ref:`here <boario-math-z-agg>`).
     Z_distrib : numpy.ndarray of float
-                `Z_0` normalised by `Z_C`, i.e. representing for each input the share of the total ordered transiting from an industry to another.
+                :math:`\ioz` normalised by :math:`\ioz^{\sectorsset}`, i.e. representing for each input the share of the total ordered transiting from an industry to another (see :ref:`here <boario-math-z-agg>`).
     Y_0 : numpy.ndarray of float
-          2-dim array of size `(n_sectors * n_regions,n_regions * n_fd_cat)` representing the final demand matrix.
+          2-dim array :math:`\ioy` of size :math:`(n \times m, m \times \text{number of final demand categories})` representing the final demand matrix.
     X_0 : numpy.ndarray of float
-          Array of size `n_sectors * n_regions` representing the initial gross production.
+          Array :math:`\iox(0)` of size :math:`n \times m` representing the initial gross production.
     gdp_df : pandas.DataFrame
              Dataframe of the total GDP of each region of the model
     VA_0 : numpy.ndarray of float
-           Array of size `n_sectors * n_regions` representing the total value added for each sectors.
+           Array :math:`\iov` of size :math:`n \times m` representing the total value added for each sectors.
     tech_mat : numpy.ndarray
-               2-dim array of size `(n_sectors * n_regions, n_sectors * n_regions)` representing the technical coefficients matrix
+               2-dim array :math:`\ioa` of size :math:`(n \times m, n \times m)` representing the technical coefficients matrix
     overprod : numpy.ndarray
-               Array of size `n_sectors * n_regions` representing the overproduction coefficients vector.
+               Array of size :math:`n \times m` representing the overproduction coefficients vector :math:`\mathbf{\alpha}(t)`.
     Raises
     ------
     RuntimeError
@@ -153,16 +148,18 @@ class MrioSystem(object):
                  results_storage: pathlib.Path
                  ) -> None:
 
-        logger.debug("Initiating new MrioSystem instance")
+        logger.debug("Initiating new ARIOBaseModel instance")
         super().__init__()
 
         ################ Parameters variables #######################
         logger.info("IO system metadata :\n{}".format(str(pym_mrio.meta)))
+        logger.info("Simulation parameters:\n{}".format(json.dumps(simulation_params, indent=4)))
         pym_mrio = lexico_reindex(pym_mrio)
-        self.mrio_params = mrio_params
+        self.mrio_params:dict = mrio_params
         self.main_inv_dur = mrio_params['main_inv_dur']
+
         results_storage = results_storage.absolute()
-        self.results_storage = results_storage
+        self.results_storage:pathlib.Path = results_storage
         logger.info("Results storage is: {}".format(self.results_storage))
         self.regions = np.array(sorted(list(pym_mrio.get_regions()))) #type: ignore
         self.n_regions = len(pym_mrio.get_regions()) #type: ignore
@@ -180,26 +177,22 @@ class MrioSystem(object):
         self.monetary_unit = mrio_params['monetary_unit']
         logger.info("Monetary unit from params is: %s", self.monetary_unit)
         logger.info("Monetary unit from loaded mrio is: %s", pym_mrio.unit.unit.unique()[0])
-        self.psi = simulation_params['psi_param']
-        self.n_days_by_step = simulation_params['model_time_step']
-        self.iotable_year_to_step_factor = simulation_params['timestep_dividing_factor'] # 365 for yearly IO tables
-        if self.iotable_year_to_step_factor != 365:
+        #self.psi = simulation_params['psi_param']
+        self.n_temporal_units_by_step = simulation_params['temporal_units_by_step']
+        self.iotable_year_to_temporal_unit_factor = simulation_params['year_to_temporal_unit_factor'] # 365 for yearly IO tables
+        if self.iotable_year_to_temporal_unit_factor != 365:
             logger.warning("iotable_to_daily_step_factor is not set to 365 (days). This should probably not be the case if the IO tables you use are on a yearly basis.")
-        self.steply_factor =  self.n_days_by_step / self.iotable_year_to_step_factor
-        self.rebuild_tau = self.n_days_by_step / simulation_params['rebuild_tau']
+        self.steply_factor =  self.n_temporal_units_by_step / self.iotable_year_to_temporal_unit_factor
+        self.rebuild_tau = self.n_temporal_units_by_step / simulation_params['rebuild_tau']
         self.overprod_max = simulation_params['alpha_max']
-        self.overprod_tau = self.n_days_by_step / simulation_params['alpha_tau']
+        self.overprod_tau = self.n_temporal_units_by_step / simulation_params['alpha_tau']
         self.overprod_base = simulation_params['alpha_base']
         inv = mrio_params['inventories_dict']
         inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
-        self.inv_duration = np.array(inventories)  / self.n_days_by_step
+        self.inv_duration = np.array(inventories)  / self.n_temporal_units_by_step
         if (self.inv_duration <= 1).any() :
-            logger.warning("At least one product has inventory duration lower than the numbers of days in one step ({}), model will set it to 2 steps by default, but you should probably check this !".format(self.n_days_by_step))
+            logger.warning("At least one product has inventory duration lower than the numbers of temporal units in one step ({}), model will set it to 2 by default, but you should probably check this !".format(self.n_temporal_units_by_step))
             self.inv_duration[self.inv_duration <= 1] = 2
-        restoration_tau = [(self.n_days_by_step / simulation_params['inventory_restoration_time']) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
-        self.restoration_tau = np.array(restoration_tau)
-        logger.info("Setting order module to 'alternative' mode (see https://doi.org/10.1038/s41562-020-0896-8 )")
-        self.order_type = "alt"
         #################################################################
 
 
@@ -220,7 +213,7 @@ class MrioSystem(object):
         value_added[value_added < 0] = 0.0
         self.gdp_df = value_added.groupby('region',axis=1).sum()
         self.VA_0 = (value_added.to_numpy().flatten())
-        self.tech_mat = ((self._matrix_I_sum @ pym_mrio.A).to_numpy())
+        self.tech_mat = ((self._matrix_I_sum @ pym_mrio.A).to_numpy()) #type: ignore #to_numpy is not superfluous !
         kratio = mrio_params['capital_ratio_dict']
         kratio_ordered = [kratio[k] for k in sorted(kratio.keys())]
         self.kstock_ratio_to_VA = np.tile(np.array(kratio_ordered),self.n_regions)
@@ -246,42 +239,43 @@ class MrioSystem(object):
         self.rebuilding_demand = None
         self.total_demand = np.zeros(shape = self.X_0.shape)
         self.rebuild_demand = np.zeros(shape = np.concatenate([self.Z_0,self.Y_0],axis=1).shape)
-        self.prod_max_toward_rebuilding = None
+        # self.prod_max_toward_rebuilding = None
         self.kapital_lost = np.zeros(self.production.shape)
+        self.order_type = simulation_params['order_type']
         #################################################################
 
         ################## SIMULATION TRACKING VARIABLES ################
         self.in_shortage = False
         self.had_shortage = False
-        self.production_evolution = np.memmap(results_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.production_evolution = np.memmap(results_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.production_evolution.fill(np.nan)
-        self.production_cap_evolution = np.memmap(results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.production_cap_evolution = np.memmap(results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.production_cap_evolution.fill(np.nan)
-        self.classic_demand_evolution = np.memmap(results_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.classic_demand_evolution = np.memmap(results_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.classic_demand_evolution.fill(np.nan)
-        self.rebuild_demand_evolution = np.memmap(results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.rebuild_demand_evolution = np.memmap(results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.rebuild_demand_evolution.fill(np.nan)
-        self.rebuild_stock_evolution = np.memmap(results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.rebuild_stock_evolution = np.memmap(results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.rebuild_stock_evolution.fill(np.nan)
-        self.overproduction_evolution = np.memmap(results_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.overproduction_evolution = np.memmap(results_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.overproduction_evolution.fill(np.nan)
-        self.final_demand_unmet_evolution = np.memmap(results_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.final_demand_unmet_evolution = np.memmap(results_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.final_demand_unmet_evolution.fill(np.nan)
-        self.rebuild_production_evolution = np.memmap(results_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors*self.n_regions))
+        self.rebuild_production_evolution = np.memmap(results_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.rebuild_production_evolution.fill(np.nan)
         if simulation_params['register_stocks']:
-            self.stocks_evolution = np.memmap(results_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
+            self.stocks_evolution = np.memmap(results_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors, self.n_sectors*self.n_regions))
             self.stocks_evolution.fill(np.nan)
-        self.limiting_stocks_evolution = np.memmap(results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_timesteps'], self.n_sectors, self.n_sectors*self.n_regions))
+        self.limiting_stocks_evolution = np.memmap(results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors, self.n_sectors*self.n_regions))
         #############################################################################
 
         #### POST INIT ####
         self.write_index(results_storage/"indexes.json")
 
-    def update_system_from_events(self, events: 'list[Event]') -> None:
+    def update_system_from_events(self, events: list[Event]) -> None:
         """Update MrioSystem variables according to given list of events
 
-        Compute kapital loss for each industry affected as the sum of their total rebuilding demand (to each rebuilding sectors and for each events). This information is stored as a 1D array ``kapital_lost`` of size (n_sectors *  n_regions).
+        Compute kapital loss for each industry affected as the sum of their total rebuilding demand (to each rebuilding sectors and for each events). This information is stored as a 1D array ``kapital_lost`` of size :math:`n \time m`.
         Also compute the total rebuilding demand.
 
         Parameters
@@ -289,21 +283,18 @@ class MrioSystem(object):
         events : 'list[Event]'
             List of events (as Event objects) to consider.
 
-        Examples
-        --------
-        FIXME: Add docs.
 
         """
         self.update_kapital_lost(events)
         self.calc_tot_rebuild_demand(events)
 
-    def calc_rebuild_house_demand(self, events:'list[Event]') -> np.ndarray :
-        """Compute rebuild demand for final demand
+    def calc_rebuild_house_demand(self, events:list[Event]) -> np.ndarray :
+        r"""Compute rebuild demand for final demand
 
         Compute and return rebuilding final demand for the given list of events
         by summing the final_demand_rebuild member of each event. Only events
         tagged as rebuildable are accounted for. The shape of the array
-        returned is the same as the final demand member (Y_0) of the calling
+        returned is the same as the final demand member (``Y_0`` | :math:`\ioy`) of the calling
         MrioSystem.
 
         Parameters
@@ -322,19 +313,19 @@ class MrioSystem(object):
 
         Currently the model wasn't tested with such a rebuilding demand. Only intermediate demand is considered.
         """
-        rebuildable_events = [e.final_demand_rebuild for e in events if e.rebuildable]
-        if rebuildable_events == []:
+        rebuildable_events = np.array([e.final_demand_rebuild for e in events if e.rebuildable])
+        if rebuildable_events.size == 0:
             return np.zeros(shape = self.Y_0.shape)
         ret = np.add.reduce(rebuildable_events)
         return ret
 
     def calc_rebuild_firm_demand(self, events:'list[Event]') -> np.ndarray :
-        """Compute rebuild demand for intermediate demand
+        r"""Compute rebuild demand for intermediate demand
 
         Compute and return rebuilding intermediate demand for the given list of events
         by summing the industry_rebuild member of each event. Only events
         tagged as rebuildable are accounted for. The shape of the array
-        returned is the same as the intermediate demand member (Z_0) of the calling
+        returned is the same as the intermediate demand member (``Z_0`` | :math:`\ioz`) of the calling
         MrioSystem.
 
         Parameters
@@ -348,8 +339,8 @@ class MrioSystem(object):
             An array of same shape as Z_0, containing the sum of all currently
             rebuildable intermediate demand stock from all events in the given list.
         """
-        rebuildable_events = [e.industry_rebuild for e in events if e.rebuildable]
-        if rebuildable_events == []:
+        rebuildable_events = np.array([e.industry_rebuild for e in events if e.rebuildable])
+        if rebuildable_events.size == 0:
             return np.zeros(shape = self.Z_0.shape)
         ret = np.add.reduce(rebuildable_events)
         return ret
@@ -376,13 +367,13 @@ class MrioSystem(object):
         self.rebuild_demand = ret
 
     def calc_production_cap(self):
-        """Compute and update production capacity.
+        r"""Compute and update production capacity.
 
         Compute and update production capacity from possible kapital damage and overproduction.
 
         .. math::
 
-            x^{Cap}_{f}(t) = \\alpha_{f}(t) (1 - \Delta_{f}(t)) x_{f}(t)
+            x^{Cap}_{f}(t) = \alpha_{f}(t) (1 - \Delta_{f}(t)) x_{f}(t)
 
         Raises
         ------
@@ -433,7 +424,7 @@ class MrioSystem(object):
         assert not (prod_reqby_demand < 0).any()
         self.total_demand = prod_reqby_demand
 
-    def calc_production(self, current_step:int):
+    def calc_production(self, current_temporal_unit:int) -> np.NDArray:
         r"""Compute and update actual production
 
         1. Compute ``production_opt`` and ``inventory_constraints`` as :
@@ -454,10 +445,10 @@ class MrioSystem(object):
                         \tau^{1}_1 x^{\textrm{Opt}}_{1}(t) a_{11} & \hdots & \tau^{p}_1 x^{\textrm{Opt}}_{p}(t) a_{1p}\\
                         \vdots & \ddots & \vdots\\
                         \tau^1_n x^{\textrm{Opt}}_{1}(t) a_{n1} & \hdots & \tau^{p}_n x^{\textrm{Opt}}_{p}(t) a_{np}
-                    \end{bmatrix} \cdot \psi && \\
+                    \end{bmatrix} && \\
                 \end{alignat*}
 
-        2. If stocks do not meet inventory_constraints for any inputs -> Decrease production accordingly :
+        2. If stocks do not meet ``inventory_constraints`` for any inputs, then decrease production accordingly :
 
         .. math::
            :nowrap:
@@ -469,28 +460,22 @@ class MrioSystem(object):
                                                            \end{aligned} \right. \quad &&
                 \end{alignat*}
 
-        Also warns in log if such shortage happens.
+        Also warns in log if such shortages happen.
 
 
         Parameters
         ----------
-        current_step : int
+        current_temporal_unit : int
             current step number
-
-        Returns
-        -------
-
-        A boolean NDArray `stock_constraint` of the same shape as `matrix_sock` (ie `(n_sectors,n_regions*n_sectors)`), with True for any input not meeting the inventory constraints.
 
         """
         #1.
         production_opt = np.fmin(self.total_demand, self.production_cap)
-        inventory_constraints = (np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat) * self.psi
-        np.multiply(inventory_constraints, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=inventory_constraints)
+        inventory_constraints = self.calc_inventory_constraints(production_opt)
         #2.
         if (stock_constraint := (self.matrix_stock < inventory_constraints) * self.matrix_share_thresh).any():
             if not self.in_shortage:
-                logger.info('At least one industry entered shortage regime. (step:{})'.format(current_step))
+                logger.info('At least one industry entered shortage regime. (step:{})'.format(current_temporal_unit))
             self.in_shortage = True
             self.had_shortage = True
             production_ratio_stock = np.ones(shape=self.matrix_stock.shape)
@@ -506,14 +491,35 @@ class MrioSystem(object):
         else:
             if self.in_shortage:
                 self.in_shortage = False
-                logger.info('All industries exited shortage regime. (step:{})'.format(current_step))
+                logger.info('All industries exited shortage regime. (step:{})'.format(current_temporal_unit))
             assert not (production_opt < 0).any()
             self.production = production_opt
         return stock_constraint
 
+    def calc_inventory_constraints(self, production:np.ndarray) -> np.ndarray :
+        """Compute inventory constraint (no psi parameter)
+
+        See :meth:`calc_production`.
+
+        Parameters
+        ----------
+        production : np.ndarray
+            production vector
+
+        Returns
+        -------
+        np.ndarray
+            A boolean NDArray `stock_constraint` of the same shape as ``matrix_stock`` (ie `(n_sectors,n_regions*n_sectors)`), with ``True`` for any input not meeting the inventory constraints.
+
+        """
+
+        inventory_constraints = (np.tile(production, (self.n_sectors, 1)) * self.tech_mat)
+        tmp = np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors))
+        return inventory_constraints * tmp
+
     def distribute_production(self,
-                              t: int, events: 'list[Event]',
-                              scheme:str='proportional', separate_rebuilding:bool=False):
+                              current_temporal_unit: int, events: 'list[Event]',
+                              scheme:str='proportional', separate_rebuilding:bool=False) -> list[Event]:
         r"""Production distribution module
 
     #. Computes rebuilding demand for each rebuildable events (applying the `rebuild_tau` characteristic time)
@@ -572,15 +578,19 @@ class MrioSystem(object):
 
     Parameters
     ----------
-    t : int
-        Current timestep (required to write the final demand not met)
+    current_temporal_unit : int
+        Current temporal unit (day|week|... depending on parameters) (required to write the final demand not met)
     events : 'list[Event]'
         Simulation events list
     scheme : str
         Placeholder for future distribution scheme
     separate_rebuilding : bool
-        If False, include the rebuilding in the proportional distribution
-        scheme (with a characteristic time) else,
+        Currently unused.
+
+    Returns
+    -------
+    list[Event]
+        The list of events to remove from current events (as they are totally rebuilt)
 
     Raises
     ------
@@ -639,11 +649,11 @@ class MrioSystem(object):
         final_demand_not_met = final_demand_not_met.sum(axis=1)
         # avoid -0.0 (just in case)
         final_demand_not_met[final_demand_not_met==0.] = 0.
-        self.write_final_demand_unmet(t, final_demand_not_met)
+        self.write_final_demand_unmet(current_temporal_unit, final_demand_not_met)
 
         # 7. Compute production delivered to rebuilding
         rebuild_prod = distributed_production[:,(self.n_sectors*self.n_regions + self.n_fd_cat*self.n_regions):].copy().flatten()
-        self.write_rebuild_prod(t,rebuild_prod) #type: ignore
+        self.write_rebuild_prod(current_temporal_unit,rebuild_prod) #type: ignore
         tot_rebuilding_demand_shares = np.zeros(shape=tot_rebuilding_demand.shape)
         tot_rebuilding_demand_broad = np.broadcast_to(tot_rebuilding_demand_summed[:,np.newaxis,np.newaxis],tot_rebuilding_demand.shape)
         np.divide(tot_rebuilding_demand,tot_rebuilding_demand_broad, where=(tot_rebuilding_demand_broad!=0), out=tot_rebuilding_demand_shares)
@@ -659,8 +669,7 @@ class MrioSystem(object):
                 events_to_remove.append(e)
         return events_to_remove
 
-
-    def calc_orders(self, events:'list[Event]'):
+    def calc_orders(self, events:list[Event]) -> None:
         """TODO describe function
 
         :param stocks_constraints:
@@ -682,7 +691,7 @@ class MrioSystem(object):
             matrix_stock_gap[np.isfinite(matrix_stock_goal)] = (matrix_stock_goal[np.isfinite(matrix_stock_goal)] - self.matrix_stock[np.isfinite(self.matrix_stock)])
         assert (not np.isnan(matrix_stock_gap).any()), "NaN in matrix stock gap"
         matrix_stock_gap[matrix_stock_gap < 0] = 0
-        matrix_stock_gap = np.expand_dims(self.restoration_tau, axis=1) * matrix_stock_gap
+        # matrix_stock_gap = np.expand_dims(self.restoration_tau, axis=1) * matrix_stock_gap
         matrix_stock_gap += (np.tile(self.production, (self.n_sectors, 1)) * self.tech_mat)
         if self.order_type == "alt":
             prod_ratio = np.divide(self.production,self.X_0, where=self.X_0!=0)
@@ -696,16 +705,16 @@ class MrioSystem(object):
         assert not (tmp < 0).any()
         self.matrix_orders = tmp
 
-    def update_kapital_lost(self, events:'list[Event]'):
+    def update_kapital_lost(self, events:list[Event]) -> None:
         self.__update_kapital_lost(events)
 
-    def __update_kapital_lost(self, events:'list[Event]'
-                              ):
-        tot_industry_rebuild_demand = np.add.reduce([e.industry_rebuild for e in events])
+    def __update_kapital_lost(self, events:list[Event]
+                              ) -> None:
+        tot_industry_rebuild_demand = np.add.reduce(np.array([e.industry_rebuild for e in events]))
 
         self.kapital_lost = tot_industry_rebuild_demand.sum(axis=0)
 
-    def calc_overproduction(self):
+    def calc_overproduction(self) -> None:
         scarcity = np.full(self.production.shape, 0.0)
         scarcity[self.total_demand!=0] = (self.total_demand[self.total_demand!=0] - self.production[self.total_demand!=0]) / self.total_demand[self.total_demand!=0]
         scarcity[np.isnan(scarcity)] = 0
@@ -713,38 +722,38 @@ class MrioSystem(object):
         self.overprod += overprod_chg
         self.overprod[self.overprod < 1.] = 1.
 
-    def check_stock_increasing(self, t:int):
+    def check_stock_increasing(self, current_temporal_unit:int):
         tmp = np.full(self.matrix_stock.shape,0.0)
         mask = np.isfinite(self.matrix_stock_0)
         np.subtract(self.matrix_stock,self.matrix_stock_0, out=tmp, where=mask)
         check_1 = tmp > 0.0
         tmp = np.full(self.matrix_stock.shape,0.0)
-        np.subtract(self.stocks_evolution[t], self.stocks_evolution[t-1], out=tmp, where=mask)
+        np.subtract(self.stocks_evolution[current_temporal_unit], self.stocks_evolution[current_temporal_unit-1], out=tmp, where=mask)
         check_2 = (tmp >= 0.0)
         return (check_1 & check_2).all()
 
     def check_production_eq_strict(self):
         return ((np.isclose(self.production, self.X_0)) | np.greater(self.production, self.X_0)).all()
 
-    def check_production_eq_soft(self, t:int, period:int = 10):
-        return self.check_monotony(self.production_evolution, t, period)
+    def check_production_eq_soft(self, current_temporal_unit:int, period:int = 10) -> bool:
+        return self.check_monotony(self.production_evolution, current_temporal_unit, period)
 
-    def check_stocks_monotony(self, t:int, period:int = 10):
-        return self.check_monotony(self.stocks_evolution, t, period)
+    def check_stocks_monotony(self, current_temporal_unit:int, period:int = 10) -> bool:
+        return self.check_monotony(self.stocks_evolution, current_temporal_unit, period)
 
-    def check_initial_equilibrium(self):
+    def check_initial_equilibrium(self)-> bool:
         return (np.allclose(self.production, self.X_0) and np.allclose(self.matrix_stock, self.matrix_stock_0))
 
-    def check_equilibrium_soft(self, t:int):
-        return (self.check_stock_increasing(t) and self.check_production_eq_strict)
+    def check_equilibrium_soft(self, current_temporal_unit:int):
+        return (self.check_stock_increasing(current_temporal_unit) and self.check_production_eq_strict)
 
-    def check_equilibrium_monotony(self, t:int, period:int=10):
-        return self.check_production_eq_soft(t, period) and self.check_stocks_monotony(t, period)
+    def check_equilibrium_monotony(self, current_temporal_unit:int, period:int=10) -> bool:
+        return self.check_production_eq_soft(current_temporal_unit, period) and self.check_stocks_monotony(current_temporal_unit, period)
 
-    def check_monotony(self, x, t:int, period:int = 10):
-        return np.allclose(x[t], x[t-period], atol=0.0001)
+    def check_monotony(self, x, current_temporal_unit:int, period:int = 10) -> bool:
+        return np.allclose(x[current_temporal_unit], x[current_temporal_unit-period], atol=0.0001)
 
-    def check_crash(self, prod_threshold : float=0.80):
+    def check_crash(self, prod_threshold : float=0.80) -> int:
         """Check for economic crash
 
         This method look at the production vector and returns the number of
@@ -756,9 +765,6 @@ class MrioSystem(object):
         prod_threshold : float, default: 0.8
             An industry is counted as 'crashed' if its current production is less than its starting production times (1 - `prod_threshold`).
 
-        Examples
-        --------
-        FIXME: Add docs.
 
         """
         tmp = np.full(self.production.shape, 0.0)
@@ -772,7 +778,7 @@ class MrioSystem(object):
                  simulation_params: dict,
                  ) -> None:
         # Reset OUTPUTS
-        self.reset_record_files(simulation_params['n_timesteps'], simulation_params['register_stocks'])
+        self.reset_record_files(simulation_params['n_temporal_units_to_sim'], simulation_params['register_stocks'])
         # Reset variable attributes
         self.kapital_lost = np.zeros(self.production.shape)
         self.overprod = np.full((self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64)
@@ -788,66 +794,105 @@ class MrioSystem(object):
         self.rebuilding_demand = None
         self.prod_max_toward_rebuilding = None
 
-    def update_params(self, new_params):
-        self.psi = new_params['psi_param']
-        self.n_days_by_step = new_params['model_time_step']
-        self.iotable_year_to_step_factor = new_params['timestep_dividing_factor']
+    def update_params(self, new_params:dict) -> None:
+        """Update the parameters of the model.
+
+        Replace each parameters with given new ones.
+
+        .. warning::
+            Be aware this method calls :meth:`~boario.model_base.reset_record_files`, which resets the memmap files located in the results directory !
+
+        Parameters
+        ----------
+        new_params : dict
+            Dictionary of new parameters to use.
+
+        """
+        self.n_temporal_units_by_step = new_params['temporal_units_by_step']
+        self.iotable_year_to_temporal_unit_factor = new_params['year_to_temporal_unit_factor']
         self.rebuild_tau = new_params['rebuild_tau']
         self.overprod_max = new_params['alpha_max']
         self.overprod_tau = new_params['alpha_tau']
         self.overprod_base = new_params['alpha_base']
-        restoration_tau = [(self.n_days_by_step / new_params['inventory_restoration_time'])]# if v >= INV_THRESHOLD else v for v in inventories]
-        self.restoration_tau = np.array(restoration_tau)
         if self.results_storage != pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage']):
             self.results_storage = pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage'])
-            self.reset_record_files(new_params['n_timesteps'], new_params['register_stocks'])
+        self.reset_record_files(new_params['n_temporal_units_to_sim'], new_params['register_stocks'])
 
-    def reset_record_files(self, n_steps:int, reg_stocks: bool):
-        self.production_evolution = np.memmap(self.results_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
-        self.production_cap_evolution = np.memmap(self.results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
-        self.classic_demand_evolution = np.memmap(self.results_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
-        self.rebuild_demand_evolution = np.memmap(self.results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
-        self.overproduction_evolution = np.memmap(self.results_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
-        self.final_demand_unmet_evolution = np.memmap(self.results_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
-        self.rebuild_production_evolution = np.memmap(self.results_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors*self.n_regions))
+    def reset_record_files(self, n_temporal_units:int, reg_stocks: bool) -> None:
+        """Reset results memmaps
+
+        This method creates/resets the :class:`memmaps <numpy.memmap>` arrays used to track
+        production, demand, overproduction, etc.
+
+        Parameters
+        ----------
+        n_steps : int
+            number of steps of the simulation (memmaps size are predefined)
+        reg_stocks : bool
+            If true, create/reset the stock memmap (which can be huge)
+
+        """
+        self.production_evolution = np.memmap(self.results_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.production_cap_evolution = np.memmap(self.results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.classic_demand_evolution = np.memmap(self.results_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.rebuild_demand_evolution = np.memmap(self.results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.overproduction_evolution = np.memmap(self.results_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.final_demand_unmet_evolution = np.memmap(self.results_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.rebuild_production_evolution = np.memmap(self.results_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
         if reg_stocks:
-            self.stocks_evolution = np.memmap(self.results_storage/"stocks_record", dtype='float64', mode="w+", shape=(n_steps, self.n_sectors, self.n_sectors*self.n_regions))
-        self.limiting_stocks_evolution = np.memmap(self.results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(n_steps, self.n_sectors, self.n_sectors*self.n_regions))
+            self.stocks_evolution = np.memmap(self.results_storage/"stocks_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors, self.n_sectors*self.n_regions))
+        self.limiting_stocks_evolution = np.memmap(self.results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(n_temporal_units, self.n_sectors, self.n_sectors*self.n_regions))
 
 
-    def write_production(self, t:int):
-        self.production_evolution[t] = self.production
+    def write_production(self, current_temporal_unit:int) -> None:
+        self.production_evolution[current_temporal_unit] = self.production
 
-    def write_production_max(self, t:int):
-        self.production_cap_evolution[t] = self.production_cap
+    def write_production_max(self, current_temporal_unit:int) -> None:
+        self.production_cap_evolution[current_temporal_unit] = self.production_cap
 
-    def write_classic_demand(self, t:int):
-         self.classic_demand_evolution[t] = self.matrix_orders.sum(axis=1) + self.final_demand.sum(axis=1)
+    def write_classic_demand(self, current_temporal_unit:int) -> None:
+         self.classic_demand_evolution[current_temporal_unit] = self.matrix_orders.sum(axis=1) + self.final_demand.sum(axis=1)
 
-    def write_rebuild_demand(self, t:int):
+    def write_rebuild_demand(self, current_temporal_unit:int) -> None:
         to_write = np.full(self.n_regions*self.n_sectors,0.0)
         if (r_dem := self.rebuild_demand) is not None:
-            self.rebuild_demand_evolution[t] = r_dem.sum(axis=1)
+            self.rebuild_demand_evolution[current_temporal_unit] = r_dem.sum(axis=1)
         else:
-            self.rebuild_demand_evolution[t] = to_write
+            self.rebuild_demand_evolution[current_temporal_unit] = to_write
 
-    def write_rebuild_prod(self, t:int, rebuild_prod_agg:np.ndarray):
-        self.rebuild_production_evolution[t] = rebuild_prod_agg
+    def write_rebuild_prod(self, current_temporal_unit:int, rebuild_prod_agg:np.ndarray) -> None:
+        self.rebuild_production_evolution[current_temporal_unit] = rebuild_prod_agg
 
-    def write_overproduction(self, t:int):
-        self.overproduction_evolution[t] = self.overprod
+    def write_overproduction(self, current_temporal_unit:int) -> None:
+        self.overproduction_evolution[current_temporal_unit] = self.overprod
 
-    def write_final_demand_unmet(self, t:int, final_demand_unmet:np.ndarray):
-        self.final_demand_unmet_evolution[t] = final_demand_unmet
+    def write_final_demand_unmet(self, current_temporal_unit:int, final_demand_unmet:np.ndarray) -> None:
+        self.final_demand_unmet_evolution[current_temporal_unit] = final_demand_unmet
 
-    def write_stocks(self, t:int):
-        self.stocks_evolution[t] = self.matrix_stock
+    def write_stocks(self, current_temporal_unit:int) -> None:
+        self.stocks_evolution[current_temporal_unit] = self.matrix_stock
 
-    def write_limiting_stocks(self, t:int,
-                              limiting_stock:NDArray):
-        self.limiting_stocks_evolution[t] = limiting_stock
+    def write_limiting_stocks(self, current_temporal_unit:int,
+                              limiting_stock:NDArray) -> None:
+        self.limiting_stocks_evolution[current_temporal_unit] = limiting_stock
 
-    def write_index(self, index_file):
+    def write_index(self, index_file:Union[str,pathlib.Path]) -> None:
+        """Write the indexes of the different dataframes of the model in a json file.
+
+        In order to easily rebuild the dataframes from the 'raw' data, this
+        method create a JSON file with all columns and indexes names, namely :
+
+        * regions names
+        * sectors names
+        * final demand categories
+        * number of regions, sectors and industries (regions * sectors)
+
+        Parameters
+        ----------
+        index_file : pathlib.Path
+            Path to the file to save the indexes.
+        """
+
         indexes= {
             "regions":list(self.regions),
             "sectors":list(self.sectors),
@@ -856,13 +901,15 @@ class MrioSystem(object):
             "n_regions":self.n_regions,
             "n_industries":self.n_sectors*self.n_regions
         }
+        if isinstance(index_file,str):
+            index_file=pathlib.Path(index_file)
         with index_file.open('w') as f:
             json.dump(indexes,f)
 
-    def change_inv_duration(self, new_dur, old_dur=None):
+    def change_inv_duration(self, new_dur:int, old_dur:int=None) -> None:
         if old_dur is None:
             old_dur = self.main_inv_dur
-        old_dur = float(old_dur) / self.n_days_by_step
-        new_dur = float(new_dur) / self.n_days_by_step
-        logger.info("Changing (main) inventories duration from {} to {} steps (there are {} by steps)".format(old_dur, new_dur, self.n_days_by_step))
+        old_dur = float(old_dur) / self.n_temporal_units_by_step
+        new_dur = float(new_dur) / self.n_temporal_units_by_step
+        logger.info("Changing (main) inventories duration from {} steps to {} steps (there are {} temporal units by step so duration is {})".format(old_dur, new_dur, self.n_temporal_units_by_step, new_dur*self.n_temporal_units_by_step))
         self.inv_duration = np.where(self.inv_duration==old_dur, new_dur, self.inv_duration)

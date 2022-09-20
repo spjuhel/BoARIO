@@ -14,7 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from boario.event import Event
 from collections.abc import Iterable
+
+from json import JSONEncoder
+class EventEncoder(JSONEncoder):
+    def default(self, event:Event):
+        dic = dict(event.__dict__)
+        del dic["final_demand_rebuild"]
+        del dic["final_demand_rebuild_share"]
+        del dic["industry_rebuild"]
+        del dic["industry_rebuild_share"]
+        del dic["production_share_allocated"]
+        del dic["rebuildable"]
+        return dic
+
 
 def flatten(l):
     for el in l:
