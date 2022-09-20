@@ -21,9 +21,11 @@ dependencies = [
 "nptyping>=1.4.4",
 "numpyencoder>=0.3.0",
 "pandas>=1.4.1",
-"progressbar33>=2.4",
+"progressbar2>=2.4",
 "pymrio>=0.4.6",
-"odfpy>=1.4.1"
+"odfpy>=1.4.1",
+"pyarrow>=9.0.0",
+"fastparquet>=0.8.0"
 ]
 authors = [
     { name = "Samuel JUHEL", email = "pro@sjuhel.org" },
