@@ -32,10 +32,21 @@ Here is a non-exhaustive chronology of academic works with or about the ARIO mod
 Where to get it ?
 ===================
 
-The full source code is available on Github at: https://github.com/spjuhel/BoARIO
+You can install BoARIO from ``pip`` with:
+
+.. code:: console
+
+   pip install boario
+
+
+The full source code is also available on Github at: https://github.com/spjuhel/BoARIO
+
+More info in the `installation page`_ of the documentation.
+
+.. _installation page: https://spjuhel.github.io/BoARIO/boario-installation.html
 
 How does BoARIO work?
-======================
+=========================
 
 In a nutshell, BoARIO takes the following inputs :
 
@@ -51,43 +62,12 @@ in order to produce the following outputs:
 
 - aggregated indicators for the whole simulation (shortages duration, aggregated impacts, ...)
 
-- more to come
-
-example of use
+Example of use
 =================
 
-See :ref:`boario-quickstart`
+See `boario-quickstart`_.
 
-Useful scripts
-=================
-
-.. warning::
-   Probably deprecated !
-
-The github repository contains a variety of `useful scripts`_ to ease the generation of input data, run simulations, produce indicators, etc. such as :
-
-1. ``python aggreg_exio3.py exio_path.zip aggreg_path.ods sector_names.json [region_aggreg.json] -o output`` :
-
-This script takes an EXIOBASE3 MRIO zip file, the ``input`` sheet of a libreoffice spreadsheet, a json file for sector renaming and optionally a json file for region aggregation (see examples of such files in the git repo, `here`_) and produce a pickle file (python format) of the corresponding MRIO tables directly usable by the model. ``region_aggreg.json`` must have the following form :
-
-.. code:: json
-
-   {
-   "aggregates": {
-          "original region": "new region",
-          "original region": "new region",
-          },
-   "missing": "name for all region not named before"
-   }
-
-These scripts are mainly thought to be used for my PhD project and with the `Snakemake workflow`_ also available on the repository. (Description of this process soon !)
-
-.. _`useful scripts`: https://github.com/spjuhel/BoARIO/tree/master/scripts
-.. _`here`: https://github.com/spjuhel/BoARIO/tree/master/other
-.. _`Snakemake workflow`: https://github.com/spjuhel/BoARIO/tree/master/workflow
-
-More description to come
-=============================
+.. _boario-quickstart: https://spjuhel.github.io/BoARIO/boario-quickstart.html
 
 Credits
 ========
