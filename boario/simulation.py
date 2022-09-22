@@ -161,7 +161,7 @@ class Simulation(object):
 
             # Still in the case where it is an argument
             if mrio_params_loaded is None:
-                if params_path.is_dir():
+                if params_path is not None and params_path.is_dir():
                     mrio_params_path = params_path / 'mrio_params.json'
                     if not mrio_params_path.exists():
                         raise FileNotFoundError("MRIO parameters file not found, it should be here: ",mrio_params_path.absolute())
@@ -170,7 +170,7 @@ class Simulation(object):
                             logger.info("Loading MRIO parameters from {}".format(mrio_params_path))
                             mrio_params_loaded = json.load(f)
                 else:
-                    if not params_path.exists():
+                    if not mrio_params_path.exists():
                         raise FileNotFoundError("MRIO parameters file not found, it should be here: ",mrio_params_path.absolute())
                     else:
                         with mrio_params_path.open() as f:

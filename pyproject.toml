@@ -10,7 +10,7 @@ dynamic = [
     "version",
 ]
 description = "A Python implementation of ARIO models"
-readme = "README.md"
+readme = "README.rst"
 license = ""
 requires-python = ">=3.7, <4"
 dependencies = [

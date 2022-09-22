@@ -55,7 +55,6 @@ class Indicators(object):
 
     def __init__(self, data_dict:dict, include_crash:bool = False) -> None:
         logger.info("Instanciating indicators")
-        print(data_dict['events'])
         super().__init__()
         if not include_crash:
             if data_dict["has_crashed"]:
@@ -162,7 +161,7 @@ class Indicators(object):
         data_dict["has_crashed"] = sim.has_crashed
         data_dict["regions"] = sim.model.regions
         data_dict["sectors"] = sim.model.sectors
-        with (pathlib.Path(sim.params["results_storage"])/".simulated_events.json").open() as f:
+        with (pathlib.Path(sim.params["results_storage"])/"simulated_events.json").open() as f:
             events = json.load(f)
 
         data_dict["events"] = events
@@ -217,7 +216,8 @@ class Indicators(object):
         else:
             data_dict["has_crashed"] = False
         results_path = data_dict["results_storage"] = folder.absolute()
-        t = data_dict["n_temporal_units_to_sim"] = params['n_temporal_units_to_sim']
+        data_dict["n_temporal_units_to_sim"] = params['n_temporal_units_to_sim']
+        t = data_dict["n_temporal_units_to_sim"]
         data_dict['params'] = params
         data_dict["n_temporal_units_simulated"] = params['n_temporal_units_simulated']
         data_dict["regions"] = indexes["regions"]

@@ -418,6 +418,8 @@ class ARIOBaseModel(object):
             dmg_demand_restorable = self.rebuild_demand * self.rebuild_tau
         else:
             dmg_demand_restorable = None # rebuild demand is treated elsewhere in this case
+        assert not (self.matrix_orders < 0).any()
+        assert not (self.final_demand < 0).any()
         prod_reqby_demand = self.matrix_orders.sum(axis=1) + self.final_demand.sum(axis=1)
         if dmg_demand_restorable is not None:
             prod_reqby_demand += dmg_demand_restorable.sum(axis=1)
