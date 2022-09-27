@@ -107,7 +107,7 @@ class Indicators(object):
             stocks_df['sector'] = stocks_df['sector'].astype("category")
         self.df_stocks = stocks_df
         del stocks_df
-        self.df_stocks = self.df_stocks.interpolate()
+        # self.df_stocks = self.df_stocks.interpolate()
 
         self.df_loss = self.fd_unmet_df.melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'fd_cat', 'value':'fdloss'}).reset_index()
         self.df_loss = self.df_loss.interpolate()
