@@ -147,13 +147,13 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_tau"])+"_inv_time_"+str(int(alt_inv_dur))
     else:
         sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_tau"])
-    model = Simulation(sim_params, mrio_path, modeltype=sim_params['model_type'])
+    sim = Simulation(sim_params, mrio_path, modeltype=sim_params['model_type'])
     if alt_inv_dur:
-        model.mrio.change_inv_duration(alt_inv_dur)
-    model.read_events_from_list([event])
+        sim.model.change_inv_duration(alt_inv_dur)
+    sim.read_events_from_list([event])
     try:
         scriptLogger.info("Model ready, looping")
-        model.loop(progress=False)
+        sim.loop(progress=False)
     except Exception:
         scriptLogger.exception("There was a problem:")
 
