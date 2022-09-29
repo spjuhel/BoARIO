@@ -25,8 +25,8 @@ dependencies = [
 "pymrio>=0.4.6",
 "odfpy>=1.4.1",
 "pyarrow>=9.0.0",
-"fastparquet>=0.8.0"
 ]
+
 authors = [
     { name = "Samuel JUHEL", email = "pro@sjuhel.org" },
 ]
