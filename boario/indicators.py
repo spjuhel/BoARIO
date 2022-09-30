@@ -66,6 +66,9 @@ class Indicators(object):
         else:
             stock_treatement = False
 
+        self.params = data_dict["params"]
+        self.n_rows = data_dict["n_temporal_units_to_sim"]
+
         self.prod_df = pd.DataFrame(data_dict["prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region','sector']))
         self.prod_df = self.prod_df.interpolate()
         self.prodmax_df = pd.DataFrame(data_dict["prodmax"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
@@ -110,7 +113,6 @@ class Indicators(object):
         # self.df_stocks = self.df_stocks.interpolate()
 
         self.df_loss = self.fd_unmet_df.melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'fd_cat', 'value':'fdloss'}).reset_index()
-        self.df_loss = self.df_loss.interpolate()
 
         self.df_limiting = pd.DataFrame(data_dict["limiting_stocks"].reshape(data_dict["n_temporal_units_to_sim"]*data_dict["n_sectors"],-1),
                                         index=pd.MultiIndex.from_product([steps, data_dict["sectors"]], names=['step', 'stock of']),
@@ -342,19 +344,34 @@ class Indicators(object):
         df2=self.prod_df.copy()
         #df2.columns=df2.columns.droplevel(0)
         prod_chg = df2 - df2.iloc[0,:]
+        # Round to € to avoid floating error differences
         prod_chg = prod_chg.round(6)
+        # Aggregate rebuilding and non-rebuilding sectors
+        prod_chg_agg_1 = pd.concat([prod_chg.loc[:,pd.IndexSlice[:,self.rebuilding_sectors]].groupby('region',axis=1).sum(),
+                                    prod_chg.loc[prod_chg.index.difference(prod_chg.loc[:,pd.IndexSlice[:,self.rebuilding_sectors]].columns)].groupby('region',axis=1).sum()],
+                                   keys=['rebuilding', 'non-rebuilding'], names=['sectors affected'],axis=1)
+
+        n_semesters = (self.n_rows // (self.params['year_to_temporal_unit_factor'] // 2))
+        row_to_semester = (self.params['year_to_temporal_unit_factor'] // 2)
+        modulo = (self.params['year_to_temporal_unit_factor'] % 2)
+        logger.info("There are {} semesters [{} rows, each representing a {}th of a year]".format(n_semesters, self.n_rows, self.params['year_to_temporal_unit_factor']))
+        prod_chg_sect_sem_l = []
+        for sem in range(0,n_semesters):
+            prod_chg_sect_sem_l.append(prod_chg_agg_1.iloc[sem*row_to_semester:((sem+1)*row_to_semester)+(sem%2)*modulo].sum().T)
+
+        prod_chg_region = pd.concat(prod_chg_sect_sem_l, keys=['semester {}'.format(v+1) for v in range(n_semesters)], names=['semester'])
+        prod_chg_region = pd.DataFrame({(self.storage_path.parent.name,self.storage_path.name):prod_chg_region}).T
+        prod_chg_region.to_json(self.storage_path/"prod_chg.json", indent=4, orient='split')
+
         prod_chg_sect = prod_chg.sum()
-        self.prod_chg_region = pd.concat([prod_chg_sect.loc[pd.IndexSlice[:,self.rebuilding_sectors]].groupby('region').sum(),prod_chg_sect.loc[prod_chg_sect.index.difference(prod_chg_sect.loc[pd.IndexSlice[:,self.rebuilding_sectors]].index)].groupby('region').sum()], keys=['rebuilding', 'non-rebuilding'], names=['sectors affected'])
-        self.prod_chg_region = pd.DataFrame({(self.storage_path.parent.name,self.storage_path.name):self.prod_chg_region}).T
-        self.prod_chg_region.to_json(self.storage_path/"prod_chg.json", indent=4, orient='split')
+        tmp = prod_chg_sect.sort_values(ascending=False,key=abs).head(5).to_dict()
+        self.indicators['top_5_sector_chg'] = {str(k): v for k, v in tmp.items()}
 
         self.indicators['prod_gain_tot'] = prod_chg.mul(prod_chg.gt(0)).sum().sum()
         self.indicators['prod_lost_tot'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum() * (-1)
         prod_chg = prod_chg.drop(self.aff_regions, axis=1)
         self.indicators['prod_gain_unaff'] = prod_chg.mul(prod_chg.gt(0)).sum().sum()
         self.indicators['prod_lost_unaff'] = prod_chg.mul(~prod_chg.gt(0)).sum().sum() * (-1)
-        tmp = prod_chg_sect.sort_values(ascending=False,key=abs).head(5).to_dict()
-        self.indicators['top_5_sector_chg'] = {str(k): v for k, v in tmp.items()}
 
     def update_indicators(self):
         logger.info("(Re)computing all indicators")
@@ -374,11 +391,26 @@ class Indicators(object):
             json.dump(self.indicators, f, cls=numpyencoder.NumpyEncoder)
 
     def calc_fd_loss_region(self):
-        df2 = self.df_loss.set_index(['step','region','sector']).unstack([1,2])
-        df2 = df2.round(6).sum()
-        self.df_loss_region = pd.concat([df2.loc[pd.IndexSlice[:,:,self.rebuilding_sectors]].groupby('region').sum(),df2.loc[df2.index.difference(df2.loc[pd.IndexSlice[:,:,self.rebuilding_sectors]].index)].groupby('region').sum()], keys=['rebuilding', 'non-rebuilding'], names=['sectors affected'])
-        self.df_loss_region = pd.DataFrame({(self.storage_path.parent.name,self.storage_path.name):self.df_loss_region}).T
-        self.df_loss_region.to_json(self.storage_path/"fd_loss.json", indent=4, orient='split')
+        fd_loss = self.fd_unmet_df.copy().round(6)
+        fd_loss_agg_1 = pd.concat([fd_loss.loc[:,pd.IndexSlice[:,self.rebuilding_sectors]].groupby('region',axis=1).sum(),
+                                    fd_loss.loc[fd_loss.index.difference(fd_loss.loc[:,pd.IndexSlice[:,self.rebuilding_sectors]].columns)].groupby('region',axis=1).sum()],
+                                   keys=['rebuilding', 'non-rebuilding'], names=['sectors affected'],axis=1)
+
+        n_semesters = (self.n_rows // (self.params['year_to_temporal_unit_factor'] // 2))
+        row_to_semester = (self.params['year_to_temporal_unit_factor'] // 2)
+        modulo = (self.params['year_to_temporal_unit_factor'] % 2)
+        logger.info("There are {} semesters [{} rows, each representing a {}th of a year]".format(n_semesters, self.n_rows, self.params['year_to_temporal_unit_factor']))
+        fd_loss_sect_sem_l = []
+        for sem in range(0,n_semesters):
+            fd_loss_sect_sem_l.append(fd_loss_agg_1.iloc[sem*row_to_semester:((sem+1)*row_to_semester)+(sem%2)*modulo].sum().T)
+
+        fd_loss_region = pd.concat(fd_loss_sect_sem_l, keys=['semester {}'.format(v+1) for v in range(n_semesters)], names=['semester'])
+        fd_loss_region = pd.DataFrame({(self.storage_path.parent.name,self.storage_path.name):fd_loss_region}).T
+        fd_loss_region.to_json(self.storage_path/"fd_loss.json", indent=4, orient='split')
+
+        fd_loss_sect = fd_loss.sum()
+        tmp = fd_loss_sect.sort_values(ascending=False,key=abs).head(5).to_dict()
+        self.indicators['top_5_sector_fdloss'] = {str(k): v for k, v in tmp.items()}
 
     def save_dfs(self):
         logger.info("Saving computed dataframe to results folder")
