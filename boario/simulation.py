@@ -230,7 +230,11 @@ Available types are {}
         self.events_timings = set()
         self.n_temporal_units_to_sim = simulation_params['n_temporal_units_to_sim']
         self.current_temporal_unit = 0
-
+        self.equi = {
+            (int(0),int(0),"production"):"equi",
+            (int(0),int(0),"stocks"):"equi",
+            (int(0),int(0),"rebuilding"):"equi"
+        }
         self.n_temporal_units_simulated = 0
         self._monotony_checker = 0
         self.scheme = 'proportional'
@@ -315,11 +319,13 @@ Available types are {}
         self.params['has_crashed'] = self.has_crashed
         with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_params.json").open('w') as f:
             json.dump(self.params, f, indent=4)
+        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"equilibrium_checks.json").open('w') as f:
+            json.dump(self.equi, f, indent=4)
         logger.info('Loop complete')
         if progress:
             bar.finish() # type: ignore (bar possibly unbound but actually not possible)
 
-    def next_step(self, check_period : int = 10, min_steps_check : int = None, min_failing_regions : int = None):
+    def next_step(self, check_period : int = 182, min_steps_check : int = None, min_failing_regions : int = None):
         """Advance the model run by one step.
 
         This method wraps all computations and logging to proceed to the next
@@ -393,16 +399,32 @@ Available types are {}
                 logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt".format(self.current_temporal_unit, e.name,e.occurence_time, e.aff_regions, e.q_damages))
         self.model.calc_orders(self.current_events)
         # TODO : Redo this properly
-        if False:
-            if self.current_temporal_unit > min_steps_check and (self.current_temporal_unit % check_period == 0):
-                if self.model.check_crash() >  min_failing_regions:
-                    return 1
-                if self.current_temporal_unit >= self.params['min_duration'] and self.model.rebuilding_demand.sum() == 0 and self.model.check_production_eq_soft(self.current_temporal_unit, period = check_period):
-                    self._monotony_checker +=1
-                else:
-                    self._monotony_checker = 0
+
+        n_checks=0
+        if self.current_temporal_unit > min_steps_check and (self.current_temporal_unit > (n_checks+1)*check_period):
+            self.check_equilibrium(n_checks)
         self.current_temporal_unit += self.params['temporal_units_by_step']
         return 0
+
+    def check_equilibrium(self,n_checks:int):
+        if np.greater_equal(self.model.production,self.model.X_0).all():
+            self.equi[(n_checks,self.current_temporal_unit,"production")] = "greater"
+        elif np.allclose(self.model.production,self.model.X_0,atol=0.01):
+            self.equi[(n_checks,self.current_temporal_unit,"production")] = "equiv"
+        else:
+            self.equi[(n_checks,self.current_temporal_unit,"production")] = "not equiv"
+
+        if np.greater_equal(self.model.matrix_stock,self.model.matrix_stock_0).all():
+            self.equi[(n_checks,self.current_temporal_unit,"stocks")] = "greater"
+        elif np.allclose(self.model.production,self.model.X_0,atol=0.01):
+            self.equi[(n_checks,self.current_temporal_unit,"stocks")] = "equiv"
+        else:
+            self.equi[(n_checks,self.current_temporal_unit,"stocks")] = "not equiv"
+
+        if not self.model.rebuild_demand.any():
+            self.equi[(n_checks,self.current_temporal_unit,"rebuilding")] = "finished"
+        else:
+            self.equi[(n_checks,self.current_temporal_unit,"production")] = "not finished"
 
     def update_events(self):
         """Update events status
