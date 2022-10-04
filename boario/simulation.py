@@ -320,7 +320,7 @@ Available types are {}
         with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_params.json").open('w') as f:
             json.dump(self.params, f, indent=4)
         with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"equilibrium_checks.json").open('w') as f:
-            json.dump(self.equi, f, indent=4)
+            json.dump({str(k): v for k, v in self.equi.items()}, f, indent=4)
         logger.info('Loop complete')
         if progress:
             bar.finish() # type: ignore (bar possibly unbound but actually not possible)
