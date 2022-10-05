@@ -403,6 +403,7 @@ Available types are {}
         n_checks=0
         if self.current_temporal_unit > min_steps_check and (self.current_temporal_unit > (n_checks+1)*check_period):
             self.check_equilibrium(n_checks)
+            n_checks+=1
         self.current_temporal_unit += self.params['temporal_units_by_step']
         return 0
 
@@ -410,21 +411,21 @@ Available types are {}
         if np.greater_equal(self.model.production,self.model.X_0).all():
             self.equi[(n_checks,self.current_temporal_unit,"production")] = "greater"
         elif np.allclose(self.model.production,self.model.X_0,atol=0.01):
-            self.equi[(n_checks,self.current_temporal_unit,"production")] = "equiv"
+            self.equi[(n_checks,self.current_temporal_unit,"production")] = "equi"
         else:
-            self.equi[(n_checks,self.current_temporal_unit,"production")] = "not equiv"
+            self.equi[(n_checks,self.current_temporal_unit,"production")] = "not equi"
 
         if np.greater_equal(self.model.matrix_stock,self.model.matrix_stock_0).all():
             self.equi[(n_checks,self.current_temporal_unit,"stocks")] = "greater"
         elif np.allclose(self.model.production,self.model.X_0,atol=0.01):
-            self.equi[(n_checks,self.current_temporal_unit,"stocks")] = "equiv"
+            self.equi[(n_checks,self.current_temporal_unit,"stocks")] = "equi"
         else:
-            self.equi[(n_checks,self.current_temporal_unit,"stocks")] = "not equiv"
+            self.equi[(n_checks,self.current_temporal_unit,"stocks")] = "not equi"
 
         if not self.model.rebuild_demand.any():
             self.equi[(n_checks,self.current_temporal_unit,"rebuilding")] = "finished"
         else:
-            self.equi[(n_checks,self.current_temporal_unit,"production")] = "not finished"
+            self.equi[(n_checks,self.current_temporal_unit,"rebuilding")] = "not finished"
 
     def update_events(self):
         """Update events status
