@@ -236,6 +236,7 @@ Available types are {}
             (int(0),int(0),"rebuilding"):"equi"
         }
         self.n_temporal_units_simulated = 0
+        self._n_checks = 0
         self._monotony_checker = 0
         self.scheme = 'proportional'
         self.has_crashed = False
@@ -400,8 +401,9 @@ Available types are {}
         self.model.calc_orders(self.current_events)
         # TODO : Redo this properly
         n_checks = self.current_temporal_unit // check_period
-        if (self.current_temporal_unit > n_checks*check_period):
+        if (n_checks > self._n_checks):
             self.check_equilibrium(n_checks)
+            self._n_checks+=1
 
         self.current_temporal_unit += self.params['temporal_units_by_step']
         return 0
