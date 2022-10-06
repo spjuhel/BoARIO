@@ -400,7 +400,7 @@ Available types are {}
         self.model.calc_orders(self.current_events)
         # TODO : Redo this properly
         n_checks = self.current_temporal_unit // check_period
-        if (self.current_temporal_unit > (n_checks+1)*check_period):
+        if (self.current_temporal_unit > n_checks*check_period):
             self.check_equilibrium(n_checks)
 
         self.current_temporal_unit += self.params['temporal_units_by_step']
