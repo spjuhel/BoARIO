@@ -399,11 +399,10 @@ Available types are {}
                 logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt".format(self.current_temporal_unit, e.name,e.occurence_time, e.aff_regions, e.q_damages))
         self.model.calc_orders(self.current_events)
         # TODO : Redo this properly
-
-        n_checks=0
-        if self.current_temporal_unit > min_steps_check and (self.current_temporal_unit > (n_checks+1)*check_period):
+        n_checks = self.current_temporal_unit // check_period
+        if (self.current_temporal_unit > (n_checks+1)*check_period):
             self.check_equilibrium(n_checks)
-            n_checks+=1
+
         self.current_temporal_unit += self.params['temporal_units_by_step']
         return 0
 
