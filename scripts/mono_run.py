@@ -138,6 +138,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     sim = Simulation(sim_params, mrio_path, modeltype=sim_params['model_type'])
     if alt_inv_dur:
         sim.model.change_inv_duration(alt_inv_dur)
+    print(event)
     sim.read_events_from_list([event])
     try:
         scriptLogger.info("Model ready, looping")

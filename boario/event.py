@@ -30,6 +30,8 @@ class Event(object):
         self.occurence_time = event['occur']
         self.duration = event['duration']
         self.q_damages = event['q_dmg']
+        if 'r_dmg' in event.keys():
+            self.r_damages = event['r_dmg']
         self.aff_regions = event['aff_regions']
         if type(self.aff_regions) is str:
             self.aff_regions = [self.aff_regions]
