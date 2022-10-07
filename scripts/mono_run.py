@@ -28,12 +28,20 @@ module_path = os.path.abspath(os.path.join("./"))
 if module_path not in sys.path:
     sys.path.append(module_path)
 
+import boario
 from boario.simulation import Simulation
 import json
 import pathlib
 import logging
 import pickle
 import argparse
+
+def dist_is_editable():
+   """Is distribution an editable install?"""
+   for pth in boario.__path__:
+       if "site-packages" in pth:
+           return False
+   return True
 
 def get_git_describe() -> str:
     return subprocess.check_output(['git', 'describe', '--tags']).decode('ascii').strip()
@@ -170,6 +178,8 @@ if __name__ == "__main__":
     scriptLogger.addHandler(consoleHandler)
     scriptLogger.setLevel(logging.INFO)
     scriptLogger.propagate = False
-    scriptLogger.info("You are running the following version of BoARIO : {}".format(get_git_describe()))
+    scriptLogger.info("You are running the following version of BoARIO : {}".format(boario.__version__))
+    scriptLogger.info("You are using BoARIO in editable install mode : {}".format(dist_is_editable()))
+    scriptLogger.info("You are using BoARIO in editable install mode : {}".format(boario.__path__))
     scriptLogger.info("=============== STARTING RUN ================")
     run(args.region, args.params, args.psi, int(args.inv_tau), args.stype, args.rtype, args.flood_dmg, args.mrios_path, args.output_dir, args.flood_gdp_file, args.event_file, args.mrio_params, args.alt_inv_dur)

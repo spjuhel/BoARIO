@@ -263,6 +263,7 @@ Available types are {}
         tmp.setLevel(logging.DEBUG)
         tmp.setFormatter(DEBUGFORMATTER)
         logger.addHandler(tmp)
+        logger.info("Events : {}".format(self.events))
         with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_events.json").open('w') as f:
             json.dump(self.events, f, indent=4, cls=EventEncoder)
         if progress:
