@@ -68,6 +68,7 @@ class Indicators(object):
 
         self.params = data_dict["params"]
         self.n_rows = data_dict["n_temporal_units_to_sim"]
+        self.temporal_units_by_step = data_dict["temporal_units_by_step"]
 
         self.prod_df = pd.DataFrame(data_dict["prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region','sector']))
         self.prod_df = self.prod_df.interpolate()
@@ -169,6 +170,7 @@ class Indicators(object):
         data_dict['params'] = sim.params
         data_dict["n_temporal_units_to_sim"] = sim.n_temporal_units_to_sim
         data_dict["n_temporal_units_simulated"] = sim.n_temporal_units_simulated
+        data_dict["temporal_units_by_step"] = sim.params["temporal_units_by_step"]
         data_dict["has_crashed"] = sim.has_crashed
         data_dict["regions"] = sim.model.regions
         data_dict["sectors"] = sim.model.sectors
@@ -231,6 +233,7 @@ class Indicators(object):
         t = data_dict["n_temporal_units_to_sim"]
         data_dict['params'] = params
         data_dict["n_temporal_units_simulated"] = params['n_temporal_units_simulated']
+        data_dict["temporal_units_by_step"] = params["temporal_units_by_step"]
         data_dict["regions"] = indexes["regions"]
         data_dict["n_regions"] = indexes["n_regions"]
         data_dict["sectors"] = indexes["sectors"]
@@ -243,7 +246,7 @@ class Indicators(object):
         data_dict["r_demand"] = np.memmap(results_path/"rebuild_demand_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
         data_dict["r_prod"] = np.memmap(results_path/"rebuild_prod_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
         data_dict["fd_unmet"] = np.memmap(results_path/"final_demand_unmet_record", mode='r+', dtype='float64',shape=(t,indexes['n_regions']*indexes['n_sectors']))
-        data_dict["limiting_stocks"] = np.memmap(results_path/"limiting_stocks_record", mode='r+', dtype='bool',shape=(t*indexes['n_sectors'],indexes['n_industries']))
+        data_dict["limiting_stocks"] = np.memmap(results_path/"limiting_stocks_record", mode='r+', dtype='byte',shape=(t*indexes['n_sectors'],indexes['n_industries']))
         if params['register_stocks']:
             if not (results_path/"stocks_record").exists():
                 raise FileNotFoundError("Stocks record file was not found {}".format(results_path/"stocks_record"))
@@ -277,6 +280,7 @@ class Indicators(object):
             data_dict["has_crashed"] = simulation_params["has_crashed"]
         data_dict['params'] = simulation_params
         data_dict["results_storage"] = results_path
+        data_dict["temporal_units_by_step"] = simulation_params["temporal_units_by_step"]
         data_dict["n_temporal_units_to_sim"] = t
         data_dict["n_temporal_units_simulated"] = simulation_params['n_temporal_units_simulated']
         data_dict["regions"] = indexes["regions"]
@@ -293,7 +297,7 @@ class Indicators(object):
         data_dict["fd_unmet"] = np.memmap(results_path/"final_demand_unmet_record", mode='r+', dtype='float64',shape=(t,indexes['n_regions']*indexes['n_sectors']))
         if simulation_params['register_stocks']:
             data_dict["stocks"] = np.memmap(results_path/"stocks_record", mode='r+', dtype='float64',shape=(t*indexes['n_sectors'],indexes['n_industries']))
-        data_dict["limiting_stocks"] = np.memmap(results_path/"limiting_stocks_record", mode='r+', dtype='bool',shape=(t*indexes['n_sectors'],indexes['n_industries']))
+        data_dict["limiting_stocks"] = np.memmap(results_path/"limiting_stocks_record", mode='r+', dtype='byte',shape=(t*indexes['n_sectors'],indexes['n_industries']))
         return data_dict
 
     def calc_top_failing_sect(self):
@@ -315,22 +319,34 @@ class Indicators(object):
 
     def calc_general_shortage(self):
         #TODO: replace hard values by soft.
-        a = self.df_limiting.T.stack(level=0)
-        #a.index = a.index.rename(['step','sector', 'region']) #type: ignore
-        b = a.sum(axis=1).groupby(['step','region','sector']).sum()/8
-        c = b.groupby(['step','region']).sum()/8
-        c = c.groupby('step').sum()/6
+        n_regions = self.df_limiting.levels[0].size
+        n_sectors = self.df_limiting.levels[1].size
+        # have only steps in index (next step not possible with multiindex)
+        a = self.df_limiting.unstack()
+        # select only simulated steps (we can't store nan in bool or byte dtype array)
+        a = a.iloc[lambda x : x.index % self.temporal_units_by_step == 0]
+        # We put -1 initially, so this should check we have correctly selected the simulated rows
+        assert (a >= 0).all().all()
+        # put input stocks as columns and the rest as index
+        a = a.stack().T.stack(level=0)
+        # sum for all input and divide by n_sector to get "input shortage fraction"
+        # by industry
+        b = a.sum(axis=1).groupby(['step','region','sector']).sum()/n_sectors
+        # by sector
+        c = b.groupby(['step','region']).sum()/n_sectors
+        # by region
+        c = c.groupby('step').sum()/n_regions
         if not c.ne(0).any():
             self.indicators['shortage_b'] = False
         else:
             self.indicators['shortage_b'] = True
-            shortage_date_start = c.ne(0.0).argmax()
+            shortage_date_start = c.ne(0.0).idxmax()
             self.indicators['shortage_date_start'] = shortage_date_start
-            shortage_date_end = c.iloc[shortage_date_start:].eq(0).argmax()+shortage_date_start
+            shortage_date_end = c.loc[shortage_date_start:].eq(0).idxmax()
             self.indicators['shortage_date_end'] = shortage_date_end
-            self.indicators['shortage_date_max'] = c.argmax()
+            self.indicators['shortage_date_max'] = c.idxmax()
             self.indicators['shortage_ind_max'] = c.max()
-            self.indicators['shortage_ind_mean'] = c.iloc[shortage_date_start:shortage_date_end].mean()
+            self.indicators['shortage_ind_mean'] = c.loc[shortage_date_start:shortage_date_end].mean()
 
     def calc_first_shortages(self):
         a = self.df_limiting.stack([0,1]) #type: ignore
