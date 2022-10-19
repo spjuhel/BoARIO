@@ -115,6 +115,13 @@ class Event(object):
             elif type(self.dmg_distrib_across_sectors) == str:
                 if self.dmg_distrib_across_sectors !=  "GDP":
                     raise ValueError("damage <-> sectors distribution %s not implemented",self.dmg_distrib_across_sectors)
+            elif type(self.dmg_distrib_across_sectors) == dict:
+                if not set(self.dmg_distrib_across_sectors).issubset(sim.model.sectors):
+                    tmp = set(self.dmg_distrib_across_sectors.keys).difference(set(sim.model.sectors))
+                    raise ValueError("""A least one affected sector is not a valid sector in the mrio table, check events json
+
+            suspicious sectors : {}
+            """.format(tmp))
             elif type(self.dmg_distrib_across_sectors) == list:
                 if len(self.dmg_distrib_across_sectors) != len(self.aff_sectors):
                     raise ValueError("Number of affected sectors and size of damage distribution list are not equal")
