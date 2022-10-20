@@ -309,7 +309,8 @@ Available types are {}
 
         self.model.rebuild_demand_evolution.flush()
         self.model.final_demand_unmet_evolution.flush()
-        self.model.classic_demand_evolution.flush()
+        self.model.final_demand_evolution.flush()
+        self.model.io_demand_evolution.flush()
         self.model.production_evolution.flush()
         self.model.limiting_stocks_evolution.flush()
         self.model.rebuild_production_evolution.flush()
@@ -542,9 +543,6 @@ Available types are {}
             aff_sectors_idx = np.searchsorted(self.model.sectors, list(self.events[event_to_add_id].dmg_distrib_across_sectors.keys()))
             shares = np.zeros(shape=(self.model.n_regions,self.model.n_sectors))
             shares[aff_regions_idx] = list(self.events[event_to_add_id].dmg_distrib_across_sectors.values())
-            logger.info(aff_sectors_idx)
-            logger.info(shares)
-            logger.info(aff_regions_idx)
             q_dmg_regions_sectors = q_dmg_regions * (shares[aff_regions_idx][:,aff_sectors_idx]/shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[:,np.newaxis])
         elif type(self.events[event_to_add_id].dmg_distrib_across_sectors) == list:
             q_dmg_regions_sectors = q_dmg_regions * np.array(self.events[event_to_add_id].dmg_distrib_across_sectors)
