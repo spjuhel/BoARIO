@@ -251,8 +251,11 @@ class ARIOBaseModel(object):
         self.production_evolution.fill(np.nan)
         self.production_cap_evolution = np.memmap(results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.production_cap_evolution.fill(np.nan)
-        self.classic_demand_evolution = np.memmap(results_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
-        self.classic_demand_evolution.fill(np.nan)
+        self.final_demand_evolution = np.memmap(results_storage/"final_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.final_demand_evolution.fill(np.nan)
+        self.io_demand_evolution = np.memmap(results_storage/"io_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.io_demand_evolution.fill(np.nan)
+
         self.rebuild_demand_evolution = np.memmap(results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.rebuild_demand_evolution.fill(np.nan)
         self.rebuild_stock_evolution = np.memmap(results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
@@ -862,8 +865,11 @@ class ARIOBaseModel(object):
     def write_production_max(self, current_temporal_unit:int) -> None:
         self.production_cap_evolution[current_temporal_unit] = self.production_cap
 
-    def write_classic_demand(self, current_temporal_unit:int) -> None:
-         self.classic_demand_evolution[current_temporal_unit] = self.matrix_orders.sum(axis=1) + self.final_demand.sum(axis=1)
+    def write_io_demand(self, current_temporal_unit:int) -> None:
+         self.io_demand_evolution[current_temporal_unit] = self.matrix_orders.sum(axis=1)
+
+    def write_final_demand(self, current_temporal_unit:int) -> None:
+         self.final_demand_evolution[current_temporal_unit] = self.final_demand.sum(axis=1)
 
     def write_rebuild_demand(self, current_temporal_unit:int) -> None:
         to_write = np.full(self.n_regions*self.n_sectors,0.0)

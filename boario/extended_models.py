@@ -30,7 +30,7 @@ class ARIOModelPsi(ARIOBaseModel):
 
     Attributes
     ----------
-    
+
     psi : float
           Value of the psi parameter. (see :ref:`boario-math`).
     restoration_tau : numpy.ndarray of int
