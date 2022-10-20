@@ -388,6 +388,7 @@ Available types are {}
         self.model.write_final_demand(self.current_temporal_unit)
         self.model.write_io_demand(self.current_temporal_unit)
         self.model.calc_production_cap()
+        self.model.calc_final_demand()
         constraints = self.model.calc_production(self.current_temporal_unit)
         self.model.write_limiting_stocks(self.current_temporal_unit, constraints)
         self.model.write_production(self.current_temporal_unit)
