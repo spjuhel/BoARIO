@@ -23,15 +23,11 @@ from nptyping import NDArray
 
 from boario import logger
 from boario.event import *
-from boario.utils.pymutils import *
 from pymrio.core.mriosystem import IOSystem
 
-__all__ = ["ARIOBaseModel","INV_THRESHOLD","VALUE_ADDED_NAMES","VA_idx", "lexico_reindex", "LT_TAU", "EPSILON"]
+__all__ = ["ARIOBaseModel","INV_THRESHOLD","VALUE_ADDED_NAMES","VA_idx", "lexico_reindex"]
 
 INV_THRESHOLD = 0 #20 #temporal_units
-
-LT_TAU = 60
-EPSILON = 1e-6
 
 VALUE_ADDED_NAMES = ['VA', 'Value Added', 'value added',
                         'factor inputs', 'factor_inputs', 'Factors Inputs',
@@ -47,6 +43,35 @@ VA_idx = np.array(['Taxes less subsidies on products purchased: Total',
        'Operating surplus: Rents on land',
        'Operating surplus: Royalties on resources',
        'Operating surplus: Remaining net operating surplus'], dtype=object)
+
+def lexico_reindex(mrio: pymrio.IOSystem) -> pymrio.IOSystem:
+    """Reindex IOSystem lexicographicaly
+
+    Sort indexes and columns of the dataframe of a ``pymrio`` `IOSystem <https://pymrio.readthedocs.io/en/latest/intro.html>` by
+    lexical order.
+
+    Parameters
+    ----------
+    mrio : pymrio.IOSystem
+        The IOSystem to sort
+
+    Returns
+    -------
+    pymrio.IOSystem
+        The sorted IOSystem
+
+
+    """
+
+    mrio.Z = mrio.Z.reindex(sorted(mrio.Z.index), axis=0)
+    mrio.Z = mrio.Z.reindex(sorted(mrio.Z.columns), axis=1)
+    mrio.Y = mrio.Y.reindex(sorted(mrio.Y.index), axis=0)
+    mrio.Y = mrio.Y.reindex(sorted(mrio.Y.columns), axis=1)
+    mrio.x = mrio.x.reindex(sorted(mrio.x.index), axis=0) #type: ignore
+    mrio.A = mrio.A.reindex(sorted(mrio.A.index), axis=0)
+    mrio.A = mrio.A.reindex(sorted(mrio.A.columns), axis=1)
+
+    return mrio
 
 class ARIOBaseModel(object):
     r"""The core of an ARIO3 model.  Handles the different arrays containing the mrio tables.
@@ -170,20 +195,6 @@ class ARIOBaseModel(object):
             self.inv_duration[self.inv_duration <= 1] = 2
         #################################################################
 
-        #####   Additional params from ARIO4.1 matlab code ###########
-        # penetration in ARIO4.1
-        self._penetration_household = simulation_params["penetration_household"]
-        # penetrationf
-        self._penetration_firms = simulation_params["penetration_firms"]
-        # alpha
-        self._locally_own_K = simulation_params["locally_own_K"]
-        # wage
-        self._wage_numeraire = simulation_params["wage_numeraire"]
-        # exchange_rate
-        self._exchange_rate = simulation_params["exchange_rate"]
-        self._tau_reimbursement = simulation_params["tau_reimbursement"]
-        self._macro_effect = np.ones(self.n_regions)
-        #################################################################
 
         ######## INITIAL MRIO STATE (in step temporality) ###############
         self._matrix_id = np.eye(self.n_sectors)
@@ -193,10 +204,10 @@ class ARIOBaseModel(object):
         with np.errstate(divide='ignore',invalid='ignore'):
             self.Z_distrib = (np.divide(self.Z_0,(np.tile(self.Z_C, (self.n_regions, 1)))))
         self.Z_distrib = np.nan_to_num(self.Z_distrib)
-        self.Z_0 = (pym_mrio.Z.to_numpy() * self.steply_factor * self._exchange_rate)
-        self.Y_0 = (pym_mrio.Y.to_numpy() * self.steply_factor * self._exchange_rate)
-        self.X_0 = (pym_mrio.x.T.to_numpy().flatten() * self.steply_factor * self._exchange_rate) #type: ignore
-        value_added = (pym_mrio.x.T - pym_mrio.Z.sum(axis=0)) * self._exchange_rate
+        self.Z_0 = (pym_mrio.Z.to_numpy() * self.steply_factor)
+        self.Y_0 = (pym_mrio.Y.to_numpy() * self.steply_factor)
+        self.X_0 = (pym_mrio.x.T.to_numpy().flatten() * self.steply_factor) #type: ignore
+        value_added = (pym_mrio.x.T - pym_mrio.Z.sum(axis=0))
         value_added = value_added.reindex(sorted(value_added.index), axis=0) #type: ignore
         value_added = value_added.reindex(sorted(value_added.columns), axis=1)
         value_added[value_added < 0] = 0.0
@@ -216,7 +227,6 @@ class ARIOBaseModel(object):
 
         ####### SIMULATION VARIABLES ####################################
         self.overprod = np.full((self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64)
-        self.scarcity = np.zeros((self.n_regions * self.n_sectors), dtype=np.float64)
         with np.errstate(divide='ignore',invalid='ignore'):
             self.matrix_stock = ((np.tile(self.X_0, (self.n_sectors, 1)) * self.tech_mat) * self.inv_duration[:,np.newaxis])
         self.matrix_stock = np.nan_to_num(self.matrix_stock,nan=np.inf, posinf=np.inf)
@@ -232,25 +242,6 @@ class ARIOBaseModel(object):
         # self.prod_max_toward_rebuilding = None
         self.kapital_lost = np.zeros(self.production.shape)
         self.order_type = simulation_params['order_type']
-        #################################################################
-
-        #####   Additional VARIABLES from ARIO4.1 matlab code ###########
-
-        # Keeping them private (_ prefixed) at the moment before deciding what's what
-        # Conso in ARIO4.1
-        self._firms_buys = self.matrix_orders.sum(axis=0)
-        # Sales
-        self._firms_sales = self.matrix_orders.sum(axis=1)
-        # L
-        self._employement_VA_0 = get_wages_from_factor_inputs(pym_mrio)
-        self._employement_VA = self._employement_VA_0.copy()
-        assert self._employement_VA.shape == (self.n_regions, self.n_sectors)
-        # Profit
-        self._firms_profit = self.production - (self._firms_buys + self._wage_numeraire*self._employement_VA.stack())
-        # DL_ini
-        self._investments_ini = self._wage_numeraire * self._employement_VA.sum(axis=1) + self._locally_own_K * self._firms_profit.reshape((self.n_regions,self.n_sectors)).sum(axis=1)
-        # Budget
-        self._households_budget = np.zeros(self.n_regions)
         #################################################################
 
         ################## SIMULATION TRACKING VARIABLES ################
@@ -729,38 +720,13 @@ class ARIOBaseModel(object):
 
         self.kapital_lost = tot_industry_rebuild_demand.sum(axis=0)
 
-    def calc_final_demand(self) -> None:
-        self.final_demand *= self._macro_effect
-
-    def calc_macro_effect(self) -> None:
-        self._macro_effect = (self._investments_ini + (self._households_budget / self._tau_reimbursement)) / self._investments_ini
-        pass
-
-    def calc_budget(self) -> None:
-        self._households_budget += ( (self._wage_numeraire*self._employement_VA.sum(axis=1) + self._locally_own_K * self._firms_profit.reshape((self.n_regions, self.n_sectors))) - self.final_demand.sum(axis=1) )
-
-    def calc_firms_profit(self) -> None:
-        self._firms_profit = self.production - (self.matrix_orders.sum(axis=0) + self._employement_VA.stack())
-
-    def calc_employement(self) -> None:
-        self._employement_VA = self._employement_VA_0 * (self.production / self.X_0).reshape((self.n_regions, self.n_sectors))
-
-    def calc_scarcity(self) -> None:
-        self.scarcity = self.production_cap[self.total_demand!=0] / self.total_demand[self.total_demand!=0]
-        self.scarcity[self.scarcity > 1.] = 1.
-
     def calc_overproduction(self) -> None:
-        self.calc_scarcity()
-        self.overprod[(self.scarcity < (1. -EPSILON))] += self.overprod_tau * (self.overprod_max - self.overprod[(self.scarcity < 1. -EPSILON)]) * (1-self.scarcity[(self.scarcity < 1. -EPSILON)])
-        self.overprod[(self.scarcity > (1. -EPSILON))] += self.overprod_tau * (1 - self.overprod[(self.scarcity > 1. -EPSILON)])
-        # Old version
-        # scarcity = np.full(self.production.shape, 0.0)
-        # scarcity[self.total_demand!=0] = (self.total_demand[self.total_demand!=0] - self.production[self.total_demand!=0]) / self.total_demand[self.total_demand!=0]
-        # scarcity[np.isnan(scarcity)] = 0
-        # scarcity[np.isclose(scarcity,0)] = 0
-        # overprod_chg = (((self.overprod_max - self.overprod) * (scarcity) * self.overprod_tau) + ((self.overprod_base - self.overprod) * (scarcity == 0) * self.overprod_tau)).flatten()
-        # self.overprod += overprod_chg
-        # self.overprod[self.overprod < 1.] = 1.
+        scarcity = np.full(self.production.shape, 0.0)
+        scarcity[self.total_demand!=0] = (self.total_demand[self.total_demand!=0] - self.production[self.total_demand!=0]) / self.total_demand[self.total_demand!=0]
+        scarcity[np.isnan(scarcity)] = 0
+        overprod_chg = (((self.overprod_max - self.overprod) * (scarcity) * self.overprod_tau) + ((self.overprod_base - self.overprod) * (scarcity == 0) * self.overprod_tau)).flatten()
+        self.overprod += overprod_chg
+        self.overprod[self.overprod < 1.] = 1.
 
     def check_stock_increasing(self, current_temporal_unit:int):
         tmp = np.full(self.matrix_stock.shape,0.0)
