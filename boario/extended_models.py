@@ -18,7 +18,6 @@ from __future__ import annotations
 import pathlib
 import numpy as np
 from boario import logger
-from boario import model_base
 from boario.model_base import *
 from boario.event import *
 from pymrio.core.mriosystem import IOSystem
@@ -60,7 +59,6 @@ class ARIOModelPsi(ARIOBaseModel):
         inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
         restoration_tau = [(self.n_temporal_units_by_step / simulation_params['inventory_restoration_tau']) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
         self.restoration_tau = np.array(restoration_tau)
-
         #################################################################
 
     def calc_production(self, current_temporal_unit:int) -> np.NDArray:
@@ -157,13 +155,11 @@ class ARIOModelPsi(ARIOBaseModel):
         matrix_stock_gap = matrix_stock_goal * 0
         with np.errstate(invalid='ignore'):
             matrix_stock_goal *= self.inv_duration[:,np.newaxis]
-        matrix_stock_goal_LT = matrix_stock_goal * 1/LT_TAU
         if np.allclose(self.matrix_stock, matrix_stock_goal):
             #debug_logger.info("Stock replenished ?")
             pass
         else:
-            #matrix_stock_gap[np.isfinite(matrix_stock_goal)] = (matrix_stock_goal[np.isfinite(matrix_stock_goal)] - self.matrix_stock[np.isfinite(self.matrix_stock)])
-            matrix_stock_gap[np.isfinite(matrix_stock_goal_LT)] = (matrix_stock_goal_LT[np.isfinite(matrix_stock_goal_LT)] - self.matrix_stock[np.isfinite(self.matrix_stock)])
+            matrix_stock_gap[np.isfinite(matrix_stock_goal)] = (matrix_stock_goal[np.isfinite(matrix_stock_goal)] - self.matrix_stock[np.isfinite(self.matrix_stock)])
         assert (not np.isnan(matrix_stock_gap).any()), "NaN in matrix stock gap"
         matrix_stock_gap[matrix_stock_gap < 0] = 0
         # the following line is the only difference with respect to the same function in ARIO base. This should be what defines Guan's change.
@@ -179,7 +175,6 @@ class ARIOModelPsi(ARIOBaseModel):
         else:
             tmp = (np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib)
         assert not (tmp < 0).any()
-        np.clip(tmp, a_min=model_base.EPSILON, a_max=None, out=tmp)
         self.matrix_orders = tmp
 
     def update_params(self, new_params:dict) -> None:
