@@ -358,7 +358,7 @@ class Indicators(object):
     def calc_first_shortages(self):
         a = self.df_limiting.stack([0,1]) #type: ignore
         a = a.swaplevel(1,2).swaplevel(2,3)
-        b = a[a]
+        b = a[a>0]
         b = b[:10]
         res = list(b.index) #type:ignore
         self.indicators['10_first_shortages_(step,region,sector,stock_of)'] = res
@@ -398,13 +398,21 @@ class Indicators(object):
 
     def update_indicators(self):
         logger.info("(Re)computing all indicators")
+        logger.info("Tot fd unmet")
         self.calc_tot_fd_unmet()
+        logger.info("aff fd unmet")
         self.calc_aff_fd_unmet()
+        logger.info("rebuild durations")
         self.calc_rebuild_durations()
+        logger.info("recovery duration")
         self.calc_recovery_duration()
+        logger.info("general shortage")
         self.calc_general_shortage()
+        logger.info("tot prod change")
         self.calc_tot_prod_change()
+        logger.info("fd loss region")
         self.calc_fd_loss_region()
+        logger.info("first shortages")
         self.calc_first_shortages()
 
     def write_indicators(self):
