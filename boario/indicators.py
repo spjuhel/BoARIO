@@ -318,7 +318,7 @@ class Indicators(object):
         self.indicators['aff_fd_unmet'] = self.df_loss[self.df_loss.region.isin(self.aff_regions)]['fdloss'].sum()
 
     def calc_rebuild_durations(self):
-        rebuilding = self.r_demand_df.reset_index().melt(id_vars ="step", var_name=['region','sector'], value_name="rebuild_demand").groupby('step').sum().ne(0).rebuild_demand.to_numpy()
+        rebuilding = self.r_demand_df.reset_index().melt(id_vars ="step", var_name=['region','sector'], value_name="rebuild_demand").groupby('step').sum(numeric_only=True).ne(0).rebuild_demand.to_numpy()
         self.indicators['rebuild_durations'] = [ sum( 1 for _ in group ) for key, group in itertools.groupby( rebuilding ) if key ]
 
     def calc_recovery_duration(self):
@@ -326,8 +326,8 @@ class Indicators(object):
 
     def calc_general_shortage(self):
         #TODO: replace hard values by soft.
-        n_regions = self.df_limiting.levels[0].size
-        n_sectors = self.df_limiting.levels[1].size
+        n_regions = self.df_limiting.columns.levels[0].size
+        n_sectors = self.df_limiting.columns.levels[1].size
         # have only steps in index (next step not possible with multiindex)
         a = self.df_limiting.unstack()
         # select only simulated steps (we can't store nan in bool or byte dtype array)
