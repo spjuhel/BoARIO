@@ -138,6 +138,13 @@ class Indicators(object):
             self.rebuilding_sectors.append(e['rebuilding_sectors'].keys())
             self.rebuilding_sectors = list(misc.flatten(self.rebuilding_sectors))
 
+        # As we dump the class __dict__ we have different names...
+        # TODO: Find a better fix than this !
+        if 'r_damages' in data_dict['events'][0]:
+            data_dict['events'][0]['r_dmg'] = data_dict['events'][0]['r_damages']
+        if 'q_damages' in data_dict['events'][0]:
+            data_dict['events'][0]['q_dmg'] = data_dict['events'][0]['q_damages']
+
         if 'r_dmg' in data_dict['events'][0]:
             gdp_dmg_share = data_dict['events'][0]['r_dmg']
         else:
