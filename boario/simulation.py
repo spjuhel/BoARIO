@@ -183,7 +183,7 @@ class Simulation(object):
         else:
             mrio_params_path = pathlib.Path(simulation_params['mrio_params_file'])
             if not mrio_params_path.exists():
-                logger.warning('MRIO parameters file specified in simulation params was not found')
+                logger.warning('MRIO parameters file specified in simulation params was not found: {}'.format(mrio_params_path))
             else:
                 with mrio_params_path.open() as f:
                     mrio_params_loaded = json.load(f)
@@ -368,7 +368,7 @@ Available types are {}
         if min_failing_regions is None:
             min_failing_regions = self.model.n_regions*self.model.n_sectors // 3
 
-        new_events = [(e_id,e) for e_id, e in enumerate(self.events) if ((self.current_temporal_unit-self.params['temporal_units_by_step']) <= e.occurence_time <= self.current_temporal_unit)]
+        new_events = [(e_id,e) for e_id, e in enumerate(self.events) if ((self.current_temporal_unit-self.params['temporal_units_by_step']) <= e.occur <= self.current_temporal_unit)]
         for (e_id,e) in new_events:
             # print(e)
             if e not in self.current_events:
@@ -400,7 +400,7 @@ Available types are {}
         if events_to_remove != []:
             self.current_events = [e for e in self.current_events if e not in events_to_remove]
             for e in events_to_remove:
-                logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt".format(self.current_temporal_unit, e.name,e.occurence_time, e.aff_regions, e.q_damages))
+                logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt".format(self.current_temporal_unit, e.name,e.occur, e.aff_regions, e.q_dmg))
         self.model.calc_orders(self.current_events)
         # TODO : Redo this properly
         n_checks = self.current_temporal_unit // check_period
@@ -435,14 +435,14 @@ Available types are {}
         """Update events status
 
         This method cycles through the events defines in the ``current_events`` attribute and sets their ``rebuildable`` attribute.
-        An event is considered rebuildable if its ``duration`` is over (i.e. the number of temporal_units elapsed since it shocked the model is greater than ``occurence_time`` + ``duration``).
+        An event is considered rebuildable if its ``duration`` is over (i.e. the number of temporal_units elapsed since it shocked the model is greater than ``occur`` + ``duration``).
         This method also logs the moment an event starts rebuilding.
         """
         for e in self.current_events:
             already_rebuilding = e.rebuildable
-            e.rebuildable = (e.occurence_time + e.duration) <= self.current_temporal_unit
+            e.rebuildable = (e.occur + e.duration) <= self.current_temporal_unit
             if e.rebuildable and not already_rebuilding:
-                logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages has started rebuilding".format(self.current_temporal_unit,e.name,e.occurence_time, e.aff_regions, e.q_damages))
+                logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages has started rebuilding".format(self.current_temporal_unit,e.name,e.occur, e.aff_regions, e.q_dmg))
 
     def read_events_from_list(self, events_list : list[dict]):
         """Import a list of events (as a list of dictionaries) into the model.
@@ -457,13 +457,21 @@ Available types are {}
 
         """
         logger.info("Reading events from given list and adding them to the model")
+        if not isinstance(events_list, list):
+            if isinstance(events_list, dict):
+                raise TypeError("read_events_from_list() takes a list of event dicts as an argument, not a single event dict, you might want to use read_event(your_event) instead.")
+            else:
+                raise TypeError("read_events_from_list() takes a list of event dicts as an argument, not a {}".format(type(events_list)))
         for ev_dic in events_list:
-            if ev_dic['aff_sectors'] == 'all':
-                ev_dic['aff_sectors'] = list(self.model.sectors)
-            ev = Event(ev_dic,self.model)
-            ev.check_values(self)
-            self.events.append(ev)
-            self.events_timings.add(ev_dic['occur'])
+            self.read_event(ev_dic)
+
+    def read_event(self, ev_dic:dict):
+        if ev_dic['aff_sectors'] == 'all':
+            ev_dic['aff_sectors'] = list(self.model.sectors)
+        ev = Event(ev_dic,self.model)
+        ev.check_values(self)
+        self.events.append(ev)
+        self.events_timings.add(ev_dic['occur'])
 
     def shock(self, event_to_add_id:int):
         """Shocks the model with an event.
@@ -472,9 +480,9 @@ Available types are {}
         it in the model.
 
         First, if multiple regions are affected, it computes the vector of how damages are distributed across these,
-        using the ``dmg_distrib_across_regions`` attribute of the :class:`~boario.event.Event` object.
+        using the ``dmg_distrib_regions`` attribute of the :class:`~boario.event.Event` object.
         Then it computes the vector of how regional damages are distributed across affected sectors using
-        the ``dmg_distrib_across_sector`` and ``dmg_distrib_across_sector_type`` attributes.
+        the ``dmg_distrib_sector`` and ``dmg_distrib_sector_type`` attributes.
         This ``n_regions`` * ``n_sectors`` sized vector hence stores the damage (i.e. capital destroyed) for all industries.
 
         This method also computes the `rebuilding demand` matrix, the demand addressed to the rebuilding
@@ -508,7 +516,7 @@ Available types are {}
         aff_sectors_idx = np.searchsorted(self.model.sectors, self.events[event_to_add_id].aff_sectors)
         n_sectors_aff = aff_sectors_idx.size
         aff_industries_idx = np.array([self.model.n_sectors * ri + si for ri in aff_regions_idx for si in aff_sectors_idx]) # type: ignore (aff_regions_idx not considered as array)
-        q_dmg = self.events[event_to_add_id].q_damages / self.model.monetary_unit
+        q_dmg = self.events[event_to_add_id].q_dmg / self.model.monetary_unit
         logger.info("Damages are {} times {} [unit (ie $/€/£)]".format(q_dmg,self.model.monetary_unit))
         # print(f'''
         # regions_idx = {regions_idx},
@@ -521,36 +529,36 @@ Available types are {}
         # ''')
 
         # DAMAGE DISTRIBUTION ACROSS REGIONS
-        if self.events[event_to_add_id].dmg_distrib_across_regions is None:
+        if self.events[event_to_add_id].dmg_distrib_regions is None:
             q_dmg_regions = np.array([1.0]) * q_dmg
-        elif type(self.events[event_to_add_id].dmg_distrib_across_regions) == list:
-            q_dmg_regions = np.array(self.events[event_to_add_id].dmg_distrib_across_regions) * q_dmg
-        elif type(self.events[event_to_add_id].dmg_distrib_across_regions) == str and self.events[event_to_add_id].dmg_distrib_across_regions == 'shared':
+        elif type(self.events[event_to_add_id].dmg_distrib_regions) == list:
+            q_dmg_regions = np.array(self.events[event_to_add_id].dmg_distrib_regions) * q_dmg
+        elif type(self.events[event_to_add_id].dmg_distrib_regions) == str and self.events[event_to_add_id].dmg_distrib_regions == 'shared':
             q_dmg_regions = np.full(shape=aff_regions_idx.shape,fill_value=q_dmg/aff_regions_idx.size)
         else:
             raise ValueError("This should not happen")
         q_dmg_regions = q_dmg_regions.reshape((n_regions_aff,1))
 
         # DAMAGE DISTRIBUTION ACROSS SECTORS
-        if self.events[event_to_add_id].dmg_distrib_across_sectors_type == "gdp":
+        if self.events[event_to_add_id].dmg_distrib_sectors_type == "gdp":
             shares = self.model.gdp_share_sector.reshape((self.model.n_regions,self.model.n_sectors))
             if shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[0] == 0:
                 raise ValueError("The sum of the affected sectors value added is 0 (meaning they probably don't exist in this regions)")
             q_dmg_regions_sectors = q_dmg_regions * (shares[aff_regions_idx][:,aff_sectors_idx]/shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[:,np.newaxis])
-        elif self.events[event_to_add_id].dmg_distrib_across_sectors is None:
+        elif self.events[event_to_add_id].dmg_distrib_sectors is None:
             q_dmg_regions_sectors = q_dmg_regions
-        elif type(self.events[event_to_add_id].dmg_distrib_across_sectors) == dict:
-            aff_sectors_idx = np.searchsorted(self.model.sectors, list(self.events[event_to_add_id].dmg_distrib_across_sectors.keys()))
+        elif type(self.events[event_to_add_id].dmg_distrib_sectors) == dict:
+            aff_sectors_idx = np.searchsorted(self.model.sectors, list(self.events[event_to_add_id].dmg_distrib_sectors.keys()))
             shares = np.zeros(shape=(self.model.n_regions,self.model.n_sectors))
-            shares[aff_regions_idx] = list(self.events[event_to_add_id].dmg_distrib_across_sectors.values())
+            shares[aff_regions_idx] = list(self.events[event_to_add_id].dmg_distrib_sectors.values())
             q_dmg_regions_sectors = q_dmg_regions * (shares[aff_regions_idx][:,aff_sectors_idx]/shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[:,np.newaxis])
-        elif type(self.events[event_to_add_id].dmg_distrib_across_sectors) == list:
-            q_dmg_regions_sectors = q_dmg_regions * np.array(self.events[event_to_add_id].dmg_distrib_across_sectors)
-        elif type(self.events[event_to_add_id].dmg_distrib_across_sectors) == str and self.events[event_to_add_id].dmg_distrib_across_sectors == 'GDP':
+        elif type(self.events[event_to_add_id].dmg_distrib_sectors) == list:
+            q_dmg_regions_sectors = q_dmg_regions * np.array(self.events[event_to_add_id].dmg_distrib_sectors)
+        elif type(self.events[event_to_add_id].dmg_distrib_sectors) == str and self.events[event_to_add_id].dmg_distrib_sectors == 'GDP':
             shares = self.model.gdp_share_sector.reshape((self.model.n_regions,self.model.n_sectors))
             q_dmg_regions_sectors = q_dmg_regions * (shares[aff_regions_idx][:,aff_sectors_idx]/shares[aff_regions_idx][:,aff_sectors_idx].sum(axis=1)[:,np.newaxis])
         else:
-            raise ValueError("damage <-> sectors distribution %s not implemented", self.events[event_to_add_id].dmg_distrib_across_sectors)
+            raise ValueError("damage <-> sectors distribution %s not implemented", self.events[event_to_add_id].dmg_distrib_sectors)
 
         rebuilding_sectors_idx = np.searchsorted(self.model.sectors, np.array(list(self.events[event_to_add_id].rebuilding_sectors.keys())))
         rebuilding_industries_idx = np.array([self.model.n_sectors * ri + si for ri in aff_regions_idx for si in rebuilding_sectors_idx]) # type: ignore (aff_regions_idx not considered as array)
