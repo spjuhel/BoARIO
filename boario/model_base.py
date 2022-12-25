@@ -251,12 +251,13 @@ class ARIOBaseModel(object):
         self.production_evolution.fill(np.nan)
         self.production_cap_evolution = np.memmap(results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.production_cap_evolution.fill(np.nan)
-        self.classic_demand_evolution = np.memmap(results_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
-        self.classic_demand_evolution.fill(np.nan)
+        self.final_demand_evolution = np.memmap(results_storage/"final_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.final_demand_evolution.fill(np.nan)
+        self.io_demand_evolution = np.memmap(results_storage/"io_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.io_demand_evolution.fill(np.nan)
+
         self.rebuild_demand_evolution = np.memmap(results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.rebuild_demand_evolution.fill(np.nan)
-        self.rebuild_stock_evolution = np.memmap(results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
-        self.rebuild_stock_evolution.fill(np.nan)
         self.overproduction_evolution = np.memmap(results_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.overproduction_evolution.fill(np.nan)
         self.final_demand_unmet_evolution = np.memmap(results_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
@@ -266,7 +267,8 @@ class ARIOBaseModel(object):
         if simulation_params['register_stocks']:
             self.stocks_evolution = np.memmap(results_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors, self.n_sectors*self.n_regions))
             self.stocks_evolution.fill(np.nan)
-        self.limiting_stocks_evolution = np.memmap(results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors, self.n_sectors*self.n_regions))
+        self.limiting_stocks_evolution = np.memmap(results_storage/"limiting_stocks_record", dtype='byte', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors, self.n_sectors*self.n_regions))
+        self.limiting_stocks_evolution.fill(-1)
         #############################################################################
 
         #### POST INIT ####
@@ -418,6 +420,8 @@ class ARIOBaseModel(object):
             dmg_demand_restorable = self.rebuild_demand * self.rebuild_tau
         else:
             dmg_demand_restorable = None # rebuild demand is treated elsewhere in this case
+        assert not (self.matrix_orders < 0).any()
+        #assert not (self.final_demand < 0).any()
         prod_reqby_demand = self.matrix_orders.sum(axis=1) + self.final_demand.sum(axis=1)
         if dmg_demand_restorable is not None:
             prod_reqby_demand += dmg_demand_restorable.sum(axis=1)
@@ -833,15 +837,26 @@ class ARIOBaseModel(object):
 
         """
         self.production_evolution = np.memmap(self.results_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.production_evolution.fill(np.nan)
         self.production_cap_evolution = np.memmap(self.results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
-        self.classic_demand_evolution = np.memmap(self.results_storage/"classic_demand_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.production_cap_evolution.fill(np.nan)
+        self.io_demand_evolution = np.memmap(self.results_storage/"io_demand_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.io_demand_evolution.fill(np.nan)
+        self.final_demand_evolution = np.memmap(self.results_storage/"final_demand_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.final_demand_evolution.fill(np.nan)
         self.rebuild_demand_evolution = np.memmap(self.results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.rebuild_demand_evolution.fill(np.nan)
         self.overproduction_evolution = np.memmap(self.results_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.overproduction_evolution.fill(np.nan)
         self.final_demand_unmet_evolution = np.memmap(self.results_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.final_demand_unmet_evolution.fill(np.nan)
         self.rebuild_production_evolution = np.memmap(self.results_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.rebuild_production_evolution.fill(np.nan)
         if reg_stocks:
             self.stocks_evolution = np.memmap(self.results_storage/"stocks_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors, self.n_sectors*self.n_regions))
-        self.limiting_stocks_evolution = np.memmap(self.results_storage/"limiting_stocks_record", dtype='bool', mode="w+", shape=(n_temporal_units, self.n_sectors, self.n_sectors*self.n_regions))
+            self.stocks_evolution.fill(np.nan)
+        self.limiting_stocks_evolution = np.memmap(self.results_storage/"limiting_stocks_record", dtype='byte', mode="w+", shape=(n_temporal_units, self.n_sectors, self.n_sectors*self.n_regions))
+        self.limiting_stocks_evolution.fill(-1)
 
 
     def write_production(self, current_temporal_unit:int) -> None:
@@ -850,8 +865,11 @@ class ARIOBaseModel(object):
     def write_production_max(self, current_temporal_unit:int) -> None:
         self.production_cap_evolution[current_temporal_unit] = self.production_cap
 
-    def write_classic_demand(self, current_temporal_unit:int) -> None:
-         self.classic_demand_evolution[current_temporal_unit] = self.matrix_orders.sum(axis=1) + self.final_demand.sum(axis=1)
+    def write_io_demand(self, current_temporal_unit:int) -> None:
+         self.io_demand_evolution[current_temporal_unit] = self.matrix_orders.sum(axis=1)
+
+    def write_final_demand(self, current_temporal_unit:int) -> None:
+         self.final_demand_evolution[current_temporal_unit] = self.final_demand.sum(axis=1)
 
     def write_rebuild_demand(self, current_temporal_unit:int) -> None:
         to_write = np.full(self.n_regions*self.n_sectors,0.0)

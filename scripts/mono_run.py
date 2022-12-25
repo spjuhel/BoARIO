@@ -17,9 +17,9 @@
 import os
 import re
 import sys
-
+import subprocess
 import pandas as pd
-print(os.getcwd())
+
 module_path = os.path.abspath(os.path.join("../"))
 if module_path not in sys.path:
     sys.path.append(module_path)
@@ -28,6 +28,7 @@ module_path = os.path.abspath(os.path.join("./"))
 if module_path not in sys.path:
     sys.path.append(module_path)
 
+import boario
 from boario.simulation import Simulation
 import json
 import pathlib
@@ -35,20 +36,15 @@ import logging
 import pickle
 import argparse
 
-parser = argparse.ArgumentParser(description="Produce indicators from one run folder")
-parser.add_argument("region", type=str, help="The region to run")
-parser.add_argument("params", type=str, help="The params file")
-parser.add_argument("psi", type=str, help="The psi parameter")
-parser.add_argument("inv_tau", type=str, help="The inventory restoration parameter")
-parser.add_argument("stype", type=str, help="The type (RoW or Full) simulation to run")
-parser.add_argument("rtype", type=str, help="The damage type (raw or int)")
-parser.add_argument("flood_dmg", type=str, help="The flood damage/intensity to run")
-parser.add_argument("mrios_path", type=str, help="The mrios path")
-parser.add_argument("output_dir", type=str, help="The output directory")
-parser.add_argument("flood_gdp_file", type=str, help="The share of gdp impacted according to flood distribution file")
-parser.add_argument("event_file", type=str, help="The event template file")
-parser.add_argument("mrio_params", type=str, help="The mrio parameters file")
-parser.add_argument("alt_inv_dur", type=str, help="The optional alternative main inventory duration", nargs="?", default=None)
+def dist_is_editable():
+   """Is distribution an editable install?"""
+   for pth in boario.__path__:
+       if "site-packages" in pth:
+           return False
+   return True
+
+def get_git_describe() -> str:
+    return subprocess.check_output(['git', 'describe', '--tags']).decode('ascii').strip()
 
 def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, output_dir, flood_gdp_file, event_file, mrio_params, alt_inv_dur=None):
     with open(params) as f:
@@ -125,7 +121,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         event_row = flood_gdp_df.loc[(flood_gdp_df['class'] == flood_dmg) & (flood_gdp_df['EXIO3_region'] == region)]
         if event_row.empty:
             raise ValueError("This tuple of region / flood class ({},{}) is does not have a representative event (it is likely a duplicate of another class)".format(region,flood_dmg))
-        dmg_as_gdp_share = float(event_row['dmg_as_gdp_share'])
+        dmg_as_gdp_share = float(event_row['share of GVA used as ARIO input'])
         total_direct_dmg = dmg_as_gdp_share * gdp_df[region] #float(event_row['total_dmg'])
         duration = int(event_row['duration'])
         scriptLogger.info("Setting flood duration to {}".format(duration))
@@ -147,15 +143,31 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_tau"])+"_inv_time_"+str(int(alt_inv_dur))
     else:
         sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_tau"])
-    model = Simulation(sim_params, mrio_path, modeltype=sim_params['model_type'])
+    sim = Simulation(sim_params, mrio_path, modeltype=sim_params['model_type'])
     if alt_inv_dur:
-        model.mrio.change_inv_duration(alt_inv_dur)
-    model.read_events_from_list([event])
+        sim.model.change_inv_duration(alt_inv_dur)
+    print(event)
+    sim.read_events_from_list([event])
     try:
         scriptLogger.info("Model ready, looping")
-        model.loop(progress=False)
+        sim.loop(progress=False)
     except Exception:
         scriptLogger.exception("There was a problem:")
+
+parser = argparse.ArgumentParser(description="Produce indicators from one run folder")
+parser.add_argument("region", type=str, help="The region to run")
+parser.add_argument("params", type=str, help="The params file")
+parser.add_argument("psi", type=str, help="The psi parameter")
+parser.add_argument("inv_tau", type=str, help="The inventory restoration parameter")
+parser.add_argument("stype", type=str, help="The type (RoW or Full) simulation to run")
+parser.add_argument("rtype", type=str, help="The damage type (raw or int)")
+parser.add_argument("flood_dmg", type=str, help="The flood damage/intensity to run")
+parser.add_argument("mrios_path", type=str, help="The mrios path")
+parser.add_argument("output_dir", type=str, help="The output directory")
+parser.add_argument("flood_gdp_file", type=str, help="The share of gdp impacted according to flood distribution file")
+parser.add_argument("event_file", type=str, help="The event template file")
+parser.add_argument("mrio_params", type=str, help="The mrio parameters file")
+parser.add_argument("alt_inv_dur", type=str, help="The optional alternative main inventory duration", nargs="?", default=None)
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -166,6 +178,8 @@ if __name__ == "__main__":
     scriptLogger.addHandler(consoleHandler)
     scriptLogger.setLevel(logging.INFO)
     scriptLogger.propagate = False
-
+    scriptLogger.info("You are running the following version of BoARIO : {}".format(boario.__version__))
+    scriptLogger.info("You are using BoARIO in editable install mode : {}".format(dist_is_editable()))
+    scriptLogger.info("You are using BoARIO in editable install mode : {}".format(boario.__path__))
     scriptLogger.info("=============== STARTING RUN ================")
     run(args.region, args.params, args.psi, int(args.inv_tau), args.stype, args.rtype, args.flood_dmg, args.mrios_path, args.output_dir, args.flood_gdp_file, args.event_file, args.mrio_params, args.alt_inv_dur)

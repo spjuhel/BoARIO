@@ -25,20 +25,21 @@ __all__ = ['Event']
 class Event(object):
     def __init__(self, event:dict, mrio:Union[ARIOBaseModel,ARIOModelPsi]) -> None:
         super().__init__()
-
         self.name = event['name']
-        self.occurence_time = event['occur']
+        self.occur = event['occur']
         self.duration = event['duration']
-        self.q_damages = event['q_dmg']
+        self.q_dmg = event['q_dmg']
+        if 'r_dmg' in event.keys():
+            self.r_dmg = event['r_dmg']
         self.aff_regions = event['aff_regions']
         if type(self.aff_regions) is str:
             self.aff_regions = [self.aff_regions]
         self.aff_sectors = event['aff_sectors']
         if type(self.aff_sectors) is str:
             self.aff_sectors = [self.aff_sectors]
-        self.dmg_distrib_across_regions = event['dmg_distrib_regions']
-        self.dmg_distrib_across_sectors_type = event['dmg_distrib_sectors_type']
-        self.dmg_distrib_across_sectors = event['dmg_distrib_sectors']
+        self.dmg_distrib_regions = event['dmg_distrib_regions']
+        self.dmg_distrib_sectors_type = event['dmg_distrib_sectors_type']
+        self.dmg_distrib_sectors = event['dmg_distrib_sectors']
         self.rebuilding_sectors = event['rebuilding_sectors']
         self.final_demand_rebuild = np.zeros(shape=mrio.Y_0.shape)
         self.final_demand_rebuild_share = np.zeros(shape=mrio.Y_0.shape)
@@ -52,22 +53,21 @@ class Event(object):
         return f''' [Representation WIP]
         Event(
               name = {self.name},
-              occurence_time = {self.occurence_time},
-              q_damages = {self.q_damages},
+              occur = {self.occur},
+              duration = {self.duration}
+              q_dmg = {self.q_dmg},
               aff_regions = {self.aff_regions},
               aff_sectors = {self.aff_sectors},
-              occurence_time = {self.occurence_time},
-              duration = {self.duration},
-              dmg_distrib_across_sectors_type = {self.dmg_distrib_across_sectors_type}
+              dmg_distrib_sectors_type = {self.dmg_distrib_sectors_type}
              )
         '''
 
     def check_values(self, sim) -> None:
-        if self.occurence_time < 0:
+        if self.occur < 0:
             raise ValueError("Event occurence time is negative, check events json")
-        if self.occurence_time > sim.n_temporal_units_to_sim:
+        if self.occur > sim.n_temporal_units_to_sim:
             raise ValueError("Event occurence time is outside simulation, check events and sim json")
-        if self.q_damages < 0:
+        if self.q_dmg < 0:
             raise ValueError("Event damages are negative, check events json")
         if not set(self.aff_regions).issubset(sim.model.regions):
             tmp = set(self.aff_regions).difference(set(sim.model.regions))
@@ -89,34 +89,41 @@ class Event(object):
             """.format(tmp))
         if self.duration < 0:
             raise ValueError("Event duration is negative, check events json")
-        if self.occurence_time+self.duration > sim.n_temporal_units_to_sim:
+        if self.occur+self.duration > sim.n_temporal_units_to_sim:
             raise ValueError("Event occurence time + duration is outside simulation, check events and sim json")
 
-        if self.dmg_distrib_across_regions is None:
+        if self.dmg_distrib_regions is None:
             if not len(self.aff_regions) == 1:
                 raise ValueError("Parameter 'dmg_distrib_across_regions' is None yet there are more than one region affected")
-        elif type(self.dmg_distrib_across_regions) == str:
-            if self.dmg_distrib_across_regions !=  "shared":
-                raise ValueError("damage <-> region distribution %s not implemented",self.dmg_distrib_across_regions)
-        elif type(self.dmg_distrib_across_regions) == list:
-            if len(self.dmg_distrib_across_regions) != len(self.aff_regions):
+        elif type(self.dmg_distrib_regions) == str:
+            if self.dmg_distrib_regions !=  "shared":
+                raise ValueError("damage <-> region distribution %s not implemented",self.dmg_distrib_regions)
+        elif type(self.dmg_distrib_regions) == list:
+            if len(self.dmg_distrib_regions) != len(self.aff_regions):
                 raise ValueError("Number of affected regions and size of damage distribution list are not equal")
-            if sum(self.dmg_distrib_across_regions) != 1.0:
+            if sum(self.dmg_distrib_regions) != 1.0:
                 warnings.warn("The total distribution of damage across regions is not 1.0")
         else:
-            raise TypeError("'dmg_distrib_regions' is of type %s, possible types are str or list[float]", type(self.dmg_distrib_across_regions))
+            raise TypeError("'dmg_distrib_regions' is of type %s, possible types are str or list[float]", type(self.dmg_distrib_regions))
 
-        if self.dmg_distrib_across_sectors_type != 'gdp':
-            if self.dmg_distrib_across_sectors is None:
+        if self.dmg_distrib_sectors_type != 'gdp':
+            if self.dmg_distrib_sectors is None:
                 if not len(self.aff_sectors) == 1:
                     raise ValueError("Parameter 'dmg_distrib_across_sectors' is None yet there are more than one sector affected")
-            elif type(self.dmg_distrib_across_sectors) == str:
-                if self.dmg_distrib_across_sectors !=  "GDP":
-                    raise ValueError("damage <-> sectors distribution %s not implemented",self.dmg_distrib_across_sectors)
-            elif type(self.dmg_distrib_across_sectors) == list:
-                if len(self.dmg_distrib_across_sectors) != len(self.aff_sectors):
+            elif type(self.dmg_distrib_sectors) == str:
+                if self.dmg_distrib_sectors !=  "GDP":
+                    raise ValueError("damage <-> sectors distribution %s not implemented",self.dmg_distrib_sectors)
+            elif type(self.dmg_distrib_sectors) == dict:
+                if not set(self.dmg_distrib_sectors).issubset(sim.model.sectors):
+                    tmp = set(self.dmg_distrib_sectors.keys).difference(set(sim.model.sectors))
+                    raise ValueError("""A least one affected sector is not a valid sector in the mrio table, check events json
+
+            suspicious sectors : {}
+            """.format(tmp))
+            elif type(self.dmg_distrib_sectors) == list:
+                if len(self.dmg_distrib_sectors) != len(self.aff_sectors):
                     raise ValueError("Number of affected sectors and size of damage distribution list are not equal")
-                if sum(self.dmg_distrib_across_sectors) != 1.0:
+                if sum(self.dmg_distrib_sectors) != 1.0:
                     warnings.warn("The total distribution of damage across sectors is not 1.0")
             else:
-                raise TypeError("'dmg_distrib_sectors' is of type %s, possible types are str or list[float]", type(self.dmg_distrib_across_sectors))
+                raise TypeError("'dmg_distrib_sectors' is of type %s, possible types are str or list[float]", type(self.dmg_distrib_sectors))

@@ -10,7 +10,7 @@ dynamic = [
     "version",
 ]
 description = "A Python implementation of ARIO models"
-readme = "README.md"
+readme = "README.rst"
 license = ""
 requires-python = ">=3.7, <4"
 dependencies = [
@@ -25,8 +25,8 @@ dependencies = [
 "pymrio>=0.4.6",
 "odfpy>=1.4.1",
 "pyarrow>=9.0.0",
-"fastparquet>=0.8.0"
 ]
+
 authors = [
     { name = "Samuel JUHEL", email = "pro@sjuhel.org" },
 ]
@@ -100,3 +100,26 @@ python = [
 
 [tool.hatch.envs.test]
 python = "3.7"
+
+[tool.pyright]
+include = ["boario"]
+exclude = ["**/node_modules",
+    "**/__pycache__",
+    "src/"
+]
+ignore = ["src/oldstuff"]
+defineConstant = { DEBUG = true }
+stubPath = "boario/stubs"
+
+reportMissingImports = true
+reportMissingTypeStubs = false
+
+pythonVersion = "3.6"
+pythonPlatform = "Linux"
+
+executionEnvironments = [
+  { root = "src/web", pythonVersion = "3.5", pythonPlatform = "Windows", extraPaths = [ "src/service_libs" ] },
+  { root = "src/sdk", pythonVersion = "3.0", extraPaths = [ "src/backend" ] },
+  { root = "src/tests", extraPaths = ["src/tests/e2e", "src/sdk" ]},
+  { root = "src" }
+]
