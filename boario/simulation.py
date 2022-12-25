@@ -83,7 +83,7 @@ class Simulation(object):
         This error is raised when one of the required file to initialize
         the simulation was not found and should print out which one.
     """
-    def __init__(self, params: Union[dict, str, pathlib.Path], mrio_system: Union[IOSystem, str, pathlib.Path, None] = None, mrio_params: dict = None, modeltype:str = "ARIOBase") -> None:
+    def __init__(self, params: Union[dict, str, pathlib.Path], mrio_system: Union[IOSystem, str, pathlib.Path, None] = None, mrio_params: dict = None, modeltype:str = "ARIOPsi") -> None:
         """Initialisation of a Simulation object uses these parameters
 
         Parameters
@@ -218,6 +218,7 @@ class Simulation(object):
         if not results_storage.exists():
             results_storage.mkdir(parents=True)
         if modeltype == "ARIOBase":
+            logger.warning("Be aware you are using an ARIOBaseModel instance, which is mostly intended for testing and developping and not using for economic modeling (it has numerous numeric instabilities among other things). You should use ARIOModelPsi for this purpose.")
             self.model = ARIOBaseModel(mrio, mrio_params_loaded, simulation_params, results_storage)
         elif modeltype == "ARIOPsi":
             self.model = ARIOModelPsi(mrio, mrio_params_loaded, simulation_params, results_storage)
