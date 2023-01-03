@@ -16,6 +16,7 @@
 
 import coloredlogs
 import logging
+from functools import lru_cache
 
 __version__ = "v0.2.0.b"
 
@@ -44,6 +45,12 @@ DEBUGFORMATTER = logging.Formatter(fmt='%(asctime)s [%(levelname)s] - [%(filenam
 """Debug file formatter."""
 
 INFOFORMATTER = logging.Formatter(fmt='%(asctime)s [%(levelname)s] - %(message)s',datefmt='%H:%M:%S',)
+
+
+@lru_cache(10)
+def warn_once(logger, msg: str):
+    logger.warning(msg)
+
 """Log file and stream output formatter."""
 
 #logger.setLevel(logging.DEBUG)
