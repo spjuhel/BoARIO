@@ -127,7 +127,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         scriptLogger.info("Setting flood duration to {}".format(duration))
         event["duration"] = duration
         event["r_dmg"] = dmg_as_gdp_share
-        event["q_dmg"] = total_direct_dmg
+        event["kapital_damage"] = total_direct_dmg
     elif rtype == "raw":
         dmg = flood_dmg
         event["r_dmg"] = float(flood_dmg) / float(gdp_df[region])
