@@ -64,6 +64,7 @@ class Event(object):
         self.prod_cap_delta_arbitrary = None
         self.happened = False
         self._rebuildable_kind : bool = False
+        self._rebuildable : bool = False
         self.rebuild_tau = event.get("rebuild_tau")
         self.over = False
         self.init_shock(event)
