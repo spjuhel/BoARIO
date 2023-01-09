@@ -1156,7 +1156,7 @@ class ARIOBaseModel(object):
         with index_file.open('w') as f:
             json.dump(indexes,f)
 
-    def change_inv_duration(self, new_dur:int, old_dur:Optional[int]) -> None:
+    def change_inv_duration(self, new_dur:int, old_dur:Optional[int]=None) -> None:
         if old_dur is None:
             old_dur = self.main_inv_dur
         old_dur = float(old_dur) / self.n_temporal_units_by_step
