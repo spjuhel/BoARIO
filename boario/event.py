@@ -80,7 +80,6 @@ class Event(object):
             }
 
 
-
     @property
     def occurrence(self)->int:
         return self._occur
@@ -113,6 +112,8 @@ class Event(object):
 
     @aff_regions.setter
     def aff_regions(self, value:ArrayLike|str):
+        if isinstance(value,str):
+            value = [value]
         value = np.array(value)
         impossible_regions = np.setdiff1d(value,self.possible_regions)
         if impossible_regions.size > 0:
@@ -130,7 +131,9 @@ class Event(object):
         return self._aff_sectors_idx
 
     @aff_sectors.setter
-    def aff_sectors(self, value):
+    def aff_sectors(self, value:ArrayLike|str):
+        if isinstance(value,str):
+            value = [value]
         value = np.array(value)
         impossible_sectors = np.setdiff1d(value,self.possible_sectors)
         if impossible_sectors.size > 0 :
