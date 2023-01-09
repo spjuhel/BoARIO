@@ -27,6 +27,7 @@ from boario.event import Event
 from pymrio.core.mriosystem import IOSystem
 from boario.utils.misc import lexico_reindex
 
+
 __all__ = ["ARIOBaseModel","INV_THRESHOLD","VALUE_ADDED_NAMES","VA_idx", "lexico_reindex"]
 
 INV_THRESHOLD = 0 #20 #temporal_units
@@ -263,17 +264,17 @@ class ARIOBaseModel(object):
 
         #### POST INIT ####
         ### Event Class Attribute setting
-        Event.possible_regions = self.regions
+        Event.possible_regions = self.regions.copy()
         Event.regions_idx = np.arange(self.n_regions)
-        Event.possible_sectors = self.sectors
+        Event.possible_sectors = self.sectors.copy()
         Event.sectors_idx = np.arange(self.n_sectors)
         Event.temporal_unit_range = simulation_params["n_temporal_units_to_sim"]
         Event.z_shape = self.Z_0.shape
         Event.y_shape = self.Y_0.shape
         Event.x_shape = self.X_0.shape
         Event.monetary_unit = self.monetary_unit
-        Event.sectors_gva_shares = self.gdp_share_sector
-        Event.Z_distrib = self.Z_distrib
+        Event.sectors_gva_shares = self.gdp_share_sector.copy()
+        Event.Z_distrib = self.Z_distrib.copy()
 
         meta = pym_mrio.meta.metadata
         Event.mrio_name = meta["name"] + "_" + meta["description"] + "_" + meta["system"] + "_" + meta["version"]
@@ -539,8 +540,10 @@ class ARIOBaseModel(object):
             Raised if any industry has negative production (probably from kapital loss too high)
         """
         production_cap = self.X_0.copy()
-        if (self._prod_delta_type is not None) and (self.prod_cap_delta_tot > 0.).any():
-            production_cap = production_cap * (1 - self.prod_cap_delta_tot)
+        if (self._prod_delta_type is not None):
+            prod_delta_tot = self.prod_cap_delta_tot.copy()
+            if (prod_delta_tot > 0.).any():
+                production_cap = production_cap * (1 - prod_delta_tot)
         if (self.overprod > 1.0).any():
             production_cap = production_cap * self.overprod
         if (production_cap < 0).any() :
@@ -635,8 +638,8 @@ class ARIOBaseModel(object):
 
         """
         #1.
-        production_opt = self.production_opt
-        inventory_constraints = self.inventory_constraints_opt
+        production_opt = self.production_opt.copy()
+        inventory_constraints = self.inventory_constraints_opt.copy()
         #2.
         if (stock_constraint := (self.matrix_stock < inventory_constraints) * self.matrix_share_thresh).any():
             if not self.in_shortage:
@@ -774,11 +777,11 @@ class ARIOBaseModel(object):
         ## 1. Calc demand from rebuilding requirements (with characteristic time rebuild_tau)
         if rebuildable_events != []:
             n_events = len(rebuildable_events)
-            tot_rebuilding_demand_summed = self.tot_rebuild_demand
+            tot_rebuilding_demand_summed = self.tot_rebuild_demand.copy()
             # debugging assert
             assert tot_rebuilding_demand_summed.shape == self.X_0.shape
-            indus_reb_dem_tot_per_event = self.indus_rebuild_demand_tot
-            indus_reb_dem_per_event = self.indus_rebuild_demand
+            indus_reb_dem_tot_per_event = self.indus_rebuild_demand_tot.copy()
+            indus_reb_dem_per_event = self.indus_rebuild_demand.copy()
 
             # expected shape assert (debug also)
             exp_shape_indus_per_event = (self.n_sectors*self.n_regions,self.n_sectors*self.n_regions,n_events)
@@ -786,8 +789,8 @@ class ARIOBaseModel(object):
             assert indus_reb_dem_per_event.shape == exp_shape_indus_per_event, "expected shape is {}, given shape is {}".format(exp_shape_indus_per_event, indus_reb_dem_per_event.shape)
             assert indus_reb_dem_tot_per_event.shape == exp_shape_indus_tot_per_event, "expected shape is {}, given shape is {}".format(exp_shape_indus_tot_per_event, indus_reb_dem_tot_per_event.shape)
 
-            house_reb_dem_tot_per_event = self.house_rebuild_demand_tot
-            house_reb_dem_per_event = self.house_rebuild_demand
+            house_reb_dem_tot_per_event = self.house_rebuild_demand_tot.copy()
+            house_reb_dem_per_event = self.house_rebuild_demand.copy()
 
             # expected shape assert (debug also)
             exp_shape_house = (self.n_sectors*self.n_regions,self.n_fd_cat*self.n_regions,n_events)
@@ -921,7 +924,7 @@ class ARIOBaseModel(object):
 
         """
         #total_demand = self.total_demand
-        production_opt = self.production_opt
+        production_opt = self.production_opt.copy()
         matrix_stock_goal = np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat
         # Check this !
         with np.errstate(invalid='ignore'):
@@ -947,7 +950,7 @@ class ARIOBaseModel(object):
 
     def calc_overproduction(self) -> None:
         scarcity = np.full(self.production.shape, 0.0)
-        total_demand = self.total_demand
+        total_demand = self.total_demand.copy()
         scarcity[total_demand!=0] = (total_demand[total_demand!=0] - self.production[total_demand!=0]) / total_demand[total_demand!=0]
         scarcity[np.isnan(scarcity)] = 0
         overprod_chg = (((self.overprod_max - self.overprod) * (scarcity) * self.overprod_tau) + ((self.overprod_base - self.overprod) * (scarcity == 0) * self.overprod_tau)).flatten()

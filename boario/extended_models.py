@@ -125,8 +125,8 @@ class ARIOModelPsi(ARIOBaseModel):
 
         """
         #1.
-        production_opt = self.production_cap
-        inventory_constraints = self.inventory_constraints_opt
+        production_opt = self.production_opt.copy()
+        inventory_constraints = self.inventory_constraints_opt.copy()
         # the following line is the same as in the ARIO base class except the multiplication by self.psi
         #2.
         if (stock_constraint := (self.matrix_stock < inventory_constraints) * self.matrix_share_thresh).any():
