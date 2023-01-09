@@ -61,7 +61,20 @@ class ARIOModelPsi(ARIOBaseModel):
         self.restoration_tau = np.array(restoration_tau)
         #################################################################
 
-    def calc_production(self, current_temporal_unit:int) -> np.NDArray:
+    @property
+    def inventory_constraints_opt(self) -> np.ndarray:
+        return self.calc_inventory_constraints(self.production_opt)
+
+    @property
+    def inventory_constraints_act(self) -> np.ndarray:
+        return self.calc_inventory_constraints(self.production)
+
+    def calc_inventory_constraints(self, production: np.ndarray) -> np.ndarray:
+        inventory_constraints = (np.tile(production, (self.n_sectors, 1)) * self.tech_mat) * self.psi
+        np.multiply(inventory_constraints, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=inventory_constraints)
+        return inventory_constraints
+
+    def calc_production(self, current_temporal_unit:int) -> np.ndarray:
         r"""Compute and update actual production
 
         1. Compute ``production_opt`` and ``inventory_constraints`` as :
@@ -112,10 +125,9 @@ class ARIOModelPsi(ARIOBaseModel):
 
         """
         #1.
-        production_opt = np.fmin(self.total_demand, self.production_cap)
+        production_opt = self.production_cap
+        inventory_constraints = self.inventory_constraints_opt
         # the following line is the same as in the ARIO base class except the multiplication by self.psi
-        inventory_constraints = (np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat) * self.psi
-        np.multiply(inventory_constraints, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=inventory_constraints)
         #2.
         if (stock_constraint := (self.matrix_stock < inventory_constraints) * self.matrix_share_thresh).any():
             if not self.in_shortage:
@@ -140,47 +152,6 @@ class ARIOModelPsi(ARIOBaseModel):
             self.production = production_opt
         return stock_constraint
 
-    def calc_orders(self, events:list[Event]) -> None:
-        """TODO describe function
-
-        :param stocks_constraints:
-        :type stocks_constraints:
-        :returns:
-
-        """
-        self.calc_prod_reqby_demand(events)
-        production_opt = np.fmin(self.total_demand, self.production_cap)
-        matrix_stock_goal = np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat
-        # Check this !
-        matrix_stock_gap = matrix_stock_goal * 0
-        with np.errstate(invalid='ignore'):
-            matrix_stock_goal *= self.inv_duration[:,np.newaxis]
-        if np.allclose(self.matrix_stock, matrix_stock_goal):
-            #debug_logger.info("Stock replenished ?")
-            pass
-        else:
-            matrix_stock_gap[np.isfinite(matrix_stock_goal)] = (matrix_stock_goal[np.isfinite(matrix_stock_goal)] - self.matrix_stock[np.isfinite(self.matrix_stock)])
-        assert (not np.isnan(matrix_stock_gap).any()), "NaN in matrix stock gap"
-        matrix_stock_gap[matrix_stock_gap < 0] = 0
-        # the following line is the only difference with respect to the same function in ARIO base. This should be what defines Guan's change.
-        matrix_stock_gap = np.expand_dims(self.restoration_tau, axis=1) * matrix_stock_gap
-        matrix_stock_gap += (np.tile(self.production, (self.n_sectors, 1)) * self.tech_mat)
-        if self.order_type == "alt":
-            prod_ratio = np.divide(self.production,self.X_0, where=self.X_0!=0)
-            Z_prod = self.Z_0 * prod_ratio[:, np.newaxis]
-            Z_Cprod = np.tile(self._matrix_I_sum @ Z_prod,(self.n_regions,1))
-            out=np.zeros(shape=Z_prod.shape)
-            np.divide(Z_prod,Z_Cprod,out=out, where=Z_Cprod!=0)
-            tmp = (np.tile(matrix_stock_gap, (self.n_regions, 1)) * out)
-        else:
-            tmp = (np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib)
-        assert not (tmp < 0).any()
-        self.matrix_orders = tmp
-
-    def update_params(self, new_params:dict) -> None:
-        super().update_params(new_params)
-        self.psi = new_params['psi_param']
-        inv = new_params['inventories_dict']
-        inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
-        restoration_tau = [(self.n_temporal_units_by_step / new_params['inventory_restoration_tau']) if v >= INV_THRESHOLD else v for v in inventories]
-        self.restoration_tau = np.array(restoration_tau)
+    def calc_matrix_stock_gap(self, matrix_stock_goal) -> np.ndarray:
+        matrix_stock_gap = super().calc_matrix_stock_gap(matrix_stock_goal)
+        return np.expand_dims(self.restoration_tau, axis=1) * matrix_stock_gap
