@@ -555,6 +555,9 @@ Available types are {}
                     self.currently_happening_events.append(ev)
         for ev in self.currently_happening_events:
             ev.rebuildable = self.current_temporal_unit
+            ev.recoverable = self.current_temporal_unit
+            if ev.recoverable:
+                ev.recovery(self.current_temporal_unit)
         self.model.update_system_from_events(self.currently_happening_events)
 
 
