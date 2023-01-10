@@ -84,43 +84,43 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         gdp_df = gdp_df*(10**6)
 
     #TODO : Finish this
-    if stype == "Subregions":
-        scriptLogger.info("Subregions run detected !")
-        if "sliced" not in str(mrio_path):
-            raise ValueError("mrio {} seems not to contain subregions (sliced is not present in its name)".format(str(mrio_path)))
-        else:
-            mrio_rgxp = re.compile(r"(?P<region>[A-Z]{2})_sliced_in_(?P<split_number>[0-9]+)")
-            if (mrio_match := mrio_rgxp.match(mrio_path.stem)) is None:
-                raise ValueError("MRIO ({}) is not valid in this context".format(str(mrio_path.stem)))
-            else:
-                splited_region = mrio_match['region']
-                split_number = int(mrio_match['split_number'])
-            region_rgxp = re.compile(r"(?P<main_region>[A-Z]{2,3})-(?P<subregion>(?P<sregionname>[A-Z]{2,3})_?(?P<n>\d+)|all|one)")
-            if (match := region_rgxp.match(region)) is None:
-                raise ValueError("Impacted region ({}) is not valid in this context".format(str(region)))
-            else:
-                if match['main_region'] != splited_region:
-                    raise ValueError("Impacted region ({}) is different from the splited region ({})".format(str(region, splited_region)))
-                event["main_region"] = match['main_region']
-                if match['subregion'] == "all":
-                    event["aff_regions"] = [event["main_region"]+"_"+str(i) for i in range(split_number)]
-                elif match['subregion'] == "one":
-                    event["aff_regions"] = event["main_region"]+"_1"
-                else:
-                    event["aff_regions"] = match['sregionname']+"_"+match['n']
-    elif stype == "RoW":
-        pass
-    elif stype== "Full":
-        pass
-    else:
-        raise ValueError("Simulation type {} is incorrect".format(stype))
+    # if stype == "Subregions":
+    #     scriptLogger.info("Subregions run detected !")
+    #     if "sliced" not in str(mrio_path):
+    #         raise ValueError("mrio {} seems not to contain subregions (sliced is not present in its name)".format(str(mrio_path)))
+    #     else:
+    #         mrio_rgxp = re.compile(r"(?P<region>[A-Z]{2})_sliced_in_(?P<split_number>[0-9]+)")
+    #         if (mrio_match := mrio_rgxp.match(mrio_path.stem)) is None:
+    #             raise ValueError("MRIO ({}) is not valid in this context".format(str(mrio_path.stem)))
+    #         else:
+    #             splited_region = mrio_match['region']
+    #             split_number = int(mrio_match['split_number'])
+    #         region_rgxp = re.compile(r"(?P<main_region>[A-Z]{2,3})-(?P<subregion>(?P<sregionname>[A-Z]{2,3})_?(?P<n>\d+)|all|one)")
+    #         if (match := region_rgxp.match(region)) is None:
+    #             raise ValueError("Impacted region ({}) is not valid in this context".format(str(region)))
+    #         else:
+    #             if match['main_region'] != splited_region:
+    #                 raise ValueError("Impacted region ({}) is different from the splited region ({})".format(str(region, splited_region)))
+    #             event["main_region"] = match['main_region']
+    #             if match['subregion'] == "all":
+    #                 event["aff_regions"] = [event["main_region"]+"_"+str(i) for i in range(split_number)]
+    #             elif match['subregion'] == "one":
+    #                 event["aff_regions"] = event["main_region"]+"_1"
+    #             else:
+    #                 event["aff_regions"] = match['sregionname']+"_"+match['n']
+    # elif stype == "RoW":
+    #     pass
+    # elif stype== "Full":
+    #     pass
+    # else:
+    #     raise ValueError("Simulation type {} is incorrect".format(stype))
 
     scriptLogger.info("Done !")
     scriptLogger.info("Main storage dir is : {}".format(pathlib.Path(params_template["output_dir"]).resolve()))
     if rtype == "int":
         event_row = flood_gdp_df.loc[(flood_gdp_df['class'] == flood_dmg) & (flood_gdp_df['EXIO3_region'] == region)]
         if event_row.empty:
-            raise ValueError("This tuple of region / flood class ({},{}) is does not have a representative event (it is likely a duplicate of another class)".format(region,flood_dmg))
+            raise ValueError("This tuple of region / flood class ({},{}) does not have a representative event (it is likely a duplicate of another class that was removed)".format(region,flood_dmg))
         dmg_as_gdp_share = float(event_row['share of GVA used as ARIO input'])
         total_direct_dmg = dmg_as_gdp_share * gdp_df[region] #float(event_row['total_dmg'])
         duration = int(event_row['duration'])
@@ -132,7 +132,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         dmg = flood_dmg
         event["r_dmg"] = float(flood_dmg) / float(gdp_df[region])
         scriptLogger.info("Damages represent : {}/{} = {} of the region GDP".format(flood_dmg, gdp_df[region], event['r_dmg']))
-        event["q_dmg"] = float(dmg)
+        event["kapital_damage"] = float(dmg)
     else:
         raise ValueError("Run damage type {} is incorrect".format(rtype))
 
@@ -143,9 +143,13 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
         sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_tau"])+"_inv_time_"+str(int(alt_inv_dur))
     else:
         sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_tau"])
+
+    if event["shock_type"] == "kapital_destroyed_recover":
+        event["recovery_time"] = sim_params["rebuild_tau"]
     sim = Simulation(sim_params, mrio_path, modeltype=sim_params['model_type'])
     if alt_inv_dur:
         sim.model.change_inv_duration(alt_inv_dur)
+
     print(event)
     sim.read_events_from_list([event])
     try:

@@ -437,9 +437,8 @@ class ARIOBaseModel(object):
                               ) -> None:
         if isinstance(source,list):
             if source != []:
-                events_K = [ev for ev in source if ev.shock_type=="kapital_destroyed_rebuild"]
-                tot_industry_rebuild_demand = np.add.reduce(np.array([e.rebuilding_demand_indus for e in events_K]))
-                self._kapital_lost = tot_industry_rebuild_demand.sum(axis=0)
+                events_K = [ev for ev in source if "kapital_destroyed" in ev.shock_type]
+                self._kapital_lost = np.add.reduce(np.array([e.regional_sectoral_kapital_destroyed for e in events_K]))
             else:
                 self._kapital_lost = np.zeros(self.VA_0.shape)
         elif isinstance(source,np.ndarray):
@@ -861,9 +860,6 @@ class ARIOBaseModel(object):
 
         indus_rebuild_prod = rebuild_prod[:,np.newaxis] * indus_shares #type:ignore
         house_rebuild_prod = rebuild_prod[:,np.newaxis] * house_shares #type:ignore
-        #logger.debug("rebuild_prod: {}".format(rebuild_prod.shape))
-        #logger.debug("indus_rebuild_prod: {}".format(indus_rebuild_prod.shape))
-        #logger.debug("tot_rebuilding_demand_summed: {}".format(tot_rebuilding_demand_summed.shape))
 
         indus_rebuild_prod_distributed = np.zeros(shape=indus_reb_dem_per_event.shape)
         house_rebuild_prod_distributed = np.zeros(shape=house_reb_dem_per_event.shape)
@@ -871,16 +867,10 @@ class ARIOBaseModel(object):
             # 1. We normalize rebuilding demand by total rebuilding demand (i.e. we get for each client asking, the share of the total demand)
             # This is done by broadcasting total demand and then dividing. (Perhaps this is not efficient ?)
             indus_rebuilding_demand_shares = np.zeros(shape=indus_reb_dem_per_event.shape)
-            #logger.debug("indus_rebuilding_demand_shares: {}".format(indus_rebuilding_demand_shares.shape))
-            #logger.debug("indus_rebuilding_demand_tot: {}".format(indus_reb_dem_tot_per_event.shape))
-            #logger.debug("indus_rebuilding_demand: {}".format(indus_reb_dem_per_event.shape))
             indus_rebuilding_demand_broad = np.broadcast_to(indus_reb_dem_tot_per_event[:,np.newaxis],indus_reb_dem_per_event.shape)
             np.divide(indus_reb_dem_per_event,indus_rebuilding_demand_broad, where=(indus_rebuilding_demand_broad!=0), out=indus_rebuilding_demand_shares)
-            #logger.debug("indus_rebuilding_demand_shares: {}".format(indus_rebuilding_demand_shares.shape))
 
             # 2. Then we multiply those shares by the total production (each client get production proportional to its demand relative to total demand)
-            #logger.debug("indus_rebuild_prod: {}".format(indus_rebuild_prod.shape))
-            #logger.debug("indus_rebuilding_demand: {}".format(indus_reb_dem_per_event.shape))
             indus_rebuild_prod_broad = np.broadcast_to(indus_rebuild_prod[:,np.newaxis],indus_reb_dem_per_event.shape)
             np.multiply(indus_rebuilding_demand_shares,indus_rebuild_prod_broad,out=indus_rebuild_prod_distributed)
 

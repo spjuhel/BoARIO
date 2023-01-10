@@ -135,8 +135,12 @@ class Indicators(object):
 
         self.rebuilding_sectors = []
         for e in data_dict["events"]:
-            self.rebuilding_sectors.append(e['rebuilding_sectors'].keys())
-            self.rebuilding_sectors = list(misc.flatten(self.rebuilding_sectors))
+            reb_sec = e.get('rebuilding_sectors')
+            if reb_sec is None:
+                self.rebuilding_sectors=[]
+            else:
+                self.rebuilding_sectors.append(e['rebuilding_sectors'].keys())
+                self.rebuilding_sectors = list(misc.flatten(self.rebuilding_sectors))
 
         # As we dump the class __dict__ we have different names...
         # TODO: Find a better fix than this !

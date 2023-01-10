@@ -14,15 +14,105 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from __future__ import annotations
-from typing import Optional
+from typing import Callable, Optional
 from numpy.typing import ArrayLike
 import warnings
 import numpy as np
 from boario import logger
 import math
+import inspect
+from functools import partial
 
 __all__ = ['Event']
 
+def linear_recovery(elapsed_temporal_unit:int,init_kapital_destroyed:np.ndarray,recovery_time:int):
+    """Linear Kapital recovery function
+
+    Kapital is entirely recovered when `recovery_time` has passed since event
+    started recovering
+
+    Parameters
+    ----------
+    init_kapital_destroyed : float
+        Initial kapital destroyed
+    elapsed_temporal_unit : int
+        Elapsed time since event started recovering
+    recovery_time : int
+        Total time it takes the event to fully recover
+
+    Examples
+    --------
+    FIXME: Add docs.
+
+    """
+
+    return init_kapital_destroyed * (1-(elapsed_temporal_unit/recovery_time))
+
+def convexe_recovery(elapsed_temporal_unit:int,init_kapital_destroyed:np.ndarray,recovery_time:int):
+    """Convexe Kapital recovery function
+
+    Kapital is recovered with characteristic time `recovery_time`. (This doesn't mean Kapital is fully recovered after this time !)
+    This function models a recovery similar as the one happening in the rebuilding case, for the same characteristic time.
+
+    Parameters
+    ----------
+    init_kapital_destroyed : float
+        Initial kapital destroyed
+    elapsed_temporal_unit : int
+        Elapsed time since event started recovering
+    recovery_time : int
+        Total time it takes the event to fully recover
+
+    """
+    return init_kapital_destroyed * (1-(1/recovery_time))**elapsed_temporal_unit
+
+def convexe_recovery_scaled(elapsed_temporal_unit:int,init_kapital_destroyed:np.ndarray,recovery_time:int,scaling_factor:float=4):
+    """Convexe Kapital recovery function (scaled to match other recovery duration)
+
+    Kapital is mostly recovered (>95% by default for most cases) when `recovery_time` has passed since event
+    started recovering.
+
+    Parameters
+    ----------
+    init_kapital_destroyed : float
+        Initial kapital destroyed
+    elapsed_temporal_unit : int
+        Elapsed time since event started recovering
+    recovery_time : int
+        Total time it takes the event to fully recover
+    scaling_factor: float
+        Used to scale the exponent in the function so that kapital is mostly rebuilt after `recovery_time`.
+    A value of 4 insure >95% of kapital is recovered for a reasonable range of `recovery_time` values.
+
+    """
+    return init_kapital_destroyed * (1-(elapsed_temporal_unit/recovery_time))**(scaling_factor*elapsed_temporal_unit)
+
+def concave_recovery(elapsed_temporal_unit:int,init_kapital_destroyed:np.ndarray,recovery_time:int,steep_factor:float=0.000001,half_recovery_time:Optional[int]=None):
+    """Concave (s-shaped) Kapital recovery function
+
+    Kapital is mostly (>95% in most cases) recovered when `recovery_time` has passed since event started recovering.
+
+    Parameters
+    ----------
+    init_kapital_destroyed : float
+        Initial kapital destroyed
+    elapsed_temporal_unit : int
+        Elapsed time since event started recovering
+    recovery_time : int
+        Total time it takes the event to fully recover
+    steep_factor: float
+        This coefficient governs the slope of the central part of the s-shape, smaller values lead to a steeper slope. As such it also affect the percentage of kapital rebuilt
+    after `recovery_time` has elapsed. A value of 0.000001 should insure 95% of the kapital is rebuild for a reasonable range of recovery duration.
+    half_recovery_time : int
+        This can by use to change the time the inflexion point of the s-shape curve is attained. By default it is set to half the recovery duration.
+
+    """
+    if half_recovery_time is None:
+        tau_h = 2
+    else:
+        tau_h = recovery_time/half_recovery_time
+    exponent = (np.log(recovery_time)-np.log(steep_factor))/(np.log(recovery_time)-np.log(tau_h))
+    return (init_kapital_destroyed * recovery_time)/(recovery_time + steep_factor*(elapsed_temporal_unit**exponent))
 class Event(object):
     possible_sectors : np.ndarray = None #type: ignore
     possible_regions : np.ndarray = None #type: ignore
@@ -50,21 +140,24 @@ class Event(object):
         self.name = event.get("name","unnamed")
         self.occurrence = event.get("occur",1)
         self.duration = event.get("duration",1)
-        self.recovery = event.get("recovery")
-        self.aff_regions = event["aff_regions"] #TODO make it a list if it is a str
+        self.aff_regions = event["aff_regions"]
         self.aff_sectors = event["aff_sectors"]
         self.dmg_regional_distrib = event.get("dmg_regional_distrib",[1/self.aff_regions.size for _ in range(self.aff_regions.size)])
         self.dmg_sectoral_distrib_type = event.get("dmg_sectoral_distrib_type","equally shared")
         self.dmg_sectoral_distrib = event.get("dmg_sectoral_distrib",[1/self.aff_sectors.size for _ in range(self.aff_sectors.size)])
-        self.rebuilding_sectors = event["rebuilding_sectors"]
+        self.rebuilding_sectors = event.get("rebuilding_sectors")
         self.total_kapital_destroyed = event.get("kapital_damage")
+        self.regional_sectoral_kapital_destroyed = None
         self.rebuilding_demand_house = None
         self.rebuilding_demand_indus = None
         self.production_share_allocated = None
         self.prod_cap_delta_arbitrary = None
         self.happened = False
+        self._recoverable_kind : bool = False
+        self._recoverable : bool = False
         self._rebuildable_kind : bool = False
         self._rebuildable : bool = False
+        self._recovery_fun : Optional[Callable] = None
         self.rebuild_tau = event.get("rebuild_tau")
         self.over = False
         self.init_shock(event)
@@ -80,6 +173,42 @@ class Event(object):
             "mrio_used" : self.mrio_name
             }
 
+    @property
+    def recovery_function(self)->Optional[Callable]:
+        return self._recovery_fun
+
+    @recovery_function.setter
+    def recovery_function(self,r_fun:str|Callable|None):
+        if self.shock_type == "kapital_destroyed_recover":
+            if r_fun is None:
+                r_fun = "linear"
+            if self.recovery_time is None:
+                raise AttributeError("Impossible to set recovery function if no recovery time is given.")
+            if isinstance(r_fun,str):
+                if r_fun == "linear":
+                    fun = linear_recovery
+                elif r_fun == "convexe":
+                    fun = convexe_recovery_scaled
+                elif r_fun == "convexe noscale":
+                    fun = convexe_recovery
+                elif r_fun == "concave":
+                    fun = concave_recovery
+                else:
+                    raise NotImplementedError("No implemented recovery function corresponding to {}".format(r_fun))
+            elif callable(r_fun):
+                r_fun_argsspec = inspect.getfullargspec(r_fun)
+                r_fun_args = r_fun_argsspec.args + r_fun_argsspec.kwonlyargs
+                if not all(args in r_fun_args for args in ["init_kapital_destroyed","elapsed_temporal_unit","recovery_time"]):
+                    raise ValueError("Recovery function has to have at least the following keyword arguments: {}".format(["init_kapital_destroyed","elapsed_temporal_unit","recovery_time"]))
+                fun = r_fun
+
+            else:
+                raise ValueError("Given recovery function is not a str or callable")
+
+            r_fun_partial = partial(fun, init_kapital_destroyed=self._regional_sectoral_kapital_destroyed_0, recovery_time=self.recovery_time)
+            self._recovery_fun = r_fun_partial
+        else:
+            self._recovery_fun = None
 
     @property
     def occurrence(self)->int:
@@ -212,6 +341,20 @@ class Event(object):
                 self._rebuilding_sectors_shares = reb_shares
 
     @property
+    def regional_sectoral_kapital_destroyed(self)->Optional[np.ndarray]:
+        return self._regional_sectoral_kapital_destroyed
+
+    @regional_sectoral_kapital_destroyed.setter
+    def regional_sectoral_kapital_destroyed(self,value:ArrayLike|None):
+        if value is None:
+            self._regional_sectoral_kapital_destroyed = None
+        else:
+            value = np.array(value)
+            if value.shape != self.x_shape:
+                raise ValueError("Incorrect shape give for regional_sectoral_kapital_destroyed: {} given and {} expected".format(value.shape, self.x_shape))
+            self._regional_sectoral_kapital_destroyed = value
+
+    @property
     def rebuilding_demand_house(self)->Optional[np.ndarray]:
         return self._rebuilding_demand_house
 
@@ -238,6 +381,20 @@ class Event(object):
             if value.shape != self.z_shape:
                 raise ValueError("Incorrect shape give for rebuilding_demand_indus: {} given and {} expected".format(value.shape, self.z_shape))
             self._rebuilding_demand_indus = value
+            # Also update kapital destroyed
+            self._regional_sectoral_kapital_destroyed = value.sum(axis=0)
+
+    @property
+    def recoverable(self)->Optional[bool]:
+        return self._recoverable
+
+    @recoverable.setter
+    def recoverable(self,current_temporal_unit:int):
+        if self._recoverable_kind:
+            reb = (self.occurrence + self.duration) <= current_temporal_unit
+            if reb and not self.recoverable :
+                logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages has started recovering (no rebuilding demand)".format(current_temporal_unit,self.name,self.occurrence, self._aff_regions, self.total_kapital_destroyed))
+            self._recoverable = reb
 
     @property
     def rebuildable(self)->Optional[bool]:
@@ -299,8 +456,7 @@ class Event(object):
             the impacted regions or the others) is not in [0,1].
         """
 
-        if self.shock_type == "kapital_destroyed_rebuild":
-            self._rebuildable_kind = True
+        if self.shock_type in {"kapital_destroyed_rebuild","kapital_destroyed_recover"}:
             if self.total_kapital_destroyed is None:
                 raise AttributeError("Total kapital destroyed isn't set yet, this shouldn't happen.")
             regions_idx = np.arange(self.possible_regions.size)
@@ -316,26 +472,49 @@ class Event(object):
                 self.dmg_sectoral_distrib = (shares[self._aff_regions_idx][:,self._aff_sectors_idx]/shares[self._aff_regions_idx][:,self._aff_sectors_idx].sum(axis=1)[:,np.newaxis])
 
             regional_sectoral_damages = regional_damages * self.dmg_sectoral_distrib
-
+            tmp = np.zeros(self.x_shape,dtype="float")
+            tmp[aff_industries_idx] = regional_sectoral_damages
+            self._regional_sectoral_kapital_destroyed_0 = tmp.copy()
+            self.regional_sectoral_kapital_destroyed = tmp.copy()
+            if self._regional_sectoral_kapital_destroyed is None:
+                    raise ValueError("Rebuilding sectors are not set for this event")
+            if self.shock_type == "kapital_destroyed_rebuild":
+                self._rebuildable_kind = True
             # REBUILDING
-            if self._rebuilding_sectors_idx is None:
-                raise ValueError("Rebuilding sectors are not set for this event")
-            rebuilding_industries_idx = np.array([self.possible_sectors.size * ri + si for ri in self._aff_regions_idx for si in self._rebuilding_sectors_idx])
-            rebuilding_industries_RoW_idx = np.array([self.possible_sectors.size * ri + si for ri in regions_idx if ri not in self._aff_regions_idx for si in self._rebuilding_sectors_idx])
-            rebuilding_demand = np.outer(self._rebuilding_sectors_shares,regional_sectoral_damages)
-            tmp = np.zeros(self.z_shape,dtype="float")
-            mask = np.ix_(np.union1d(rebuilding_industries_RoW_idx,rebuilding_industries_idx),aff_industries_idx)
+                if self._rebuilding_sectors_idx is None:
+                    raise ValueError("Rebuilding sectors are not set for this event")
+                rebuilding_industries_idx = np.array([self.possible_sectors.size * ri + si for ri in self._aff_regions_idx for si in self._rebuilding_sectors_idx])
+                rebuilding_industries_RoW_idx = np.array([self.possible_sectors.size * ri + si for ri in regions_idx if ri not in self._aff_regions_idx for si in self._rebuilding_sectors_idx])
+                rebuilding_demand = np.outer(self._rebuilding_sectors_shares,regional_sectoral_damages)
+                tmp = np.zeros(self.z_shape,dtype="float")
+                mask = np.ix_(np.union1d(rebuilding_industries_RoW_idx,rebuilding_industries_idx),aff_industries_idx)
 
-            tmp[mask] = self.Z_distrib[mask] * np.tile(rebuilding_demand, (self.possible_regions.size,1))
-            self.rebuilding_demand_indus = tmp
+                tmp[mask] = self.Z_distrib[mask] * np.tile(rebuilding_demand, (self.possible_regions.size,1))
+                self.rebuilding_demand_indus = tmp
+                self.rebuilding_demand_house = np.zeros(shape=self.y_shape)
+            else:
+                self._rebuildable_kind = False
+                self._recoverable_kind = True
+                self.recovery_time = event["recovery_time"]
+                self.recovery_function = event.get("recovery_function")
 
-            self.rebuilding_demand_house = np.zeros(shape=self.y_shape)
-            #self.rebuilding_share_house = np.zeros(shape=self.z_shape)
-            #self.rebuildind_share_indus = np.zeros(shape=self.z_shape)
-            #self.production_share_allocated = np.zeros(shape=self.x_shape)
+
 
         elif self.shock_type == "production_capacity_loss":
             self.prod_cap_delta = event["prod_cap_delta"]
+
+    def recovery(self,current_temporal_unit:int):
+        if not self._recoverable_kind or self._rebuildable_kind:
+            raise AttributeError("Event is not initiated as a recoverable event")
+        elapsed = current_temporal_unit - (self.occurrence + self.duration)
+        if elapsed < 0:
+            raise RuntimeError("Trying to recover before event is over")
+        if self.recovery_function is None:
+            raise RuntimeError("Trying to recover event while recovery function isn't set yet")
+        res = self.recovery_function(elapsed_temporal_unit=elapsed)
+        precision = int(math.log10(self.monetary_unit)) + 1
+        res = np.around(res,precision)
+        self.regional_sectoral_kapital_destroyed = res
 
     def __repr__(self):
         #TODO: find ways to represent long lists
