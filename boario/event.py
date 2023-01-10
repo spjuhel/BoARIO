@@ -145,7 +145,7 @@ class Event(object):
         self.dmg_regional_distrib = event.get("dmg_regional_distrib",[1/self.aff_regions.size for _ in range(self.aff_regions.size)])
         self.dmg_sectoral_distrib_type = event.get("dmg_sectoral_distrib_type","equally shared")
         self.dmg_sectoral_distrib = event.get("dmg_sectoral_distrib",[1/self.aff_sectors.size for _ in range(self.aff_sectors.size)])
-        self.rebuilding_sectors = event["rebuilding_sectors"]
+        self.rebuilding_sectors = event.get("rebuilding_sectors")
         self.total_kapital_destroyed = event.get("kapital_damage")
         self.regional_sectoral_kapital_destroyed = None
         self.rebuilding_demand_house = None
