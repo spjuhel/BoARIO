@@ -18,7 +18,7 @@ import coloredlogs
 import logging
 from functools import lru_cache
 
-__version__ = "v0.3.0.b"
+__version__ = "v0.4.0b0"
 
 # Create a logger object.
 logger = logging.getLogger(__name__)
