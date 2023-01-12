@@ -514,6 +514,8 @@ class Event(object):
         res = self.recovery_function(elapsed_temporal_unit=elapsed)
         precision = int(math.log10(self.monetary_unit)) + 1
         res = np.around(res,precision)
+        if not np.any(res):
+            self.over = True
         self.regional_sectoral_kapital_destroyed = res
 
     def __repr__(self):

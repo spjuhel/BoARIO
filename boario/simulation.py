@@ -396,10 +396,11 @@ Available types are {}
         except RuntimeError as e:
             logger.exception("This exception happened:",e)
             return 1
+        events_to_remove = events_to_remove + [ev for ev in self.currently_happening_events if ev.over]
         if events_to_remove != []:
             self.currently_happening_events = [e for e in self.currently_happening_events if e not in events_to_remove]
             for e in events_to_remove:
-                logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt".format(self.current_temporal_unit, e.name,e.occurrence, e.aff_regions, e.total_kapital_destroyed))
+                logger.info("Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt/recovered".format(self.current_temporal_unit, e.name,e.occurrence, e.aff_regions, e.total_kapital_destroyed))
 
         self.model.calc_orders()
         # TODO : Redo this properly
