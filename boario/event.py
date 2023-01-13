@@ -114,18 +114,73 @@ def concave_recovery(elapsed_temporal_unit:int,init_kapital_destroyed:np.ndarray
     exponent = (np.log(recovery_time)-np.log(steep_factor))/(np.log(recovery_time)-np.log(tau_h))
     return (init_kapital_destroyed * recovery_time)/(recovery_time + steep_factor*(elapsed_temporal_unit**exponent))
 class Event(object):
+    """Create an event shocking the model from a dictionary.
+
+    Events store all information about a unique shock during simulation such as
+    time of occurrence, duration, type of shock, amount of damages. Computation
+    of recovery or initialy requested rebuilding demand is also done in this
+    class.
+
+    Parameters
+    ----------
+
+    event : dict
+        A dictionary holding the necessary information to define an event.
+
+    Examples
+    --------
+    FIXME: Add docs.
+
+    """
+
+    # Class Attributes
+    __required_class_attributes = ["possible_sectors","possible_regions","temporal_unit_range","z_shape","y_shape","x_shape","regions_idx","sectors_idx","monetary_unit","sectors_gva_shares","Z_distrib","mrio_name"]
     possible_sectors : np.ndarray = None #type: ignore
+    """List of sectors present in the MRIO used by the model"""
     possible_regions : np.ndarray = None #type: ignore
+    """List of regions present in the MRIO used by the model"""
     temporal_unit_range : int = None #type: ignore
+    """Maximum temporal unit simulated"""
     z_shape : tuple[int,int] = None #type: ignore
+    """Shape of the Z (intermediate consumption) matrix in the model"""
     y_shape : tuple[int,int] = None #type: ignore
+    """Shape of the Y (final demand) matrix in the model"""
     x_shape : tuple[int,int] = None #type: ignore
+    """Shape of the x (production) vector in the model"""
     regions_idx : np.ndarray = None #type: ignore
+    """lexicographic region indexes"""
     sectors_idx : np.ndarray = None #type: ignore
+    """lexicographic sector indexes"""
     monetary_unit : int = None #type: ignore
+    """Amount of unitary currency used in the MRIO (e.g. 1000000 if in € millions)"""
     sectors_gva_shares : np.ndarray = None #type: ignore
+    """Fraction of total (regional) GVA for each sectors"""
     Z_distrib: np.ndarray = None #type: ignore
+    """Normalized intermediate consumption matrix"""
     mrio_name: str = ""
+    """MRIO identification"""
+
+    # Instance Attributes
+    shock_type = None
+    """Type of shock (arbitrary production capacity loss (wip), productive kapital destroyed (with or without rebuilding demand)) (`str`)"""
+    name = None
+    """Name of the event (`str`)"""
+    total_kapital_destroyed = None
+    """Total amount of kapital destroyed by the event (`int`|`None`)"""
+    happened : bool = False
+    """Boolean stating if the event already happened during the simulation (`bool`)"""
+    rebuild_tau = None
+    """Characteristic number of temporal unit required to recover or rebuild the from the event (`int`)"""
+    over = None
+    """Boolean stating if the event is over (completely recovered or rebuilt)"""
+    event_dict = None
+    """Dictionary of the event"""
+
+    _recoverable_kind : bool = False
+    _recoverable : bool = False
+    _rebuildable_kind : bool = False
+    _rebuildable : bool = False
+    _recovery_fun : Optional[Callable] = None
 
     def __init__(self, event:dict) -> None:
         super().__init__()
@@ -133,9 +188,9 @@ class Event(object):
             for k,v in event["globals_var"].items():
                 if Event.__dict__[k] != v:
                     logger.warning("""You are trying to load an event which was simulated under different global vars, this might break: key:{} with value {} in dict and {} in Event class""".format(k,v,Event.__dict__[k]))
-        for k,v in Event.__dict__.items():
-            if k!="__doc__" and v is None:
-                raise AttributeError("Event Class attribute {} is not set yet so instantiating an Event isn't possible".format(k))
+        for v in self.__required_class_attributes:
+            if Event.__dict__[v] is None:
+                raise AttributeError("Required Event Class attribute {} is not set yet so instantiating an Event isn't possible".format(v))
         self.shock_type = event["shock_type"]
         self.name = event.get("name","unnamed")
         self.occurrence = event.get("occur",1)
@@ -175,6 +230,7 @@ class Event(object):
 
     @property
     def recovery_function(self)->Optional[Callable]:
+        """The recovery function used for recovery (`Callable`)"""
         return self._recovery_fun
 
     @recovery_function.setter
@@ -212,6 +268,7 @@ class Event(object):
 
     @property
     def occurrence(self)->int:
+        """The temporal unit of occurrence of the event."""
         return self._occur
 
     @occurrence.setter
@@ -223,6 +280,7 @@ class Event(object):
 
     @property
     def duration(self)->int:
+        """The duration of the event."""
         return self._duration
 
     @duration.setter
@@ -234,10 +292,12 @@ class Event(object):
 
     @property
     def aff_regions(self)->np.ndarray:
+        """The array of regions affected by the event"""
         return self._aff_regions
 
     @property
     def aff_regions_idx(self)->np.ndarray:
+        """The array of lexicographically ordered affected region indexes"""
         return self._aff_regions_idx
 
     @aff_regions.setter
@@ -254,10 +314,12 @@ class Event(object):
 
     @property
     def aff_sectors(self)->np.ndarray:
+        """The array of affected sectors by the event"""
         return self._aff_sectors
 
     @property
     def aff_sectors_idx(self)->np.ndarray:
+        """The array of lexicographically ordered affected sectors indexes"""
         return self._aff_sectors_idx
 
     @aff_sectors.setter
@@ -274,6 +336,7 @@ class Event(object):
 
     @property
     def dmg_regional_distrib(self)->np.ndarray:
+        """The array specifying how damages are distributed among affected regions"""
         return self._dmg_regional_distrib
 
     @dmg_regional_distrib.setter
@@ -290,6 +353,7 @@ class Event(object):
 
     @property
     def dmg_sectoral_distrib(self)->np.ndarray:
+        """The array specifying how damages are distributed among affected sectors"""
         return self._dmg_sectoral_distrib
 
     @dmg_sectoral_distrib.setter
@@ -306,6 +370,7 @@ class Event(object):
 
     @property
     def dmg_sectoral_distrib_type(self)->str:
+        """The type of damages distribution among sectors (currently only 'gdp')"""
         return self._dmg_sectoral_distrib_type
 
     @dmg_sectoral_distrib_type.setter
@@ -314,14 +379,17 @@ class Event(object):
 
     @property
     def rebuilding_sectors(self)->Optional[np.ndarray]:
+        """The (optional) array of rebuilding sectors"""
         return self._rebuilding_sectors
 
     @property
     def rebuilding_sectors_idx(self)->Optional[np.ndarray]:
+        """The (optional) array of indexes of the rebuilding sectors (in lexicographic order)"""
         return self._rebuilding_sectors_idx
 
     @property
     def rebuilding_sectors_shares(self)->Optional[np.ndarray]:
+        """The array specifying how rebuilding demand is distributed along the rebuilding sectors"""
         return self._rebuilding_sectors_shares
 
     @rebuilding_sectors.setter
@@ -342,6 +410,7 @@ class Event(object):
 
     @property
     def regional_sectoral_kapital_destroyed(self)->Optional[np.ndarray]:
+        """The (optional) array of kapital destroyed per industry (ie region x sector)"""
         return self._regional_sectoral_kapital_destroyed
 
     @regional_sectoral_kapital_destroyed.setter
@@ -356,6 +425,7 @@ class Event(object):
 
     @property
     def rebuilding_demand_house(self)->Optional[np.ndarray]:
+        """The optional array of rebuilding demand from households"""
         return self._rebuilding_demand_house
 
     @rebuilding_demand_house.setter
@@ -370,6 +440,7 @@ class Event(object):
 
     @property
     def rebuilding_demand_indus(self)->Optional[np.ndarray]:
+        """The optional array of rebuilding demand from industries (to rebuild their kapital)"""
         return self._rebuilding_demand_indus
 
     @rebuilding_demand_indus.setter
@@ -386,6 +457,7 @@ class Event(object):
 
     @property
     def recoverable(self)->Optional[bool]:
+        """A boolean stating if an event can start recover"""
         return self._recoverable
 
     @recoverable.setter
@@ -398,6 +470,7 @@ class Event(object):
 
     @property
     def rebuildable(self)->Optional[bool]:
+        """A boolean stating if an event can start rebuild"""
         return self._rebuildable
 
     @rebuildable.setter
@@ -410,6 +483,7 @@ class Event(object):
 
     @property
     def prod_cap_delta_arbitrary(self)->Optional[np.ndarray]:
+        """The optional array storing arbitrary (as in not related to kapital destroyed) production capacity loss"""
         return self._prod_cap_delta_arbitrary
 
     @prod_cap_delta_arbitrary.setter
@@ -446,8 +520,8 @@ class Event(object):
 
         Parameters
         ----------
-        event_to_add_id : int
-            The id (rank it the ``events`` list) of the event to shock the model with.
+        event : dict
+            A dictionary holding the relevant information to describe the event.
 
         Raises
         ------
@@ -497,8 +571,6 @@ class Event(object):
                 self._recoverable_kind = True
                 self.recovery_time = event["recovery_time"]
                 self.recovery_function = event.get("recovery_function")
-
-
 
         elif self.shock_type == "production_capacity_loss":
             self.prod_cap_delta = event["prod_cap_delta"]
