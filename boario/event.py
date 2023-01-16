@@ -85,7 +85,7 @@ def convexe_recovery_scaled(elapsed_temporal_unit:int,init_kapital_destroyed:np.
     A value of 4 insure >95% of kapital is recovered for a reasonable range of `recovery_time` values.
 
     """
-    return init_kapital_destroyed * (1-(elapsed_temporal_unit/recovery_time))**(scaling_factor*elapsed_temporal_unit)
+    return init_kapital_destroyed * (1-(1/recovery_time))**(scaling_factor*elapsed_temporal_unit)
 
 def concave_recovery(elapsed_temporal_unit:int,init_kapital_destroyed:np.ndarray,recovery_time:int,steep_factor:float=0.000001,half_recovery_time:Optional[int]=None):
     """Concave (s-shaped) Kapital recovery function
@@ -181,6 +181,7 @@ class Event(object):
     _rebuildable_kind : bool = False
     _rebuildable : bool = False
     _recovery_fun : Optional[Callable] = None
+    _regional_sectoral_kapital_destroyed_evol = None
 
     def __init__(self, event:dict) -> None:
         super().__init__()
@@ -188,7 +189,7 @@ class Event(object):
             for k,v in event["globals_var"].items():
                 if Event.__dict__[k] != v:
                     logger.warning("""You are trying to load an event which was simulated under different global vars, this might break: key:{} with value {} in dict and {} in Event class""".format(k,v,Event.__dict__[k]))
-        for v in self.__required_class_attributes:
+        for v in Event.__required_class_attributes:
             if Event.__dict__[v] is None:
                 raise AttributeError("Required Event Class attribute {} is not set yet so instantiating an Event isn't possible".format(v))
         self.shock_type = event["shock_type"]
@@ -569,7 +570,7 @@ class Event(object):
             else:
                 self._rebuildable_kind = False
                 self._recoverable_kind = True
-                self.recovery_time = event["recovery_time"]
+                self.recovery_time = event.get("recovery_time")
                 self.recovery_function = event.get("recovery_function")
 
         elif self.shock_type == "production_capacity_loss":
