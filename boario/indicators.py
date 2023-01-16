@@ -49,7 +49,8 @@ class Indicators(object):
                          "limiting_stocks_record",
                          "overprodvector_record",
                          "rebuild_demand_record",
-                         "rebuild_prod_record"
+                         "rebuild_prod_record",
+                         "iotable_kapital_destroyed_record"
                          ]
 
     params_list = ["simulated_params", "simulated_events"]
@@ -71,6 +72,8 @@ class Indicators(object):
         self.n_rows = data_dict["n_temporal_units_to_sim"]
         self.temporal_units_by_step = data_dict["temporal_units_by_step"]
 
+        self.kapital_df = pd.DataFrame(data_dict["kapital"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region','sector']))
+        self.kapital_df = self.kapital_df.interpolate()
         self.prod_df = pd.DataFrame(data_dict["prod"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region','sector']))
         self.prod_df = self.prod_df.interpolate()
         self.prodmax_df = pd.DataFrame(data_dict["prodmax"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region', 'sector']))
@@ -94,6 +97,7 @@ class Indicators(object):
         else:
             stocks_df = None
         self.prod_df = self.prod_df.rename_axis('step')
+        self.kapital_df = self.kapital_df.rename_axis('step')
         self.prodmax_df = self.prodmax_df.rename_axis('step')
         self.overprod_df = self.overprod_df.rename_axis('step')
         self.final_demand_df = self.final_demand_df.rename_axis('step')
@@ -194,6 +198,7 @@ class Indicators(object):
 
         data_dict["events"] = events
         data_dict["prod"] = sim.model.production_evolution
+        data_dict["kapital"] = sim.model.regional_sectoral_kapital_destroyed_evol
         data_dict["prodmax"] = sim.model.production_cap_evolution
         data_dict["overprod"] = sim.model.overproduction_evolution
         data_dict["final_demand"] = sim.model.final_demand_evolution
@@ -256,6 +261,7 @@ class Indicators(object):
         data_dict["n_sectors"] = indexes["n_sectors"]
         data_dict["events"] = events
         data_dict["prod"] = np.memmap(results_path/"iotable_XVA_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["kapital"] = np.memmap(results_path/"iotable_kapital_destroyed_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
         data_dict["prodmax"] = np.memmap(results_path/"iotable_X_max_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
         data_dict["overprod"] = np.memmap(results_path/"overprodvector_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
         data_dict["final_demand"] = np.memmap(results_path/"final_demand_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
@@ -306,6 +312,7 @@ class Indicators(object):
         data_dict["n_sectors"] = indexes["n_sectors"]
         data_dict["events"] = events
         data_dict["prod"] = np.memmap(results_path/"iotable_XVA_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["kapital"] = np.memmap(results_path/"iotable_kapital_destroyed_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
         data_dict["prodmax"] = np.memmap(results_path/"iotable_X_max_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
         data_dict["overprod"] = np.memmap(results_path/"overprodvector_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
         data_dict["final_demand"] = np.memmap(results_path/"final_demand_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
@@ -457,6 +464,7 @@ class Indicators(object):
     def save_dfs(self):
         logger.info("Saving computed dataframe to results folder")
         self.prod_df.to_parquet(self.storage_path/"prod_df.parquet")
+        self.kapital_df.to_parquet(self.storage_path/"kapital_df.parquet")
         self.prodmax_df.to_parquet(self.storage_path/"prodmax_df.parquet")
         self.overprod_df.to_parquet(self.storage_path/"overprod_df.parquet")
         self.fd_unmet_df.to_parquet(self.storage_path/"fd_unmet_df.parquet")
