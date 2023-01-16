@@ -257,6 +257,8 @@ class ARIOBaseModel(object):
             self.stocks_evolution.fill(np.nan)
         self.limiting_stocks_evolution = np.memmap(results_storage/"limiting_stocks_record", dtype='byte', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors, self.n_sectors*self.n_regions))
         self.limiting_stocks_evolution.fill(-1)
+        self.regional_sectoral_kapital_destroyed_evol = np.memmap(self.results_storage/"iotable_kapital_destroyed_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.regional_sectoral_kapital_destroyed_evol.fill(np.nan)
         #############################################################################
 
         ### Internals
@@ -1080,10 +1082,15 @@ class ARIOBaseModel(object):
             self.stocks_evolution.fill(np.nan)
         self.limiting_stocks_evolution = np.memmap(self.results_storage/"limiting_stocks_record", dtype='byte', mode="w+", shape=(n_temporal_units, self.n_sectors, self.n_sectors*self.n_regions))
         self.limiting_stocks_evolution.fill(-1)
+        self.regional_sectoral_kapital_destroyed_evol = np.memmap(self.results_storage/"iotable_kapital_destroyed_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.regional_sectoral_kapital_destroyed_evol.fill(np.nan)
 
 
     def write_production(self, current_temporal_unit:int) -> None:
         self.production_evolution[current_temporal_unit] = self.production
+
+    def write_kapital_lost(self, current_temporal_unit:int) -> None:
+        self.regional_sectoral_kapital_destroyed_evol[current_temporal_unit] = self._kapital_lost
 
     def write_production_max(self, current_temporal_unit:int) -> None:
         self.production_cap_evolution[current_temporal_unit] = self.production_cap

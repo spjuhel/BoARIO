@@ -217,7 +217,7 @@ class Simulation(object):
             raise TypeError("At this point, mrio should be an IOSystem, not a %s", str(type(mrio)))
 
         self.params = simulation_params
-        self.results_storage = results_storage = pathlib.Path(self.params['output_dir']+"/"+self.params['results_storage'])
+        self.results_storage = results_storage = pathlib.Path(self.params['output_dir']).resolve()/pathlib.Path(self.params['results_storage'])
         if not results_storage.exists():
             results_storage.mkdir(parents=True)
         if modeltype == "ARIOBase":
@@ -389,6 +389,7 @@ Available types are {}
         constraints = self.model.calc_production(self.current_temporal_unit)
         self.model.write_limiting_stocks(self.current_temporal_unit, constraints)
         self.model.write_production(self.current_temporal_unit)
+        self.model.write_kapital_lost(self.current_temporal_unit)
         self.model.write_production_max(self.current_temporal_unit)
         try:
             rebuildable_events = [ev for ev in self.currently_happening_events if ev.rebuildable]
