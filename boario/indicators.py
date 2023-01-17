@@ -401,7 +401,8 @@ class Indicators(object):
             prod_chg_sect_sem_l.append(prod_chg_agg_1.iloc[sem*row_to_semester:((sem+1)*row_to_semester)+(sem%2)*modulo].sum().T)
 
         prod_chg_region = pd.concat(prod_chg_sect_sem_l, keys=['semester {}'.format(v+1) for v in range(n_semesters)], names=['semester'])
-        prod_chg_region = pd.DataFrame({(self.storage_path.parent.name,self.storage_path.name):prod_chg_region}).T
+        aff_regions = "~".join(self.aff_regions)
+        prod_chg_region = pd.DataFrame({aff_regions:prod_chg_region}).T
         prod_chg_region.to_json(self.storage_path/"prod_chg.json", indent=4, orient='split')
 
         prod_chg_sect = prod_chg.sum()
@@ -454,7 +455,8 @@ class Indicators(object):
             fd_loss_sect_sem_l.append(fd_loss_agg_1.iloc[sem*row_to_semester:((sem+1)*row_to_semester)+(sem%2)*modulo].sum().T)
 
         fd_loss_region = pd.concat(fd_loss_sect_sem_l, keys=['semester {}'.format(v+1) for v in range(n_semesters)], names=['semester'])
-        fd_loss_region = pd.DataFrame({(self.storage_path.parent.name,self.storage_path.name):fd_loss_region}).T
+        aff_regions = "~".join(self.aff_regions)
+        fd_loss_region = pd.DataFrame({aff_regions:fd_loss_region}).T
         fd_loss_region.to_json(self.storage_path/"fd_loss.json", indent=4, orient='split')
 
         fd_loss_sect = fd_loss.sum()

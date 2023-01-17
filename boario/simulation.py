@@ -244,6 +244,7 @@ Available types are {}
         self._monotony_checker = 0
         self.scheme = 'proportional'
         self.has_crashed = False
+
         logger.info("Initialized !")
 
     def loop(self, progress:bool=True):

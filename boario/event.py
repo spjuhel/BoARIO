@@ -113,6 +113,8 @@ def concave_recovery(elapsed_temporal_unit:int,init_kapital_destroyed:np.ndarray
         tau_h = recovery_time/half_recovery_time
     exponent = (np.log(recovery_time)-np.log(steep_factor))/(np.log(recovery_time)-np.log(tau_h))
     return (init_kapital_destroyed * recovery_time)/(recovery_time + steep_factor*(elapsed_temporal_unit**exponent))
+
+
 class Event(object):
     """Create an event shocking the model from a dictionary.
 

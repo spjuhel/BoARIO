@@ -53,8 +53,7 @@ class ARIOModelPsi(ARIOBaseModel):
 
         super().__init__(pym_mrio, mrio_params, simulation_params, results_storage)
         logger.debug("Model is an ARIOModelPsi")
-
-        self.psi = simulation_params['psi_param']
+        self.psi = float(simulation_params['psi_param'].replace("_","."))
         inv = mrio_params['inventories_dict']
         inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
         restoration_tau = [(self.n_temporal_units_by_step / simulation_params['inventory_restoration_tau']) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.

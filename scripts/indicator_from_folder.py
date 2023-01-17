@@ -42,15 +42,15 @@ scriptLogger.setLevel(logging.INFO)
 scriptLogger.propagate = False
 
 def produce_indicator(folder):
-    regex = re.compile(r"(?P<region>[A-Z]{2})_type_(?P<type>rebuilding|recover)_qdmg_(?:raw_|int_)?(?P<gdp_dmg>(?:[\d_]+%?)|(?:max|min))_Psi_(?P<psi>(?:0_\d+)|1_0)_inv_tau_(?P<inv_tau>\d+)(?:_inv_time_(?:\d+))?")
-    m = regex.match(folder.name)
-    if m is None:
-        scriptLogger.warning("Directory {} didn't match regex".format(folder.name))
-    else:
-        indic = Indicators.from_folder(folder, folder/"indexes.json")
-        indic.update_indicators()
-        indic.indicators.copy()
-        indic.write_indicators()
+    #regex = re.compile(r"(?P<region>[A-Z]{2})_type_(?P<type>rebuilding|recover)_qdmg_(?:raw_|int_)?(?P<gdp_dmg>(?:[\d_]+%?)|(?:max|min))_Psi_(?P<psi>(?:0_\d+)|1_0)_inv_tau_(?P<inv_tau>\d+)(?:_inv_time_(?:\d+))?")
+    #m = regex.match(folder.name)
+    #if False:#m is None:
+    #    scriptLogger.warning("Directory {} didn't match regex".format(folder.name))
+    #else:
+    indic = Indicators.from_folder(folder, folder/"indexes.json")
+    indic.update_indicators()
+    indic.indicators.copy()
+    indic.write_indicators()
 
 if __name__ == '__main__':
     scriptLogger.info('Starting Script')
