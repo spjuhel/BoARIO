@@ -269,7 +269,8 @@ Available types are {}
         tmp.setFormatter(DEBUGFORMATTER)
         logger.addHandler(tmp)
         logger.info("Events : {}".format(self.all_events))
-        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_events.json").open('w') as f:
+        (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"jsons").mkdir(parents=True, exist_ok=True)
+        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"jsons"/"simulated_events.json").open('w') as f:
             event_dicts = [ev.event_dict for ev in self.all_events]
             json.dump(event_dicts, f, indent=4)
         if progress:
@@ -326,9 +327,9 @@ Available types are {}
         self.model.production_cap_evolution.flush()
         self.params['n_temporal_units_simulated'] = self.n_temporal_units_simulated
         self.params['has_crashed'] = self.has_crashed
-        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"simulated_params.json").open('w') as f:
+        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"jsons"/"simulated_params.json").open('w') as f:
             json.dump(self.params, f, indent=4)
-        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"equilibrium_checks.json").open('w') as f:
+        with (pathlib.Path(self.params["output_dir"]+"/"+self.params['results_storage'])/"jsons"/"equilibrium_checks.json").open('w') as f:
             json.dump({str(k): v for k, v in self.equi.items()}, f, indent=4)
         logger.info('Loop complete')
         if progress:

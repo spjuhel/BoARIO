@@ -179,8 +179,11 @@ class Indicators(object):
             "n_temporal_units_to_sim" : data_dict['n_temporal_units_simulated'],
             "has_crashed" : data_dict['has_crashed'],
         }
-        self.storage = (pathlib.Path(data_dict['results_storage'])/'indicators.json').resolve()
-        self.storage_path = (pathlib.Path(data_dict['results_storage'])).resolve()
+        self.storage_path = (pathlib.Path(data_dict['results_storage'])).resolve()/"indicators"
+        self.parquets_path = (pathlib.Path(data_dict['results_storage'])).resolve()/"parquets"
+        self.storage = self.storage_path/"indicators.json"
+        self.parquets_path.mkdir(parents=True, exist_ok=True)
+        self.storage_path.mkdir(parents=True, exist_ok=True)
         self.save_dfs()
 
     @classmethod
@@ -193,7 +196,7 @@ class Indicators(object):
         data_dict["has_crashed"] = sim.has_crashed
         data_dict["regions"] = sim.model.regions
         data_dict["sectors"] = sim.model.sectors
-        with (pathlib.Path(sim.params["results_storage"])/"simulated_events.json").open() as f:
+        with (pathlib.Path(sim.params["results_storage"])/"jsons"/"simulated_events.json").open() as f:
             events = json.load(f)
 
         data_dict["events"] = events
@@ -229,12 +232,14 @@ class Indicators(object):
         with indexes_file.open() as f:
             indexes = json.load(f)
 
-        params_file = {f.stem : f for f in folder.glob("*.json")}
+        params_folder = folder/"jsons"
+        records_folder = folder/"records"
+        params_file = {f.stem : f for f in params_folder.glob("*.json")}
         absentee = [f for f in cls.params_list if f not in params_file.keys()]
         if absentee != []:
             raise FileNotFoundError("Some of the required parameters files not found (looked for {} in {}".format(cls.params_list,folder))
 
-        record_files = [f for f in folder.glob("*record") if f.is_file()]
+        record_files = [f for f in records_folder.glob("*record") if f.is_file()]
         absentee = [f for f in cls.record_files_list if f not in [fn.name for fn in record_files]]
         if absentee != []:
             raise FileNotFoundError("Some of the required records are not there : {}".format(absentee))
@@ -249,7 +254,8 @@ class Indicators(object):
             data_dict["has_crashed"] = params["has_crashed"]
         else:
             data_dict["has_crashed"] = False
-        results_path = data_dict["results_storage"] = folder.absolute()
+        data_dict["results_storage"] = folder.absolute()
+        records_path =  records_folder.absolute()
         data_dict["n_temporal_units_to_sim"] = params['n_temporal_units_to_sim']
         t = data_dict["n_temporal_units_to_sim"]
         data_dict['params'] = params
@@ -260,20 +266,20 @@ class Indicators(object):
         data_dict["sectors"] = indexes["sectors"]
         data_dict["n_sectors"] = indexes["n_sectors"]
         data_dict["events"] = events
-        data_dict["prod"] = np.memmap(results_path/"iotable_XVA_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
-        data_dict["kapital"] = np.memmap(results_path/"iotable_kapital_destroyed_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
-        data_dict["prodmax"] = np.memmap(results_path/"iotable_X_max_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
-        data_dict["overprod"] = np.memmap(results_path/"overprodvector_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
-        data_dict["final_demand"] = np.memmap(results_path/"final_demand_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
-        data_dict["io_demand"] = np.memmap(results_path/"io_demand_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
-        data_dict["r_demand"] = np.memmap(results_path/"rebuild_demand_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
-        data_dict["r_prod"] = np.memmap(results_path/"rebuild_prod_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
-        data_dict["fd_unmet"] = np.memmap(results_path/"final_demand_unmet_record", mode='r+', dtype='float64',shape=(t,indexes['n_regions']*indexes['n_sectors']))
-        data_dict["limiting_stocks"] = np.memmap(results_path/"limiting_stocks_record", mode='r+', dtype='byte',shape=(t*indexes['n_sectors'],indexes['n_industries']))
+        data_dict["prod"] = np.memmap(records_path/"iotable_XVA_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["kapital"] = np.memmap(records_path/"iotable_kapital_destroyed_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["prodmax"] = np.memmap(records_path/"iotable_X_max_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["overprod"] = np.memmap(records_path/"overprodvector_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["final_demand"] = np.memmap(records_path/"final_demand_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["io_demand"] = np.memmap(records_path/"io_demand_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["r_demand"] = np.memmap(records_path/"rebuild_demand_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["r_prod"] = np.memmap(records_path/"rebuild_prod_record", mode='r+', dtype='float64',shape=(t,indexes['n_industries']))
+        data_dict["fd_unmet"] = np.memmap(records_path/"final_demand_unmet_record", mode='r+', dtype='float64',shape=(t,indexes['n_regions']*indexes['n_sectors']))
+        data_dict["limiting_stocks"] = np.memmap(records_path/"limiting_stocks_record", mode='r+', dtype='byte',shape=(t*indexes['n_sectors'],indexes['n_industries']))
         if params['register_stocks']:
-            if not (results_path/"stocks_record").exists():
-                raise FileNotFoundError("Stocks record file was not found {}".format(results_path/"stocks_record"))
-            data_dict["stocks"] = np.memmap(results_path/"stocks_record", mode='r+', dtype='float64',shape=(t*indexes['n_sectors'],indexes['n_industries']))
+            if not (records_path/"stocks_record").exists():
+                raise FileNotFoundError("Stocks record file was not found {}".format(records_path/"stocks_record"))
+            data_dict["stocks"] = np.memmap(records_path/"stocks_record", mode='r+', dtype='float64',shape=(t*indexes['n_sectors'],indexes['n_industries']))
         return cls(data_dict, include_crash)
 
 
@@ -288,12 +294,12 @@ class Indicators(object):
         else:
             with (storage_path/"simulated_params.json").open() as f:
                 simulation_params = json.load(f)
-        if (storage_path/simulation_params['results_storage']/"simulated_params.json").exists():
-            with (storage_path/simulation_params['results_storage']/"simulated_params.json").open() as f:
+        if (storage_path/simulation_params['results_storage']/"jsons"/"simulated_params.json").exists():
+            with (storage_path/simulation_params['results_storage']/"jsons"/"simulated_params.json").open() as f:
                 simulation_params = json.load(f)
-        with (storage_path/simulation_params['results_storage']/"indexes.json").open() as f:
+        with (storage_path/simulation_params['results_storage']/"jsons"/"indexes.json").open() as f:
             indexes = json.load(f)
-        with (storage_path/simulation_params['results_storage']/"simulated_events.json").open() as f:
+        with (storage_path/simulation_params['results_storage']/"jsons"/"simulated_events.json").open() as f:
             events = json.load(f)
         t = simulation_params["n_temporal_units_to_sim"]
         if indexes['fd_cat'] is None:
@@ -465,18 +471,18 @@ class Indicators(object):
 
     def save_dfs(self):
         logger.info("Saving computed dataframe to results folder")
-        self.prod_df.to_parquet(self.storage_path/"prod_df.parquet")
-        self.kapital_df.to_parquet(self.storage_path/"kapital_df.parquet")
-        self.prodmax_df.to_parquet(self.storage_path/"prodmax_df.parquet")
-        self.overprod_df.to_parquet(self.storage_path/"overprod_df.parquet")
-        self.fd_unmet_df.to_parquet(self.storage_path/"fd_unmet_df.parquet")
-        self.final_demand_df.to_parquet(self.storage_path/"final_demand_df.parquet")
-        self.io_demand_df.to_parquet(self.storage_path/"io_demand_df.parquet")
-        self.r_demand_df.to_parquet(self.storage_path/"r_demand_df.parquet")
-        self.df_loss.to_parquet(self.storage_path/"treated_df_loss.parquet")
+        self.prod_df.to_parquet(self.parquets_path/"prod_df.parquet")
+        self.kapital_df.to_parquet(self.parquets_path/"kapital_df.parquet")
+        self.prodmax_df.to_parquet(self.parquets_path/"prodmax_df.parquet")
+        self.overprod_df.to_parquet(self.parquets_path/"overprod_df.parquet")
+        self.fd_unmet_df.to_parquet(self.parquets_path/"fd_unmet_df.parquet")
+        self.final_demand_df.to_parquet(self.parquets_path/"final_demand_df.parquet")
+        self.io_demand_df.to_parquet(self.parquets_path/"io_demand_df.parquet")
+        self.r_demand_df.to_parquet(self.parquets_path/"r_demand_df.parquet")
+        self.df_loss.to_parquet(self.parquets_path/"treated_df_loss.parquet")
         if self.df_stocks is not None:
             ddf = da.from_pandas(self.df_stocks, chunksize=10000000)
-            ddf.to_parquet(self.storage_path/"treated_df_stocks.parquet", engine="pyarrow")
+            ddf.to_parquet(self.parquets_path/"treated_df_stocks.parquet", engine="pyarrow")
         if self.df_limiting is not None:
             #ddf_l = da.from_pandas(self.df_limiting, chunksize=10000000)
             #ddf_l = ddf_l.melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'variable_2':'stock of'})
@@ -485,5 +491,5 @@ class Indicators(object):
             #ddf_l['stock of'] = ddf_l['stock of'].astype("category")
             #ddf_l['region'] = ddf_l['region'].astype("category")
             #ddf_l['sector'] = ddf_l['sector'].astype("category")
-            self.df_limiting.to_parquet(self.storage_path/"treated_df_limiting.parquet", engine="pyarrow")
-        #self.df_limiting.to_feather(self.storage_path/"treated_df_limiting.feather")
+            self.df_limiting.to_parquet(self.parquets_path/"treated_df_limiting.parquet", engine="pyarrow")
+        #self.df_limiting.to_feather(self.parquets_path/"treated_df_limiting.feather")

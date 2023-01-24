@@ -133,8 +133,8 @@ class ARIOBaseModel(object):
         self.main_inv_dur : int = mrio_params['main_inv_dur']
 
         results_storage = results_storage.absolute()
-        self.results_storage:pathlib.Path = results_storage
-        logger.info("Results storage is: {}".format(self.results_storage))
+        self.records_storage:pathlib.Path = results_storage/"records"
+        logger.info("Results storage is: {}".format(self.records_storage))
         reg = pym_mrio.get_regions()
         reg = typing.cast("list[str]",reg)
         self.regions = np.array(sorted(reg))
@@ -235,29 +235,30 @@ class ARIOBaseModel(object):
         ################## SIMULATION TRACKING VARIABLES ################
         self.in_shortage = False
         self.had_shortage = False
-        self.production_evolution = np.memmap(results_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.records_storage.mkdir(parents=True, exist_ok=True)
+        self.production_evolution = np.memmap(self.records_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.production_evolution.fill(np.nan)
-        self.production_cap_evolution = np.memmap(results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.production_cap_evolution = np.memmap(self.records_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.production_cap_evolution.fill(np.nan)
-        self.final_demand_evolution = np.memmap(results_storage/"final_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.final_demand_evolution = np.memmap(self.records_storage/"final_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.final_demand_evolution.fill(np.nan)
-        self.io_demand_evolution = np.memmap(results_storage/"io_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.io_demand_evolution = np.memmap(self.records_storage/"io_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.io_demand_evolution.fill(np.nan)
 
-        self.rebuild_demand_evolution = np.memmap(results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.rebuild_demand_evolution = np.memmap(self.records_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.rebuild_demand_evolution.fill(np.nan)
-        self.overproduction_evolution = np.memmap(results_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.overproduction_evolution = np.memmap(self.records_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.overproduction_evolution.fill(np.nan)
-        self.final_demand_unmet_evolution = np.memmap(results_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.final_demand_unmet_evolution = np.memmap(self.records_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.final_demand_unmet_evolution.fill(np.nan)
-        self.rebuild_production_evolution = np.memmap(results_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.rebuild_production_evolution = np.memmap(self.records_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.rebuild_production_evolution.fill(np.nan)
         if simulation_params['register_stocks']:
-            self.stocks_evolution = np.memmap(results_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors, self.n_sectors*self.n_regions))
+            self.stocks_evolution = np.memmap(self.records_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors, self.n_sectors*self.n_regions))
             self.stocks_evolution.fill(np.nan)
-        self.limiting_stocks_evolution = np.memmap(results_storage/"limiting_stocks_record", dtype='byte', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors, self.n_sectors*self.n_regions))
+        self.limiting_stocks_evolution = np.memmap(self.records_storage/"limiting_stocks_record", dtype='byte', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors, self.n_sectors*self.n_regions))
         self.limiting_stocks_evolution.fill(-1)
-        self.regional_sectoral_kapital_destroyed_evol = np.memmap(self.results_storage/"iotable_kapital_destroyed_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
+        self.regional_sectoral_kapital_destroyed_evol = np.memmap(self.records_storage/"iotable_kapital_destroyed_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
         self.regional_sectoral_kapital_destroyed_evol.fill(np.nan)
         #############################################################################
 
@@ -294,7 +295,7 @@ class ARIOBaseModel(object):
 
 
         ### Dump indexes
-        self.write_index(results_storage/"indexes.json")
+        self.write_index(results_storage/"jsons"/"indexes.json")
 
     ## Properties
 
@@ -829,8 +830,8 @@ class ARIOBaseModel(object):
         if not np.allclose(stock_add, stock_use):
             self.matrix_stock = self.matrix_stock - stock_use + stock_add
             if (self.matrix_stock < 0).any():
-                self.matrix_stock.dump(self.results_storage/"matrix_stock_dump.pkl")
-                logger.error("Negative values in the stocks, matrix has been dumped in the results dir : \n {}".format(self.results_storage/"matrix_stock_dump.pkl"))
+                self.matrix_stock.dump(self.records_storage/"matrix_stock_dump.pkl")
+                logger.error("Negative values in the stocks, matrix has been dumped in the results dir : \n {}".format(self.records_storage/"matrix_stock_dump.pkl"))
                 raise RuntimeError("stock_add (restocking) contains negative values, this should not happen")
 
         # 6. Compute final demand not met due to rationing
@@ -1043,8 +1044,8 @@ class ARIOBaseModel(object):
         self.overprod_max = new_params['alpha_max']
         self.overprod_tau = new_params['alpha_tau']
         self.overprod_base = new_params['alpha_base']
-        if self.results_storage != pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage']):
-            self.results_storage = pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage'])
+        if self.records_storage != pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage']):
+            self.records_storage = pathlib.Path(new_params['output_dir']+"/"+new_params['results_storage'])
         self.reset_record_files(new_params['n_temporal_units_to_sim'], new_params['register_stocks'])
 
     def reset_record_files(self, n_temporal_units:int, reg_stocks: bool) -> None:
@@ -1061,28 +1062,28 @@ class ARIOBaseModel(object):
             If true, create/reset the stock memmap (which can be huge)
 
         """
-        self.production_evolution = np.memmap(self.results_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.production_evolution = np.memmap(self.records_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
         self.production_evolution.fill(np.nan)
-        self.production_cap_evolution = np.memmap(self.results_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.production_cap_evolution = np.memmap(self.records_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
         self.production_cap_evolution.fill(np.nan)
-        self.io_demand_evolution = np.memmap(self.results_storage/"io_demand_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.io_demand_evolution = np.memmap(self.records_storage/"io_demand_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
         self.io_demand_evolution.fill(np.nan)
-        self.final_demand_evolution = np.memmap(self.results_storage/"final_demand_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.final_demand_evolution = np.memmap(self.records_storage/"final_demand_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
         self.final_demand_evolution.fill(np.nan)
-        self.rebuild_demand_evolution = np.memmap(self.results_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.rebuild_demand_evolution = np.memmap(self.records_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
         self.rebuild_demand_evolution.fill(np.nan)
-        self.overproduction_evolution = np.memmap(self.results_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.overproduction_evolution = np.memmap(self.records_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
         self.overproduction_evolution.fill(np.nan)
-        self.final_demand_unmet_evolution = np.memmap(self.results_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.final_demand_unmet_evolution = np.memmap(self.records_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
         self.final_demand_unmet_evolution.fill(np.nan)
-        self.rebuild_production_evolution = np.memmap(self.results_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.rebuild_production_evolution = np.memmap(self.records_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
         self.rebuild_production_evolution.fill(np.nan)
         if reg_stocks:
-            self.stocks_evolution = np.memmap(self.results_storage/"stocks_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors, self.n_sectors*self.n_regions))
+            self.stocks_evolution = np.memmap(self.records_storage/"stocks_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors, self.n_sectors*self.n_regions))
             self.stocks_evolution.fill(np.nan)
-        self.limiting_stocks_evolution = np.memmap(self.results_storage/"limiting_stocks_record", dtype='byte', mode="w+", shape=(n_temporal_units, self.n_sectors, self.n_sectors*self.n_regions))
+        self.limiting_stocks_evolution = np.memmap(self.records_storage/"limiting_stocks_record", dtype='byte', mode="w+", shape=(n_temporal_units, self.n_sectors, self.n_sectors*self.n_regions))
         self.limiting_stocks_evolution.fill(-1)
-        self.regional_sectoral_kapital_destroyed_evol = np.memmap(self.results_storage/"iotable_kapital_destroyed_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
+        self.regional_sectoral_kapital_destroyed_evol = np.memmap(self.records_storage/"iotable_kapital_destroyed_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
         self.regional_sectoral_kapital_destroyed_evol.fill(np.nan)
 
 
@@ -1151,6 +1152,7 @@ class ARIOBaseModel(object):
         }
         if isinstance(index_file,str):
             index_file=pathlib.Path(index_file)
+        index_file.parent.mkdir(parents=True, exist_ok=True)
         with index_file.open('w') as f:
             json.dump(indexes,f)
 
