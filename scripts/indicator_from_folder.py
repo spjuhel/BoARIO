@@ -47,7 +47,7 @@ def produce_indicator(folder):
     #if False:#m is None:
     #    scriptLogger.warning("Directory {} didn't match regex".format(folder.name))
     #else:
-    indic = Indicators.from_folder(folder, folder/"indexes.json")
+    indic = Indicators.from_folder(folder, folder/"jsons"/"indexes.json")
     indic.update_indicators()
     indic.indicators.copy()
     indic.write_indicators()
