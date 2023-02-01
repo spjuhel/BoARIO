@@ -929,7 +929,7 @@ class ARIOBaseModel(object):
         matrix_stock_gap += (np.tile(self.production, (self.n_sectors, 1)) * self.tech_mat)
         if self.order_type == "alt":
             prod_ratio = np.ones(shape=self.X_0.shape)
-            np.divide(self.production,self.X_0, out=prod_ratio, where=self.X_0!=0)
+            np.divide(self.production_cap,self.X_0, out=prod_ratio, where=self.X_0!=0)
             Z_prod = self.Z_0 * prod_ratio[:, np.newaxis]
             Z_Cprod = np.tile(self._matrix_I_sum @ Z_prod,(self.n_regions,1))
             out=np.zeros(shape=Z_prod.shape)
