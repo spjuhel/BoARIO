@@ -64,6 +64,6 @@ def warn_once(logger, msg: str):
 
 # adds the handler to the global variable: log
 #logger.addHandler(_ch)
-#logger.propagate = False
+logger.propagate = False
 #print(logger.handlers)
 #print("a")
