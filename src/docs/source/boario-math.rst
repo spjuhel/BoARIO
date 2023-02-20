@@ -275,7 +275,7 @@ Industries seek to restore the inventory of each of their input to their goal le
 .. note::
 
   In :class:`ARIOBaseModel`, the 'gap' matrix is simply the difference between :math:`\ioinv^{*}(t)` and :math:`\ioinv(t)` and orders to suppliers are then proportional to the initial transaction matrix (See definition of :math:`\ioz^{\textrm{Share}}`).
-  In :class:`ARIOModelPsi`, only a fraction of missing inventories are ordered, but in addition, the totality of inputs used for production during this step is also ordered.
+  In :class:`ARIOPsiModel`, only a fraction of missing inventories are ordered, but in addition, the totality of inputs used for production during this step is also ordered.
   The differences are shown in red.
 
 .. math::

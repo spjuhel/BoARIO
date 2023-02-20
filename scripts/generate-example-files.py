@@ -27,7 +27,7 @@ PARAMS = {
    # Time division of a year in the model (365 == day, 52 == week, ...)
    "year_to_temporal_unit_factor": 365,
     # Number of day|week|... of one step of the model (ie time sampling)
-   "temporal_units_by_step": 1,
+   "n_temporal_units_by_step": 1,
     # Charateristic time of inventory restoration
    "inventory_restoration_tau": 60,
     # Base overproduction factor

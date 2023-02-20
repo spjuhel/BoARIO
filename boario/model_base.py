@@ -20,10 +20,9 @@ import pathlib
 import typing
 from typing import Optional
 import numpy as np
-from numpy.typing import ArrayLike
-
+import pandas as pd
 from boario import logger, warn_once
-from boario.event import Event
+from boario.event import *
 from pymrio.core.mriosystem import IOSystem
 from boario.utils.misc import lexico_reindex
 
@@ -47,7 +46,7 @@ VA_idx = np.array(['Taxes less subsidies on products purchased: Total',
        'Operating surplus: Royalties on resources',
        'Operating surplus: Remaining net operating surplus'], dtype=object)
 
-class ARIOBaseModel(object):
+class ARIOBaseModel():
     r"""The core of an ARIO3 model.  Handles the different arrays containing the mrio tables.
 
     A ARIOBaseModel wrap all the data and functions used in the core of the most basic version of the ARIO
@@ -72,22 +71,22 @@ class ARIOBaseModel(object):
                The numbers of final demand categories.
     monetary_unit : int
                     monetary unit prefix (i.e. if the tables unit is 10^6 € instead of 1 €, it should be set to 10^6).
-    temporal_units_by_step : int
+    n_temporal_units_by_step : int
                      The number of temporal_units between each step. (Current version of the model was not tested with values other than `1`).
     year_to_temporal_unit_factor : int
-                               Kinda deprecated, should be equal to `temporal_units_by_step`.
+                               Kinda deprecated, should be equal to `n_temporal_units_by_step`.
     rebuild_tau : int
                   Rebuilding characteristic time :math:`\tau_{\textrm{REBUILD}}` (see :ref:`boario-math`).
     overprod_max : float
                    Maximum factor of overproduction :math:`\alpha^{\textrm{max}}` (default should be 1.25).
     overprod_tau : float
-                   Characteristic time of overproduction :math:`\tau_{\alpha}` in ``temporal_units_by_step`` (default should be 365 days).
+                   Characteristic time of overproduction :math:`\tau_{\alpha}` in ``n_temporal_units_by_step`` (default should be 365 days).
     overprod_base : float
                     Base value of overproduction factor :math:`\alpha^{b}` (Default to 1.0).
     inv_duration : numpy.ndarray of int
-                   Array :math:`\mathbf{s}` of size :math:`n` (sectors), setting for each input the initial number of ``temporal_units_by_step`` of stock for the input. (see :ref:`boario-math`).
+                   Array :math:`\mathbf{s}` of size :math:`n` (sectors), setting for each input the initial number of ``n_temporal_units_by_step`` of stock for the input. (see :ref:`boario-math`).
     restoration_tau : numpy.ndarray of int
-                      Array of size :math:`n` setting for each inputs its characteristic restoration time :math:`\tau_{\textrm{INV}}` in ``temporal_units_by_step``. (see :ref:`boario-math`).
+                      Array of size :math:`n` setting for each inputs its characteristic restoration time :math:`\tau_{\textrm{INV}}` in ``n_temporal_units_by_step``. (see :ref:`boario-math`).
     Z_0 : numpy.ndarray of float
           2-dim square matrix array :math:`\ioz` of size :math:`(n \times m, n \times m)` representing the intermediate (transaction) matrix (see :ref:`boario-math-init`).
     Z_C : numpy.ndarray of float
@@ -117,24 +116,22 @@ class ARIOBaseModel(object):
 
     def __init__(self,
                  pym_mrio: IOSystem,
-                 mrio_params: dict,
-                 simulation_params: dict,
-                 results_storage: pathlib.Path
+                 order_type="alt",
+                 alpha_base=1.0,
+                 alpha_max=1.25,
+                 alpha_tau=365,
+                 rebuild_tau=60,
+                 main_inv_dur=90,
+                 monetary_unit=10**6,
+                 **kwargs
                  ) -> None:
 
         logger.debug("Initiating new ARIOBaseModel instance")
         super().__init__()
-
         ################ Parameters variables #######################
         logger.info("IO system metadata :\n{}".format(str(pym_mrio.meta)))
-        logger.info("Simulation parameters:\n{}".format(json.dumps(simulation_params, indent=4)))
         pym_mrio = lexico_reindex(pym_mrio)
-        self.mrio_params : dict = mrio_params
-        self.main_inv_dur : int = mrio_params['main_inv_dur']
-
-        results_storage = results_storage.absolute()
-        self.records_storage:pathlib.Path = results_storage/"records"
-        logger.info("Results storage is: {}".format(self.records_storage))
+        self.main_inv_dur : int = main_inv_dur
         reg = pym_mrio.get_regions()
         reg = typing.cast("list[str]",reg)
         self.regions = np.array(sorted(reg))
@@ -143,6 +140,7 @@ class ARIOBaseModel(object):
         sec = typing.cast("list[str]",sec)
         self.sectors = np.array(sorted(sec))
         self.n_sectors = len(sec)
+        self.industries = pd.MultiIndex.from_product([self.regions,self.sectors])
         try:
             self.fd_cat = np.array(sorted(list(pym_mrio.get_Y_categories()))) #type: ignore
             self.n_fd_cat = len(pym_mrio.get_Y_categories()) #type: ignore
@@ -152,24 +150,27 @@ class ARIOBaseModel(object):
         except IndexError:
             self.n_fd_cat= 1
             self.fd_cat = np.array(["Final demand"])
-        self.monetary_unit = mrio_params['monetary_unit']
-        logger.info("Monetary unit from params is: %s", self.monetary_unit)
-        if pym_mrio.unit is None:
-            raise ValueError("Problem reading monetary unit from MRIO")
-        logger.info("Monetary unit from loaded mrio is: %s", pym_mrio.unit.unit.unique()[0])
-        #self.psi = simulation_params['psi_param']
-        self.n_temporal_units_by_step = simulation_params['temporal_units_by_step']
-        self.iotable_year_to_temporal_unit_factor = simulation_params['year_to_temporal_unit_factor'] # 365 for yearly IO tables
+        self.monetary_unit = monetary_unit
+
+        self.n_temporal_units_by_step = kwargs.get("temporal_unit_by_step",1)
+        self.iotable_year_to_temporal_unit_factor = kwargs.get("iotable_year_to_temporal_unit_factor",365)
         if self.iotable_year_to_temporal_unit_factor != 365:
             logger.warning("iotable_to_daily_step_factor is not set to 365 (days). This should probably not be the case if the IO tables you use are on a yearly basis.")
+
         self.steply_factor =  self.n_temporal_units_by_step / self.iotable_year_to_temporal_unit_factor
-        self.rebuild_tau = simulation_params['rebuild_tau']
-        self.overprod_max = simulation_params['alpha_max']
-        self.overprod_tau = self.n_temporal_units_by_step / simulation_params['alpha_tau']
-        self.overprod_base = simulation_params['alpha_base']
-        inv = mrio_params['inventories_dict']
-        inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
-        self.inv_duration = np.array(inventories)  / self.n_temporal_units_by_step
+        self.rebuild_tau = rebuild_tau
+        self.overprod_max = alpha_max
+        self.overprod_tau = self.n_temporal_units_by_step / alpha_tau
+        self.overprod_base = alpha_base
+
+        if kwargs.get("inventory_dict") is None:
+            infinite_inventories_sect = kwargs.get("infinite_inventories_sect",[])
+            self.inventories = [np.inf if sector in infinite_inventories_sect else main_inv_dur for sector in self.sectors]
+        else:
+            inv = kwargs['inventory_dict']
+            self.inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
+
+        self.inv_duration = np.array(self.inventories)  / self.n_temporal_units_by_step
         if (self.inv_duration <= 1).any() :
             logger.warning("At least one product has inventory duration lower than the numbers of temporal units in one step ({}), model will set it to 2 by default, but you should probably check this !".format(self.n_temporal_units_by_step))
             self.inv_duration[self.inv_duration <= 1] = 2
@@ -202,9 +203,20 @@ class ARIOBaseModel(object):
         self.gdp_df = value_added.groupby('region',axis=1).sum()
         self.VA_0 = (value_added.to_numpy().flatten())
         self.tech_mat = ((self._matrix_I_sum @ pym_mrio.A).to_numpy()) #type: ignore #to_numpy is not superfluous !
-        kratio = mrio_params['capital_ratio_dict']
-        kratio_ordered = [kratio[k] for k in sorted(kratio.keys())]
-        self.kstock_ratio_to_VA = np.tile(np.array(kratio_ordered),self.n_regions)
+
+        if kwargs.get("kapital_vector") is not None:
+            self.k_stock = kwargs['kapital_vector']
+            if isinstance(self.k_stock,pd.DataFrame):
+                self.k_stock = self.k_stock.squeeze().sort_index().to_numpy()
+        elif kwargs.get("kapital_to_VA_dict") is None:
+            logger.warning(f"No capital to VA dictionary given, considering 4/1 ratio")
+            self.kstock_ratio_to_VA = 4
+            self.k_stock = (self.VA_0 * self.kstock_ratio_to_VA)
+        else:
+            kratio = kwargs['capital_ratio_dict']
+            kratio_ordered = [kratio[k] for k in sorted(kratio.keys())]
+            self.kstock_ratio_to_VA = np.tile(np.array(kratio_ordered),self.n_regions)
+            self.k_stock = (self.VA_0 * self.kstock_ratio_to_VA)
         if value_added.ndim > 1:
             self.gdp_share_sector = (self.VA_0 / value_added.sum(axis=0).groupby('region').transform('sum').to_numpy())
         else:
@@ -227,39 +239,15 @@ class ARIOBaseModel(object):
         #self.rebuild_demand = np.zeros(shape = np.concatenate([self.Z_0,self.Y_0],axis=1).shape)
         # self.prod_max_toward_rebuilding = None
         self.kapital_lost = np.zeros(self.production.shape)
-        self.order_type = simulation_params['order_type']
-
+        self.order_type = order_type
         self.prod_cap_delta = np.zeros(shape = self.X_0.shape)
         #################################################################
 
         ################## SIMULATION TRACKING VARIABLES ################
         self.in_shortage = False
         self.had_shortage = False
-        self.records_storage.mkdir(parents=True, exist_ok=True)
-        self.production_evolution = np.memmap(self.records_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
-        self.production_evolution.fill(np.nan)
-        self.production_cap_evolution = np.memmap(self.records_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
-        self.production_cap_evolution.fill(np.nan)
-        self.final_demand_evolution = np.memmap(self.records_storage/"final_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
-        self.final_demand_evolution.fill(np.nan)
-        self.io_demand_evolution = np.memmap(self.records_storage/"io_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
-        self.io_demand_evolution.fill(np.nan)
-
-        self.rebuild_demand_evolution = np.memmap(self.records_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
-        self.rebuild_demand_evolution.fill(np.nan)
-        self.overproduction_evolution = np.memmap(self.records_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
-        self.overproduction_evolution.fill(np.nan)
-        self.final_demand_unmet_evolution = np.memmap(self.records_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
-        self.final_demand_unmet_evolution.fill(np.nan)
-        self.rebuild_production_evolution = np.memmap(self.records_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
-        self.rebuild_production_evolution.fill(np.nan)
-        if simulation_params['register_stocks']:
-            self.stocks_evolution = np.memmap(self.records_storage/"stocks_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors, self.n_sectors*self.n_regions))
-            self.stocks_evolution.fill(np.nan)
-        self.limiting_stocks_evolution = np.memmap(self.records_storage/"limiting_stocks_record", dtype='byte', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors, self.n_sectors*self.n_regions))
-        self.limiting_stocks_evolution.fill(-1)
-        self.regional_sectoral_kapital_destroyed_evol = np.memmap(self.records_storage/"iotable_kapital_destroyed_record", dtype='float64', mode="w+", shape=(simulation_params['n_temporal_units_to_sim'], self.n_sectors*self.n_regions))
-        self.regional_sectoral_kapital_destroyed_evol.fill(np.nan)
+        self.rebuild_prod = np.zeros(shape = self.X_0.shape)
+        self.final_demand_not_met = np.zeros(self.Y_0.shape)
         #############################################################################
 
         ### Internals
@@ -267,11 +255,12 @@ class ARIOBaseModel(object):
 
         #### POST INIT ####
         ### Event Class Attribute setting
+        logger.warning(f"Setting possible regions (currently: {Event.possible_regions}) to: {self.regions}")
         Event.possible_regions = self.regions.copy()
+        logger.warning(f"Possible regions is now {Event.possible_regions}")
         Event.regions_idx = np.arange(self.n_regions)
         Event.possible_sectors = self.sectors.copy()
         Event.sectors_idx = np.arange(self.n_sectors)
-        Event.temporal_unit_range = simulation_params["n_temporal_units_to_sim"]
         Event.z_shape = self.Z_0.shape
         Event.y_shape = self.Y_0.shape
         Event.x_shape = self.X_0.shape
@@ -280,7 +269,10 @@ class ARIOBaseModel(object):
         Event.Z_distrib = self.Z_distrib.copy()
 
         meta = pym_mrio.meta.metadata
-        Event.mrio_name = meta["name"] + "_" + meta["description"] + "_" + meta["system"] + "_" + meta["version"]
+        try:
+            Event.mrio_name = meta["name"] + "_" + meta["description"] + "_" + meta["system"] + "_" + meta["version"]
+        except TypeError:
+            Event.mrio_name = "custom - method WIP"
 
         # initialize those (it's not very nice, but otherwise python complains)
         self._indus_rebuild_demand_tot = None
@@ -292,10 +284,6 @@ class ARIOBaseModel(object):
         self._prod_cap_delta_kapital = None
         self._prod_cap_delta_arbitrary = None
         self._prod_cap_delta_tot = None
-
-
-        ### Dump indexes
-        self.write_index(results_storage/"jsons"/"indexes.json")
 
     ## Properties
 
@@ -314,7 +302,7 @@ class ARIOBaseModel(object):
         return self._tot_rebuild_demand
 
     @tot_rebuild_demand.setter
-    def tot_rebuild_demand(self, source:list[Event]):
+    def tot_rebuild_demand(self, source:list[EventKapitalRebuild]):
         """Compute and update total rebuilding demand.
 
         Compute and update total rebuilding demand for the given list of events. Only events
@@ -342,7 +330,7 @@ class ARIOBaseModel(object):
         return self._house_rebuild_demand_tot
 
     @house_rebuild_demand.setter
-    def house_rebuild_demand(self, source:list[Event]):
+    def house_rebuild_demand(self, source:list[EventKapitalRebuild]):
         r"""Compute rebuild demand from household demand from a list of events
 
         Compute and return rebuilding final households demand for the given list of events
@@ -394,7 +382,7 @@ class ARIOBaseModel(object):
         return self._indus_rebuild_demand_tot
 
     @indus_rebuild_demand.setter
-    def indus_rebuild_demand(self, source:list[Event]):
+    def indus_rebuild_demand(self, source:list[EventKapitalRebuild]):
         r"""Compute rebuild demand from economic sectors (i.e. not households)
 
         Compute and return rebuilding 'intermediate demand' for the given list of events
@@ -436,20 +424,18 @@ class ARIOBaseModel(object):
         return self._kapital_lost
 
     @kapital_lost.setter
-    def kapital_lost(self, source:list[Event]|np.ndarray
+    def kapital_lost(self, source:list[EventKapitalDestroyed]|np.ndarray
                               ) -> None:
         if isinstance(source,list):
             if source != []:
-                events_K = [ev for ev in source if "kapital_destroyed" in ev.shock_type]
-                self._kapital_lost = np.add.reduce(np.array([e.regional_sectoral_kapital_destroyed for e in events_K]))
+                self._kapital_lost = np.add.reduce(np.array([e.regional_sectoral_kapital_destroyed for e in source]))
             else:
                 self._kapital_lost = np.zeros(self.VA_0.shape)
         elif isinstance(source,np.ndarray):
             self._kapital_lost = source
 
         productivity_loss_from_K = np.zeros(shape=self._kapital_lost.shape)
-        k_stock = (self.VA_0 * self.kstock_ratio_to_VA)
-        np.divide(self._kapital_lost, k_stock, out=productivity_loss_from_K, where=k_stock!=0)
+        np.divide(self._kapital_lost, self.k_stock, out=productivity_loss_from_K, where=self.k_stock!=0)
         self._prod_cap_delta_kapital = productivity_loss_from_K
         if (self._prod_cap_delta_kapital > 0.0).any():
             if self._prod_delta_type is None:
@@ -507,8 +493,8 @@ class ARIOBaseModel(object):
         if not isinstance(source,list):
             ValueError("Setting prod_cap_delta_tot can only be done with a list of events, not a {}".format(type(source)))
 
-        self.kapital_lost = source
-        self.prod_cap_delta_arbitrary = source
+        self.kapital_lost = [event for event in source if isinstance(event,EventKapitalDestroyed)]
+        self.prod_cap_delta_arbitrary = [event for event in source if isinstance(event,EventArbitraryProd)]
 
     def update_system_from_events(self, events: list[Event]) -> None:
         """Update MrioSystem variables according to given list of events
@@ -523,8 +509,7 @@ class ARIOBaseModel(object):
 
         """
         self.prod_cap_delta_tot = events
-        self.tot_rebuild_demand = events
-
+        self.tot_rebuild_demand = [event for event in events if isinstance(event,EventKapitalRebuild)]
 
     @property
     def production_cap(self)->np.ndarray:
@@ -689,8 +674,8 @@ class ARIOBaseModel(object):
 
 
     def distribute_production(self,
-                              current_temporal_unit: int, rebuildable_events: 'list[Event]',
-                              scheme:str='proportional', separate_rebuilding:bool=False) -> list[Event]:
+                              rebuildable_events: list[EventKapitalRebuild],
+                              scheme:str='proportional') -> list[EventKapitalRebuild]:
         r"""Production distribution module
 
     #. Computes rebuilding demand for each rebuildable events (applying the `rebuild_tau` characteristic time)
@@ -775,7 +760,7 @@ class ARIOBaseModel(object):
         if scheme != 'proportional':
             raise ValueError("Scheme %s not implemented"% scheme)
 
-        list_of_demands = [self.matrix_orders, self.final_demand]
+        #list_of_demands = [self.matrix_orders, self.final_demand]
         ## 1. Calc demand from rebuilding requirements (with characteristic time rebuild_tau)
         if rebuildable_events != []:
             n_events = len(rebuildable_events)
@@ -839,11 +824,11 @@ class ARIOBaseModel(object):
         final_demand_not_met = final_demand_not_met.sum(axis=1)
         # avoid -0.0 (just in case)
         final_demand_not_met[final_demand_not_met==0.] = 0.
-        self.write_final_demand_unmet(current_temporal_unit, final_demand_not_met)
+        self.final_demand_not_met = final_demand_not_met.copy()
 
         # 7. Compute production delivered to rebuilding
         rebuild_prod = distributed_production[:,(self.n_sectors*self.n_regions + self.n_fd_cat*self.n_regions):].copy().flatten()
-        self.write_rebuild_prod(current_temporal_unit,rebuild_prod) #type: ignore
+        self.rebuild_prod = rebuild_prod.copy()
 
         if h_reb and ind_reb:
             #logger.debug("Entering here")
@@ -1038,7 +1023,7 @@ class ARIOBaseModel(object):
 
         """
         logger.warning("This method is quite probably deprecated")
-        self.n_temporal_units_by_step = new_params['temporal_units_by_step']
+        self.n_temporal_units_by_step = new_params['n_temporal_units_by_step']
         self.iotable_year_to_temporal_unit_factor = new_params['year_to_temporal_unit_factor']
         self.rebuild_tau = new_params['rebuild_tau']
         self.overprod_max = new_params['alpha_max']
@@ -1086,44 +1071,6 @@ class ARIOBaseModel(object):
         self.regional_sectoral_kapital_destroyed_evol = np.memmap(self.records_storage/"iotable_kapital_destroyed_record", dtype='float64', mode="w+", shape=(n_temporal_units, self.n_sectors*self.n_regions))
         self.regional_sectoral_kapital_destroyed_evol.fill(np.nan)
 
-
-    def write_production(self, current_temporal_unit:int) -> None:
-        self.production_evolution[current_temporal_unit] = self.production
-
-    def write_kapital_lost(self, current_temporal_unit:int) -> None:
-        self.regional_sectoral_kapital_destroyed_evol[current_temporal_unit] = self._kapital_lost
-
-    def write_production_max(self, current_temporal_unit:int) -> None:
-        self.production_cap_evolution[current_temporal_unit] = self.production_cap
-
-    def write_io_demand(self, current_temporal_unit:int) -> None:
-         self.io_demand_evolution[current_temporal_unit] = self.matrix_orders.sum(axis=1)
-
-    def write_final_demand(self, current_temporal_unit:int) -> None:
-         self.final_demand_evolution[current_temporal_unit] = self.final_demand.sum(axis=1)
-
-    def write_rebuild_demand(self, current_temporal_unit:int) -> None:
-        to_write = np.full(self.n_regions*self.n_sectors,0.0)
-        if (r_dem := self.tot_rebuild_demand) is not None:
-            self.rebuild_demand_evolution[current_temporal_unit] = r_dem
-        else:
-            self.rebuild_demand_evolution[current_temporal_unit] = to_write
-
-    def write_rebuild_prod(self, current_temporal_unit:int, rebuild_prod_agg:np.ndarray) -> None:
-        self.rebuild_production_evolution[current_temporal_unit] = rebuild_prod_agg
-
-    def write_overproduction(self, current_temporal_unit:int) -> None:
-        self.overproduction_evolution[current_temporal_unit] = self.overprod
-
-    def write_final_demand_unmet(self, current_temporal_unit:int, final_demand_unmet:np.ndarray) -> None:
-        self.final_demand_unmet_evolution[current_temporal_unit] = final_demand_unmet
-
-    def write_stocks(self, current_temporal_unit:int) -> None:
-        self.stocks_evolution[current_temporal_unit] = self.matrix_stock
-
-    def write_limiting_stocks(self, current_temporal_unit:int,
-                              limiting_stock:np.ndarray) -> None:
-        self.limiting_stocks_evolution[current_temporal_unit] = limiting_stock
 
     def write_index(self, index_file:str|pathlib.Path) -> None:
         """Write the indexes of the different dataframes of the model in a json file.

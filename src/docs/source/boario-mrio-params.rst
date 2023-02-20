@@ -6,7 +6,7 @@ Set the MRIO table parameters
 
 MRIO parameters cover all parameters related to the MRIO table, just as simulation parameters
 they are stored in a python dictionary or JSON file,
-loaded when initializing a :class:`~boario.model_base.ARIOBaseModel` or :class:`~boario.extended_models.ARIOModelPsi` instance. They are generally referred to as ``sector_params``, ``mrio_params`` or even ``mrio_name_sector_params`` (whereas simulation parameters and events
+loaded when initializing a :class:`~boario.model_base.ARIOBaseModel` or :class:`~boario.extended_models.ARIOPsiModel` instance. They are generally referred to as ``sector_params``, ``mrio_params`` or even ``mrio_name_sector_params`` (whereas simulation parameters and events
 parameters are generally referred to as ``params`` and
 ``event_params``). This page details each parameters and their use.
 
