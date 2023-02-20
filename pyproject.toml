@@ -116,8 +116,6 @@ venvPath = "/home/sjuhel/mambaforge-pypy3/envs/boario-dev/"
 
 reportMissingImports = true
 reportMissingTypeStubs = false
-
-pythonVersion = "3.8"
 pythonPlatform = "Linux"
 
 executionEnvironments = [
