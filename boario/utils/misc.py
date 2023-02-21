@@ -17,6 +17,19 @@
 from boario.event import Event
 from collections.abc import Iterable
 import pymrio
+import numpy
+import json
+
+class CustomNumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, numpy.integer):
+            return int(obj)
+        elif isinstance(obj, numpy.floating):
+            return float(obj)
+        elif isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+        else:
+            return super(CustomNumpyEncoder, self).default(obj)
 
 def flatten(l):
     for el in l:
