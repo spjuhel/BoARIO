@@ -36,6 +36,7 @@ from boario.extended_models import *
 from boario import logger
 from boario import DEBUGFORMATTER
 from pprint import pformat
+from boario.utils.misc import CustomNumpyEncoder
 
 __all__ = ["Simulation"]
 
@@ -87,7 +88,7 @@ class Simulation():
             model: Union[ARIOBaseModel,ARIOPsiModel,ARIOClimadaModel],
             register_stocks=False,
             n_temporal_units_to_sim = 365,
-            events_list : list[Event] = [],
+            events_list : list = [],
             separate_sims: bool = False,
             boario_output_dir:str|pathlib.Path="/tmp/boario", # This needs to be set !
             results_dir_name:str = "results"
@@ -222,7 +223,7 @@ class Simulation():
             / "simulated_events.json"
         ).open("w") as f:
             event_dicts = [ev.event_dict for ev in self.all_events]
-            json.dump(event_dicts, f, indent=4)
+            json.dump(event_dicts, f, indent=4, cls=CustomNumpyEncoder)
         if progress:
             widgets = [
                 "Processed: ",
@@ -305,7 +306,7 @@ class Simulation():
             / "jsons"
             / "simulated_params.json"
         ).open("w") as f:
-            json.dump(self.params_dict, f, indent=4)
+            json.dump(self.params_dict, f, indent=4, cls=CustomNumpyEncoder)
         with (
             pathlib.Path(
                 self.results_storage
@@ -313,7 +314,7 @@ class Simulation():
             / "jsons"
             / "equilibrium_checks.json"
         ).open("w") as f:
-            json.dump({str(k): v for k, v in self.equi.items()}, f, indent=4)
+            json.dump({str(k): v for k, v in self.equi.items()}, f, indent=4, cls=CustomNumpyEncoder)
         logger.info("Loop complete")
         if progress:
             bar.finish()  # type: ignore (bar possibly unbound but actually not possible)
@@ -483,7 +484,7 @@ class Simulation():
     #     self.all_events.append(ev)
     #     self.events_timings.add(ev.occurrence)
 
-    def add_event(self, ev:Union[Event,ClimadaEvent]):
+    def add_event(self, ev:Event):
         self.all_events.append(ev)
         self.events_timings.add(ev.occurrence)
 
@@ -622,6 +623,7 @@ class Simulation():
             self.rebuild_demand_evolution[self.current_temporal_unit] = to_write
 
     def write_rebuild_prod(self) -> None:
+        logger.debug(f"self.rebuild_production_evolution shape : {self.rebuild_production_evolution.shape}, self.model.rebuild_prod shape : {self.model.rebuild_prod.shape}")
         self.rebuild_production_evolution[self.current_temporal_unit] = self.model.rebuild_prod
 
     def write_overproduction(self) -> None:

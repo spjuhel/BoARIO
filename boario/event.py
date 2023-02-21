@@ -185,7 +185,7 @@ class Event(metaclass=abc.ABCMeta):
         "x_shape",
         "regions_idx",
         "sectors_idx",
-        "monetary_unit",
+        "monetary_factor",
         "sectors_gva_shares",
         "Z_distrib",
         "mrio_name",
@@ -206,7 +206,7 @@ class Event(metaclass=abc.ABCMeta):
     """lexicographic region indexes"""
     sectors_idx: np.ndarray = np.array([])
     """lexicographic sector indexes"""
-    monetary_unit: int = 0
+    monetary_factor: int = 0
     """Amount of unitary currency used in the MRIO (e.g. 1000000 if in € millions)"""
     sectors_gva_shares: np.ndarray = np.array([])
     """Fraction of total (regional) GVA for each sectors"""
@@ -248,6 +248,8 @@ class Event(metaclass=abc.ABCMeta):
         if isinstance(impact, pd.Series):
             logger.debug("Given impact is a pandas Series")
             self.impact_df.loc[impact.index] = impact
+            if self.name == "Unnamed" and not impact.name is None:
+                self.name = impact.name
         elif isinstance(impact, dict):
             logger.debug("Given impact is a dict, converting it to pandas Series")
             impact = pd.Series(impact)
@@ -276,7 +278,7 @@ class Event(metaclass=abc.ABCMeta):
             )
             self.impact_df.loc[pd.MultiIndex.from_product([aff_regions,aff_sectors])] = impact
         else:
-            raise ValueError("Invalid input format.")
+            raise ValueError("Invalid input format. Could not initiate pandas Series.")
 
         # Check for <0 values and remove 0.
         if (self.impact_df < 0).any():
@@ -378,7 +380,7 @@ class Event(metaclass=abc.ABCMeta):
         elif not isinstance(
             impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
         ):
-            raise ValueError(f"Invalid input format {impact}, {aff_regions}, {aff_sectors}")
+            raise ValueError(f"Invalid input format: Could not compute impact")
 
         self._finish_init()
         ##################################################
@@ -386,7 +388,7 @@ class Event(metaclass=abc.ABCMeta):
         self.happened = False
         self.over = False
         self.event_dict = {
-            "name": self.name,
+            "name": str(self.name),
             "occurrence": self.occurrence,
             "duration": self.duration,
             "aff_regions": list(self.aff_regions),
@@ -403,7 +405,7 @@ class Event(metaclass=abc.ABCMeta):
             "z_shape": self.z_shape,
             "y_shape": self.y_shape,
             "x_shape": self.x_shape,
-            "monetary_unit": self.monetary_unit,
+            "monetary_factor": self.monetary_factor,
             "mrio_used": self.mrio_name,
         }
 
@@ -715,13 +717,13 @@ class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
         )
         # The only thing we have to do is affecting/computing the regional_sectoral_kapital_destroyed
         self.total_kapital_destroyed = self.total_impact
-        self.total_kapital_destroyed /= self.monetary_unit
+        self.total_kapital_destroyed /= self.monetary_factor
         self.remaining_kapital_destroyed = self.total_kapital_destroyed
         self._regional_sectoral_kapital_destroyed_0 = (
-            self.impact_vector / self.monetary_unit
+            self.impact_vector / self.monetary_factor
         )
         self.regional_sectoral_kapital_destroyed = (
-            self.impact_vector / self.monetary_unit
+            self.impact_vector / self.monetary_factor
         )
 
     @property
@@ -1015,7 +1017,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
                 "Trying to recover event while recovery function isn't set yet"
             )
         res = self.recovery_function(elapsed_temporal_unit=elapsed)
-        precision = int(math.log10(self.monetary_unit)) + 1
+        precision = int(math.log10(self.monetary_factor)) + 1
         res = np.around(res, precision)
         if not np.any(res):
             self.over = True

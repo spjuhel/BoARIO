@@ -69,7 +69,7 @@ class ARIOBaseModel():
              An array of the final demand categories of the model (``["Final demand"]`` if there is only one)
     n_fd_cat : int
                The numbers of final demand categories.
-    monetary_unit : int
+    monetary_factor : int
                     monetary unit prefix (i.e. if the tables unit is 10^6 € instead of 1 €, it should be set to 10^6).
     n_temporal_units_by_step : int
                      The number of temporal_units between each step. (Current version of the model was not tested with values other than `1`).
@@ -122,7 +122,7 @@ class ARIOBaseModel():
                  alpha_tau=365,
                  rebuild_tau=60,
                  main_inv_dur=90,
-                 monetary_unit=10**6,
+                 monetary_factor=10**6,
                  **kwargs
                  ) -> None:
 
@@ -150,7 +150,7 @@ class ARIOBaseModel():
         except IndexError:
             self.n_fd_cat= 1
             self.fd_cat = np.array(["Final demand"])
-        self.monetary_unit = monetary_unit
+        self.monetary_factor = monetary_factor
 
         self.n_temporal_units_by_step = kwargs.get("temporal_unit_by_step",1)
         self.iotable_year_to_temporal_unit_factor = kwargs.get("iotable_year_to_temporal_unit_factor",365)
@@ -255,16 +255,16 @@ class ARIOBaseModel():
 
         #### POST INIT ####
         ### Event Class Attribute setting
-        logger.warning(f"Setting possible regions (currently: {Event.possible_regions}) to: {self.regions}")
+        logger.debug(f"Setting possible regions (currently: {Event.possible_regions}) to: {self.regions}")
         Event.possible_regions = self.regions.copy()
-        logger.warning(f"Possible regions is now {Event.possible_regions}")
+        logger.debug(f"Possible regions is now {Event.possible_regions}")
         Event.regions_idx = np.arange(self.n_regions)
         Event.possible_sectors = self.sectors.copy()
         Event.sectors_idx = np.arange(self.n_sectors)
         Event.z_shape = self.Z_0.shape
         Event.y_shape = self.Y_0.shape
         Event.x_shape = self.X_0.shape
-        Event.monetary_unit = self.monetary_unit
+        Event.monetary_factor = monetary_factor
         Event.sectors_gva_shares = self.gdp_share_sector.copy()
         Event.Z_distrib = self.Z_distrib.copy()
 
@@ -317,7 +317,6 @@ class ARIOBaseModel():
         """
         if not isinstance(source, list):
             ValueError("Setting tot_rebuild_demand can only be done with a list of events, not a {}".format(type(source)))
-
         self.house_rebuild_demand = source
         self.indus_rebuild_demand = source
 
@@ -763,6 +762,7 @@ class ARIOBaseModel():
         #list_of_demands = [self.matrix_orders, self.final_demand]
         ## 1. Calc demand from rebuilding requirements (with characteristic time rebuild_tau)
         if rebuildable_events != []:
+            logger.debug("There are rebuildable events")
             n_events = len(rebuildable_events)
             tot_rebuilding_demand_summed = self.tot_rebuild_demand.copy()
             # debugging assert
@@ -794,7 +794,8 @@ class ARIOBaseModel():
         ## 2. Concat to have total demand matrix (Intermediate + Final + Rebuild)
         tot_demand = np.concatenate([self.matrix_orders, self.final_demand, np.expand_dims(tot_rebuilding_demand_summed,1)], axis=1)
         ## 3. Does production meet total demand
-        rationning_required = (self.production - tot_demand.sum(axis=1))<(-1/self.monetary_unit)
+        logger.debug(f"tot demand shape : {tot_demand.shape}")
+        rationning_required = (self.production - tot_demand.sum(axis=1))<(-1/self.monetary_factor)
         rationning_mask = np.tile(rationning_required[:,np.newaxis],(1,tot_demand.shape[1]))
         demand_share = np.full(tot_demand.shape,0.0)
         tot_dem_summed = np.expand_dims(np.sum(tot_demand, axis=1, where=rationning_mask),1)
@@ -827,6 +828,7 @@ class ARIOBaseModel():
         self.final_demand_not_met = final_demand_not_met.copy()
 
         # 7. Compute production delivered to rebuilding
+        logger.debug(f"distributed prod shape : {distributed_production.shape}")
         rebuild_prod = distributed_production[:,(self.n_sectors*self.n_regions + self.n_fd_cat*self.n_regions):].copy().flatten()
         self.rebuild_prod = rebuild_prod.copy()
 
@@ -876,7 +878,7 @@ class ARIOBaseModel():
                 e.rebuilding_demand_indus -= indus_rebuild_prod_distributed[:,:,e_id]
             if e.rebuilding_demand_house is not None:
                 e.rebuilding_demand_house -= house_rebuild_prod_distributed[:,:,e_id]
-            if (e.rebuilding_demand_indus < (10/self.monetary_unit)).all() and (e.rebuilding_demand_house < (10/self.monetary_unit)).all():
+            if (e.rebuilding_demand_indus < (10/self.monetary_factor)).all() and (e.rebuilding_demand_house < (10/self.monetary_factor)).all():
                 events_to_remove.append(e)
         return events_to_remove
 
