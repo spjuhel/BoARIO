@@ -22,24 +22,7 @@ __version__ = "v0.4.1b0"
 
 # Create a logger object.
 logger = logging.getLogger(__name__)
-
-fieldstyle = {'asctime': {'color': 'green'},
-              'levelname': {'bold': True, 'color': 'black'},
-              'filename':{'color':'cyan'},
-              'funcName':{'color':'blue'}}
-
-levelstyles = {'critical': {'bold': True, 'color': 'red'},
-               'debug': {'color': 'green'},
-               'error': {'color': 'red'},
-               'info': {'color':'magenta'},
-               'warning': {'color': 'yellow'}}
-
-coloredlogs.install(level=logging.DEBUG,
-                    logger=logger,
-                    fmt='%(asctime)s [%(levelname)s] - [%(filename)s > %(funcName)s() > %(lineno)s] - %(message)s',
-                    datefmt='%H:%M:%S',
-                    field_styles=fieldstyle,
-                    level_styles=levelstyles)
+logger.addHandler(logging.NullHandler())
 
 DEBUGFORMATTER = logging.Formatter(fmt='%(asctime)s [%(levelname)s] - [%(filename)s > %(funcName)s() > %(lineno)s] - %(message)s',datefmt='%H:%M:%S',)
 """Debug file formatter."""
@@ -64,6 +47,6 @@ def warn_once(logger, msg: str):
 
 # adds the handler to the global variable: log
 #logger.addHandler(_ch)
-#logger.propagate = False
+logger.propagate = False
 #print(logger.handlers)
 #print("a")

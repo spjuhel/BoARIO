@@ -22,9 +22,11 @@ from boario.model_base import *
 from boario.event import *
 from pymrio.core.mriosystem import IOSystem
 
-__all__ = ['ARIOModelPsi']
-class ARIOModelPsi(ARIOBaseModel):
-    """ An ARIO3 model with some additional features
+__all__ = ["ARIOPsiModel", "ARIOClimadaModel"]
+
+
+class ARIOPsiModel(ARIOBaseModel):
+    """An ARIO3 model with some additional features
 
     Added feature are parameter psi of production adjustment inventories constraint threshold, as well as a characteristic time of inventories resupplying and the alternative order module from Guan2020.
 
@@ -34,7 +36,7 @@ class ARIOModelPsi(ARIOBaseModel):
     psi : float
           Value of the psi parameter. (see :ref:`boario-math`).
     restoration_tau : numpy.ndarray of int
-                      Array of size `n_sector` setting for each inputs its characteristic restoration time in `temporal_units_by_step`. (see :ref:`boario-math`).
+                      Array of size `n_sector` setting for each inputs its characteristic restoration time in `n_temporal_units_by_step`. (see :ref:`boario-math`).
     Raises
     ------
     RuntimeError
@@ -44,25 +46,50 @@ class ARIOModelPsi(ARIOBaseModel):
     NotImplementedError
     """
 
-    def __init__(self,
-                 pym_mrio: IOSystem,
-                 mrio_params: dict,
-                 simulation_params: dict,
-                 results_storage: pathlib.Path
-                 ) -> None:
+    def __init__(
+        self,
+        pym_mrio: IOSystem,
+        order_type="alt",
+        alpha_base=1.0,
+        alpha_max=1.25,
+        alpha_tau=365,
+        rebuild_tau=60,
+        main_inv_dur=90,
+        monetary_factor=10 ** 6,
+        psi_param=0.90,
+        inventory_restoration_tau=60,
+        **kwargs
+    ) -> None:
 
-        super().__init__(pym_mrio, mrio_params, simulation_params, results_storage)
-        logger.debug("Model is an ARIOModelPsi")
-        if isinstance(simulation_params['psi_param'],str):
-            psi=float(simulation_params['psi_param'].replace("_","."))
-        elif isinstance(simulation_params['psi_param'],float):
-            psi = simulation_params['psi_param']
+        super().__init__(
+            pym_mrio,
+            order_type,
+            alpha_base,
+            alpha_max,
+            alpha_tau,
+            rebuild_tau,
+            main_inv_dur,
+            monetary_factor,
+            **kwargs
+        )
+
+        logger.debug("Model is an ARIOPsiModel")
+
+        if isinstance(psi_param, str):
+            self.psi = float(psi_param.replace("_", "."))
+        elif isinstance(psi_param, float):
+            self.psi = psi_param
         else:
-            raise ValueError("['psi_param'] parameter is neither a str rep of a float or a float")
-        self.psi = psi
-        inv = mrio_params['inventories_dict']
-        inventories = [ np.inf if inv[k]=='inf' else inv[k] for k in sorted(inv.keys())]
-        restoration_tau = [(self.n_temporal_units_by_step / simulation_params['inventory_restoration_tau']) if v >= INV_THRESHOLD else v for v in inventories] # for sector with no inventory TODO: reflect on that.
+            raise ValueError(
+                "'psi_param' parameter is neither a str rep of a float or a float"
+            )
+
+        restoration_tau = [
+            (self.n_temporal_units_by_step / inventory_restoration_tau)
+            if v >= INV_THRESHOLD
+            else v
+            for v in self.inventories
+        ]  # for sector with no inventory TODO: reflect on that.
         self.restoration_tau = np.array(restoration_tau)
         #################################################################
 
@@ -75,10 +102,51 @@ class ARIOModelPsi(ARIOBaseModel):
         return self.calc_inventory_constraints(self.production)
 
     def calc_inventory_constraints(self, production: np.ndarray) -> np.ndarray:
-        inventory_constraints = (np.tile(production, (self.n_sectors, 1)) * self.tech_mat) * self.psi
-        np.multiply(inventory_constraints, np.tile(np.nan_to_num(self.inv_duration, posinf=0.)[:,np.newaxis],(1,self.n_regions*self.n_sectors)), out=inventory_constraints)
+        inventory_constraints = (
+            np.tile(production, (self.n_sectors, 1)) * self.tech_mat
+        ) * self.psi
+        np.multiply(
+            inventory_constraints,
+            np.tile(
+                np.nan_to_num(self.inv_duration, posinf=0.0)[:, np.newaxis],
+                (1, self.n_regions * self.n_sectors),
+            ),
+            out=inventory_constraints,
+        )
         return inventory_constraints
 
     def calc_matrix_stock_gap(self, matrix_stock_goal) -> np.ndarray:
         matrix_stock_gap = super().calc_matrix_stock_gap(matrix_stock_goal)
         return np.expand_dims(self.restoration_tau, axis=1) * matrix_stock_gap
+
+
+class ARIOClimadaModel(ARIOPsiModel):
+    def __init__(
+        self,
+        pym_mrio: IOSystem,
+        exp_stock,
+        order_type="alt",
+        alpha_base=1,
+        alpha_max=1.25,
+        alpha_tau=365,
+        rebuild_tau=60,
+        main_inv_dur=90,
+        monetary_factor=10 ** 6,
+        psi_param=0.9,
+        inventory_restoration_tau=60,
+        **kwargs
+    ) -> None:
+        super().__init__(
+            pym_mrio,
+            order_type,
+            alpha_base,
+            alpha_max,
+            alpha_tau,
+            rebuild_tau,
+            main_inv_dur,
+            monetary_factor,
+            psi_param,
+            inventory_restoration_tau,
+            kapital_vector=exp_stock,
+            **kwargs
+        )

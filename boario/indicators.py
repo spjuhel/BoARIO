@@ -70,7 +70,7 @@ class Indicators(object):
 
         self.params = data_dict["params"]
         self.n_rows = data_dict["n_temporal_units_to_sim"]
-        self.temporal_units_by_step = data_dict["temporal_units_by_step"]
+        self.n_temporal_units_by_step = data_dict["n_temporal_units_by_step"]
 
         self.kapital_df = pd.DataFrame(data_dict["kapital"], columns=pd.MultiIndex.from_product([data_dict["regions"], data_dict["sectors"]], names=['region','sector']))
         self.kapital_df = self.kapital_df.interpolate()
@@ -189,14 +189,14 @@ class Indicators(object):
     @classmethod
     def from_model(cls, sim : Simulation, include_crash:bool = False):
         data_dict = {}
-        data_dict['params'] = sim.params
+        data_dict['params'] = sim.params_dict
         data_dict["n_temporal_units_to_sim"] = sim.n_temporal_units_to_sim
         data_dict["n_temporal_units_simulated"] = sim.n_temporal_units_simulated
-        data_dict["temporal_units_by_step"] = sim.params["temporal_units_by_step"]
+        data_dict["n_temporal_units_by_step"] = sim.params_dict["n_temporal_units_by_step"]
         data_dict["has_crashed"] = sim.has_crashed
         data_dict["regions"] = sim.model.regions
         data_dict["sectors"] = sim.model.sectors
-        with (pathlib.Path(sim.params["results_storage"])/"jsons"/"simulated_events.json").open() as f:
+        with (pathlib.Path(sim.params_dict["results_storage"])/"jsons"/"simulated_events.json").open() as f:
             events = json.load(f)
 
         data_dict["events"] = events
@@ -209,7 +209,7 @@ class Indicators(object):
         data_dict["r_demand"] = sim.model.rebuild_demand_evolution
         data_dict["r_prod"] = sim.model.rebuild_production_evolution
         data_dict["fd_unmet"] = sim.model.final_demand_unmet_evolution
-        if sim.params['register_stocks']:
+        if sim.params_dict['register_stocks']:
             data_dict["stocks"] = sim.model.stocks_evolution
         data_dict["limiting_stocks"] = sim.model.limiting_stocks_evolution
         return cls(data_dict, include_crash)
@@ -260,7 +260,7 @@ class Indicators(object):
         t = data_dict["n_temporal_units_to_sim"]
         data_dict['params'] = params
         data_dict["n_temporal_units_simulated"] = params['n_temporal_units_simulated']
-        data_dict["temporal_units_by_step"] = params["temporal_units_by_step"]
+        data_dict["n_temporal_units_by_step"] = params["n_temporal_units_by_step"]
         data_dict["regions"] = indexes["regions"]
         data_dict["n_regions"] = indexes["n_regions"]
         data_dict["sectors"] = indexes["sectors"]
@@ -309,7 +309,7 @@ class Indicators(object):
             data_dict["has_crashed"] = simulation_params["has_crashed"]
         data_dict['params'] = simulation_params
         data_dict["results_storage"] = results_path
-        data_dict["temporal_units_by_step"] = simulation_params["temporal_units_by_step"]
+        data_dict["n_temporal_units_by_step"] = simulation_params["n_temporal_units_by_step"]
         data_dict["n_temporal_units_to_sim"] = t
         data_dict["n_temporal_units_simulated"] = simulation_params['n_temporal_units_simulated']
         data_dict["regions"] = indexes["regions"]
@@ -355,7 +355,7 @@ class Indicators(object):
         # have only steps in index (next step not possible with multiindex)
         a = self.df_limiting.unstack()
         # select only simulated steps (we can't store nan in bool or byte dtype array)
-        a = a.iloc[lambda x : x.index % self.temporal_units_by_step == 0]
+        a = a.iloc[lambda x : x.index % self.n_temporal_units_by_step == 0]
         # We put -1 initially, so this should check we have correctly selected the simulated rows
         assert (a >= 0).all().all()
         # put input stocks as columns and the rest as index

@@ -77,7 +77,7 @@ for clearer visualisation (or in order to verify that the model remains stable b
 one day per step [#daystep]_, if the given value is not a multiple of the number of days simulated by step, the event will actually
 occur during the closest upper multiple.
 
-.. [#mrio-params] This is inline with the ``"monetary_unit"`` parameter specified in the MRIO parameter file (see :ref:`boario-mrio-params`)
+.. [#mrio-params] This is inline with the ``"monetary_factor"`` parameter specified in the MRIO parameter file (see :ref:`boario-mrio-params`)
 
 .. [#daystep] See the ``"model_time_step"`` parameter in :ref:`boario-sim-params`.
 

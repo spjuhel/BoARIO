@@ -27,7 +27,7 @@ PARAMS = {
    # Time division of a year in the model (365 == day, 52 == week, ...)
    "year_to_temporal_unit_factor": 365,
     # Number of day|week|... of one step of the model (ie time sampling)
-   "temporal_units_by_step": 1,
+   "n_temporal_units_by_step": 1,
     # Charateristic time of inventory restoration
    "inventory_restoration_tau": 60,
     # Base overproduction factor
@@ -116,7 +116,7 @@ def aggreg_mrio_pickle(full_exio_path, sector_aggregator_path, save_path=None):
 
 def params_from_ods(ods_file,monetary,main_inv_dur):
     mrio_params = {}
-    mrio_params["monetary_unit"] = monetary
+    mrio_params["monetary_factor"] = monetary
     mrio_params["main_inv_dur"] = main_inv_dur
     df = pd.read_excel(ods_file) #type: ignore
     mrio_params["capital_ratio_dict"] = df[["Aggregated version sector", "Capital to VA ratio"]].set_index("Aggregated version sector").to_dict()['Capital to VA ratio']

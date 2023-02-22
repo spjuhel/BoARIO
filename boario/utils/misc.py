@@ -17,6 +17,19 @@
 from boario.event import Event
 from collections.abc import Iterable
 import pymrio
+import numpy
+import json
+
+class CustomNumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, numpy.integer):
+            return int(obj)
+        elif isinstance(obj, numpy.floating):
+            return float(obj)
+        elif isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+        else:
+            return super(CustomNumpyEncoder, self).default(obj)
 
 def flatten(l):
     for el in l:
@@ -48,14 +61,14 @@ def lexico_reindex(mrio: pymrio.IOSystem) -> pymrio.IOSystem:
     mrio.Z = mrio.Z.reindex(sorted(mrio.Z.index), axis=0)
     mrio.Z = mrio.Z.reindex(sorted(mrio.Z.columns), axis=1)
     if mrio.Y is None:
-        raise ValueError("Given mrio has no Z attribute set")
+        raise ValueError("Given mrio has no Y attribute set")
     mrio.Y = mrio.Y.reindex(sorted(mrio.Y.index), axis=0)
     mrio.Y = mrio.Y.reindex(sorted(mrio.Y.columns), axis=1)
     if mrio.x is None:
-        raise ValueError("Given mrio has no Z attribute set")
+        raise ValueError("Given mrio has no x attribute set")
     mrio.x = mrio.x.reindex(sorted(mrio.x.index), axis=0)
     if mrio.A is None:
-        raise ValueError("Given mrio has no Z attribute set")
+        raise ValueError("Given mrio has no A attribute set")
     mrio.A = mrio.A.reindex(sorted(mrio.A.index), axis=0)
     mrio.A = mrio.A.reindex(sorted(mrio.A.columns), axis=1)
 
