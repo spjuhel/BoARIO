@@ -276,6 +276,11 @@ class Event(metaclass=abc.ABCMeta):
             logger.debug(
                 f"Given Impact is a {type(impact)} and lists of impacted regions and sectors given. Proceeding."
             )
+            if isinstance(aff_regions,str):
+                aff_regions = [aff_regions]
+            if isinstance(aff_sectors,str):
+                aff_sectors = [aff_sectors]
+
             self.impact_df.loc[pd.MultiIndex.from_product([aff_regions,aff_sectors])] = impact
         else:
             raise ValueError("Invalid input format. Could not initiate pandas Series.")
@@ -336,13 +341,15 @@ class Event(metaclass=abc.ABCMeta):
                 self.impact_df.loc[self.aff_industries]  = self.impact_df.loc[self.aff_industries] * self.impact_industries_distrib
         # CASE SCALAR + 'gdp' distrib
         elif (
-            impact_sectoral_distrib_type is not None
+            impact_regional_distrib is not None
+            and impact_sectoral_distrib_type is not None
             and impact_sectoral_distrib_type == "gdp"
             and not isinstance(
             impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
         )
         ):
             logger.debug("Impact is Scalar and impact_sectoral_distrib_type is 'gdp'")
+            self.impact_regional_distrib = np.array(impact_regional_distrib)
             shares = self.sectors_gva_shares.reshape(
                 (len(self.possible_regions), len(self.possible_sectors))
             )
