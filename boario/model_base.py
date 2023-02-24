@@ -290,6 +290,7 @@ class ARIOBaseModel():
     @property
     def tot_rebuild_demand(self) -> Optional[np.ndarray]:
         tmp = []
+        logger.debug("Trying to return tot_rebuilding demand")
         if self._indus_rebuild_demand_tot is not None:
             tmp.append(self._indus_rebuild_demand_tot)
         if self._house_rebuild_demand_tot is not None:
@@ -315,6 +316,7 @@ class ARIOBaseModel():
         events : 'list[Event]'
             A list of Event objects
         """
+        logger.debug(f"Trying to set tot_rebuilding demand from {source}")
         if not isinstance(source, list):
             ValueError("Setting tot_rebuild_demand can only be done with a list of events, not a {}".format(type(source)))
         self.house_rebuild_demand = source
@@ -418,6 +420,8 @@ class ARIOBaseModel():
             indus_reb_dem = np.stack(tmp,axis=-1)
             self._indus_rebuild_demand = indus_reb_dem
             self._indus_rebuild_demand_tot = indus_reb_dem.sum(axis=1)
+            logger.debug(f"Setting indus_rebuild_demand_tot to {indus_reb_dem}")
+
     @property
     def kapital_lost(self) -> Optional[np.ndarray]:
         return self._kapital_lost

@@ -384,7 +384,7 @@ class Simulation():
         self.write_production_max()
         try:
             rebuildable_events = [
-                ev for ev in self.currently_happening_events if isinstance(ev,EventKapitalRebuild)
+                ev for ev in self.currently_happening_events if isinstance(ev,EventKapitalRebuild) and ev.rebuildable
             ]
             events_to_remove = self.model.distribute_production(
                 rebuildable_events, self.scheme
