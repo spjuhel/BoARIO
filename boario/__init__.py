@@ -24,29 +24,36 @@ __version__ = "v0.4.1b0"
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
-DEBUGFORMATTER = logging.Formatter(fmt='%(asctime)s [%(levelname)s] - [%(filename)s > %(funcName)s() > %(lineno)s] - %(message)s',datefmt='%H:%M:%S',)
+DEBUGFORMATTER = logging.Formatter(
+    fmt="%(asctime)s [%(levelname)s] - [%(filename)s > %(funcName)s() > %(lineno)s] - %(message)s",
+    datefmt="%H:%M:%S",
+)
 """Debug file formatter."""
 
-INFOFORMATTER = logging.Formatter(fmt='%(asctime)s [%(levelname)s] - %(message)s',datefmt='%H:%M:%S',)
+INFOFORMATTER = logging.Formatter(
+    fmt="%(asctime)s [%(levelname)s] - %(message)s",
+    datefmt="%H:%M:%S",
+)
 
 
 @lru_cache(10)
 def warn_once(logger, msg: str):
     logger.warning(msg)
 
+
 """Log file and stream output formatter."""
 
-#logger.setLevel(logging.DEBUG)
-#print("c")
-#print(logger.handlers)
+# logger.setLevel(logging.DEBUG)
+# print("c")
+# print(logger.handlers)
 
 # defines the stream handler
-#_ch = logging.StreamHandler()  # creates the handler
-#_ch.setLevel(logging.DEBUG)  # sets the handler info
-#_ch.setFormatter(DEBUGFORMATTER)  # sets the handler formatting
+# _ch = logging.StreamHandler()  # creates the handler
+# _ch.setLevel(logging.DEBUG)  # sets the handler info
+# _ch.setFormatter(DEBUGFORMATTER)  # sets the handler formatting
 
 # adds the handler to the global variable: log
-#logger.addHandler(_ch)
+# logger.addHandler(_ch)
 logger.propagate = False
-#print(logger.handlers)
-#print("a")
+# print(logger.handlers)
+# print("a")

@@ -33,7 +33,7 @@ __all__ = [
     "Impact",
     "IndustriesList",
     "SectorsList",
-    "RegionsList"
+    "RegionsList",
 ]
 
 Impact = Union[int, float, list, dict, np.ndarray, pd.DataFrame, pd.Series]
@@ -151,7 +151,7 @@ def concave_recovery(
         np.log(recovery_time) - np.log(tau_h)
     )
     return (init_kapital_destroyed * recovery_time) / (
-        recovery_time + steep_factor * (elapsed_temporal_unit ** exponent)
+        recovery_time + steep_factor * (elapsed_temporal_unit**exponent)
     )
 
 
@@ -242,7 +242,14 @@ class Event(metaclass=abc.ABCMeta):
         self.name = name
         self.occurrence = occurrence
         self.duration = duration
-        self.impact_df = pd.Series(0, dtype="float64", index = pd.MultiIndex.from_product([self.possible_regions, self.possible_sectors], names=["region","sector"]))
+        self.impact_df = pd.Series(
+            0,
+            dtype="float64",
+            index=pd.MultiIndex.from_product(
+                [self.possible_regions, self.possible_sectors],
+                names=["region", "sector"],
+            ),
+        )
         ################## DATAFRAME INIT #################
         # CASE VECTOR 1 (everything is there and regrouped) (only df creation)
         if isinstance(impact, pd.Series):
@@ -257,13 +264,16 @@ class Event(metaclass=abc.ABCMeta):
         elif isinstance(impact, pd.DataFrame):
             logger.debug("Given Impact is a pandas DataFrame, squeezing it to a Series")
             impact = impact.squeeze()
-            if not isinstance(impact,pd.Series):
-                raise ValueError("The given impact DataFrame is not a Series after being squeezed")
+            if not isinstance(impact, pd.Series):
+                raise ValueError(
+                    "The given impact DataFrame is not a Series after being squeezed"
+                )
             self.impact_df.loc[impact.index] = impact
         # CASE VECTOR 2 (everything is there but not regrouped) AND CASE SCALAR (Only df creation)
         elif (
             isinstance(impact, (int, float, list, np.ndarray))
-            and aff_industries is not None):
+            and aff_industries is not None
+        ):
             logger.debug(
                 f"Given Impact is a {type(impact)} and list of impacted industries given. Proceeding."
             )
@@ -276,20 +286,22 @@ class Event(metaclass=abc.ABCMeta):
             logger.debug(
                 f"Given Impact is a {type(impact)} and lists of impacted regions and sectors given. Proceeding."
             )
-            
-            if isinstance(aff_regions,str):
+            if isinstance(aff_regions, str):
                 aff_regions = [aff_regions]
-                
-            if isinstance(aff_sectors,str):
+            if isinstance(aff_sectors, str):
                 aff_sectors = [aff_sectors]
-                
-            self.impact_df.loc[pd.MultiIndex.from_product([aff_regions,aff_sectors])] = impact
+
+            self.impact_df.loc[
+                pd.MultiIndex.from_product([aff_regions, aff_sectors])
+            ] = impact
         else:
             raise ValueError("Invalid input format. Could not initiate pandas Series.")
 
         # Check for <0 values and remove 0.
         if (self.impact_df < 0).any():
-            logger.warning("Found negative values in impact vector. This should raise concern")
+            logger.warning(
+                "Found negative values in impact vector. This should raise concern"
+            )
 
         # SORT DF
         # at this point impact_df is built, and can be sorted. Note that if impact was a scalar, impact_df contains copies of this scalar.
@@ -314,7 +326,9 @@ class Event(metaclass=abc.ABCMeta):
         ):
             logger.debug("Impact is Scalar and impact_industries_distrib was given")
             self.impact_industries_distrib = np.array(impact_industries_distrib)
-            self.impact_df.loc[self.aff_industries] = self.impact_df.loc[self.aff_industries]  * self.impact_industries_distrib
+            self.impact_df.loc[self.aff_industries] = (
+                self.impact_df.loc[self.aff_industries] * self.impact_industries_distrib
+            )
         # if impact_reg_dis and sec_dis are give, deduce the rest. We also assume impact is scalar !
         # CASE SCALAR + REGION and SECTOR DISTRIB
         elif (
@@ -340,21 +354,23 @@ class Event(metaclass=abc.ABCMeta):
                     self.impact_regional_distrib[:, np.newaxis]
                     * self.impact_sectoral_distrib
                 ).flatten()
-                self.impact_df.loc[self.aff_industries]  = self.impact_df.loc[self.aff_industries] * self.impact_industries_distrib
+                self.impact_df.loc[self.aff_industries] = (
+                    self.impact_df.loc[self.aff_industries]
+                    * self.impact_industries_distrib
+                )
         # CASE SCALAR + 'gdp' distrib
         elif (
-
             impact_regional_distrib is not None
             and impact_sectoral_distrib_type is not None
             and impact_sectoral_distrib_type == "gdp"
             and not isinstance(
-            impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
-        )
+                impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
+            )
         ):
             logger.debug("Impact is Scalar and impact_sectoral_distrib_type is 'gdp'")
 
             self.impact_regional_distrib = np.array(impact_regional_distrib)
-            
+
             shares = self.sectors_gva_shares.reshape(
                 (len(self.possible_regions), len(self.possible_sectors))
             )
@@ -368,7 +384,9 @@ class Event(metaclass=abc.ABCMeta):
                 self.impact_regional_distrib[:, np.newaxis]
                 * self.impact_sectoral_distrib
             ).flatten()
-            self.impact_df.loc[self.aff_industries]  = self.impact_df.loc[self.aff_industries] * self.impact_industries_distrib
+            self.impact_df.loc[self.aff_industries] = (
+                self.impact_df.loc[self.aff_industries] * self.impact_industries_distrib
+            )
             self.impact_sectoral_distrib_type = "gdp"
         # CASE SCALAR + NO DISTRIB + list of industries
         # if neither was given, we use default values. Again impact should be scalar here !
@@ -381,17 +399,19 @@ class Event(metaclass=abc.ABCMeta):
             self._default_distribute_impact_from_industries_list()
             self.impact_sectoral_distrib_type = "default (shared equally between affected regions and then affected sectors)"
         # CASE SCALAR + NO DISTRIB + list of region + list of sectors
-        elif aff_regions is not None and aff_sectors is not None and not isinstance(
-            impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
+        elif (
+            aff_regions is not None
+            and aff_sectors is not None
+            and not isinstance(
+                impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
+            )
         ):
             logger.debug(
                 "Impact is Scalar and no distribution was given but lists of regions and sectors affected were given"
             )
             self._default_distribute_impact_from_industries_list()
             self.impact_sectoral_distrib_type = "default (shared equally between affected regions and then affected sectors)"
-        elif not isinstance(
-            impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
-        ):
+        elif not isinstance(impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)):
             raise ValueError(f"Invalid input format: Could not compute impact")
 
         self._finish_init()
@@ -427,23 +447,31 @@ class Event(metaclass=abc.ABCMeta):
         self.impact_regional_distrib = np.full(
             len(self.aff_regions), 1 / len(self.aff_regions)
         )
-        self.impact_df.loc[self.aff_industries]  = self.impact_df.loc[self.aff_industries] * 1 / len(self.aff_regions)
+        self.impact_df.loc[self.aff_industries] = (
+            self.impact_df.loc[self.aff_industries] * 1 / len(self.aff_regions)
+        )
         impact_sec_vec = np.array(
             [
                 1 / len(self.impact_df.loc[(reg, slice(None))])
-
-                for _ in self.aff_sectors for reg in self.aff_regions
+                for _ in self.aff_sectors
+                for reg in self.aff_regions
             ]
         )
-        self.impact_df.loc[self.aff_industries]  = self.impact_df.loc[self.aff_industries] * impact_sec_vec
+        self.impact_df.loc[self.aff_industries] = (
+            self.impact_df.loc[self.aff_industries] * impact_sec_vec
+        )
 
     def _finish_init(self):
         logger.debug("Finishing Event init")
         self.impact_vector = self.impact_df.to_numpy()
         self.total_impact = self.impact_vector.sum()
-        self.impact_industries_distrib = self.impact_vector[self.impact_vector > 0] / self.total_impact
-        self.impact_regional_distrib = self.impact_df.loc[self.aff_industries].groupby('region').sum().values / self.total_impact
-
+        self.impact_industries_distrib = (
+            self.impact_vector[self.impact_vector > 0] / self.total_impact
+        )
+        self.impact_regional_distrib = (
+            self.impact_df.loc[self.aff_industries].groupby("region").sum().values
+            / self.total_impact
+        )
 
     @property
     def aff_industries(self) -> pd.MultiIndex:
@@ -472,7 +500,9 @@ class Event(metaclass=abc.ABCMeta):
 
         self.aff_regions = regions
         self.aff_sectors = sectors
-        logger.debug(f"Setting _aff_industries. There are {len(index)} affected industries")
+        logger.debug(
+            f"Setting _aff_industries. There are {len(index)} affected industries"
+        )
         self._aff_industries = index
         self._aff_industries_idx = np.array(
             [
@@ -796,19 +826,21 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             np.union1d(
                 self._rebuilding_industries_RoW_idx, self._rebuilding_industries_idx
             ),
-        self._aff_industries_idx,
+            self._aff_industries_idx,
         )
         rebuilding_demand = np.outer(
             self.rebuilding_sectors_shares, self.regional_sectoral_kapital_destroyed
         )
-        logger.debug(f"kapital destroyed vec is {self.regional_sectoral_kapital_destroyed}")
+        logger.debug(
+            f"kapital destroyed vec is {self.regional_sectoral_kapital_destroyed}"
+        )
         logger.debug(f"rebuilding sectors shares are {self.rebuilding_sectors_shares}")
         logger.debug(f"Z shape is {self.z_shape}")
         logger.debug(f"Z_distrib[mask] has shape {self.Z_distrib[mask].shape}")
         logger.debug(f"reb_demand: {rebuilding_demand}")
         logger.debug(f"reb_demand: {rebuilding_demand.shape}")
-        #reb_tiled = np.tile(rebuilding_demand, (len(self.possible_regions), 1))
-        #reb_tiled = reb_tiled[mask]
+        # reb_tiled = np.tile(rebuilding_demand, (len(self.possible_regions), 1))
+        # reb_tiled = reb_tiled[mask]
         tmp[mask] = self.Z_distrib[mask] * rebuilding_demand[mask]
         self.rebuilding_demand_indus = tmp
         self.rebuilding_demand_house = np.zeros(shape=self.y_shape)
@@ -861,9 +893,15 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                     for si in self._rebuilding_sectors_idx
                 ]
             )
-
-            self._rebuilding_sectors_shares[self._rebuilding_industries_idx] = np.tile(np.array(reb_sectors.values),len(self.aff_regions))
-            self._rebuilding_sectors_shares[self._rebuilding_industries_RoW_idx] = np.tile(np.array(reb_sectors.values),(len(self.possible_regions) - len(self.aff_regions)))
+            self._rebuilding_sectors_shares[self._rebuilding_industries_idx] = np.tile(
+                np.array(reb_sectors.values), len(self.aff_regions)
+            )
+            self._rebuilding_sectors_shares[
+                self._rebuilding_industries_RoW_idx
+            ] = np.tile(
+                np.array(reb_sectors.values),
+                (len(self.possible_regions) - len(self.aff_regions)),
+            )
 
     @property
     def rebuilding_demand_house(self) -> np.ndarray:

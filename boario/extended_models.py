@@ -55,12 +55,11 @@ class ARIOPsiModel(ARIOBaseModel):
         alpha_tau=365,
         rebuild_tau=60,
         main_inv_dur=90,
-        monetary_factor=10 ** 6,
+        monetary_factor=10**6,
         psi_param=0.90,
         inventory_restoration_tau=60,
-        **kwargs
+        **kwargs,
     ) -> None:
-
         super().__init__(
             pym_mrio,
             order_type,
@@ -70,7 +69,7 @@ class ARIOPsiModel(ARIOBaseModel):
             rebuild_tau,
             main_inv_dur,
             monetary_factor,
-            **kwargs
+            **kwargs,
         )
 
         logger.debug("Model is an ARIOPsiModel")
@@ -131,10 +130,10 @@ class ARIOClimadaModel(ARIOPsiModel):
         alpha_tau=365,
         rebuild_tau=60,
         main_inv_dur=90,
-        monetary_factor=10 ** 6,
+        monetary_factor=10**6,
         psi_param=0.9,
         inventory_restoration_tau=60,
-        **kwargs
+        **kwargs,
     ) -> None:
         super().__init__(
             pym_mrio,
@@ -148,5 +147,5 @@ class ARIOClimadaModel(ARIOPsiModel):
             psi_param,
             inventory_restoration_tau,
             kapital_vector=exp_stock,
-            **kwargs
+            **kwargs,
         )
