@@ -276,6 +276,13 @@ class Event(metaclass=abc.ABCMeta):
             logger.debug(
                 f"Given Impact is a {type(impact)} and lists of impacted regions and sectors given. Proceeding."
             )
+            
+            if isinstance(aff_regions,str):
+                aff_regions = [aff_regions]
+                
+            if isinstance(aff_sectors,str):
+                aff_sectors = [aff_sectors]
+                
             self.impact_df.loc[pd.MultiIndex.from_product([aff_regions,aff_sectors])] = impact
         else:
             raise ValueError("Invalid input format. Could not initiate pandas Series.")
@@ -336,13 +343,18 @@ class Event(metaclass=abc.ABCMeta):
                 self.impact_df.loc[self.aff_industries]  = self.impact_df.loc[self.aff_industries] * self.impact_industries_distrib
         # CASE SCALAR + 'gdp' distrib
         elif (
-            impact_sectoral_distrib_type is not None
+
+            impact_regional_distrib is not None
+            and impact_sectoral_distrib_type is not None
             and impact_sectoral_distrib_type == "gdp"
             and not isinstance(
             impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
         )
         ):
             logger.debug("Impact is Scalar and impact_sectoral_distrib_type is 'gdp'")
+
+            self.impact_regional_distrib = np.array(impact_regional_distrib)
+            
             shares = self.sectors_gva_shares.reshape(
                 (len(self.possible_regions), len(self.possible_sectors))
             )
@@ -419,10 +431,11 @@ class Event(metaclass=abc.ABCMeta):
         impact_sec_vec = np.array(
             [
                 1 / len(self.impact_df.loc[(reg, slice(None))])
-                for reg in self.aff_regions
+
+                for _ in self.aff_sectors for reg in self.aff_regions
             ]
         )
-        self.impact_df.loc[self.aff_regions]  = self.impact_df.loc[self.aff_regions] * impact_sec_vec
+        self.impact_df.loc[self.aff_industries]  = self.impact_df.loc[self.aff_industries] * impact_sec_vec
 
     def _finish_init(self):
         logger.debug("Finishing Event init")
@@ -776,20 +789,27 @@ class EventKapitalRebuild(EventKapitalDestroyed):
 
         self.rebuild_tau = rebuild_tau
         self.rebuilding_sectors = rebuilding_sectors
-        rebuilding_demand = np.outer(
-            self.rebuilding_sectors_shares, self.regional_sectoral_kapital_destroyed
-        )
+
+        rebuilding_demand = np.zeros(shape=self.z_shape)
         tmp = np.zeros(self.z_shape, dtype="float")
         mask = np.ix_(
             np.union1d(
                 self._rebuilding_industries_RoW_idx, self._rebuilding_industries_idx
             ),
-            self._aff_industries_idx,
+        self._aff_industries_idx,
         )
-
-        tmp[mask] = self.Z_distrib[mask] * np.tile(
-            rebuilding_demand, (len(self.possible_regions), 1)
+        rebuilding_demand = np.outer(
+            self.rebuilding_sectors_shares, self.regional_sectoral_kapital_destroyed
         )
+        logger.debug(f"kapital destroyed vec is {self.regional_sectoral_kapital_destroyed}")
+        logger.debug(f"rebuilding sectors shares are {self.rebuilding_sectors_shares}")
+        logger.debug(f"Z shape is {self.z_shape}")
+        logger.debug(f"Z_distrib[mask] has shape {self.Z_distrib[mask].shape}")
+        logger.debug(f"reb_demand: {rebuilding_demand}")
+        logger.debug(f"reb_demand: {rebuilding_demand.shape}")
+        #reb_tiled = np.tile(rebuilding_demand, (len(self.possible_regions), 1))
+        #reb_tiled = reb_tiled[mask]
+        tmp[mask] = self.Z_distrib[mask] * rebuilding_demand[mask]
         self.rebuilding_demand_indus = tmp
         self.rebuilding_demand_house = np.zeros(shape=self.y_shape)
 
@@ -824,7 +844,8 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             self._rebuilding_sectors_idx = np.searchsorted(
                 self.possible_sectors, reb_sectors.index
             )
-            self._rebuilding_sectors_shares = np.array(reb_sectors.values)
+
+            self._rebuilding_sectors_shares = np.zeros(self.x_shape)
             self._rebuilding_industries_idx = np.array(
                 [
                     len(self.possible_sectors) * ri + si
@@ -840,6 +861,9 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                     for si in self._rebuilding_sectors_idx
                 ]
             )
+
+            self._rebuilding_sectors_shares[self._rebuilding_industries_idx] = np.tile(np.array(reb_sectors.values),len(self.aff_regions))
+            self._rebuilding_sectors_shares[self._rebuilding_industries_RoW_idx] = np.tile(np.array(reb_sectors.values),(len(self.possible_regions) - len(self.aff_regions)))
 
     @property
     def rebuilding_demand_house(self) -> np.ndarray:
