@@ -33,7 +33,7 @@ __all__ = [
     "Impact",
     "IndustriesList",
     "SectorsList",
-    "RegionsList"
+    "RegionsList",
 ]
 
 Impact = Union[int, float, list, dict, np.ndarray, pd.DataFrame, pd.Series]
@@ -409,9 +409,7 @@ class Event(metaclass=abc.ABCMeta):
             )
             self._default_distribute_impact_from_industries_list()
             self.impact_sectoral_distrib_type = "default (shared equally between affected regions and then affected sectors)"
-        elif not isinstance(
-            impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
-        ):
+        elif not isinstance(impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)):
             raise ValueError(f"Invalid input format: Could not compute impact")
 
         self._finish_init()
