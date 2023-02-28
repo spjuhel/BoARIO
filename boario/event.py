@@ -151,7 +151,7 @@ def concave_recovery(
         np.log(recovery_time) - np.log(tau_h)
     )
     return (init_kapital_destroyed * recovery_time) / (
-        recovery_time + steep_factor * (elapsed_temporal_unit ** exponent)
+        recovery_time + steep_factor * (elapsed_temporal_unit**exponent)
     )
 
 

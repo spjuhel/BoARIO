@@ -20,6 +20,7 @@ import pymrio
 import numpy
 import json
 
+
 class CustomNumpyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, numpy.integer):
@@ -31,12 +32,14 @@ class CustomNumpyEncoder(json.JSONEncoder):
         else:
             return super(CustomNumpyEncoder, self).default(obj)
 
+
 def flatten(l):
     for el in l:
         if isinstance(el, Iterable) and not isinstance(el, (str, bytes)):
             yield from flatten(el)
         else:
             yield el
+
 
 def lexico_reindex(mrio: pymrio.IOSystem) -> pymrio.IOSystem:
     """Reindex IOSystem lexicographicaly

@@ -54,7 +54,6 @@ def stock_df_from_memmap(
 
 
 class Indicators(object):
-
     record_files_list = [
         "final_demand_record",
         "io_demand_record",

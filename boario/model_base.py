@@ -143,10 +143,9 @@ class ARIOBaseModel:
         alpha_tau=365,
         rebuild_tau=60,
         main_inv_dur=90,
-        monetary_factor=10 ** 6,
+        monetary_factor=10**6,
         **kwargs,
     ) -> None:
-
         logger.debug("Initiating new ARIOBaseModel instance")
         super().__init__()
         ################ Parameters variables #######################
