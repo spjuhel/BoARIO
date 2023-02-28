@@ -41,7 +41,7 @@ from boario.utils.misc import CustomNumpyEncoder
 __all__ = ["Simulation"]
 
 
-class Simulation():
+class Simulation:
     """Defines a simulation object with a set of parameters and an IOSystem.
 
     This class wraps an :class:`~boario.model_base.ARIOBaseModel` or :class:`~boario.extended_models.ARIOPsiModel`, and create the context for
@@ -84,14 +84,14 @@ class Simulation():
     """
 
     def __init__(
-            self,
-            model: Union[ARIOBaseModel,ARIOPsiModel,ARIOClimadaModel],
-            register_stocks=False,
-            n_temporal_units_to_sim = 365,
-            events_list : list = [],
-            separate_sims: bool = False,
-            boario_output_dir:str|pathlib.Path="/tmp/boario", # This needs to be set !
-            results_dir_name:str = "results"
+        self,
+        model: Union[ARIOBaseModel, ARIOPsiModel, ARIOClimadaModel],
+        register_stocks=False,
+        n_temporal_units_to_sim=365,
+        events_list: list = [],
+        separate_sims: bool = False,
+        boario_output_dir: str | pathlib.Path = "/tmp/boario",  # This needs to be set !
+        results_dir_name: str = "results",
     ) -> None:
         """
         #TODO Update this one
@@ -104,14 +104,14 @@ class Simulation():
         logger.info("Initializing new simulation instance")
 
         self.output_dir = boario_output_dir
-        self.results_storage = pathlib.Path(
-            self.output_dir
-        ).resolve() / results_dir_name
+        self.results_storage = (
+            pathlib.Path(self.output_dir).resolve() / results_dir_name
+        )
         if not self.results_storage.exists():
             self.results_storage.mkdir(parents=True)
         self.model = model
-        self.all_events : list[Event] = events_list
-        self.currently_happening_events : list[Event] = []
+        self.all_events: list[Event] = events_list
+        self.currently_happening_events: list[Event] = []
         self.events_timings = set()
         self.n_temporal_units_to_sim = n_temporal_units_to_sim
         Event.temporal_unit_range = self.n_temporal_units_to_sim
@@ -128,55 +128,151 @@ class Simulation():
         self.has_crashed = False
         self.register_stocks = register_stocks
         # RECORDS FILES
-        self.records_storage:pathlib.Path = self.results_storage/"records"
+        self.records_storage: pathlib.Path = self.results_storage / "records"
         logger.info("Records storage is: {}".format(self.records_storage))
 
         # Make it optional
         self.records_storage.mkdir(parents=True, exist_ok=True)
-        self.production_evolution = np.memmap(self.records_storage/"iotable_XVA_record", dtype='float64', mode="w+", shape=(self.n_temporal_units_to_sim, self.model.n_sectors*self.model.n_regions))
+        self.production_evolution = np.memmap(
+            self.records_storage / "iotable_XVA_record",
+            dtype="float64",
+            mode="w+",
+            shape=(
+                self.n_temporal_units_to_sim,
+                self.model.n_sectors * self.model.n_regions,
+            ),
+        )
         self.production_evolution.fill(np.nan)
-        self.production_cap_evolution = np.memmap(self.records_storage/"iotable_X_max_record", dtype='float64', mode="w+", shape=(self.n_temporal_units_to_sim, self.model.n_sectors*self.model.n_regions))
+        self.production_cap_evolution = np.memmap(
+            self.records_storage / "iotable_X_max_record",
+            dtype="float64",
+            mode="w+",
+            shape=(
+                self.n_temporal_units_to_sim,
+                self.model.n_sectors * self.model.n_regions,
+            ),
+        )
         self.production_cap_evolution.fill(np.nan)
-        self.final_demand_evolution = np.memmap(self.records_storage/"final_demand_record", dtype='float64', mode="w+", shape=(self.n_temporal_units_to_sim, self.model.n_sectors*self.model.n_regions))
+        self.final_demand_evolution = np.memmap(
+            self.records_storage / "final_demand_record",
+            dtype="float64",
+            mode="w+",
+            shape=(
+                self.n_temporal_units_to_sim,
+                self.model.n_sectors * self.model.n_regions,
+            ),
+        )
         self.final_demand_evolution.fill(np.nan)
-        self.io_demand_evolution = np.memmap(self.records_storage/"io_demand_record", dtype='float64', mode="w+", shape=(self.n_temporal_units_to_sim, self.model.n_sectors*self.model.n_regions))
+        self.io_demand_evolution = np.memmap(
+            self.records_storage / "io_demand_record",
+            dtype="float64",
+            mode="w+",
+            shape=(
+                self.n_temporal_units_to_sim,
+                self.model.n_sectors * self.model.n_regions,
+            ),
+        )
         self.io_demand_evolution.fill(np.nan)
 
-        self.rebuild_demand_evolution = np.memmap(self.records_storage/"rebuild_demand_record", dtype='float64', mode="w+", shape=(self.n_temporal_units_to_sim, self.model.n_sectors*self.model.n_regions))
+        self.rebuild_demand_evolution = np.memmap(
+            self.records_storage / "rebuild_demand_record",
+            dtype="float64",
+            mode="w+",
+            shape=(
+                self.n_temporal_units_to_sim,
+                self.model.n_sectors * self.model.n_regions,
+            ),
+        )
         self.rebuild_demand_evolution.fill(np.nan)
-        self.overproduction_evolution = np.memmap(self.records_storage/"overprodvector_record", dtype='float64', mode="w+", shape=(self.n_temporal_units_to_sim, self.model.n_sectors*self.model.n_regions))
+        self.overproduction_evolution = np.memmap(
+            self.records_storage / "overprodvector_record",
+            dtype="float64",
+            mode="w+",
+            shape=(
+                self.n_temporal_units_to_sim,
+                self.model.n_sectors * self.model.n_regions,
+            ),
+        )
         self.overproduction_evolution.fill(np.nan)
-        self.final_demand_unmet_evolution = np.memmap(self.records_storage/"final_demand_unmet_record", dtype='float64', mode="w+", shape=(self.n_temporal_units_to_sim, self.model.n_sectors*self.model.n_regions))
+        self.final_demand_unmet_evolution = np.memmap(
+            self.records_storage / "final_demand_unmet_record",
+            dtype="float64",
+            mode="w+",
+            shape=(
+                self.n_temporal_units_to_sim,
+                self.model.n_sectors * self.model.n_regions,
+            ),
+        )
         self.final_demand_unmet_evolution.fill(np.nan)
-        self.rebuild_production_evolution = np.memmap(self.records_storage/"rebuild_prod_record", dtype='float64', mode="w+", shape=(self.n_temporal_units_to_sim, self.model.n_sectors*self.model.n_regions))
+        self.rebuild_production_evolution = np.memmap(
+            self.records_storage / "rebuild_prod_record",
+            dtype="float64",
+            mode="w+",
+            shape=(
+                self.n_temporal_units_to_sim,
+                self.model.n_sectors * self.model.n_regions,
+            ),
+        )
         self.rebuild_production_evolution.fill(np.nan)
         if register_stocks:
-            self.stocks_evolution = np.memmap(self.records_storage/"stocks_record", dtype='float64', mode="w+", shape=(self.n_temporal_units_to_sim, self.model.n_sectors, self.model.n_sectors*self.model.n_regions))
+            self.stocks_evolution = np.memmap(
+                self.records_storage / "stocks_record",
+                dtype="float64",
+                mode="w+",
+                shape=(
+                    self.n_temporal_units_to_sim,
+                    self.model.n_sectors,
+                    self.model.n_sectors * self.model.n_regions,
+                ),
+            )
             self.stocks_evolution.fill(np.nan)
-        self.limiting_stocks_evolution = np.memmap(self.records_storage/"limiting_stocks_record", dtype='byte', mode="w+", shape=(self.n_temporal_units_to_sim, self.model.n_sectors, self.model.n_sectors*self.model.n_regions))
+        self.limiting_stocks_evolution = np.memmap(
+            self.records_storage / "limiting_stocks_record",
+            dtype="byte",
+            mode="w+",
+            shape=(
+                self.n_temporal_units_to_sim,
+                self.model.n_sectors,
+                self.model.n_sectors * self.model.n_regions,
+            ),
+        )
         self.limiting_stocks_evolution.fill(-1)
-        self.regional_sectoral_kapital_destroyed_evol = np.memmap(self.records_storage/"iotable_kapital_destroyed_record", dtype='float64', mode="w+", shape=(self.n_temporal_units_to_sim, self.model.n_sectors*self.model.n_regions))
+        self.regional_sectoral_kapital_destroyed_evol = np.memmap(
+            self.records_storage / "iotable_kapital_destroyed_record",
+            dtype="float64",
+            mode="w+",
+            shape=(
+                self.n_temporal_units_to_sim,
+                self.model.n_sectors * self.model.n_regions,
+            ),
+        )
         self.regional_sectoral_kapital_destroyed_evol.fill(np.nan)
 
         Event.temporal_unit_range = self.n_temporal_units_to_sim
         self.params_dict = {
-            "n_temporal_units_to_sim":self.n_temporal_units_to_sim,
-            "output_dir":self.output_dir,
-            "results_storage":self.results_storage.stem,
-            "register_stocks":register_stocks,
+            "n_temporal_units_to_sim": self.n_temporal_units_to_sim,
+            "output_dir": self.output_dir,
+            "results_storage": self.results_storage.stem,
+            "register_stocks": register_stocks,
             "model_type": self.model.__class__.__name__,
-            "psi_param": self.model.psi if isinstance(self.model,ARIOPsiModel) else None,
+            "psi_param": self.model.psi
+            if isinstance(self.model, ARIOPsiModel)
+            else None,
             "order_type": self.model.order_type,
             "n_temporal_units_by_step": self.model.n_temporal_units_by_step,
             "year_to_temporal_unit_factor": self.model.iotable_year_to_temporal_unit_factor,
-            "inventory_restoration_tau": list(self.model.restoration_tau) if isinstance(self.model,ARIOPsiModel) else None,
+            "inventory_restoration_tau": list(self.model.restoration_tau)
+            if isinstance(self.model, ARIOPsiModel)
+            else None,
             "alpha_base": self.model.overprod_base,
             "alpha_max": self.model.overprod_max,
             "alpha_tau": self.model.overprod_tau,
-            "rebuild_tau": self.model.rebuild_tau
+            "rebuild_tau": self.model.rebuild_tau,
         }
         logger.info("Initialized !")
-        logger.info("Simulation parameters:\n{}".format(pformat(self.params_dict,compact=True)))
+        logger.info(
+            "Simulation parameters:\n{}".format(pformat(self.params_dict, compact=True))
+        )
 
     def loop(self, progress: bool = True):
         r"""Launch the simulation loop.
@@ -209,18 +305,11 @@ class Simulation():
         tmp.setFormatter(DEBUGFORMATTER)
         logger.addHandler(tmp)
         logger.info("Events : {}".format(self.all_events))
-        (
-            pathlib.Path(
-                self.results_storage
-            )
-            / "jsons"
-        ).mkdir(parents=True, exist_ok=True)
+        (pathlib.Path(self.results_storage) / "jsons").mkdir(
+            parents=True, exist_ok=True
+        )
         with (
-            pathlib.Path(
-                self.results_storage
-            )
-            / "jsons"
-            / "simulated_events.json"
+            pathlib.Path(self.results_storage) / "jsons" / "simulated_events.json"
         ).open("w") as f:
             event_dicts = [ev.event_dict for ev in self.all_events]
             json.dump(event_dicts, f, indent=4, cls=CustomNumpyEncoder)
@@ -239,7 +328,6 @@ class Simulation():
                     0,
                     self.n_temporal_units_to_sim,
                     math.floor(self.model.n_temporal_units_by_step),
-
                 )
             ):
                 # assert self.current_temporal_unit == t
@@ -296,25 +384,22 @@ class Simulation():
             self.model.stocks_evolution.flush()
         self.overproduction_evolution.flush()
         self.production_cap_evolution.flush()
-        self.model.write_index(self.results_storage/"jsons"/"indexes.json")
-        self.params_dict['n_temporal_units_simulated'] = self.n_temporal_units_simulated
+        self.model.write_index(self.results_storage / "jsons" / "indexes.json")
+        self.params_dict["n_temporal_units_simulated"] = self.n_temporal_units_simulated
         self.has_crashed = self.has_crashed
         with (
-            pathlib.Path(
-                self.results_storage
-            )
-            / "jsons"
-            / "simulated_params.json"
+            pathlib.Path(self.results_storage) / "jsons" / "simulated_params.json"
         ).open("w") as f:
             json.dump(self.params_dict, f, indent=4, cls=CustomNumpyEncoder)
         with (
-            pathlib.Path(
-                self.results_storage
-            )
-            / "jsons"
-            / "equilibrium_checks.json"
+            pathlib.Path(self.results_storage) / "jsons" / "equilibrium_checks.json"
         ).open("w") as f:
-            json.dump({str(k): v for k, v in self.equi.items()}, f, indent=4, cls=CustomNumpyEncoder)
+            json.dump(
+                {str(k): v for k, v in self.equi.items()},
+                f,
+                indent=4,
+                cls=CustomNumpyEncoder,
+            )
         logger.info("Loop complete")
         if progress:
             bar.finish()  # type: ignore (bar possibly unbound but actually not possible)
@@ -384,7 +469,9 @@ class Simulation():
         self.write_production_max()
         try:
             rebuildable_events = [
-                ev for ev in self.currently_happening_events if isinstance(ev,EventKapitalRebuild) and ev.rebuildable
+                ev
+                for ev in self.currently_happening_events
+                if isinstance(ev, EventKapitalRebuild) and ev.rebuildable
             ]
             events_to_remove = self.model.distribute_production(
                 rebuildable_events, self.scheme
@@ -402,7 +489,7 @@ class Simulation():
                 e for e in self.currently_happening_events if e not in events_to_remove
             ]
             for e in events_to_remove:
-                if isinstance(e,EventKapitalDestroyed):
+                if isinstance(e, EventKapitalDestroyed):
                     logger.info(
                         "Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt/recovered".format(
                             self.current_temporal_unit,
@@ -450,6 +537,7 @@ class Simulation():
 
     def read_events_from_list(self, events_list: list[dict]):
         raise NotImplementedError("I have to redo this one")
+
     #     """Import a list of events (as a list of dictionaries) into the model.
 
     #     Also performs various checks on the events to avoid badly written events.
@@ -478,13 +566,14 @@ class Simulation():
 
     def read_event(self, ev_dic: dict):
         raise NotImplementedError("I have to redo this one")
+
     #     if ev_dic["aff_sectors"] == "all":
     #         ev_dic["aff_sectors"] = list(self.model.sectors)
     #     ev = Event(ev_dic)
     #     self.all_events.append(ev)
     #     self.events_timings.add(ev.occurrence)
 
-    def add_event(self, ev:Event):
+    def add_event(self, ev: Event):
         self.all_events.append(ev)
         self.events_timings.add(ev.occurrence)
 
@@ -523,9 +612,7 @@ class Simulation():
         """
         logger.info("Updating model parameters")
         self.params_dict = new_params
-        results_storage = pathlib.Path(
-            self.results_storage
-        )
+        results_storage = pathlib.Path(self.results_storage)
         if not results_storage.exists():
             results_storage.mkdir(parents=True)
         self.model.update_params(self.params_dict)
@@ -592,9 +679,9 @@ class Simulation():
                     ev.happened = True
                     self.currently_happening_events.append(ev)
         for ev in self.currently_happening_events:
-            if isinstance(ev,EventKapitalRebuild):
+            if isinstance(ev, EventKapitalRebuild):
                 ev.rebuildable = self.current_temporal_unit
-            if isinstance(ev,EventKapitalRecover):
+            if isinstance(ev, EventKapitalRecover):
                 ev.recoverable = self.current_temporal_unit
                 if ev.recoverable:
                     ev.recovery(self.current_temporal_unit)
@@ -604,36 +691,50 @@ class Simulation():
         self.production_evolution[self.current_temporal_unit] = self.model.production
 
     def write_kapital_lost(self) -> None:
-        self.regional_sectoral_kapital_destroyed_evol[self.current_temporal_unit] = self.model._kapital_lost
+        self.regional_sectoral_kapital_destroyed_evol[
+            self.current_temporal_unit
+        ] = self.model._kapital_lost
 
     def write_production_max(self) -> None:
-        self.production_cap_evolution[self.current_temporal_unit] = self.model.production_cap
+        self.production_cap_evolution[
+            self.current_temporal_unit
+        ] = self.model.production_cap
 
     def write_io_demand(self) -> None:
-         self.io_demand_evolution[self.current_temporal_unit] = self.model.matrix_orders.sum(axis=1)
+        self.io_demand_evolution[
+            self.current_temporal_unit
+        ] = self.model.matrix_orders.sum(axis=1)
 
     def write_final_demand(self) -> None:
-         self.final_demand_evolution[self.current_temporal_unit] = self.model.final_demand.sum(axis=1)
+        self.final_demand_evolution[
+            self.current_temporal_unit
+        ] = self.model.final_demand.sum(axis=1)
 
     def write_rebuild_demand(self) -> None:
-        to_write = np.full(self.model.n_regions*self.model.n_sectors,0.0)
+        to_write = np.full(self.model.n_regions * self.model.n_sectors, 0.0)
         if (r_dem := self.model.tot_rebuild_demand) is not None:
             self.rebuild_demand_evolution[self.current_temporal_unit] = r_dem
         else:
             self.rebuild_demand_evolution[self.current_temporal_unit] = to_write
 
     def write_rebuild_prod(self) -> None:
-        logger.debug(f"self.rebuild_production_evolution shape : {self.rebuild_production_evolution.shape}, self.model.rebuild_prod shape : {self.model.rebuild_prod.shape}")
-        self.rebuild_production_evolution[self.current_temporal_unit] = self.model.rebuild_prod
+        logger.debug(
+            f"self.rebuild_production_evolution shape : {self.rebuild_production_evolution.shape}, self.model.rebuild_prod shape : {self.model.rebuild_prod.shape}"
+        )
+        self.rebuild_production_evolution[
+            self.current_temporal_unit
+        ] = self.model.rebuild_prod
 
     def write_overproduction(self) -> None:
         self.overproduction_evolution[self.current_temporal_unit] = self.model.overprod
 
     def write_final_demand_unmet(self) -> None:
-        self.final_demand_unmet_evolution[self.current_temporal_unit] = self.model.final_demand_not_met
+        self.final_demand_unmet_evolution[
+            self.current_temporal_unit
+        ] = self.model.final_demand_not_met
 
     def write_stocks(self) -> None:
         self.stocks_evolution[self.current_temporal_unit] = self.model.matrix_stock
 
-    def write_limiting_stocks(self, limiting_stock:np.ndarray) -> None:
+    def write_limiting_stocks(self, limiting_stock: np.ndarray) -> None:
         self.limiting_stocks_evolution[self.current_temporal_unit] = limiting_stock
