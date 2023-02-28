@@ -360,7 +360,6 @@ class Event(metaclass=abc.ABCMeta):
                 )
         # CASE SCALAR + 'gdp' distrib
         elif (
-
             impact_regional_distrib is not None
             and impact_sectoral_distrib_type is not None
             and impact_sectoral_distrib_type == "gdp"
@@ -371,7 +370,7 @@ class Event(metaclass=abc.ABCMeta):
             logger.debug("Impact is Scalar and impact_sectoral_distrib_type is 'gdp'")
 
             self.impact_regional_distrib = np.array(impact_regional_distrib)
-            
+
             shares = self.sectors_gva_shares.reshape(
                 (len(self.possible_regions), len(self.possible_sectors))
             )
