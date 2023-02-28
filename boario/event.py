@@ -360,6 +360,7 @@ class Event(metaclass=abc.ABCMeta):
                 )
         # CASE SCALAR + 'gdp' distrib
         elif (
+
             impact_regional_distrib is not None
             and impact_sectoral_distrib_type is not None
             and impact_sectoral_distrib_type == "gdp"
@@ -368,7 +369,9 @@ class Event(metaclass=abc.ABCMeta):
             )
         ):
             logger.debug("Impact is Scalar and impact_sectoral_distrib_type is 'gdp'")
+
             self.impact_regional_distrib = np.array(impact_regional_distrib)
+            
             shares = self.sectors_gva_shares.reshape(
                 (len(self.possible_regions), len(self.possible_sectors))
             )
@@ -817,6 +820,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
 
         self.rebuild_tau = rebuild_tau
         self.rebuilding_sectors = rebuilding_sectors
+
         rebuilding_demand = np.zeros(shape=self.z_shape)
         tmp = np.zeros(self.z_shape, dtype="float")
         mask = np.ix_(
@@ -873,6 +877,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             self._rebuilding_sectors_idx = np.searchsorted(
                 self.possible_sectors, reb_sectors.index
             )
+
             self._rebuilding_sectors_shares = np.zeros(self.x_shape)
             self._rebuilding_industries_idx = np.array(
                 [
