@@ -851,6 +851,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         tmp[mask] = self.Z_distrib[mask] * rebuilding_demand[mask]
         self.rebuilding_demand_indus = tmp
         self.rebuilding_demand_house = np.zeros(shape=self.y_shape)
+        self.event_dict["rebuilding_sectors"] = {sec:share for sec,share in zip(self.rebuilding_sectors,self.rebuilding_sectors_shares)}
 
     @property
     def rebuilding_sectors(self) -> pd.Index:

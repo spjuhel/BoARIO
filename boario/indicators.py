@@ -72,6 +72,7 @@ class Indicators(object):
     def __init__(self, data_dict: dict, include_crash: bool = False) -> None:
         logger.info("Instanciating indicators")
         super().__init__()
+        self.data_dict = data_dict
         if not include_crash:
             if data_dict["has_crashed"]:
                 raise RuntimeError(
