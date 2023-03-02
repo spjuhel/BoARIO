@@ -318,6 +318,8 @@ class Event(metaclass=abc.ABCMeta):
         # Only look for industries where impact is greater than 0
         self.aff_industries = self.impact_df.loc[self.impact_df > 0].index
 
+        logger.debug(f"Impact df at the moment:\n {self.impact_df.loc[self.aff_industries]}")
+
         ###### SCALAR DISTRIBUTION ######################
         # if impact_industries_distrib is given, set it. We assume impact is scalar !
         # CASE SCALAR + INDUS DISTRIB
@@ -444,22 +446,25 @@ class Event(metaclass=abc.ABCMeta):
     def _default_distribute_impact_from_industries_list(self):
         # at this point, impact should still be scalar.
         logger.debug("Using default impact distribution to industries")
+        logger.debug(f"Impact df at the moment:\n {self.impact_df.loc[self.aff_industries]}")
         self.impact_regional_distrib = np.full(
             len(self.aff_regions), 1 / len(self.aff_regions)
         )
+
+        logger.debug(f"self.impact_regional_distrib: {list(self.impact_regional_distrib)}")
+        logger.debug(f"len aff_regions: {len(self.aff_regions)}")
         self.impact_df.loc[self.aff_industries] = (
             self.impact_df.loc[self.aff_industries] * 1 / len(self.aff_regions)
         )
         impact_sec_vec = np.array(
             [
-                1 / len(self.impact_df.loc[(reg, slice(None))])
-                for _ in self.aff_sectors
-                for reg in self.aff_regions
+                1 / len(self.aff_industries.to_series().loc[reg]) for reg in self.aff_regions
             ]
         )
         self.impact_df.loc[self.aff_industries] = (
             self.impact_df.loc[self.aff_industries] * impact_sec_vec
         )
+        logger.debug(f"Impact df after default distrib:\n {self.impact_df.loc[self.aff_industries]}")
 
     def _finish_init(self):
         logger.debug("Finishing Event init")
@@ -802,6 +807,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         name="Unnamed",
         occurrence=1,
         duration=1,
+            rebuilding_factor=None,
     ) -> None:
         super().__init__(
             impact,
@@ -831,6 +837,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         rebuilding_demand = np.outer(
             self.rebuilding_sectors_shares, self.regional_sectoral_kapital_destroyed
         )
+        rebuilding_demand = rebuilding_demand * rebuilding_factor
         logger.debug(
             f"kapital destroyed vec is {self.regional_sectoral_kapital_destroyed}"
         )
@@ -951,7 +958,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                     current_temporal_unit,
                     self.name,
                     self.occurrence,
-                    self._aff_regions,
+                    self._aff_regions.values,
                     self.total_kapital_destroyed,
                 )
             )
