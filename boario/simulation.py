@@ -29,6 +29,7 @@ from typing import Optional, Union
 import math
 import numpy as np
 import progressbar
+import tempfile
 
 from boario.event import *
 from boario.model_base import ARIOBaseModel

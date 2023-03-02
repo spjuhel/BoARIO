@@ -15,7 +15,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from __future__ import annotations
 
-from typing import Union
+from typing import Dict, Optional, Union
+
+from pymrio.core.mriosystem import collections
+from boario.extended_models import ARIOPsiModel
 from boario.simulation import Simulation
 import numpyencoder
 import json
@@ -26,8 +29,21 @@ import itertools
 from boario.utils import misc
 import dask.dataframe as da
 from boario import logger
+from boario.event import *
 
 __all__ = ["Indicators"]
+
+
+def create_df(data, regions, sectors):
+    df = pd.DataFrame(
+        data,
+        columns=pd.MultiIndex.from_product(
+            [regions, sectors], names=["region", "sector"]
+        ),
+    )
+    df = df.interpolate()
+    df = df.rename_axis("step")
+    return df
 
 
 def df_from_memmap(memmap: np.memmap, indexes: dict) -> pd.DataFrame:
@@ -69,117 +85,67 @@ class Indicators(object):
 
     params_list = ["simulated_params", "simulated_events"]
 
-    def __init__(self, data_dict: dict, include_crash: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        has_crashed,
+        params,
+        regions,
+        sectors,
+        kapital,
+        prod,
+        prodmax,
+        overprod,
+        final_demand,
+        io_demand,
+        r_demand,
+        r_prod,
+        fd_unmet,
+        limiting_stocks,
+        n_temporal_units_to_sim: int,
+        n_temporal_units_by_step: int,
+        events: list[Event],
+        results_storage: Optional[str | pathlib.Path] = None,
+        psi_param: Optional[float] = None,
+        inventory_restoration_tau: Optional[int | list[int]] = None,
+        stocks=None,
+        stocks_treatment=False,
+        include_crash: bool = False,
+    ) -> None:
         logger.info("Instanciating indicators")
-        super().__init__()
+        n_sectors = len(sectors)
         if not include_crash:
-            if data_dict["has_crashed"]:
+            if has_crashed:
                 raise RuntimeError(
                     "Simulation crashed and include_crash is False, I won't compute indicators"
                 )
-        steps = [i for i in range(data_dict["n_temporal_units_to_sim"])]
+        steps = [i for i in range(n_temporal_units_to_sim)]
 
-        if "stocks" in data_dict:
-            stock_treatement = True
-        else:
-            stock_treatement = False
+        self.params = params
+        self.n_rows = n_temporal_units_to_sim
+        self.n_temporal_units_by_step = n_temporal_units_by_step
 
-        self.params = data_dict["params"]
-        self.n_rows = data_dict["n_temporal_units_to_sim"]
-        self.n_temporal_units_by_step = data_dict["n_temporal_units_by_step"]
+        self.kapital_df = create_df(kapital, regions, sectors)
+        self.prod_df = create_df(prod, regions, sectors)
+        self.prodmax_df = create_df(prodmax, regions, sectors)
+        self.overprod_df = create_df(overprod, regions, sectors)
+        self.final_demand_df = create_df(final_demand, regions, sectors)
+        self.io_demand_df = create_df(io_demand, regions, sectors)
+        self.r_demand_df = create_df(r_demand, regions, sectors)
+        self.r_prod_df = create_df(r_prod, regions, sectors)
+        self.fd_unmet_df = create_df(fd_unmet, regions, sectors)
 
-        self.kapital_df = pd.DataFrame(
-            data_dict["kapital"],
-            columns=pd.MultiIndex.from_product(
-                [data_dict["regions"], data_dict["sectors"]], names=["region", "sector"]
-            ),
-        )
-        self.kapital_df = self.kapital_df.interpolate()
-        self.prod_df = pd.DataFrame(
-            data_dict["prod"],
-            columns=pd.MultiIndex.from_product(
-                [data_dict["regions"], data_dict["sectors"]], names=["region", "sector"]
-            ),
-        )
-        self.prod_df = self.prod_df.interpolate()
-        self.prodmax_df = pd.DataFrame(
-            data_dict["prodmax"],
-            columns=pd.MultiIndex.from_product(
-                [data_dict["regions"], data_dict["sectors"]], names=["region", "sector"]
-            ),
-        )
-        self.prodmax_df = self.prodmax_df.interpolate()
-        self.overprod_df = pd.DataFrame(
-            data_dict["overprod"],
-            columns=pd.MultiIndex.from_product(
-                [data_dict["regions"], data_dict["sectors"]], names=["region", "sector"]
-            ),
-        )
-        self.overprod_df = self.overprod_df.interpolate()
-        self.final_demand_df = pd.DataFrame(
-            data_dict["final_demand"],
-            columns=pd.MultiIndex.from_product(
-                [data_dict["regions"], data_dict["sectors"]], names=["region", "sector"]
-            ),
-        )
-        self.final_demand_df = self.final_demand_df.interpolate()
-        self.io_demand_df = pd.DataFrame(
-            data_dict["io_demand"],
-            columns=pd.MultiIndex.from_product(
-                [data_dict["regions"], data_dict["sectors"]], names=["region", "sector"]
-            ),
-        )
-        self.io_demand_df = self.io_demand_df.interpolate()
-        self.r_demand_df = pd.DataFrame(
-            data_dict["r_demand"],
-            columns=pd.MultiIndex.from_product(
-                [data_dict["regions"], data_dict["sectors"]], names=["region", "sector"]
-            ),
-        )
-        self.r_demand_df = self.r_demand_df.interpolate()
-        self.r_prod_df = pd.DataFrame(
-            data_dict["r_prod"],
-            columns=pd.MultiIndex.from_product(
-                [data_dict["regions"], data_dict["sectors"]], names=["region", "sector"]
-            ),
-        )
-        self.r_prod_df = self.r_prod_df.interpolate()
-        fd_unmet_df = pd.DataFrame(
-            data_dict["fd_unmet"],
-            columns=pd.MultiIndex.from_product(
-                [data_dict["regions"], data_dict["sectors"]], names=["region", "sector"]
-            ),
-        )
-        if stock_treatement:
+        if stocks_treatment:
             stocks_df = pd.DataFrame(
-                data_dict["stocks"].reshape(
-                    data_dict["n_temporal_units_to_sim"] * data_dict["n_sectors"], -1
-                ),
+                stocks.reshape(n_temporal_units_to_sim * n_sectors, -1),
                 index=pd.MultiIndex.from_product(
-                    [steps, data_dict["sectors"]], names=["step", "stock of"]
+                    [steps, sectors], names=["step", "stock of"]
                 ),
                 columns=pd.MultiIndex.from_product(
-                    [data_dict["regions"], data_dict["sectors"]],
+                    [regions, sectors],
                     names=["region", "sector"],
                 ),
             )
-            stocks_df = stocks_df.loc[
-                pd.IndexSlice[: data_dict["n_temporal_units_simulated"], :]
-            ]
-        else:
-            stocks_df = None
-        self.prod_df = self.prod_df.rename_axis("step")
-        self.kapital_df = self.kapital_df.rename_axis("step")
-        self.prodmax_df = self.prodmax_df.rename_axis("step")
-        self.overprod_df = self.overprod_df.rename_axis("step")
-        self.final_demand_df = self.final_demand_df.rename_axis("step")
-        self.io_demand_df = self.io_demand_df.rename_axis("step")
-        self.r_demand_df = self.r_demand_df.rename_axis("step")
-        self.r_prod_df = self.r_prod_df.rename_axis("step")
-        self.fd_unmet_df = fd_unmet_df.rename_axis("step")
-        self.fd_unmet_df = self.fd_unmet_df.interpolate()
-
-        if stock_treatement:
             stocks_df = stocks_df.replace([np.inf, -np.inf], np.nan).dropna(how="all")
             stocks_df = stocks_df.astype(np.float32)
             stocks_df = stocks_df.groupby("stock of").pct_change().fillna(0).add(1).groupby("stock of").cumprod().sub(1)  # type: ignore
@@ -195,6 +161,10 @@ class Indicators(object):
             stocks_df["stock of"] = stocks_df["stock of"].astype("category")
             stocks_df["region"] = stocks_df["region"].astype("category")
             stocks_df["sector"] = stocks_df["sector"].astype("category")
+
+        else:
+            stocks_df = None
+
         self.df_stocks = stocks_df
         del stocks_df
         # self.df_stocks = self.df_stocks.interpolate()
@@ -212,47 +182,37 @@ class Indicators(object):
         )
 
         self.df_limiting = pd.DataFrame(
-            data_dict["limiting_stocks"].reshape(
-                data_dict["n_temporal_units_to_sim"] * data_dict["n_sectors"], -1
-            ),
+            limiting_stocks.reshape(n_temporal_units_to_sim * n_sectors, -1),
             index=pd.MultiIndex.from_product(
-                [steps, data_dict["sectors"]], names=["step", "stock of"]
+                [steps, sectors], names=["step", "stock of"]
             ),
             columns=pd.MultiIndex.from_product(
-                [data_dict["regions"], data_dict["sectors"]], names=["region", "sector"]
+                [regions, sectors], names=["region", "sector"]
             ),
         )
         self.aff_regions = []
-        for e in data_dict["events"]:
-            self.aff_regions.append(e["aff_regions"])
+        for e in events:
+            self.aff_regions.append(e.aff_regions)
 
         self.aff_regions = list(misc.flatten(self.aff_regions))
 
         self.aff_sectors = []
-        for e in data_dict["events"]:
-            self.aff_sectors.append(e["aff_sectors"])
+        for e in events:
+            self.aff_sectors.append(e.aff_sectors)
         self.aff_sectors = list(misc.flatten(self.aff_sectors))
 
         self.rebuilding_sectors = []
-        for e in data_dict["events"]:
-            reb_sec = e.get("rebuilding_sectors")
-            if reb_sec is None:
-                self.rebuilding_sectors = []
-            else:
-                self.rebuilding_sectors.append(e["rebuilding_sectors"].keys())
+
+        # This is working but wrong ! I need to fix it
+        for e in events:
+            if isinstance(e, EventKapitalRebuild):
+                self.rebuilding_sectors.append(list(e.rebuilding_sectors))
                 self.rebuilding_sectors = list(misc.flatten(self.rebuilding_sectors))
+            else:
+                self.rebuilding_sectors = []
 
-        # As we dump the class __dict__ we have different names...
-        # TODO: Find a better fix than this !
-        if "r_damages" in data_dict["events"][0]:
-            data_dict["events"][0]["r_dmg"] = data_dict["events"][0]["r_damages"]
-        if "q_damages" in data_dict["events"][0]:
-            data_dict["events"][0]["q_dmg"] = data_dict["events"][0]["q_damages"]
-
-        if "r_dmg" in data_dict["events"][0]:
-            gdp_dmg_share = data_dict["events"][0]["r_dmg"]
-        else:
-            gdp_dmg_share = -1.0
+        # This is also wrong but will settle for now
+        gdp_dmg_share = -1.0
         self.indicators = {
             "region": self.aff_regions,
             "gdp_dmg_share": gdp_dmg_share,
@@ -270,60 +230,80 @@ class Indicators(object):
             "prod_lost_tot": "unset",
             "prod_gain_unaff": "unset",
             "prod_lost_unaff": "unset",
-            "psi": data_dict["params"]["psi_param"],
-            "inv_tau": data_dict["params"]["inventory_restoration_tau"],
-            "n_temporal_units_to_sim": data_dict["n_temporal_units_simulated"],
-            "has_crashed": data_dict["has_crashed"],
+            "psi": psi_param,
+            "inv_tau": inventory_restoration_tau,
+            "n_temporal_units_to_sim": n_temporal_units_to_sim,
+            "has_crashed": has_crashed,
         }
-        self.storage_path = (
-            pathlib.Path(data_dict["results_storage"])
-        ).resolve() / "indicators"
-        self.parquets_path = (
-            pathlib.Path(data_dict["results_storage"])
-        ).resolve() / "parquets"
-        self.storage = self.storage_path / "indicators.json"
-        self.parquets_path.mkdir(parents=True, exist_ok=True)
-        self.storage_path.mkdir(parents=True, exist_ok=True)
-        self.save_dfs()
+        if results_storage is not None:
+            self.storage_path = (pathlib.Path(results_storage)).resolve() / "indicators"
+            self.parquets_path = (pathlib.Path(results_storage)).resolve() / "parquets"
+            self.storage = self.storage_path / "indicators.json"
+            self.parquets_path.mkdir(parents=True, exist_ok=True)
+            self.storage_path.mkdir(parents=True, exist_ok=True)
+            self.save_dfs()
 
     @classmethod
-    def from_model(cls, sim: Simulation, include_crash: bool = False):
-        data_dict = {}
-        data_dict["params"] = sim.params_dict
-        data_dict["n_temporal_units_to_sim"] = sim.n_temporal_units_to_sim
-        data_dict["n_temporal_units_simulated"] = sim.n_temporal_units_simulated
-        data_dict["n_temporal_units_by_step"] = sim.params_dict[
-            "n_temporal_units_by_step"
-        ]
-        data_dict["has_crashed"] = sim.has_crashed
-        data_dict["regions"] = sim.model.regions
-        data_dict["sectors"] = sim.model.sectors
-        with (
-            pathlib.Path(sim.params_dict["results_storage"])
-            / "jsons"
-            / "simulated_events.json"
-        ).open() as f:
-            events = json.load(f)
+    def from_simulation(
+        cls,
+        sim: Simulation,
+        stocks_treatment: bool = False,
+        include_crash: bool = False,
+        results_storage: Optional[str | pathlib.Path] = None,
+    ) -> Indicators:
+        if isinstance(sim.model, ARIOPsiModel):
+            psi = sim.model.psi
+            inventory_restoration_tau = list(sim.model.restoration_tau)
+        else:
+            psi = None
+            inventory_restoration_tau = None
 
-        data_dict["events"] = events
-        data_dict["prod"] = sim.model.production_evolution
-        data_dict["kapital"] = sim.model.regional_sectoral_kapital_destroyed_evol
-        data_dict["prodmax"] = sim.model.production_cap_evolution
-        data_dict["overprod"] = sim.model.overproduction_evolution
-        data_dict["final_demand"] = sim.model.final_demand_evolution
-        data_dict["io_demand"] = sim.model.io_demand_evolution
-        data_dict["r_demand"] = sim.model.rebuild_demand_evolution
-        data_dict["r_prod"] = sim.model.rebuild_production_evolution
-        data_dict["fd_unmet"] = sim.model.final_demand_unmet_evolution
-        if sim.params_dict["register_stocks"]:
-            data_dict["stocks"] = sim.model.stocks_evolution
-        data_dict["limiting_stocks"] = sim.model.limiting_stocks_evolution
-        return cls(data_dict, include_crash)
+        prod = getattr(sim, "production_evolution")
+        kapital = getattr(sim, "regional_sectoral_kapital_destroyed_evolution")
+        prodmax = getattr(sim, "production_cap_evolution")
+        overprod = getattr(sim, "overproduction_evolution")
+        final_demand = getattr(sim, "final_demand_evolution")
+        io_demand = getattr(sim, "io_demand_evolution")
+        r_demand = getattr(sim, "rebuild_demand_evolution")
+        r_prod = getattr(sim, "rebuild_production_evolution")
+        fd_unmet = getattr(sim, "final_demand_unmet_evolution")
+        if stocks_treatment:
+            stocks = getattr(sim, "inputs_evolution")
+        else:
+            stocks = None
+
+        limiting_stocks = getattr(sim, "limiting_inputs_evolution")
+        return cls(
+            has_crashed=sim.has_crashed,
+            params=sim.params_dict,
+            regions=sim.model.regions,
+            sectors=sim.model.sectors,
+            kapital=kapital,
+            prod=prod,
+            prodmax=prodmax,
+            overprod=overprod,
+            final_demand=final_demand,
+            io_demand=io_demand,
+            r_demand=r_demand,
+            r_prod=r_prod,
+            fd_unmet=fd_unmet,
+            limiting_stocks=limiting_stocks,
+            n_temporal_units_to_sim=sim.n_temporal_units_to_sim,
+            n_temporal_units_by_step=sim.model.n_temporal_units_by_step,
+            events=sim.all_events,
+            results_storage=results_storage,
+            psi_param=psi,
+            inventory_restoration_tau=inventory_restoration_tau,
+            stocks=stocks,
+            stocks_treatment=stocks_treatment,
+            include_crash=include_crash,
+        )
 
     @classmethod
     def from_storage_path(
         cls, storage_path: str, params=None, include_crash: bool = False
     ) -> Indicators:
+        raise NotImplementedError()
         return cls(
             cls.dict_from_storage_path(storage_path, params=params), include_crash
         )
@@ -335,6 +315,7 @@ class Indicators(object):
         indexes_file: Union[str, pathlib.Path],
         include_crash: bool = False,
     ) -> Indicators:
+        raise NotImplementedError()
         data_dict = {}
         if not isinstance(indexes_file, pathlib.Path):
             indexes_file = pathlib.Path(indexes_file)
