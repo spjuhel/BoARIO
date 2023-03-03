@@ -42,7 +42,7 @@ SectorsList = RegionsList = Union[List[str], pd.Index, np.ndarray]
 
 
 def linear_recovery(
-    elapsed_temporal_unit: int, init_kapital_destroyed: np.ndarray, recovery_time: int
+        elapsed_temporal_unit: int, init_kapital_destroyed: np.ndarray, recovery_time: int
 ):
     """Linear Kapital recovery function
 
@@ -68,7 +68,7 @@ def linear_recovery(
 
 
 def convexe_recovery(
-    elapsed_temporal_unit: int, init_kapital_destroyed: np.ndarray, recovery_time: int
+        elapsed_temporal_unit: int, init_kapital_destroyed: np.ndarray, recovery_time: int
 ):
     """Convexe Kapital recovery function
 
@@ -89,10 +89,10 @@ def convexe_recovery(
 
 
 def convexe_recovery_scaled(
-    elapsed_temporal_unit: int,
-    init_kapital_destroyed: np.ndarray,
-    recovery_time: int,
-    scaling_factor: float = 4,
+        elapsed_temporal_unit: int,
+        init_kapital_destroyed: np.ndarray,
+        recovery_time: int,
+        scaling_factor: float = 4,
 ):
     """Convexe Kapital recovery function (scaled to match other recovery duration)
 
@@ -113,16 +113,16 @@ def convexe_recovery_scaled(
 
     """
     return init_kapital_destroyed * (1 - (1 / recovery_time)) ** (
-        scaling_factor * elapsed_temporal_unit
+            scaling_factor * elapsed_temporal_unit
     )
 
 
 def concave_recovery(
-    elapsed_temporal_unit: int,
-    init_kapital_destroyed: np.ndarray,
-    recovery_time: int,
-    steep_factor: float = 0.000001,
-    half_recovery_time: Optional[int] = None,
+        elapsed_temporal_unit: int,
+        init_kapital_destroyed: np.ndarray,
+        recovery_time: int,
+        steep_factor: float = 0.000001,
+        half_recovery_time: Optional[int] = None,
 ):
     """Concave (s-shaped) Kapital recovery function
 
@@ -148,10 +148,10 @@ def concave_recovery(
     else:
         tau_h = recovery_time / half_recovery_time
     exponent = (np.log(recovery_time) - np.log(steep_factor)) / (
-        np.log(recovery_time) - np.log(tau_h)
+            np.log(recovery_time) - np.log(tau_h)
     )
     return (init_kapital_destroyed * recovery_time) / (
-        recovery_time + steep_factor * (elapsed_temporal_unit**exponent)
+            recovery_time + steep_factor * (elapsed_temporal_unit ** exponent)
     )
 
 
@@ -216,19 +216,23 @@ class Event(metaclass=abc.ABCMeta):
     """MRIO identification"""
 
     def __init__(
-        self,
-        impact: Impact,
-        aff_regions: Optional[RegionsList] = None,
-        aff_sectors: Optional[SectorsList] = None,
-        aff_industries: Optional[IndustriesList] = None,
-        impact_industries_distrib=None,
-        impact_regional_distrib=None,
-        impact_sectoral_distrib_type="custom",
-        impact_sectoral_distrib=None,
-        name="Unnamed",
-        occurrence=1,
-        duration=1,
+            self,
+            impact: Impact,
+            aff_regions: Optional[RegionsList] = None,
+            aff_sectors: Optional[SectorsList] = None,
+            aff_industries: Optional[IndustriesList] = None,
+            impact_industries_distrib=None,
+            impact_regional_distrib=None,
+            impact_sectoral_distrib_type="custom",
+            impact_sectoral_distrib=None,
+            name="Unnamed",
+            occurrence=1,
+            duration=1,
     ) -> None:
+        self._aff_sectors_idx = None
+        self._aff_sectors = None
+        self._aff_regions_idx = None
+        self._aff_regions = None
         logger.debug("Initializing new Event")
         logger.debug("Checking required Class attributes are defined")
         for v in Event.__required_class_attributes:
@@ -271,17 +275,17 @@ class Event(metaclass=abc.ABCMeta):
             self.impact_df.loc[impact.index] = impact
         # CASE VECTOR 2 (everything is there but not regrouped) AND CASE SCALAR (Only df creation)
         elif (
-            isinstance(impact, (int, float, list, np.ndarray))
-            and aff_industries is not None
+                isinstance(impact, (int, float, list, np.ndarray))
+                and aff_industries is not None
         ):
             logger.debug(
                 f"Given Impact is a {type(impact)} and list of impacted industries given. Proceeding."
             )
             self.impact_df.loc[aff_industries] = impact
         elif (
-            isinstance(impact, (int, float, list, np.ndarray))
-            and aff_regions is not None
-            and aff_sectors is not None
+                isinstance(impact, (int, float, list, np.ndarray))
+                and aff_regions is not None
+                and aff_sectors is not None
         ):
             logger.debug(
                 f"Given Impact is a {type(impact)} and lists of impacted regions and sectors given. Proceeding."
@@ -322,27 +326,27 @@ class Event(metaclass=abc.ABCMeta):
         # if impact_industries_distrib is given, set it. We assume impact is scalar !
         # CASE SCALAR + INDUS DISTRIB
         if impact_industries_distrib is not None and not isinstance(
-            impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
+                impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
         ):
             logger.debug("Impact is Scalar and impact_industries_distrib was given")
             self.impact_industries_distrib = np.array(impact_industries_distrib)
             self.impact_df.loc[self.aff_industries] = (
-                self.impact_df.loc[self.aff_industries] * self.impact_industries_distrib
+                    self.impact_df.loc[self.aff_industries] * self.impact_industries_distrib
             )
         # if impact_reg_dis and sec_dis are give, deduce the rest. We also assume impact is scalar !
         # CASE SCALAR + REGION and SECTOR DISTRIB
         elif (
-            impact_regional_distrib is not None
-            and impact_sectoral_distrib is not None
-            and not isinstance(
-                impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
-            )
+                impact_regional_distrib is not None
+                and impact_sectoral_distrib is not None
+                and not isinstance(
+            impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
+        )
         ):
             logger.debug(
                 "Impact is Scalar and impact_regional_distrib and impact_sectoral_distrib were given"
             )
             if len(impact_regional_distrib) != len(self.aff_regions) or len(
-                impact_sectoral_distrib
+                    impact_sectoral_distrib
             ) != len(self.aff_sectors):
                 raise ValueError(
                     "Lengths of `impact_regional_distrib` and/or `impact_sectoral_distrib` are incompatible with `aff_regions` and/or `aff_sectors`."
@@ -351,21 +355,21 @@ class Event(metaclass=abc.ABCMeta):
                 self.impact_regional_distrib = np.array(impact_regional_distrib)
                 self.impact_sectoral_distrib = np.array(impact_sectoral_distrib)
                 self.impact_industries_distrib = (
-                    self.impact_regional_distrib[:, np.newaxis]
-                    * self.impact_sectoral_distrib
+                        self.impact_regional_distrib[:, np.newaxis]
+                        * self.impact_sectoral_distrib
                 ).flatten()
                 self.impact_df.loc[self.aff_industries] = (
-                    self.impact_df.loc[self.aff_industries]
-                    * self.impact_industries_distrib
+                        self.impact_df.loc[self.aff_industries]
+                        * self.impact_industries_distrib
                 )
         # CASE SCALAR + 'gdp' distrib
         elif (
-            impact_regional_distrib is not None
-            and impact_sectoral_distrib_type is not None
-            and impact_sectoral_distrib_type == "gdp"
-            and not isinstance(
-                impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
-            )
+                impact_regional_distrib is not None
+                and impact_sectoral_distrib_type is not None
+                and impact_sectoral_distrib_type == "gdp"
+                and not isinstance(
+            impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
+        )
         ):
             logger.debug("Impact is Scalar and impact_sectoral_distrib_type is 'gdp'")
 
@@ -375,23 +379,23 @@ class Event(metaclass=abc.ABCMeta):
                 (len(self.possible_regions), len(self.possible_sectors))
             )
             self.impact_sectoral_distrib = (
-                shares[self._aff_regions_idx][:, self._aff_sectors_idx]
-                / shares[self._aff_regions_idx][:, self._aff_sectors_idx].sum(axis=1)[
-                    :, np.newaxis
-                ]
+                    shares[self._aff_regions_idx][:, self._aff_sectors_idx]
+                    / shares[self._aff_regions_idx][:, self._aff_sectors_idx].sum(axis=1)[
+                      :, np.newaxis
+                      ]
             )
             self.impact_industries_distrib = (
-                self.impact_regional_distrib[:, np.newaxis]
-                * self.impact_sectoral_distrib
+                    self.impact_regional_distrib[:, np.newaxis]
+                    * self.impact_sectoral_distrib
             ).flatten()
             self.impact_df.loc[self.aff_industries] = (
-                self.impact_df.loc[self.aff_industries] * self.impact_industries_distrib
+                    self.impact_df.loc[self.aff_industries] * self.impact_industries_distrib
             )
             self.impact_sectoral_distrib_type = "gdp"
         # CASE SCALAR + NO DISTRIB + list of industries
         # if neither was given, we use default values. Again impact should be scalar here !
         elif isinstance(aff_industries, (list, np.ndarray)) and not isinstance(
-            impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
+                impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
         ):
             logger.debug(
                 "Impact is Scalar and no distribution was given but a list of affected industries was given"
@@ -400,11 +404,11 @@ class Event(metaclass=abc.ABCMeta):
             self.impact_sectoral_distrib_type = "default (shared equally between affected regions and then affected sectors)"
         # CASE SCALAR + NO DISTRIB + list of region + list of sectors
         elif (
-            aff_regions is not None
-            and aff_sectors is not None
-            and not isinstance(
-                impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
-            )
+                aff_regions is not None
+                and aff_sectors is not None
+                and not isinstance(
+            impact, (pd.Series, dict, pd.DataFrame, list, np.ndarray)
+        )
         ):
             logger.debug(
                 "Impact is Scalar and no distribution was given but lists of regions and sectors affected were given"
@@ -419,27 +423,21 @@ class Event(metaclass=abc.ABCMeta):
 
         self.happened = False
         self.over = False
-        self.event_dict = {
-            "name": str(self.name),
-            "occurrence": self.occurrence,
-            "duration": self.duration,
-            "aff_regions": list(self.aff_regions),
-            "aff_sectors": list(self.aff_sectors),
-            "impact": self.total_impact,
-            "impact_industries_distrib": list(self.impact_industries_distrib),
-            "impact_regional_distrib": list(self.impact_regional_distrib),
-            "impact_sectoral_distrib_type": self.impact_sectoral_distrib_type,
-        }
-        self.event_dict["globals_vars"] = {
-            "possible_sectors": list(self.possible_sectors),
-            "possible_regions": list(self.possible_regions),
-            "temporal_unit_range": self.temporal_unit_range,
-            "z_shape": self.z_shape,
-            "y_shape": self.y_shape,
-            "x_shape": self.x_shape,
-            "monetary_factor": self.monetary_factor,
-            "mrio_used": self.mrio_name,
-        }
+        self.event_dict = {"name": str(self.name), "occurrence": self.occurrence, "duration": self.duration,
+                           "aff_regions": list(self.aff_regions), "aff_sectors": list(self.aff_sectors),
+                           "impact": self.total_impact,
+                           "impact_industries_distrib": list(self.impact_industries_distrib),
+                           "impact_regional_distrib": list(self.impact_regional_distrib),
+                           "impact_sectoral_distrib_type": self.impact_sectoral_distrib_type, "globals_vars": {
+                "possible_sectors": list(self.possible_sectors),
+                "possible_regions": list(self.possible_regions),
+                "temporal_unit_range": self.temporal_unit_range,
+                "z_shape": self.z_shape,
+                "y_shape": self.y_shape,
+                "x_shape": self.x_shape,
+                "monetary_factor": self.monetary_factor,
+                "mrio_used": self.mrio_name,
+            }}
 
     def _default_distribute_impact_from_industries_list(self):
         # at this point, impact should still be scalar.
@@ -448,7 +446,7 @@ class Event(metaclass=abc.ABCMeta):
             len(self.aff_regions), 1 / len(self.aff_regions)
         )
         self.impact_df.loc[self.aff_industries] = (
-            self.impact_df.loc[self.aff_industries] * 1 / len(self.aff_regions)
+                self.impact_df.loc[self.aff_industries] * 1 / len(self.aff_regions)
         )
         impact_sec_vec = np.array(
             [
@@ -458,7 +456,7 @@ class Event(metaclass=abc.ABCMeta):
             ]
         )
         self.impact_df.loc[self.aff_industries] = (
-            self.impact_df.loc[self.aff_industries] * impact_sec_vec
+                self.impact_df.loc[self.aff_industries] * impact_sec_vec
         )
 
     def _finish_init(self):
@@ -466,11 +464,11 @@ class Event(metaclass=abc.ABCMeta):
         self.impact_vector = self.impact_df.to_numpy()
         self.total_impact = self.impact_vector.sum()
         self.impact_industries_distrib = (
-            self.impact_vector[self.impact_vector > 0] / self.total_impact
+                self.impact_vector[self.impact_vector > 0] / self.total_impact
         )
         self.impact_regional_distrib = (
-            self.impact_df.loc[self.aff_industries].groupby("region").sum().values
-            / self.total_impact
+                self.impact_df.loc[self.aff_industries].groupby("region").sum().values
+                / self.total_impact
         )
 
     @property
@@ -491,11 +489,11 @@ class Event(metaclass=abc.ABCMeta):
         sectors = index.get_level_values("sector").unique()
         if not set(regions).issubset(self.possible_regions):
             raise ValueError(
-                f"Regions {set(regions)-set(self.possible_regions)} are not in the possible regions list"
+                f"Regions {set(regions) - set(self.possible_regions)} are not in the possible regions list"
             )
         if not set(sectors).issubset(self.possible_sectors):
             raise ValueError(
-                f"Sectors {set(sectors)-set(self.possible_sectors)} are not in the possible sectors list"
+                f"Sectors {set(sectors) - set(self.possible_sectors)} are not in the possible sectors list"
             )
 
         self.aff_regions = regions
@@ -671,18 +669,18 @@ class Event(metaclass=abc.ABCMeta):
 
 class EventArbitraryProd(Event):
     def __init__(
-        self,
-        impact: Impact,
-        aff_regions: Optional[RegionsList] = None,
-        aff_sectors: Optional[SectorsList] = None,
-        aff_industries: Optional[IndustriesList] = None,
-        impact_industries_distrib=None,
-        impact_regional_distrib=None,
-        impact_sectoral_distrib_type="equally shared",
-        impact_sectoral_distrib=None,
-        name="Unnamed",
-        occurrence=1,
-        duration=1,
+            self,
+            impact: Impact,
+            aff_regions: Optional[RegionsList] = None,
+            aff_sectors: Optional[SectorsList] = None,
+            aff_industries: Optional[IndustriesList] = None,
+            impact_industries_distrib=None,
+            impact_regional_distrib=None,
+            impact_sectoral_distrib_type="equally shared",
+            impact_sectoral_distrib=None,
+            name="Unnamed",
+            occurrence=1,
+            duration=1,
     ) -> None:
         super().__init__(
             impact,
@@ -697,6 +695,9 @@ class EventArbitraryProd(Event):
             occurrence,
             duration,
         )
+        self._prod_cap_delta_arbitrary = np.zeros(shape=len(self.possible_sectors))
+        self._aff_sectors_idx = None
+        self._aff_sectors = None
         raise NotImplementedError()
 
     @property
@@ -724,7 +725,6 @@ class EventArbitraryProd(Event):
                 for si in self._aff_sectors_idx
             ]
         )
-        self._prod_cap_delta_arbitrary = np.zeros(shape=len(self.possible_sectors))
         self._prod_cap_delta_arbitrary[aff_industries_idx] = np.tile(
             aff_shares, self._aff_regions.size
         )
@@ -732,18 +732,18 @@ class EventArbitraryProd(Event):
 
 class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
     def __init__(
-        self,
-        impact: Impact,
-        aff_regions: Optional[RegionsList] = None,
-        aff_sectors: Optional[SectorsList] = None,
-        aff_industries: Optional[IndustriesList] = None,
-        impact_industries_distrib=None,
-        impact_regional_distrib=None,
-        impact_sectoral_distrib_type="equally shared",
-        impact_sectoral_distrib=None,
-        name="Unnamed",
-        occurrence=1,
-        duration=1,
+            self,
+            impact: Impact,
+            aff_regions: Optional[RegionsList] = None,
+            aff_sectors: Optional[SectorsList] = None,
+            aff_industries: Optional[IndustriesList] = None,
+            impact_industries_distrib=None,
+            impact_regional_distrib=None,
+            impact_sectoral_distrib_type="equally shared",
+            impact_sectoral_distrib=None,
+            name="Unnamed",
+            occurrence=1,
+            duration=1,
     ) -> None:
         super().__init__(
             impact,
@@ -763,10 +763,10 @@ class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
         self.total_kapital_destroyed /= self.monetary_factor
         self.remaining_kapital_destroyed = self.total_kapital_destroyed
         self._regional_sectoral_kapital_destroyed_0 = (
-            self.impact_vector / self.monetary_factor
+                self.impact_vector / self.monetary_factor
         )
         self.regional_sectoral_kapital_destroyed = (
-            self.impact_vector / self.monetary_factor
+                self.impact_vector / self.monetary_factor
         )
 
     @property
@@ -788,20 +788,20 @@ class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
 
 class EventKapitalRebuild(EventKapitalDestroyed):
     def __init__(
-        self,
-        impact: Impact,
-        rebuilding_sectors: Union[dict[str, float], pd.Series],
-        rebuild_tau=60,
-        aff_regions: Optional[RegionsList] = None,
-        aff_sectors: Optional[SectorsList] = None,
-        aff_industries: Optional[IndustriesList] = None,
-        impact_industries_distrib=None,
-        impact_regional_distrib=None,
-        impact_sectoral_distrib_type="equally shared",
-        impact_sectoral_distrib=None,
-        name="Unnamed",
-        occurrence=1,
-        duration=1,
+            self,
+            impact: Impact,
+            rebuilding_sectors: Union[dict[str, float], pd.Series],
+            rebuild_tau=60,
+            aff_regions: Optional[RegionsList] = None,
+            aff_sectors: Optional[SectorsList] = None,
+            aff_industries: Optional[IndustriesList] = None,
+            impact_industries_distrib=None,
+            impact_regional_distrib=None,
+            impact_sectoral_distrib_type="equally shared",
+            impact_sectoral_distrib=None,
+            name="Unnamed",
+            occurrence=1,
+            duration=1,
     ) -> None:
         super().__init__(
             impact,
@@ -817,6 +817,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             duration,
         )
 
+        self._rebuildable = None
         self.rebuild_tau = rebuild_tau
         self.rebuilding_sectors = rebuilding_sectors
 
@@ -960,20 +961,20 @@ class EventKapitalRebuild(EventKapitalDestroyed):
 
 class EventKapitalRecover(EventKapitalDestroyed):
     def __init__(
-        self,
-        impact: Impact,
-        recovery_time: int,
-        recovery_function: str = "linear",
-        aff_regions: Optional[RegionsList] = None,
-        aff_sectors: Optional[SectorsList] = None,
-        aff_industries: Optional[IndustriesList] = None,
-        impact_industries_distrib=None,
-        impact_regional_distrib=None,
-        impact_sectoral_distrib_type="equally shared",
-        impact_sectoral_distrib=None,
-        name="Unnamed",
-        occurrence=1,
-        duration=1,
+            self,
+            impact: Impact,
+            recovery_time: int,
+            recovery_function: str = "linear",
+            aff_regions: Optional[RegionsList] = None,
+            aff_sectors: Optional[SectorsList] = None,
+            aff_industries: Optional[IndustriesList] = None,
+            impact_industries_distrib=None,
+            impact_regional_distrib=None,
+            impact_sectoral_distrib_type="equally shared",
+            impact_sectoral_distrib=None,
+            name="Unnamed",
+            occurrence=1,
+            duration=1,
     ) -> None:
         super().__init__(
             impact,
@@ -1042,12 +1043,12 @@ class EventKapitalRecover(EventKapitalDestroyed):
             r_fun_argsspec = inspect.getfullargspec(r_fun)
             r_fun_args = r_fun_argsspec.args + r_fun_argsspec.kwonlyargs
             if not all(
-                args in r_fun_args
-                for args in [
-                    "init_kapital_destroyed",
-                    "elapsed_temporal_unit",
-                    "recovery_time",
-                ]
+                    args in r_fun_args
+                    for args in [
+                        "init_kapital_destroyed",
+                        "elapsed_temporal_unit",
+                        "recovery_time",
+                    ]
             ):
                 raise ValueError(
                     "Recovery function has to have at least the following keyword arguments: {}".format(

@@ -146,6 +146,20 @@ class ARIOBaseModel:
         monetary_factor=10**6,
         **kwargs,
     ) -> None:
+        self._prod_capt_delta_arbitrary = None
+        self.prod_max_toward_rebuilding = None
+        self.records_storage = None
+        self.production_evolution = None
+        self.production_cap_evolution = None
+        self.io_demand_evolution = None
+        self.final_demand_evolution = None
+        self.rebuild_demand_evolution = None
+        self.overproduction_evolution = None
+        self.final_demand_unmet_evolution = None
+        self.rebuild_production_evolution = None
+        self.stocks_evolution = None
+        self.limiting_stocks_evolution = None
+        self.regional_sectoral_kapital_destroyed_evol = None
         logger.debug("Initiating new ARIOBaseModel instance")
         super().__init__()
         ################ Parameters variables #######################
@@ -358,7 +372,7 @@ class ARIOBaseModel:
             tmp.append(self._indus_rebuild_demand_tot)
         if self._house_rebuild_demand_tot is not None:
             tmp.append(self._house_rebuild_demand_tot)
-        if tmp != []:
+        if tmp:
             ret = np.concatenate(tmp, axis=1).sum(axis=1)
             self._tot_rebuild_demand = ret
         else:
@@ -430,12 +444,12 @@ class ARIOBaseModel:
                 else:
                     rebuild_tau = ev.rebuild_tau
                     warn_once(logger, "Event has a custom rebuild_tau")
-                if ev._rebuilding_demand_house is not None:
+                if ev.rebuilding_demand_house is not None:
                     tmp.append(
-                        ev._rebuilding_demand_house
+                        ev.rebuilding_demand_house
                         * (self.n_temporal_units_by_step / rebuild_tau)
                     )
-        if tmp == []:
+        if not tmp:
             self._house_rebuild_demand = None
             self._house_rebuild_demand_tot = None
         else:
@@ -482,11 +496,11 @@ class ARIOBaseModel:
                     rebuild_tau = ev.rebuild_tau
                     warn_once(logger, "Event has a custom rebuild_tau")
                 tmp.append(
-                    ev._rebuilding_demand_indus
+                    ev.rebuilding_demand_indus
                     * (self.n_temporal_units_by_step / rebuild_tau)
                 )
 
-        if tmp == []:
+        if not tmp:
             self._indus_rebuild_demand = None
             self._indus_rebuild_demand_tot = None
         else:
@@ -502,7 +516,7 @@ class ARIOBaseModel:
     @kapital_lost.setter
     def kapital_lost(self, source: list[EventKapitalDestroyed] | np.ndarray) -> None:
         if isinstance(source, list):
-            if source != []:
+            if source:
                 self._kapital_lost = np.add.reduce(
                     np.array([e.regional_sectoral_kapital_destroyed for e in source])
                 )
@@ -886,7 +900,7 @@ class ARIOBaseModel:
 
         # list_of_demands = [self.matrix_orders, self.final_demand]
         ## 1. Calc demand from rebuilding requirements (with characteristic time rebuild_tau)
-        if rebuildable_events != []:
+        if rebuildable_events:
             logger.debug("There are rebuildable events")
             n_events = len(rebuildable_events)
             tot_rebuilding_demand_summed = self.tot_rebuild_demand.copy()
@@ -999,7 +1013,7 @@ class ARIOBaseModel:
             - distributed_production[
                 :,
                 self.n_sectors
-                * self.n_regions : (
+                * self.n_regions: (
                     self.n_sectors * self.n_regions + self.n_fd_cat * self.n_regions
                 ),
             ]
@@ -1013,7 +1027,7 @@ class ARIOBaseModel:
         logger.debug(f"distributed prod shape : {distributed_production.shape}")
         rebuild_prod = (
             distributed_production[
-                :, (self.n_sectors * self.n_regions + self.n_fd_cat * self.n_regions) :
+                :, (self.n_sectors * self.n_regions + self.n_fd_cat * self.n_regions):
             ]
             .copy()
             .flatten()
@@ -1174,7 +1188,7 @@ class ARIOBaseModel:
         ) / total_demand[total_demand != 0]
         scarcity[np.isnan(scarcity)] = 0
         overprod_chg = (
-            ((self.overprod_max - self.overprod) * (scarcity) * self.overprod_tau)
+            ((self.overprod_max - self.overprod) * scarcity * self.overprod_tau)
             + (
                 (self.overprod_base - self.overprod)
                 * (scarcity == 0)
@@ -1235,7 +1249,8 @@ class ARIOBaseModel:
             current_temporal_unit, period
         ) and self.check_stocks_monotony(current_temporal_unit, period)
 
-    def check_monotony(self, x, current_temporal_unit: int, period: int = 10) -> bool:
+    @staticmethod
+    def check_monotony(x, current_temporal_unit: int, period: int = 10) -> bool:
         return np.allclose(
             x[current_temporal_unit], x[current_temporal_unit - period], atol=0.0001
         )

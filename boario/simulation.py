@@ -22,20 +22,22 @@ This module defines the Simulation object, which represent a BoARIO simulation e
 """
 
 from __future__ import annotations
+
 import json
 import logging
-import pathlib
-from typing import Optional, Union
 import math
+import pathlib
+from pprint import pformat
+from typing import Optional, Union
+
 import numpy as np
 import progressbar
 
-from boario.event import *
-from boario.model_base import ARIOBaseModel
-from boario.extended_models import *
-from boario import logger
 from boario import DEBUGFORMATTER
-from pprint import pformat
+from boario import logger
+from boario.event import *
+from boario.extended_models import *
+from boario.model_base import ARIOBaseModel
 from boario.utils.misc import CustomNumpyEncoder
 
 __all__ = ["Simulation"]
@@ -44,7 +46,7 @@ __all__ = ["Simulation"]
 class Simulation:
     """Defines a simulation object with a set of parameters and an IOSystem.
 
-    This class wraps an :class:`~boario.model_base.ARIOBaseModel` or :class:`~boario.extended_models.ARIOPsiModel`, and create the context for
+    This class wraps a :class:`~boario.model_base.ARIOBaseModel` or descendant, and create the context for
     simulations using this model. It stores execution parameters as well as events perturbing
     the model.
 
@@ -83,15 +85,16 @@ class Simulation:
         the simulation was not found and should print out which one.
     """
 
+
     def __init__(
         self,
-        model: Union[ARIOBaseModel, ARIOPsiModel, ARIOClimadaModel],
-        register_stocks=False,
-        n_temporal_units_to_sim=365,
-        events_list: list = [],
-        separate_sims: bool = False,
-        boario_output_dir: str | pathlib.Path = "/tmp/boario",  # This needs to be set !
-        results_dir_name: str = "results",
+            model: Union[ARIOBaseModel, ARIOPsiModel, ARIOClimadaModel],
+            register_stocks: bool = False,
+            n_temporal_units_to_sim: int = 365,
+            events_list: list[Event] = None,
+            separate_sims: bool = False,
+            boario_output_dir: str | pathlib.Path = "/tmp/boario",  # This needs to be set !
+            results_dir_name: str = "results",
     ) -> None:
         """
         #TODO Update this one
@@ -101,6 +104,8 @@ class Simulation:
         Parameters
         ----------
         """
+        if events_list is None:
+            events_list = []
         logger.info("Initializing new simulation instance")
 
         self.output_dir = boario_output_dir
@@ -402,7 +407,7 @@ class Simulation:
             )
         logger.info("Loop complete")
         if progress:
-            bar.finish()  # type: ignore (bar possibly unbound but actually not possible)
+            bar.finish()
 
     def next_step(
         self,
@@ -484,7 +489,7 @@ class Simulation:
         events_to_remove = events_to_remove + [
             ev for ev in self.currently_happening_events if ev.over
         ]
-        if events_to_remove != []:
+        if events_to_remove:
             self.currently_happening_events = [
                 e for e in self.currently_happening_events if e not in events_to_remove
             ]
@@ -693,7 +698,7 @@ class Simulation:
     def write_kapital_lost(self) -> None:
         self.regional_sectoral_kapital_destroyed_evol[
             self.current_temporal_unit
-        ] = self.model._kapital_lost
+        ] = self.model.kapital_lost
 
     def write_production_max(self) -> None:
         self.production_cap_evolution[
