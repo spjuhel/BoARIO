@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
-import pathlib
+from typing import Dict
 import numpy as np
 from boario import logger
 from boario.model_base import *
@@ -57,7 +57,7 @@ class ARIOPsiModel(ARIOBaseModel):
         main_inv_dur=90,
         monetary_factor=10**6,
         psi_param=0.90,
-        inventory_restoration_tau=60,
+        inventory_restoration_tau: int | Dict[str, int] = 60,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -83,12 +83,34 @@ class ARIOPsiModel(ARIOBaseModel):
                 "'psi_param' parameter is neither a str rep of a float or a float"
             )
 
-        restoration_tau = [
-            (self.n_temporal_units_by_step / inventory_restoration_tau)
-            if v >= INV_THRESHOLD
-            else v
-            for v in self.inventories
-        ]  # for sector with no inventory TODO: reflect on that.
+        if isinstance(inventory_restoration_tau, int):
+            restoration_tau = [
+                (self.n_temporal_units_by_step / inventory_restoration_tau)
+                if v >= INV_THRESHOLD
+                else v
+                for v in self.inventories
+            ]  # for sector with no inventory TODO: reflect on that.
+        elif isinstance(inventory_restoration_tau, dict):
+            if not set(self.sectors).issubset(inventory_restoration_tau.keys()):
+                raise NotImplementedError(
+                    "The given dict for Inventory restoration tau does not contains all sectors as keys. Current implementation only allows dict with ALL sectors or just one integer value"
+                )
+
+            for _, value in inventory_restoration_tau.items():
+                if not isinstance(value, int):
+                    raise ValueError(
+                        "Invalid value in inventory_restoration_tau, values should be integer."
+                    )
+
+            inventory_restoration_tau = dict(sorted(inventory_restoration_tau.items()))
+            restoration_tau = [
+                (self.n_temporal_units_by_step / v) if v >= INV_THRESHOLD else v
+                for _, v in inventory_restoration_tau.items()
+            ]
+        else:
+            raise ValueError(
+                f"Invalid inventory_restoration_tau: expected dict or int got {type(inventory_restoration_tau)}"
+            )
         self.restoration_tau = np.array(restoration_tau)
         #################################################################
 
