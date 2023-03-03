@@ -13,8 +13,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+try:
+    import coloredlogs as coloredlogs
+except ImportError:
+    _has_coloredlogs = False
+else:
+    _has_coloredlogs = True
 
-import coloredlogs
 import logging
 from functools import lru_cache
 
