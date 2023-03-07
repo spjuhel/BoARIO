@@ -199,10 +199,10 @@ class Indicators(object):
         self.aff_regions = []
         self.aff_sectors = []
         for e in events:
-            if isinstance(e,dict):
+            if isinstance(e, dict):
                 self.aff_sectors.append(e["aff_sectors"])
                 self.aff_regions.append(e["aff_regions"])
-            elif isinstance(e,Event):
+            elif isinstance(e, Event):
                 self.aff_sectors.append(e.aff_sectors)
                 self.aff_regions.append(e.aff_regions)
             else:
@@ -310,7 +310,6 @@ class Indicators(object):
             stocks_treatment=stocks_treatment,
             include_crash=include_crash,
         )
-
 
     @classmethod
     def from_folder(
@@ -428,7 +427,7 @@ class Indicators(object):
             dtype="byte",
             shape=(t * indexes["n_sectors"], indexes["n_industries"]),
         )
-        if params.get("register_stocks",False):
+        if params.get("register_stocks", False):
             if not (records_path / "input_stocks").exists():
                 raise FileNotFoundError(
                     "Stocks record file was not found {}".format(
@@ -443,7 +442,7 @@ class Indicators(object):
             )
             stocks_treatment = True
         else:
-            stocks=None
+            stocks = None
             stocks_treatment = False
 
         return cls(
@@ -471,7 +470,6 @@ class Indicators(object):
             stocks_treatment=stocks_treatment,
             include_crash=include_crash,
         )
-
 
     def calc_top_failing_sect(self):
         pass
@@ -633,16 +631,18 @@ class Indicators(object):
         self.calc_first_shortages()
 
     def write_indicators(self, storage_path=None):
-        if storage_path is None and not hasattr(self,"storage_path"):
-            raise ValueError(f"You are attempting to save indicators but no storage path was specified either in the Indicators class or to this method.")
+        if storage_path is None and not hasattr(self, "storage_path"):
+            raise ValueError(
+                f"You are attempting to save indicators but no storage path was specified either in the Indicators class or to this method."
+            )
         storage_path = self.storage_path if storage_path is None else storage_path
         storage_path = pathlib.Path(storage_path).resolve()
         logger.info("Writing indicators to json")
-        if hasattr(self,"prod_chg_region"):
+        if hasattr(self, "prod_chg_region"):
             self.prod_chg_region.to_json(
                 storage_path / "prod_chg.json", indent=4, orient="split"
             )
-        if hasattr(self,"fd_loss_region"):
+        if hasattr(self, "fd_loss_region"):
             self.fd_loss_region.to_json(
                 storage_path / "fd_loss.json", indent=4, orient="split"
             )

@@ -264,7 +264,9 @@ class Simulation:
         Event.temporal_unit_range = self.n_temporal_units_to_sim
         self.params_dict = {
             "n_temporal_units_to_sim": self.n_temporal_units_to_sim,
-            "output_dir": str(self.output_dir) if hasattr(self, "output_dir") else "none",
+            "output_dir": str(self.output_dir)
+            if hasattr(self, "output_dir")
+            else "none",
             "results_storage": self.results_storage.stem
             if hasattr(self, "results_storage")
             else "none",
