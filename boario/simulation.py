@@ -115,7 +115,7 @@ class Simulation:
         save_events: bool = False,
         save_params: bool = False,
         save_index: bool = False,
-        save_records: list|str = [],
+        save_records: list | str = [],
         boario_output_dir: str | pathlib.Path = pathlib.Path("/tmp/boario"),
         results_dir_name: str = "results",
     ) -> None:
@@ -209,16 +209,18 @@ class Simulation:
         """Place where records are stored if stored"""
 
         if save_records != []:
-            if isinstance(save_records,str):
+            if isinstance(save_records, str):
                 if save_records == "all":
                     save_records = self.__possible_records
                 else:
-                    raise ValueError(f"save_records argument has to be either \"all\" or a sublist of {self.__possible_records}")
+                    raise ValueError(
+                        f'save_records argument has to be either "all" or a sublist of {self.__possible_records}'
+                    )
 
             impossible_records = set(save_records).difference(
                 set(self.__possible_records)
             )
-            if not len(impossible_records)==0:
+            if not len(impossible_records) == 0:
                 raise ValueError(
                     f"{impossible_records} are not possible records ({self.__possible_records})"
                 )
@@ -247,7 +249,11 @@ class Simulation:
                 else:
                     raise RuntimeError(f"shapev {shapev} unrecognised")
                 memmap_array = TempMemmap(
-                    filename=(self.records_storage / filename), dtype=dtype, mode="w+", shape=shape, save=save
+                    filename=(self.records_storage / filename),
+                    dtype=dtype,
+                    mode="w+",
+                    shape=shape,
+                    save=save,
                 )
                 memmap_array.fill(fillv)
                 self._files_to_record.append(attr_name)
@@ -801,6 +807,8 @@ class Simulation:
         """Saves files to record"""
         for at in self._files_to_record:
             if not hasattr(self, at):
-                raise RuntimeError(f"{at} should be a member yet it isn't. This shouldn't happen.")
+                raise RuntimeError(
+                    f"{at} should be a member yet it isn't. This shouldn't happen."
+                )
             else:
-                getattr(self,at).flush()
+                getattr(self, at).flush()
