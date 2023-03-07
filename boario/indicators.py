@@ -15,9 +15,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from __future__ import annotations
 
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 
-from pymrio.core.mriosystem import collections
 from boario.extended_models import ARIOPsiModel
 from boario.simulation import Simulation
 import numpyencoder
@@ -71,16 +70,16 @@ def stock_df_from_memmap(
 
 class Indicators(object):
     record_files_list = [
-        "final_demand_record",
-        "io_demand_record",
-        "final_demand_unmet_record",
-        "iotable_X_max_record",
-        "iotable_XVA_record",
-        "limiting_stocks_record",
-        "overprodvector_record",
-        "rebuild_demand_record",
-        "rebuild_prod_record",
-        "iotable_kapital_destroyed_record",
+        "final_demand",
+        "intermediate_demand",
+        "final_demand_unmet",
+        "production_capacity",
+        "production_realised",
+        "limiting_inputs",
+        "overproduction",
+        "rebuild_demand",
+        "rebuild_prod",
+        "kapital_to_recover",
     ]
 
     params_list = ["simulated_params", "simulated_events"]
@@ -112,9 +111,7 @@ class Indicators(object):
         stocks_treatment=False,
         include_crash: bool = False,
     ) -> None:
-        logger.info("Instanciating indicators")
-        super().__init__()
-        self.data_dict = data_dict
+        logger.info("Instantiating indicators")
         if not include_crash:
             if has_crashed:
                 raise RuntimeError(
@@ -138,7 +135,7 @@ class Indicators(object):
 
         if stocks_treatment:
             stocks_df = pd.DataFrame(
-                stocks.reshape(n_temporal_units_to_sim * n_sectors, -1),
+                stocks.reshape(n_temporal_units_to_sim * len(sectors), -1),
                 index=pd.MultiIndex.from_product(
                     [steps, sectors], names=["step", "stock of"]
                 ),
@@ -191,7 +188,7 @@ class Indicators(object):
         )
 
         self.df_limiting = pd.DataFrame(
-            limiting_stocks.reshape(n_temporal_units_to_sim * n_sectors, -1),
+            limiting_stocks.reshape(n_temporal_units_to_sim * len(sectors), -1),
             index=pd.MultiIndex.from_product(
                 [steps, sectors], names=["step", "stock of"]
             ),
@@ -200,26 +197,32 @@ class Indicators(object):
             ),
         )
         self.aff_regions = []
-        for e in events:
-            self.aff_regions.append(e.aff_regions)
-
-        self.aff_regions = list(misc.flatten(self.aff_regions))
-
         self.aff_sectors = []
         for e in events:
-            self.aff_sectors.append(e.aff_sectors)
+            if isinstance(e,dict):
+                self.aff_sectors.append(e["aff_sectors"])
+                self.aff_regions.append(e["aff_regions"])
+            elif isinstance(e,Event):
+                self.aff_sectors.append(e.aff_sectors)
+                self.aff_regions.append(e.aff_regions)
+            else:
+                raise ValueError(f"Unrecognised event of type {type(e)}")
+
+        self.aff_regions = list(misc.flatten(self.aff_regions))
         self.aff_sectors = list(misc.flatten(self.aff_sectors))
 
         self.rebuilding_sectors = []
 
         # This is working but wrong ! I need to fix it
         for e in events:
+            if isinstance(e, dict):
+                self.rebuilding_sectors.append(e.get("rebuilding_sectors"))
             if isinstance(e, EventKapitalRebuild):
                 self.rebuilding_sectors.append(list(e.rebuilding_sectors))
-                self.rebuilding_sectors = list(misc.flatten(self.rebuilding_sectors))
             else:
                 self.rebuilding_sectors = []
 
+        self.rebuilding_sectors = list(misc.flatten(self.rebuilding_sectors))
         # This is also wrong but will settle for now
         gdp_dmg_share = -1.0
         self.indicators = {
@@ -308,34 +311,19 @@ class Indicators(object):
             include_crash=include_crash,
         )
 
-    @classmethod
-    def from_storage_path(
-        cls, storage_path: str, params=None, include_crash: bool = False
-    ) -> Indicators:
-        raise NotImplementedError()
-        return cls(
-            cls.dict_from_storage_path(storage_path, params=params), include_crash
-        )
 
-    # noinspection PyTypeChecker
     @classmethod
     def from_folder(
         cls,
         folder: Union[str, pathlib.Path],
-        indexes_file: Union[str, pathlib.Path],
         include_crash: bool = False,
     ) -> Indicators:
-        raise NotImplementedError()
-        data_dict = {}
-        if not isinstance(indexes_file, pathlib.Path):
-            indexes_file = pathlib.Path(indexes_file)
-            if not indexes_file.exists():
-                raise FileNotFoundError(str("File does not exist:" + str(indexes_file)))
         if not isinstance(folder, pathlib.Path):
             folder = pathlib.Path(folder)
             if not folder.exists():
                 raise FileNotFoundError(str("Directory does not exist:" + str(folder)))
-        with indexes_file.open() as f:
+
+        with (folder / "jsons" / "indexes.json").open() as f:
             indexes = json.load(f)
 
         params_folder = folder / "jsons"
@@ -349,7 +337,7 @@ class Indicators(object):
                 )
             )
 
-        record_files = [f for f in records_folder.glob("*record") if f.is_file()]
+        record_files = [f for f in records_folder.glob("*") if f.is_file()]
         absentee = [
             f
             for f in cls.record_files_list
@@ -367,227 +355,123 @@ class Indicators(object):
             events = json.load(f)
 
         if "has_crashed" in params:
-            data_dict["has_crashed"] = params["has_crashed"]
+            has_crashed = params["has_crashed"]
         else:
-            data_dict["has_crashed"] = False
-        data_dict["results_storage"] = folder.absolute()
+            has_crashed = False
+
+        results_storage = folder.absolute()
         records_path = records_folder.absolute()
-        data_dict["n_temporal_units_to_sim"] = params["n_temporal_units_to_sim"]
-        t = data_dict["n_temporal_units_to_sim"]
-        data_dict["params"] = params
-        data_dict["n_temporal_units_simulated"] = params["n_temporal_units_simulated"]
-        data_dict["n_temporal_units_by_step"] = params["n_temporal_units_by_step"]
-        data_dict["regions"] = indexes["regions"]
-        data_dict["n_regions"] = indexes["n_regions"]
-        data_dict["sectors"] = indexes["sectors"]
-        data_dict["n_sectors"] = indexes["n_sectors"]
-        data_dict["events"] = events
-        data_dict["prod"] = np.memmap(
-            records_path / "iotable_XVA_record",
+        n_temporal_units_to_sim = params["n_temporal_units_to_sim"]
+        t = n_temporal_units_to_sim
+        n_temporal_units_by_step = params["n_temporal_units_by_step"]
+        regions = indexes["regions"]
+        sectors = indexes["sectors"]
+        psi = params.get("psi_param")
+        inventory_restoration_tau = params.get("inventory_restoration_tau")
+        prod = np.memmap(
+            records_path / "production_realised",
             mode="r+",
             dtype="float64",
             shape=(t, indexes["n_industries"]),
         )
-        data_dict["kapital"] = np.memmap(
-            records_path / "iotable_kapital_destroyed_record",
+        kapital = np.memmap(
+            records_path / "kapital_to_recover",
             mode="r+",
             dtype="float64",
             shape=(t, indexes["n_industries"]),
         )
-        data_dict["prodmax"] = np.memmap(
-            records_path / "iotable_X_max_record",
+        prodmax = np.memmap(
+            records_path / "production_capacity",
             mode="r+",
             dtype="float64",
             shape=(t, indexes["n_industries"]),
         )
-        data_dict["overprod"] = np.memmap(
-            records_path / "overprodvector_record",
+        overprod = np.memmap(
+            records_path / "overproduction",
             mode="r+",
             dtype="float64",
             shape=(t, indexes["n_industries"]),
         )
-        data_dict["final_demand"] = np.memmap(
-            records_path / "final_demand_record",
+        final_demand = np.memmap(
+            records_path / "final_demand",
             mode="r+",
             dtype="float64",
             shape=(t, indexes["n_industries"]),
         )
-        data_dict["io_demand"] = np.memmap(
-            records_path / "io_demand_record",
+        io_demand = np.memmap(
+            records_path / "intermediate_demand",
             mode="r+",
             dtype="float64",
             shape=(t, indexes["n_industries"]),
         )
-        data_dict["r_demand"] = np.memmap(
-            records_path / "rebuild_demand_record",
+        r_demand = np.memmap(
+            records_path / "rebuild_demand",
             mode="r+",
             dtype="float64",
             shape=(t, indexes["n_industries"]),
         )
-        data_dict["r_prod"] = np.memmap(
-            records_path / "rebuild_prod_record",
+        r_prod = np.memmap(
+            records_path / "rebuild_prod",
             mode="r+",
             dtype="float64",
             shape=(t, indexes["n_industries"]),
         )
-        data_dict["fd_unmet"] = np.memmap(
-            records_path / "final_demand_unmet_record",
+        fd_unmet = np.memmap(
+            records_path / "final_demand_unmet",
             mode="r+",
             dtype="float64",
             shape=(t, indexes["n_regions"] * indexes["n_sectors"]),
         )
-        data_dict["limiting_stocks"] = np.memmap(
-            records_path / "limiting_stocks_record",
+        limiting_stocks = np.memmap(
+            records_path / "limiting_inputs",
             mode="r+",
             dtype="byte",
             shape=(t * indexes["n_sectors"], indexes["n_industries"]),
         )
-        if params["register_stocks"]:
-            if not (records_path / "stocks_record").exists():
+        if params.get("register_stocks",False):
+            if not (records_path / "input_stocks").exists():
                 raise FileNotFoundError(
                     "Stocks record file was not found {}".format(
                         records_path / "stocks_record"
                     )
                 )
-            data_dict["stocks"] = np.memmap(
+            stocks = np.memmap(
                 records_path / "stocks_record",
                 mode="r+",
                 dtype="float64",
                 shape=(t * indexes["n_sectors"], indexes["n_industries"]),
             )
-        return cls(data_dict, include_crash)
-
-    # noinspection PyTypeChecker
-    @classmethod
-    def dict_from_storage_path(
-        cls, storage_path: Union[str, pathlib.Path], params=None
-    ) -> dict:
-        data_dict = {}
-        if not isinstance(storage_path, pathlib.Path):
-            storage_path = pathlib.Path(storage_path)
-            assert storage_path.exists(), str(
-                "Directory does not exist:" + str(storage_path)
-            )
-        if params is not None:
-            simulation_params = params
+            stocks_treatment = True
         else:
-            with (storage_path / "simulated_params.json").open() as f:
-                simulation_params = json.load(f)
-        if (
-            storage_path
-            / simulation_params["results_storage"]
-            / "jsons"
-            / "simulated_params.json"
-        ).exists():
-            with (
-                storage_path
-                / simulation_params["results_storage"]
-                / "jsons"
-                / "simulated_params.json"
-            ).open() as f:
-                simulation_params = json.load(f)
-        with (
-            storage_path
-            / simulation_params["results_storage"]
-            / "jsons"
-            / "indexes.json"
-        ).open() as f:
-            indexes = json.load(f)
-        with (
-            storage_path
-            / simulation_params["results_storage"]
-            / "jsons"
-            / "simulated_events.json"
-        ).open() as f:
-            events = json.load(f)
-        t = simulation_params["n_temporal_units_to_sim"]
-        if indexes["fd_cat"] is None:
-            indexes["fd_cat"] = np.array(["Final demand"])
-        results_path = storage_path / pathlib.Path(simulation_params["results_storage"])
-        if "has_crashed" in simulation_params:
-            data_dict["has_crashed"] = simulation_params["has_crashed"]
-        data_dict["params"] = simulation_params
-        data_dict["results_storage"] = results_path
-        data_dict["n_temporal_units_by_step"] = simulation_params[
-            "n_temporal_units_by_step"
-        ]
-        data_dict["n_temporal_units_to_sim"] = t
-        data_dict["n_temporal_units_simulated"] = simulation_params[
-            "n_temporal_units_simulated"
-        ]
-        data_dict["regions"] = indexes["regions"]
-        data_dict["n_regions"] = indexes["n_regions"]
-        data_dict["sectors"] = indexes["sectors"]
-        data_dict["n_sectors"] = indexes["n_sectors"]
-        data_dict["events"] = events
-        data_dict["prod"] = np.memmap(
-            results_path / "iotable_XVA_record",
-            mode="r+",
-            dtype="float64",
-            shape=(t, indexes["n_industries"]),
+            stocks=None
+            stocks_treatment = False
+
+        return cls(
+            has_crashed=has_crashed,
+            params=params,
+            regions=regions,
+            sectors=sectors,
+            kapital=kapital,
+            prod=prod,
+            prodmax=prodmax,
+            overprod=overprod,
+            final_demand=final_demand,
+            io_demand=io_demand,
+            r_demand=r_demand,
+            r_prod=r_prod,
+            fd_unmet=fd_unmet,
+            limiting_stocks=limiting_stocks,
+            n_temporal_units_to_sim=n_temporal_units_to_sim,
+            n_temporal_units_by_step=n_temporal_units_by_step,
+            events=events,
+            results_storage=results_storage,
+            psi_param=psi,
+            inventory_restoration_tau=inventory_restoration_tau,
+            stocks=stocks,
+            stocks_treatment=stocks_treatment,
+            include_crash=include_crash,
         )
-        data_dict["kapital"] = np.memmap(
-            results_path / "iotable_kapital_destroyed_record",
-            mode="r+",
-            dtype="float64",
-            shape=(t, indexes["n_industries"]),
-        )
-        data_dict["prodmax"] = np.memmap(
-            results_path / "iotable_X_max_record",
-            mode="r+",
-            dtype="float64",
-            shape=(t, indexes["n_industries"]),
-        )
-        data_dict["overprod"] = np.memmap(
-            results_path / "overprodvector_record",
-            mode="r+",
-            dtype="float64",
-            shape=(t, indexes["n_industries"]),
-        )
-        data_dict["final_demand"] = np.memmap(
-            results_path / "final_demand_record",
-            mode="r+",
-            dtype="float64",
-            shape=(t, indexes["n_industries"]),
-        )
-        data_dict["io_demand"] = np.memmap(
-            results_path / "io_demand_record",
-            mode="r+",
-            dtype="float64",
-            shape=(t, indexes["n_industries"]),
-        )
-        data_dict["r_demand"] = np.memmap(
-            results_path / "rebuild_demand_record",
-            mode="r+",
-            dtype="float64",
-            shape=(t, indexes["n_industries"]),
-        )
-        data_dict["r_prod"] = np.memmap(
-            results_path / "rebuild_prod_record",
-            mode="r+",
-            dtype="float64",
-            shape=(t, indexes["n_industries"]),
-        )
-        data_dict["fd_unmet"] = np.memmap(
-            results_path / "final_demand_unmet_record",
-            mode="r+",
-            dtype="float64",
-            shape=(t, indexes["n_regions"] * indexes["n_sectors"]),
-        )
-        if simulation_params["register_stocks"]:
-            data_dict["stocks"] = np.memmap(
-                results_path / "stocks_record",
-                mode="r+",
-                dtype="float64",
-                shape=(t * indexes["n_sectors"], indexes["n_industries"]),
-            )
-        data_dict["limiting_stocks"] = np.memmap(
-            results_path / "limiting_stocks_record",
-            mode="r+",
-            dtype="byte",
-            shape=(t * indexes["n_sectors"], indexes["n_industries"]),
-        )
-        return data_dict
+
 
     def calc_top_failing_sect(self):
         pass
@@ -714,11 +598,7 @@ class Indicators(object):
             names=["semester"],
         )
         aff_regions = "~".join(self.aff_regions)
-        prod_chg_region = pd.DataFrame({aff_regions: prod_chg_region}).T
-        prod_chg_region.to_json(
-            self.storage_path / "prod_chg.json", indent=4, orient="split"
-        )
-
+        self.prod_chg_region = pd.DataFrame({aff_regions: prod_chg_region}).T
         prod_chg_sect = prod_chg.sum()
         tmp = prod_chg_sect.sort_values(ascending=False, key=abs).head(5).to_dict()
         self.indicators["top_5_sector_chg"] = {str(k): v for k, v in tmp.items()}
@@ -752,11 +632,22 @@ class Indicators(object):
         logger.info("first shortages")
         self.calc_first_shortages()
 
-    def write_indicators(self):
+    def write_indicators(self, storage_path=None):
+        if storage_path is None and not hasattr(self,"storage_path"):
+            raise ValueError(f"You are attempting to save indicators but no storage path was specified either in the Indicators class or to this method.")
+        storage_path = self.storage_path if storage_path is None else storage_path
+        storage_path = pathlib.Path(storage_path).resolve()
         logger.info("Writing indicators to json")
-        # self.update_indicators()
-        with self.storage.open("w") as f:
-            json.dump(self.indicators, f, cls=numpyencoder.NumpyEncoder)
+        if hasattr(self,"prod_chg_region"):
+            self.prod_chg_region.to_json(
+                storage_path / "prod_chg.json", indent=4, orient="split"
+            )
+        if hasattr(self,"fd_loss_region"):
+            self.fd_loss_region.to_json(
+                storage_path / "fd_loss.json", indent=4, orient="split"
+            )
+        with (storage_path / "indicators.json").open("w") as f:
+            json.dump(self.indicators, f, cls=numpyencoder.NumpyEncoder, indent=4)
 
     def calc_fd_loss_region(self):
         fd_loss = self.fd_unmet_df.copy().round(6)
@@ -805,11 +696,7 @@ class Indicators(object):
             names=["semester"],
         )
         aff_regions = "~".join(self.aff_regions)
-        fd_loss_region = pd.DataFrame({aff_regions: fd_loss_region}).T
-        fd_loss_region.to_json(
-            self.storage_path / "fd_loss.json", indent=4, orient="split"
-        )
-
+        self.fd_loss_region = pd.DataFrame({aff_regions: fd_loss_region}).T
         fd_loss_sect = fd_loss.sum()
         tmp = fd_loss_sect.sort_values(ascending=False, key=abs).head(5).to_dict()
         self.indicators["top_5_sector_fdloss"] = {str(k): v for k, v in tmp.items()}

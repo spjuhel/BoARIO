@@ -32,7 +32,6 @@ from typing import Optional, Union
 
 import numpy as np
 import progressbar
-import tempfile
 
 from boario import DEBUGFORMATTER
 from boario import logger
@@ -227,6 +226,9 @@ class Simulation:
             logger.info(f"Will save {save_records} records")
             logger.info("Records storage is: {}".format(self.records_storage))
             self.records_storage.mkdir(parents=True, exist_ok=True)
+            self._save_index = True
+            self._save_events = True
+            self._save_params = True
 
         for rec in self.__possible_records:
             if rec == "input_stocks" and not register_stocks:
@@ -262,7 +264,7 @@ class Simulation:
         Event.temporal_unit_range = self.n_temporal_units_to_sim
         self.params_dict = {
             "n_temporal_units_to_sim": self.n_temporal_units_to_sim,
-            "output_dir": self.output_dir if hasattr(self, "output_dir") else "none",
+            "output_dir": str(self.output_dir) if hasattr(self, "output_dir") else "none",
             "results_storage": self.results_storage.stem
             if hasattr(self, "results_storage")
             else "none",
@@ -797,7 +799,7 @@ class Simulation:
 
     def write_stocks(self) -> None:
         """Saves the current inputs stock matrix to the memmap."""
-        self.stocks_evolution[self.current_temporal_unit] = self.model.matrix_stock
+        self.inputs_evolution[self.current_temporal_unit] = self.model.matrix_stock
 
     def write_limiting_stocks(self, limiting_stock: np.ndarray) -> None:
         """Saves the current limiting inputs matrix to the memmap."""
