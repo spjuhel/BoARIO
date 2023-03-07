@@ -32,13 +32,14 @@ from typing import Optional, Union
 
 import numpy as np
 import progressbar
+import tempfile
 
 from boario import DEBUGFORMATTER
 from boario import logger
 from boario.event import *
 from boario.extended_models import *
 from boario.model_base import ARIOBaseModel
-from boario.utils.misc import CustomNumpyEncoder
+from boario.utils.misc import CustomNumpyEncoder, TempMemmap
 
 __all__ = ["Simulation"]
 
@@ -51,6 +52,59 @@ class Simulation:
     the model.
     """
 
+    __possible_records = [
+        "production_realised",
+        "production_capacity",
+        "final_demand",
+        "intermediate_demand",
+        "rebuild_demand",
+        "overproduction",
+        "final_demand_unmet",
+        "rebuild_prod",
+        "input_stocks",
+        "limiting_inputs",
+        "kapital_to_recover",
+    ]
+
+    __file_save_array_specs = {
+        "production_realised": (
+            "float64",
+            "production_evolution",
+            "industries",
+            np.nan,
+        ),
+        "production_capacity": (
+            "float64",
+            "production_cap_evolution",
+            "industries",
+            np.nan,
+        ),
+        "final_demand": ("float64", "final_demand_evolution", "industries", np.nan),
+        "intermediate_demand": ("float64", "io_demand_evolution", "industries", np.nan),
+        "rebuild_demand": ("float64", "rebuild_demand_evolution", "industries", np.nan),
+        "overproduction": ("float64", "overproduction_evolution", "industries", np.nan),
+        "final_demand_unmet": (
+            "float64",
+            "final_demand_unmet_evolution",
+            "industries",
+            np.nan,
+        ),
+        "rebuild_prod": (
+            "float64",
+            "rebuild_production_evolution",
+            "industries",
+            np.nan,
+        ),
+        "input_stocks": ("float64", "inputs_evolution", "stocks", np.nan),
+        "limiting_inputs": ("byte", "limiting_inputs_evolution", "stocks", -1),
+        "kapital_to_recover": (
+            "float64",
+            "regional_sectoral_kapital_destroyed_evolution",
+            "industries",
+            np.nan,
+        ),
+    }
+
     def __init__(
         self,
         model: Union[ARIOBaseModel, ARIOPsiModel, ARIOClimadaModel],
@@ -58,7 +112,11 @@ class Simulation:
         n_temporal_units_to_sim: int = 365,
         events_list: Optional[list[Event]] = None,
         separate_sims: bool = False,
-        boario_output_dir: str | pathlib.Path = "/tmp/boario",
+        save_events: bool = False,
+        save_params: bool = False,
+        save_index: bool = False,
+        save_records: list | str = [],
+        boario_output_dir: str | pathlib.Path = pathlib.Path("/tmp/boario"),
         results_dir_name: str = "results",
     ) -> None:
         """A Simulation instance can be initialized with the following parameters:
@@ -92,9 +150,19 @@ class Simulation:
         if events_list is None:
             events_list = []
         logger.info("Initializing new simulation instance")
+        self._save_events = save_events
+        self._save_params = save_params
+        self._save_index = save_index
+        self.output_dir = pathlib.Path(boario_output_dir)
+        """pathlib.Path, optional: Optional path to the directory where output are stored."""
 
-        self.output_dir: pathlib.Path | str = boario_output_dir
-        """pathlib.Path|str: Optional path to the directory where output are stored."""
+        if save_records != [] or save_events or save_params or save_index:
+            self.output_dir.resolve().mkdir(parents=True, exist_ok=True)
+
+        if save_records != []:
+            self.results_storage = self.output_dir.resolve() / results_dir_name
+            if not self.results_storage.exists():
+                self.results_storage.mkdir()
 
         self.results_storage = (
             pathlib.Path(self.output_dir).resolve() / results_dir_name
@@ -103,6 +171,7 @@ class Simulation:
 
         if not self.results_storage.exists():
             self.results_storage.mkdir(parents=True)
+
         self.model = model
         """Union[ARIOBaseModel, ARIOPsiModel] : The model to run the simulation with.
         See :class:`~boario.model_base.ARIOBaseModel`."""
@@ -114,6 +183,7 @@ class Simulation:
         """list[Event]: A list containing all events that are happening at the current timestep of the simulation."""
 
         self.events_timings = set()
+        self._files_to_record = []
         self.n_temporal_units_to_sim = n_temporal_units_to_sim
         """int: The total number of `temporal_units` to simulate."""
 
@@ -133,134 +203,69 @@ class Simulation:
         self._monotony_checker = 0
         self.scheme = "proportional"
         self.has_crashed = False
-        self.register_stocks = register_stocks
         # RECORDS FILES
+
         self.records_storage: pathlib.Path = self.results_storage / "records"
-        logger.info("Records storage is: {}".format(self.records_storage))
+        """Place where records are stored if stored"""
 
-        # Make it optional
-        self.records_storage.mkdir(parents=True, exist_ok=True)
-        self.production_evolution = np.memmap(
-            self.records_storage / "iotable_XVA_record",
-            dtype="float64",
-            mode="w+",
-            shape=(
-                self.n_temporal_units_to_sim,
-                self.model.n_sectors * self.model.n_regions,
-            ),
-        )
-        self.production_evolution.fill(np.nan)
-        self.production_cap_evolution = np.memmap(
-            self.records_storage / "iotable_X_max_record",
-            dtype="float64",
-            mode="w+",
-            shape=(
-                self.n_temporal_units_to_sim,
-                self.model.n_sectors * self.model.n_regions,
-            ),
-        )
-        self.production_cap_evolution.fill(np.nan)
-        self.final_demand_evolution = np.memmap(
-            self.records_storage / "final_demand_record",
-            dtype="float64",
-            mode="w+",
-            shape=(
-                self.n_temporal_units_to_sim,
-                self.model.n_sectors * self.model.n_regions,
-            ),
-        )
-        self.final_demand_evolution.fill(np.nan)
-        self.io_demand_evolution = np.memmap(
-            self.records_storage / "io_demand_record",
-            dtype="float64",
-            mode="w+",
-            shape=(
-                self.n_temporal_units_to_sim,
-                self.model.n_sectors * self.model.n_regions,
-            ),
-        )
-        self.io_demand_evolution.fill(np.nan)
+        if save_records != []:
+            if isinstance(save_records, str):
+                if save_records == "all":
+                    save_records = self.__possible_records
+                else:
+                    raise ValueError(
+                        f'save_records argument has to be either "all" or a sublist of {self.__possible_records}'
+                    )
 
-        self.rebuild_demand_evolution = np.memmap(
-            self.records_storage / "rebuild_demand_record",
-            dtype="float64",
-            mode="w+",
-            shape=(
-                self.n_temporal_units_to_sim,
-                self.model.n_sectors * self.model.n_regions,
-            ),
-        )
-        self.rebuild_demand_evolution.fill(np.nan)
-        self.overproduction_evolution = np.memmap(
-            self.records_storage / "overprodvector_record",
-            dtype="float64",
-            mode="w+",
-            shape=(
-                self.n_temporal_units_to_sim,
-                self.model.n_sectors * self.model.n_regions,
-            ),
-        )
-        self.overproduction_evolution.fill(np.nan)
-        self.final_demand_unmet_evolution = np.memmap(
-            self.records_storage / "final_demand_unmet_record",
-            dtype="float64",
-            mode="w+",
-            shape=(
-                self.n_temporal_units_to_sim,
-                self.model.n_sectors * self.model.n_regions,
-            ),
-        )
-        self.final_demand_unmet_evolution.fill(np.nan)
-        self.rebuild_production_evolution = np.memmap(
-            self.records_storage / "rebuild_prod_record",
-            dtype="float64",
-            mode="w+",
-            shape=(
-                self.n_temporal_units_to_sim,
-                self.model.n_sectors * self.model.n_regions,
-            ),
-        )
-        self.rebuild_production_evolution.fill(np.nan)
-        if register_stocks:
-            self.stocks_evolution = np.memmap(
-                self.records_storage / "stocks_record",
-                dtype="float64",
-                mode="w+",
-                shape=(
-                    self.n_temporal_units_to_sim,
-                    self.model.n_sectors,
-                    self.model.n_sectors * self.model.n_regions,
-                ),
+            impossible_records = set(save_records).difference(
+                set(self.__possible_records)
             )
-            self.stocks_evolution.fill(np.nan)
-        self.limiting_stocks_evolution = np.memmap(
-            self.records_storage / "limiting_stocks_record",
-            dtype="byte",
-            mode="w+",
-            shape=(
-                self.n_temporal_units_to_sim,
-                self.model.n_sectors,
-                self.model.n_sectors * self.model.n_regions,
-            ),
-        )
-        self.limiting_stocks_evolution.fill(-1)
-        self.regional_sectoral_kapital_destroyed_evol = np.memmap(
-            self.records_storage / "iotable_kapital_destroyed_record",
-            dtype="float64",
-            mode="w+",
-            shape=(
-                self.n_temporal_units_to_sim,
-                self.model.n_sectors * self.model.n_regions,
-            ),
-        )
-        self.regional_sectoral_kapital_destroyed_evol.fill(np.nan)
+            if not len(impossible_records) == 0:
+                raise ValueError(
+                    f"{impossible_records} are not possible records ({self.__possible_records})"
+                )
+            logger.info(f"Will save {save_records} records")
+            logger.info("Records storage is: {}".format(self.records_storage))
+            self.records_storage.mkdir(parents=True, exist_ok=True)
+
+        for rec in self.__possible_records:
+            if rec == "input_stocks" and not register_stocks:
+                pass
+            else:
+                save = rec in save_records
+                filename = rec
+                dtype, attr_name, shapev, fillv = self.__file_save_array_specs[rec]
+                if shapev == "industries":
+                    shape = (
+                        self.n_temporal_units_to_sim,
+                        self.model.n_sectors * self.model.n_regions,
+                    )
+                elif shapev == "stocks":
+                    shape = (
+                        self.n_temporal_units_to_sim,
+                        self.model.n_sectors,
+                        self.model.n_sectors * self.model.n_regions,
+                    )
+                else:
+                    raise RuntimeError(f"shapev {shapev} unrecognised")
+                memmap_array = TempMemmap(
+                    filename=(self.records_storage / filename),
+                    dtype=dtype,
+                    mode="w+",
+                    shape=shape,
+                    save=save,
+                )
+                memmap_array.fill(fillv)
+                self._files_to_record.append(attr_name)
+                setattr(self, attr_name, memmap_array)
 
         Event.temporal_unit_range = self.n_temporal_units_to_sim
         self.params_dict = {
             "n_temporal_units_to_sim": self.n_temporal_units_to_sim,
-            "output_dir": self.output_dir,
-            "results_storage": self.results_storage.stem,
-            "register_stocks": register_stocks,
+            "output_dir": self.output_dir if hasattr(self, "output_dir") else "none",
+            "results_storage": self.results_storage.stem
+            if hasattr(self, "results_storage")
+            else "none",
             "model_type": self.model.__class__.__name__,
             "psi_param": self.model.psi
             if isinstance(self.model, ARIOPsiModel)
@@ -314,19 +319,22 @@ class Simulation:
         tmp.setFormatter(DEBUGFORMATTER)
         logger.addHandler(tmp)
         logger.info("Events : {}".format(self.all_events))
-        (pathlib.Path(self.results_storage) / "jsons").mkdir(
-            parents=True, exist_ok=True
-        )
-        with (
-            pathlib.Path(self.results_storage) / "jsons" / "simulated_events.json"
-        ).open("w") as f:
-            event_dicts = [ev.event_dict for ev in self.all_events]
-            json.dump(event_dicts, f, indent=4, cls=CustomNumpyEncoder)
+
         run_range = range(
             0,
             self.n_temporal_units_to_sim,
             math.floor(self.model.n_temporal_units_by_step),
         )
+
+        if self._save_events:
+            (pathlib.Path(self.results_storage) / "jsons").mkdir(
+                parents=True, exist_ok=True
+            )
+            with (
+                pathlib.Path(self.results_storage) / "jsons" / "simulated_events.json"
+            ).open("w") as f:
+                event_dicts = [ev.event_dict for ev in self.all_events]
+                json.dump(event_dicts, f, indent=4, cls=CustomNumpyEncoder)
         if progress:
             widgets = [
                 "Processed: ",
@@ -375,33 +383,29 @@ class Simulation:
                     )
                     break
 
-        self.rebuild_demand_evolution.flush()
-        self.final_demand_unmet_evolution.flush()
-        self.final_demand_evolution.flush()
-        self.io_demand_evolution.flush()
-        self.production_evolution.flush()
-        self.limiting_stocks_evolution.flush()
-        self.rebuild_production_evolution.flush()
-        if self.register_stocks and self.model.stocks_evolution:
-            self.model.stocks_evolution.flush()
-        self.overproduction_evolution.flush()
-        self.production_cap_evolution.flush()
-        self.model.write_index(self.results_storage / "jsons" / "indexes.json")
+        if self._files_to_record != []:
+            self.flush_memmaps()
+
+        if self._save_index:
+            self.model.write_index(self.results_storage / "jsons" / "indexes.json")
+
         self.params_dict["n_temporal_units_simulated"] = self.n_temporal_units_simulated
         self.has_crashed = self.has_crashed
-        with (
-            pathlib.Path(self.results_storage) / "jsons" / "simulated_params.json"
-        ).open("w") as f:
-            json.dump(self.params_dict, f, indent=4, cls=CustomNumpyEncoder)
-        with (
-            pathlib.Path(self.results_storage) / "jsons" / "equilibrium_checks.json"
-        ).open("w") as f:
-            json.dump(
-                {str(k): v for k, v in self.equi.items()},
-                f,
-                indent=4,
-                cls=CustomNumpyEncoder,
-            )
+
+        if self._save_params:
+            with (
+                pathlib.Path(self.results_storage) / "jsons" / "simulated_params.json"
+            ).open("w") as f:
+                json.dump(self.params_dict, f, indent=4, cls=CustomNumpyEncoder)
+            with (
+                pathlib.Path(self.results_storage) / "jsons" / "equilibrium_checks.json"
+            ).open("w") as f:
+                json.dump(
+                    {str(k): v for k, v in self.equi.items()},
+                    f,
+                    indent=4,
+                    cls=CustomNumpyEncoder,
+                )
         logger.info("Loop complete")
 
     def next_step(
@@ -451,19 +455,32 @@ class Simulation:
         # and updates the internal model production_cap decrease and rebuild_demand
         self.check_happening_events()
 
-        if self.register_stocks:
+        if "inputs_evolution" in self._files_to_record:
             self.write_stocks()
+
         if self.current_temporal_unit > 1:
             self.model.calc_overproduction()
-        self.write_overproduction()
-        self.write_rebuild_demand()
-        self.write_final_demand()
-        self.write_io_demand()
+
+        if "overproduction_evolution" in self._files_to_record:
+            self.write_overproduction()
+        if "rebuild_demand_evolution" in self._files_to_record:
+            self.write_rebuild_demand()
+        if "final_evolution" in self._files_to_record:
+            self.write_final_demand()
+        if "io_demand_evolution" in self._files_to_record:
+            self.write_io_demand()
+
         constraints = self.model.calc_production(self.current_temporal_unit)
-        self.write_limiting_stocks(constraints)
-        self.write_production()
-        self.write_kapital_lost()
-        self.write_production_max()
+
+        if "limiting_inputs_evolution" in self._files_to_record:
+            self.write_limiting_stocks(constraints)
+        if "production_evolution" in self._files_to_record:
+            self.write_production()
+        if "production_cap_evolution" in self._files_to_record:
+            self.write_production_max()
+        if "regional_sectoral_kapital_destroyed_evolution" in self._files_to_record:
+            self.write_kapital_lost()
+
         try:
             rebuildable_events = [
                 ev
@@ -473,8 +490,10 @@ class Simulation:
             events_to_remove = self.model.distribute_production(
                 rebuildable_events, self.scheme
             )
-            self.write_final_demand_unmet()
-            self.write_rebuild_prod()
+            if "final_demand_unmet_evolution" in self._files_to_record:
+                self.write_final_demand_unmet()
+            if "rebuild_production_evolution" in self._files_to_record:
+                self.write_rebuild_prod()
         except RuntimeError as e:
             logger.exception("This exception happened:", e)
             return 1
@@ -498,7 +517,7 @@ class Simulation:
                     )
 
         self.model.calc_orders()
-        # TODO : Redo this properly
+
         n_checks = self.current_temporal_unit // check_period
         if n_checks > self._n_checks:
             self.check_equilibrium(n_checks)
@@ -721,9 +740,18 @@ class Simulation:
         """Saves the current production vector to the memmap."""
         self.production_evolution[self.current_temporal_unit] = self.model.production
 
+    def write_rebuild_prod(self) -> None:
+        """Saves the current rebuilding production vector to the memmap."""
+        logger.debug(
+            f"self.rebuild_production_evolution shape : {self.rebuild_production_evolution.shape}, self.model.rebuild_prod shape : {self.model.rebuild_prod.shape}"
+        )
+        self.rebuild_production_evolution[
+            self.current_temporal_unit
+        ] = self.model.rebuild_prod
+
     def write_kapital_lost(self) -> None:
         """Saves the current remaining kapital to rebuild vector to the memmap."""
-        self.regional_sectoral_kapital_destroyed_evol[
+        self.regional_sectoral_kapital_destroyed_evolution[
             self.current_temporal_unit
         ] = self.model.kapital_lost
 
@@ -749,18 +777,13 @@ class Simulation:
         """Saves the current (total per industry) rebuilding demand vector to the memmap."""
         to_write = np.full(self.model.n_regions * self.model.n_sectors, 0.0)
         if (r_dem := self.model.tot_rebuild_demand) is not None:
-            self.rebuild_demand_evolution[self.current_temporal_unit] = r_dem
+            self.rebuild_demand_evolution[self.current_temporal_unit] = r_dem  # type: ignore
         else:
-            self.rebuild_demand_evolution[self.current_temporal_unit] = to_write
+            self.rebuild_demand_evolution[self.current_temporal_unit] = to_write  # type: ignore
 
-    def write_rebuild_prod(self) -> None:
-        """Saves the current rebuilding production vector to the memmap."""
-        logger.debug(
-            f"self.rebuild_production_evolution shape : {self.rebuild_production_evolution.shape}, self.model.rebuild_prod shape : {self.model.rebuild_prod.shape}"
-        )
-        self.rebuild_production_evolution[
-            self.current_temporal_unit
-        ] = self.model.rebuild_prod
+    def write_limiting_stocks(self, limiting_stock: np.ndarray) -> None:
+        """Saves the current limiting inputs matrix to the memmap."""
+        self.limiting_inputs_evolution[self.current_temporal_unit] = limiting_stock  # type: ignore
 
     def write_overproduction(self) -> None:
         """Saves the current overproduction vector to the memmap."""
@@ -778,4 +801,14 @@ class Simulation:
 
     def write_limiting_stocks(self, limiting_stock: np.ndarray) -> None:
         """Saves the current limiting inputs matrix to the memmap."""
-        self.limiting_stocks_evolution[self.current_temporal_unit] = limiting_stock
+        self.limiting_inputs_evolution[self.current_temporal_unit] = limiting_stock  # type: ignore
+
+    def flush_memmaps(self) -> None:
+        """Saves files to record"""
+        for at in self._files_to_record:
+            if not hasattr(self, at):
+                raise RuntimeError(
+                    f"{at} should be a member yet it isn't. This shouldn't happen."
+                )
+            else:
+                getattr(self, at).flush()
