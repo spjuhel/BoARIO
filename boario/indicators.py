@@ -40,7 +40,7 @@ def df_from_memmap(memmap: np.memmap, indexes: dict) -> pd.DataFrame:
 
 
 def stock_df_from_memmap(
-        memmap: np.memmap, indexes: dict, timesteps: int, timesteps_simulated: int
+    memmap: np.memmap, indexes: dict, timesteps: int, timesteps_simulated: int
 ) -> pd.DataFrame:
     a = pd.DataFrame(
         memmap.reshape(timesteps * indexes["n_sectors"], -1),
@@ -183,8 +183,15 @@ class Indicators(object):
         if stock_treatement:
             stocks_df = stocks_df.replace([np.inf, -np.inf], np.nan).dropna(how="all")
             stocks_df = stocks_df.astype(np.float32)
-            stocks_df = stocks_df.groupby("stock of").pct_change().fillna(0).add(1).groupby("stock of").cumprod().sub(
-                1)  # type: ignore
+            stocks_df = (
+                stocks_df.groupby("stock of")
+                .pct_change()
+                .fillna(0)
+                .add(1)
+                .groupby("stock of")
+                .cumprod()
+                .sub(1)
+            )  # type: ignore
             stocks_df = stocks_df.melt(ignore_index=False).rename(
                 columns={
                     "variable_0": "region",
@@ -278,11 +285,11 @@ class Indicators(object):
             "has_crashed": data_dict["has_crashed"],
         }
         self.storage_path = (
-                                pathlib.Path(data_dict["results_storage"])
-                            ).resolve() / "indicators"
+            pathlib.Path(data_dict["results_storage"])
+        ).resolve() / "indicators"
         self.parquets_path = (
-                                 pathlib.Path(data_dict["results_storage"])
-                             ).resolve() / "parquets"
+            pathlib.Path(data_dict["results_storage"])
+        ).resolve() / "parquets"
         self.storage = self.storage_path / "indicators.json"
         self.parquets_path.mkdir(parents=True, exist_ok=True)
         self.storage_path.mkdir(parents=True, exist_ok=True)
@@ -290,15 +297,19 @@ class Indicators(object):
 
     @classmethod
     def from_model(cls, sim: Simulation, include_crash: bool = False):
-        data_dict = {"params": sim.params_dict, "n_temporal_units_to_sim": sim.n_temporal_units_to_sim,
-                     "n_temporal_units_simulated": sim.n_temporal_units_simulated,
-                     "n_temporal_units_by_step": sim.params_dict[
-                         "n_temporal_units_by_step"
-                     ], "has_crashed": sim.has_crashed, "regions": sim.model.regions, "sectors": sim.model.sectors}
+        data_dict = {
+            "params": sim.params_dict,
+            "n_temporal_units_to_sim": sim.n_temporal_units_to_sim,
+            "n_temporal_units_simulated": sim.n_temporal_units_simulated,
+            "n_temporal_units_by_step": sim.params_dict["n_temporal_units_by_step"],
+            "has_crashed": sim.has_crashed,
+            "regions": sim.model.regions,
+            "sectors": sim.model.sectors,
+        }
         with (
-                pathlib.Path(sim.params_dict["results_storage"])
-                / "jsons"
-                / "simulated_events.json"
+            pathlib.Path(sim.params_dict["results_storage"])
+            / "jsons"
+            / "simulated_events.json"
         ).open() as f:
             events = json.load(f)
 
@@ -319,7 +330,7 @@ class Indicators(object):
 
     @classmethod
     def from_storage_path(
-            cls, storage_path: str, params=None, include_crash: bool = False
+        cls, storage_path: str, params=None, include_crash: bool = False
     ) -> Indicators:
         return cls(
             cls.dict_from_storage_path(storage_path, params=params), include_crash
@@ -328,10 +339,10 @@ class Indicators(object):
     # noinspection PyTypeChecker
     @classmethod
     def from_folder(
-            cls,
-            folder: Union[str, pathlib.Path],
-            indexes_file: Union[str, pathlib.Path],
-            include_crash: bool = False,
+        cls,
+        folder: Union[str, pathlib.Path],
+        indexes_file: Union[str, pathlib.Path],
+        include_crash: bool = False,
     ) -> Indicators:
         data_dict = {}
         if not isinstance(indexes_file, pathlib.Path):
@@ -467,7 +478,7 @@ class Indicators(object):
     # noinspection PyTypeChecker
     @classmethod
     def dict_from_storage_path(
-            cls, storage_path: Union[str, pathlib.Path], params=None
+        cls, storage_path: Union[str, pathlib.Path], params=None
     ) -> dict:
         data_dict = {}
         if not isinstance(storage_path, pathlib.Path):
@@ -481,30 +492,30 @@ class Indicators(object):
             with (storage_path / "simulated_params.json").open() as f:
                 simulation_params = json.load(f)
         if (
+            storage_path
+            / simulation_params["results_storage"]
+            / "jsons"
+            / "simulated_params.json"
+        ).exists():
+            with (
                 storage_path
                 / simulation_params["results_storage"]
                 / "jsons"
                 / "simulated_params.json"
-        ).exists():
-            with (
-                    storage_path
-                    / simulation_params["results_storage"]
-                    / "jsons"
-                    / "simulated_params.json"
             ).open() as f:
                 simulation_params = json.load(f)
         with (
-                storage_path
-                / simulation_params["results_storage"]
-                / "jsons"
-                / "indexes.json"
+            storage_path
+            / simulation_params["results_storage"]
+            / "jsons"
+            / "indexes.json"
         ).open() as f:
             indexes = json.load(f)
         with (
-                storage_path
-                / simulation_params["results_storage"]
-                / "jsons"
-                / "simulated_events.json"
+            storage_path
+            / simulation_params["results_storage"]
+            / "jsons"
+            / "simulated_events.json"
         ).open() as f:
             events = json.load(f)
         t = simulation_params["n_temporal_units_to_sim"]
@@ -658,8 +669,8 @@ class Indicators(object):
             self.indicators["shortage_date_max"] = c.idxmax()
             self.indicators["shortage_ind_max"] = c.max()
             self.indicators["shortage_ind_mean"] = c.loc[
-                                                   shortage_date_start:shortage_date_end
-                                                   ].mean()
+                shortage_date_start:shortage_date_end
+            ].mean()
 
     def calc_first_shortages(self):
         a = self.df_limiting.stack([0, 1])  # type: ignore
@@ -684,7 +695,7 @@ class Indicators(object):
                 prod_chg.loc[
                     prod_chg.index.difference(
                         prod_chg.loc[
-                        :, pd.IndexSlice[:, self.rebuilding_sectors]
+                            :, pd.IndexSlice[:, self.rebuilding_sectors]
                         ].columns
                     )
                 ]
@@ -708,8 +719,8 @@ class Indicators(object):
         for sem in range(0, n_semesters):
             prod_chg_sect_sem_l.append(
                 prod_chg_agg_1.iloc[
-                sem * row_to_semester: ((sem + 1) * row_to_semester)
-                                       + (sem % 2) * modulo
+                    sem * row_to_semester : ((sem + 1) * row_to_semester)
+                    + (sem % 2) * modulo
                 ]
                 .sum()
                 .T
@@ -775,7 +786,7 @@ class Indicators(object):
                 fd_loss.loc[
                     fd_loss.index.difference(
                         fd_loss.loc[
-                        :, pd.IndexSlice[:, self.rebuilding_sectors]
+                            :, pd.IndexSlice[:, self.rebuilding_sectors]
                         ].columns
                     )
                 ]
@@ -799,8 +810,8 @@ class Indicators(object):
         for sem in range(0, n_semesters):
             fd_loss_sect_sem_l.append(
                 fd_loss_agg_1.iloc[
-                sem * row_to_semester: ((sem + 1) * row_to_semester)
-                                       + (sem % 2) * modulo
+                    sem * row_to_semester : ((sem + 1) * row_to_semester)
+                    + (sem % 2) * modulo
                 ]
                 .sum()
                 .T
