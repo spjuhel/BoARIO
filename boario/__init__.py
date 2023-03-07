@@ -13,12 +13,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+try:
+    import coloredlogs as coloredlogs
+except ImportError:
+    _has_coloredlogs = False
+else:
+    _has_coloredlogs = True
 
-import coloredlogs
 import logging
 from functools import lru_cache
 
 __version__ = "v0.4.1b0"
+__author__ = "sjuhel <pro@sjuhel.org>"
+
+# __minimum_python_version__ = "3.8"
 
 # Create a logger object.
 logger = logging.getLogger(__name__)
@@ -28,8 +36,8 @@ DEBUGFORMATTER = logging.Formatter(
     fmt="%(asctime)s [%(levelname)s] - [%(filename)s > %(funcName)s() > %(lineno)s] - %(message)s",
     datefmt="%H:%M:%S",
 )
-"""Debug file formatter."""
 
+"""Debug file formatter."""
 INFOFORMATTER = logging.Formatter(
     fmt="%(asctime)s [%(levelname)s] - %(message)s",
     datefmt="%H:%M:%S",
@@ -41,19 +49,4 @@ def warn_once(logger, msg: str):
     logger.warning(msg)
 
 
-"""Log file and stream output formatter."""
-
-# logger.setLevel(logging.DEBUG)
-# print("c")
-# print(logger.handlers)
-
-# defines the stream handler
-# _ch = logging.StreamHandler()  # creates the handler
-# _ch.setLevel(logging.DEBUG)  # sets the handler info
-# _ch.setFormatter(DEBUGFORMATTER)  # sets the handler formatting
-
-# adds the handler to the global variable: log
-# logger.addHandler(_ch)
 logger.propagate = False
-# print(logger.handlers)
-# print("a")

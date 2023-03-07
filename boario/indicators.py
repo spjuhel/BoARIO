@@ -113,7 +113,8 @@ class Indicators(object):
         include_crash: bool = False,
     ) -> None:
         logger.info("Instanciating indicators")
-        n_sectors = len(sectors)
+        super().__init__()
+        self.data_dict = data_dict
         if not include_crash:
             if has_crashed:
                 raise RuntimeError(
@@ -148,7 +149,15 @@ class Indicators(object):
             )
             stocks_df = stocks_df.replace([np.inf, -np.inf], np.nan).dropna(how="all")
             stocks_df = stocks_df.astype(np.float32)
-            stocks_df = stocks_df.groupby("stock of").pct_change().fillna(0).add(1).groupby("stock of").cumprod().sub(1)  # type: ignore
+            stocks_df = (
+                stocks_df.groupby("stock of")
+                .pct_change()
+                .fillna(0)
+                .add(1)
+                .groupby("stock of")
+                .cumprod()
+                .sub(1)
+            )  # type: ignore
             stocks_df = stocks_df.melt(ignore_index=False).rename(
                 columns={
                     "variable_0": "region",
@@ -308,6 +317,7 @@ class Indicators(object):
             cls.dict_from_storage_path(storage_path, params=params), include_crash
         )
 
+    # noinspection PyTypeChecker
     @classmethod
     def from_folder(
         cls,
@@ -332,7 +342,7 @@ class Indicators(object):
         records_folder = folder / "records"
         params_file = {f.stem: f for f in params_folder.glob("*.json")}
         absentee = [f for f in cls.params_list if f not in params_file.keys()]
-        if absentee != []:
+        if absentee:
             raise FileNotFoundError(
                 "Some of the required parameters files not found (looked for {} in {}".format(
                     cls.params_list, folder
@@ -345,7 +355,7 @@ class Indicators(object):
             for f in cls.record_files_list
             if f not in [fn.name for fn in record_files]
         ]
-        if absentee != []:
+        if absentee:
             raise FileNotFoundError(
                 "Some of the required records are not there : {}".format(absentee)
             )
@@ -447,6 +457,7 @@ class Indicators(object):
             )
         return cls(data_dict, include_crash)
 
+    # noinspection PyTypeChecker
     @classmethod
     def dict_from_storage_path(
         cls, storage_path: Union[str, pathlib.Path], params=None

@@ -41,33 +41,29 @@ You can install BoARIO from ``pip`` with:
 
 The full source code is also available on Github at: https://github.com/spjuhel/BoARIO
 
-More info in the `installation page`_ of the documentation.
-
-.. _installation page: https://spjuhel.github.io/BoARIO/boario-installation.html
+More info in the :ref:`installation page<installation>` of the documentation.
 
 How does BoARIO work?
 =========================
 
 In a nutshell, BoARIO takes the following inputs :
 
-- an IO table (such as EXIOBASE3 or EORA26) in the form of an `IOSystem` object (define by the `pymrio` package)
+- an IO table (such as EXIOBASE3 or EORA26) in the form of an :class:`pymrio.IOSystem` object.
 
-- simulation and mrio parameters (as json files or dictionaries), which govern the simulation,
+- multiple parameters which govern the simulation,
 
-- event(s) description(s) (as json files or dictionaries), which are used as the perturbation to analyse during the simulation
+- event(s) description(s), which are used as the perturbation to analyse during the simulation
 
-in order to produce the following outputs:
+And produce the following outputs:
 
-- the step by step, sector by sector, region by region evolution of most of the variables involved in the simulation (production, demand, stocks, ...)
+- the step by step, sector by sector, region by region evolution of most of the variables involved in the simulation (`production`, `demand`, `stocks`, ...)
 
-- aggregated indicators for the whole simulation (shortages duration, aggregated impacts, ...)
+- aggregated indicators for the whole simulation (`shortages duration`, `aggregated impacts`, ...)
 
 Example of use
 =================
 
-See `boario-quickstart`_.
-
-.. _boario-quickstart: https://spjuhel.github.io/BoARIO/boario-quickstart.html
+See :ref:`Boario quickstart<boario-quickstart>`.
 
 Credits
 ========
@@ -93,11 +89,9 @@ Development
 Contributions
 ---------------
 
-* Be the first `contributor`_ !
-
-.. _`contributor`: https://spjuhel.github.io/BoARIO/development.html
+All :ref:`contributions<contributions>` to the project are welcome !
 
 Acknowledgements
 ------------------
 
-I would like to thank Vincent Viguie, Fabio D'Andrea my PhD supervisors as well as Célian Colon for their inputs during the model implementaiton.
+I would like to thank Vincent Viguie, Fabio D'Andrea my PhD supervisors as well as Célian Colon and Alessio Ciulo for their inputs during the model implementation.

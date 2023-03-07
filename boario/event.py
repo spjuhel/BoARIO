@@ -38,7 +38,8 @@ __all__ = [
 
 Impact = Union[int, float, list, dict, np.ndarray, pd.DataFrame, pd.Series]
 IndustriesList = Union[List[Tuple[str, str]], pd.MultiIndex, np.ndarray]
-SectorsList = RegionsList = Union[List[str], pd.Index, np.ndarray]
+SectorsList = Union[List[str], pd.Index, np.ndarray]
+RegionsList = Union[List[str], pd.Index, np.ndarray]
 
 
 def linear_recovery(
@@ -57,10 +58,6 @@ def linear_recovery(
         Elapsed time since event started recovering
     recovery_time : int
         Total time it takes the event to fully recover
-
-    Examples
-    --------
-    FIXME: Add docs.
 
     """
 
@@ -112,6 +109,7 @@ def convexe_recovery_scaled(
     A value of 4 insure >95% of kapital is recovered for a reasonable range of `recovery_time` values.
 
     """
+
     return init_kapital_destroyed * (1 - (1 / recovery_time)) ** (
         scaling_factor * elapsed_temporal_unit
     )
@@ -143,6 +141,7 @@ def concave_recovery(
         This can by use to change the time the inflexion point of the s-shape curve is attained. By default it is set to half the recovery duration.
 
     """
+
     if half_recovery_time is None:
         tau_h = 2
     else:
@@ -156,25 +155,6 @@ def concave_recovery(
 
 
 class Event(metaclass=abc.ABCMeta):
-    """Create an event shocking the model from a dictionary.
-
-    Events store all information about a unique shock during simulation such as
-    time of occurrence, duration, type of shock, amount of damages. Computation
-    of recovery or initialy requested rebuilding demand is also done in this
-    class.
-
-    Parameters
-    ----------
-
-    event : dict
-        A dictionary holding the necessary information to define an event.
-
-    Examples
-    --------
-    FIXME: Add docs.
-
-    """
-
     # Class Attributes
     __required_class_attributes = [
         "possible_sectors",
@@ -192,26 +172,37 @@ class Event(metaclass=abc.ABCMeta):
     ]
     possible_sectors: SectorsList = pd.Index([])
     """List of sectors present in the MRIO used by the model"""
+
     possible_regions: RegionsList = pd.Index([])
     """List of regions present in the MRIO used by the model"""
+
     temporal_unit_range: int = 0
     """Maximum temporal unit simulated"""
+
     z_shape: tuple[int, int] = (0, 0)
     """Shape of the Z (intermediate consumption) matrix in the model"""
+
     y_shape: tuple[int, int] = (0, 0)
     """Shape of the Y (final demand) matrix in the model"""
+
     x_shape: tuple[int, int] = (0, 0)
     """Shape of the x (production) vector in the model"""
+
     regions_idx: np.ndarray = np.array([])
     """lexicographic region indexes"""
+
     sectors_idx: np.ndarray = np.array([])
     """lexicographic sector indexes"""
+
     monetary_factor: int = 0
     """Amount of unitary currency used in the MRIO (e.g. 1000000 if in € millions)"""
+
     sectors_gva_shares: np.ndarray = np.array([])
     """Fraction of total (regional) GVA for each sectors"""
+
     Z_distrib: np.ndarray = np.array([])
     """Normalized intermediate consumption matrix"""
+
     mrio_name: str = ""
     """MRIO identification"""
 
@@ -229,6 +220,29 @@ class Event(metaclass=abc.ABCMeta):
         occurrence=1,
         duration=1,
     ) -> None:
+        """Create an event shocking the model from a dictionary.
+
+        An Event object stores all information about a unique shock during simulation such as
+        time of occurrence, duration, type of shock, amount of damages. Computation
+        of recovery or initially requested rebuilding demand is also done in this
+        class.
+
+        Parameters
+        ----------
+
+        event : dict
+            A dictionary holding the necessary information to define an event.
+
+        Examples
+        --------
+            FIXME: Add docs.
+
+        """
+
+        self._aff_sectors_idx = None
+        self._aff_sectors = None
+        self._aff_regions_idx = None
+        self._aff_regions = None
         logger.debug("Initializing new Event")
         logger.debug("Checking required Class attributes are defined")
         for v in Event.__required_class_attributes:
@@ -239,10 +253,12 @@ class Event(metaclass=abc.ABCMeta):
                     )
                 )
 
-        self.name = name
+        self.name: str = name
+        """An identifying name for the event (for convenience mostly)"""
+
         self.occurrence = occurrence
         self.duration = duration
-        self.impact_df = pd.Series(
+        self.impact_df: pd.Series = pd.Series(
             0,
             dtype="float64",
             index=pd.MultiIndex.from_product(
@@ -250,13 +266,15 @@ class Event(metaclass=abc.ABCMeta):
                 names=["region", "sector"],
             ),
         )
+        """A pandas Series with all possible industries as index, holding the impact vector of the event. The impact is defined for each sectors in each region."""
+
         ################## DATAFRAME INIT #################
         # CASE VECTOR 1 (everything is there and regrouped) (only df creation)
         if isinstance(impact, pd.Series):
             logger.debug("Given impact is a pandas Series")
             self.impact_df.loc[impact.index] = impact
             if self.name == "Unnamed" and not impact.name is None:
-                self.name = impact.name
+                self.name = str(impact.name)
         elif isinstance(impact, dict):
             logger.debug("Given impact is a dict, converting it to pandas Series")
             impact = pd.Series(impact)
@@ -317,6 +335,10 @@ class Event(metaclass=abc.ABCMeta):
         assert isinstance(self.impact_df.index, pd.MultiIndex)
         # Only look for industries where impact is greater than 0
         self.aff_industries = self.impact_df.loc[self.impact_df > 0].index
+
+        logger.debug(
+            f"Impact df at the moment:\n {self.impact_df.loc[self.aff_industries]}"
+        )
 
         ###### SCALAR DISTRIBUTION ######################
         # if impact_industries_distrib is given, set it. We assume impact is scalar !
@@ -417,9 +439,13 @@ class Event(metaclass=abc.ABCMeta):
         self._finish_init()
         ##################################################
 
-        self.happened = False
-        self.over = False
-        self.event_dict = {
+        self.happened: bool = False
+        """States if the event happened"""
+
+        self.over: bool = False
+        """States if the event is over"""
+
+        self.event_dict: dict = {
             "name": str(self.name),
             "occurrence": self.occurrence,
             "duration": self.duration,
@@ -429,36 +455,47 @@ class Event(metaclass=abc.ABCMeta):
             "impact_industries_distrib": list(self.impact_industries_distrib),
             "impact_regional_distrib": list(self.impact_regional_distrib),
             "impact_sectoral_distrib_type": self.impact_sectoral_distrib_type,
+            "globals_vars": {
+                "possible_sectors": list(self.possible_sectors),
+                "possible_regions": list(self.possible_regions),
+                "temporal_unit_range": self.temporal_unit_range,
+                "z_shape": self.z_shape,
+                "y_shape": self.y_shape,
+                "x_shape": self.x_shape,
+                "monetary_factor": self.monetary_factor,
+                "mrio_used": self.mrio_name,
+            },
         }
-        self.event_dict["globals_vars"] = {
-            "possible_sectors": list(self.possible_sectors),
-            "possible_regions": list(self.possible_regions),
-            "temporal_unit_range": self.temporal_unit_range,
-            "z_shape": self.z_shape,
-            "y_shape": self.y_shape,
-            "x_shape": self.x_shape,
-            "monetary_factor": self.monetary_factor,
-            "mrio_used": self.mrio_name,
-        }
+        """Store relevant information about the event"""
 
     def _default_distribute_impact_from_industries_list(self):
         # at this point, impact should still be scalar.
         logger.debug("Using default impact distribution to industries")
+        logger.debug(
+            f"Impact df at the moment:\n {self.impact_df.loc[self.aff_industries]}"
+        )
         self.impact_regional_distrib = np.full(
             len(self.aff_regions), 1 / len(self.aff_regions)
         )
+
+        logger.debug(
+            f"self.impact_regional_distrib: {list(self.impact_regional_distrib)}"
+        )
+        logger.debug(f"len aff_regions: {len(self.aff_regions)}")
         self.impact_df.loc[self.aff_industries] = (
             self.impact_df.loc[self.aff_industries] * 1 / len(self.aff_regions)
         )
         impact_sec_vec = np.array(
             [
-                1 / len(self.impact_df.loc[(reg, slice(None))])
-                for _ in self.aff_sectors
+                1 / len(self.aff_industries.to_series().loc[reg])
                 for reg in self.aff_regions
             ]
         )
         self.impact_df.loc[self.aff_industries] = (
             self.impact_df.loc[self.aff_industries] * impact_sec_vec
+        )
+        logger.debug(
+            f"Impact df after default distrib:\n {self.impact_df.loc[self.aff_industries]}"
         )
 
     def _finish_init(self):
@@ -475,7 +512,19 @@ class Event(metaclass=abc.ABCMeta):
 
     @property
     def aff_industries(self) -> pd.MultiIndex:
-        """A pandas MultiIndex with the regions affected as first level, and sectors affected as second level"""
+        """The industries affected by the event.
+
+        Parameters
+        ----------
+        index : pd.MultiIndex
+             The affected industries as a pandas MultiIndex
+
+        Returns
+        -------
+           A pandas MultiIndex with the regions affected as first level, and sectors affected as second level
+
+        """
+
         return self._aff_industries
 
     @aff_industries.setter
@@ -491,11 +540,11 @@ class Event(metaclass=abc.ABCMeta):
         sectors = index.get_level_values("sector").unique()
         if not set(regions).issubset(self.possible_regions):
             raise ValueError(
-                f"Regions {set(regions)-set(self.possible_regions)} are not in the possible regions list"
+                f"Regions {set(regions) - set(self.possible_regions)} are not in the possible regions list"
             )
         if not set(sectors).issubset(self.possible_sectors):
             raise ValueError(
-                f"Sectors {set(sectors)-set(self.possible_sectors)} are not in the possible sectors list"
+                f"Sectors {set(sectors) - set(self.possible_sectors)} are not in the possible sectors list"
             )
 
         self.aff_regions = regions
@@ -515,6 +564,7 @@ class Event(metaclass=abc.ABCMeta):
     @property
     def occurrence(self) -> int:
         """The temporal unit of occurrence of the event."""
+
         return self._occur
 
     @occurrence.setter
@@ -532,6 +582,7 @@ class Event(metaclass=abc.ABCMeta):
     @property
     def duration(self) -> int:
         """The duration of the event."""
+
         return self._duration
 
     @duration.setter
@@ -549,11 +600,13 @@ class Event(metaclass=abc.ABCMeta):
     @property
     def aff_regions(self) -> pd.Index:
         """The array of regions affected by the event"""
+
         return self._aff_regions
 
     @property
     def aff_regions_idx(self) -> np.ndarray:
         """The array of lexicographically ordered affected region indexes"""
+
         return self._aff_regions_idx
 
     @aff_regions.setter
@@ -574,11 +627,13 @@ class Event(metaclass=abc.ABCMeta):
     @property
     def aff_sectors(self) -> pd.Index:
         """The array of affected sectors by the event"""
+
         return self._aff_sectors
 
     @property
     def aff_sectors_idx(self) -> np.ndarray:
         """The array of lexicographically ordered affected sectors indexes"""
+
         return self._aff_sectors_idx
 
     @aff_sectors.setter
@@ -599,6 +654,7 @@ class Event(metaclass=abc.ABCMeta):
     @property
     def impact_regional_distrib(self) -> np.ndarray:
         """The array specifying how damages are distributed among affected regions"""
+
         return self._impact_regional_distrib
 
     @impact_regional_distrib.setter
@@ -649,6 +705,7 @@ class Event(metaclass=abc.ABCMeta):
     @property
     def impact_sectoral_distrib_type(self) -> str:
         """The type of damages distribution among sectors (currently only 'gdp')"""
+
         return self._impact_sectoral_distrib_type
 
     @impact_sectoral_distrib_type.setter
@@ -697,6 +754,9 @@ class EventArbitraryProd(Event):
             occurrence,
             duration,
         )
+        self._prod_cap_delta_arbitrary = np.zeros(shape=len(self.possible_sectors))
+        self._aff_sectors_idx = None
+        self._aff_sectors = None
         raise NotImplementedError()
 
     @property
@@ -724,7 +784,6 @@ class EventArbitraryProd(Event):
                 for si in self._aff_sectors_idx
             ]
         )
-        self._prod_cap_delta_arbitrary = np.zeros(shape=len(self.possible_sectors))
         self._prod_cap_delta_arbitrary[aff_industries_idx] = np.tile(
             aff_shares, self._aff_regions.size
         )
@@ -802,6 +861,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         name="Unnamed",
         occurrence=1,
         duration=1,
+        rebuilding_factor=None,
     ) -> None:
         super().__init__(
             impact,
@@ -817,6 +877,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             duration,
         )
 
+        self._rebuildable = None
         self.rebuild_tau = rebuild_tau
         self.rebuilding_sectors = rebuilding_sectors
 
@@ -831,6 +892,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         rebuilding_demand = np.outer(
             self.rebuilding_sectors_shares, self.regional_sectoral_kapital_destroyed
         )
+        rebuilding_demand = rebuilding_demand * rebuilding_factor
         logger.debug(
             f"kapital destroyed vec is {self.regional_sectoral_kapital_destroyed}"
         )
@@ -844,6 +906,12 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         tmp[mask] = self.Z_distrib[mask] * rebuilding_demand[mask]
         self.rebuilding_demand_indus = tmp
         self.rebuilding_demand_house = np.zeros(shape=self.y_shape)
+        self.event_dict["rebuilding_sectors"] = {
+            sec: share
+            for sec, share in zip(
+                self.rebuilding_sectors, self.rebuilding_sectors_shares
+            )
+        }
 
     @property
     def rebuilding_sectors(self) -> pd.Index:
@@ -951,7 +1019,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                     current_temporal_unit,
                     self.name,
                     self.occurrence,
-                    self._aff_regions,
+                    self._aff_regions.values,
                     self.total_kapital_destroyed,
                 )
             )

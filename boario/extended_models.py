@@ -22,33 +22,14 @@ from boario.model_base import *
 from boario.event import *
 from pymrio.core.mriosystem import IOSystem
 
-__all__ = ["ARIOPsiModel", "ARIOClimadaModel"]
+__all__ = ["ARIOPsiModel"]
 
 
 class ARIOPsiModel(ARIOBaseModel):
-    """An ARIO3 model with some additional features
-
-    Added feature are parameter psi of production adjustment inventories constraint threshold, as well as a characteristic time of inventories resupplying and the alternative order module from Guan2020.
-
-    Attributes
-    ----------
-
-    psi : float
-          Value of the psi parameter. (see :ref:`boario-math`).
-    restoration_tau : numpy.ndarray of int
-                      Array of size `n_sector` setting for each inputs its characteristic restoration time in `n_temporal_units_by_step`. (see :ref:`boario-math`).
-    Raises
-    ------
-    RuntimeError
-        A RuntimeError can occur when data is inconsistent (negative stocks for
-        instance)
-    ValueError
-    NotImplementedError
-    """
-
     def __init__(
         self,
         pym_mrio: IOSystem,
+        *,
         order_type="alt",
         alpha_base=1.0,
         alpha_max=1.25,
@@ -60,15 +41,20 @@ class ARIOPsiModel(ARIOBaseModel):
         inventory_restoration_tau: int | Dict[str, int] = 60,
         **kwargs,
     ) -> None:
+        """An ARIO3 model with some additional features
+
+        Added feature are parameter psi of production adjustment inventories constraint threshold, as well as a characteristic time of inventories resupplying.
+        """
+
         super().__init__(
             pym_mrio,
-            order_type,
-            alpha_base,
-            alpha_max,
-            alpha_tau,
-            rebuild_tau,
-            main_inv_dur,
-            monetary_factor,
+            order_type=order_type,
+            alpha_base=alpha_base,
+            alpha_max=alpha_max,
+            alpha_tau=alpha_tau,
+            rebuild_tau=rebuild_tau,
+            main_inv_dur=main_inv_dur,
+            monetary_factor=monetary_factor,
             **kwargs,
         )
 
@@ -76,6 +62,8 @@ class ARIOPsiModel(ARIOBaseModel):
 
         if isinstance(psi_param, str):
             self.psi = float(psi_param.replace("_", "."))
+            """float: Value of the psi parameter. (see :ref:`boario-math`)."""
+
         elif isinstance(psi_param, float):
             self.psi = psi_param
         else:
@@ -112,6 +100,7 @@ class ARIOPsiModel(ARIOBaseModel):
                 f"Invalid inventory_restoration_tau: expected dict or int got {type(inventory_restoration_tau)}"
             )
         self.restoration_tau = np.array(restoration_tau)
+        """numpy.ndarray of int: Array of size :math:`n` setting for each inputs its characteristic restoration time :math:`\tau_{\textrm{INV}}` in ``n_temporal_units_by_step``. (see :ref:`boario-math`)."""
         #################################################################
 
     @property
@@ -123,6 +112,22 @@ class ARIOPsiModel(ARIOBaseModel):
         return self.calc_inventory_constraints(self.production)
 
     def calc_inventory_constraints(self, production: np.ndarray) -> np.ndarray:
+        r"""Compute inventory constraints (with psi parameter, for the non psi version,
+        see :meth:`~boario.model_base.ARIOBaseModel.calc_inventory_constraints`)
+
+        Parameters
+        ----------
+        production : np.ndarray
+            The production vector to consider.
+
+        Returns
+        -------
+        np.ndarray
+            For each input, for each industry, the size of the inventory required to produce at `production` level
+        for the duration goal (`inv_duration`) times the psi parameter.
+
+        """
+
         inventory_constraints = (
             np.tile(production, (self.n_sectors, 1)) * self.tech_mat
         ) * self.psi
@@ -139,35 +144,3 @@ class ARIOPsiModel(ARIOBaseModel):
     def calc_matrix_stock_gap(self, matrix_stock_goal) -> np.ndarray:
         matrix_stock_gap = super().calc_matrix_stock_gap(matrix_stock_goal)
         return np.expand_dims(self.restoration_tau, axis=1) * matrix_stock_gap
-
-
-class ARIOClimadaModel(ARIOPsiModel):
-    def __init__(
-        self,
-        pym_mrio: IOSystem,
-        exp_stock,
-        order_type="alt",
-        alpha_base=1,
-        alpha_max=1.25,
-        alpha_tau=365,
-        rebuild_tau=60,
-        main_inv_dur=90,
-        monetary_factor=10**6,
-        psi_param=0.9,
-        inventory_restoration_tau=60,
-        **kwargs,
-    ) -> None:
-        super().__init__(
-            pym_mrio,
-            order_type,
-            alpha_base,
-            alpha_max,
-            alpha_tau,
-            rebuild_tau,
-            main_inv_dur,
-            monetary_factor,
-            psi_param,
-            inventory_restoration_tau,
-            kapital_vector=exp_stock,
-            **kwargs,
-        )

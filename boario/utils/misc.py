@@ -14,12 +14,30 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from boario.event import Event
 from collections.abc import Iterable
 import pymrio
 import numpy
 import json
+import tempfile
 
+class TempMemmap(numpy.memmap):
+    def __new__(subtype, filename, dtype=numpy.float64, mode='r+', offset=0,
+                 shape=None, order='C', save=False):
+        if save:
+            self = numpy.memmap.__new__(subtype, filename=filename, dtype=dtype, mode=mode, offset=offset,
+                             shape=shape, order=order)
+            return self
+        else:
+            ntf = tempfile.NamedTemporaryFile()
+            self = numpy.memmap.__new__(subtype, ntf, dtype=dtype, mode=mode, offset=offset,
+                             shape=shape, order=order)
+            self._tmpfile = ntf
+            return self
+
+    def __del__(self):
+        if hasattr(self, '_tmpfile') and self._tmpfile is not None:
+            self._tmpfile.close()
+            del self._tmpfile
 
 class CustomNumpyEncoder(json.JSONEncoder):
     def default(self, obj):
