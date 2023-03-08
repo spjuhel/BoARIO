@@ -27,6 +27,7 @@ import json
 import logging
 import math
 import pathlib
+import tempfile
 from pprint import pformat
 from typing import Optional, Union
 
@@ -60,7 +61,7 @@ class Simulation:
         "overproduction",
         "final_demand_unmet",
         "rebuild_prod",
-        "input_stocks",
+        "inputs_stocks",
         "limiting_inputs",
         "kapital_to_recover",
     ]
@@ -94,7 +95,7 @@ class Simulation:
             "industries",
             np.nan,
         ),
-        "input_stocks": ("float64", "inputs_evolution", "stocks", np.nan),
+        "inputs_stocks": ("float64", "inputs_evolution", "stocks", np.nan),
         "limiting_inputs": ("byte", "limiting_inputs_evolution", "stocks", -1),
         "kapital_to_recover": (
             "float64",
@@ -106,7 +107,7 @@ class Simulation:
 
     def __init__(
         self,
-        model: Union[ARIOBaseModel, ARIOPsiModel, ARIOClimadaModel],
+        model: Union[ARIOBaseModel, ARIOPsiModel],
         register_stocks: bool = False,
         n_temporal_units_to_sim: int = 365,
         events_list: Optional[list[Event]] = None,
@@ -115,7 +116,7 @@ class Simulation:
         save_params: bool = False,
         save_index: bool = False,
         save_records: list | str = [],
-        boario_output_dir: str | pathlib.Path = pathlib.Path("/tmp/boario"),
+        boario_output_dir: str | pathlib.Path = tempfile.mkdtemp(prefix="boario"),
         results_dir_name: str = "results",
     ) -> None:
         """A Simulation instance can be initialized with the following parameters:
@@ -231,7 +232,7 @@ class Simulation:
             self._save_params = True
 
         for rec in self.__possible_records:
-            if rec == "input_stocks" and not register_stocks:
+            if rec == "inputs_stocks" and not register_stocks:
                 pass
             else:
                 save = rec in save_records

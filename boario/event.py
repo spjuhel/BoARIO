@@ -45,17 +45,20 @@ RegionsList = Union[List[str], pd.Index, np.ndarray]
 def linear_recovery(
     elapsed_temporal_unit: int, init_kapital_destroyed: np.ndarray, recovery_time: int
 ):
-    """Linear Kapital recovery function
+    r"""Linear Kapital recovery function
 
     Kapital is entirely recovered when `recovery_time` has passed since event
     started recovering
 
     Parameters
     ----------
+
     init_kapital_destroyed : float
         Initial kapital destroyed
+
     elapsed_temporal_unit : int
         Elapsed time since event started recovering
+
     recovery_time : int
         Total time it takes the event to fully recover
 
@@ -67,21 +70,25 @@ def linear_recovery(
 def convexe_recovery(
     elapsed_temporal_unit: int, init_kapital_destroyed: np.ndarray, recovery_time: int
 ):
-    """Convexe Kapital recovery function
+    r"""Convexe Kapital recovery function
 
     Kapital is recovered with characteristic time `recovery_time`. (This doesn't mean Kapital is fully recovered after this time !)
     This function models a recovery similar as the one happening in the rebuilding case, for the same characteristic time.
 
     Parameters
     ----------
+
     init_kapital_destroyed : float
         Initial kapital destroyed
+
     elapsed_temporal_unit : int
         Elapsed time since event started recovering
+
     recovery_time : int
         Total time it takes the event to fully recover
 
     """
+
     return init_kapital_destroyed * (1 - (1 / recovery_time)) ** elapsed_temporal_unit
 
 
@@ -91,22 +98,25 @@ def convexe_recovery_scaled(
     recovery_time: int,
     scaling_factor: float = 4,
 ):
-    """Convexe Kapital recovery function (scaled to match other recovery duration)
+    r"""Convexe Kapital recovery function (scaled to match other recovery duration)
 
     Kapital is mostly recovered (>95% by default for most cases) when `recovery_time` has passed since event
     started recovering.
 
     Parameters
     ----------
+
     init_kapital_destroyed : float
         Initial kapital destroyed
+
     elapsed_temporal_unit : int
         Elapsed time since event started recovering
+
     recovery_time : int
         Total time it takes the event to fully recover
+
     scaling_factor: float
-        Used to scale the exponent in the function so that kapital is mostly rebuilt after `recovery_time`.
-    A value of 4 insure >95% of kapital is recovered for a reasonable range of `recovery_time` values.
+        Used to scale the exponent in the function so that kapital is mostly rebuilt after `recovery_time`. A value of 4 insure >95% of kapital is recovered for a reasonable range of `recovery_time` values.
 
     """
 
@@ -122,21 +132,25 @@ def concave_recovery(
     steep_factor: float = 0.000001,
     half_recovery_time: Optional[int] = None,
 ):
-    """Concave (s-shaped) Kapital recovery function
+    r"""Concave (s-shaped) Kapital recovery function
 
     Kapital is mostly (>95% in most cases) recovered when `recovery_time` has passed since event started recovering.
 
     Parameters
     ----------
+
     init_kapital_destroyed : float
         Initial kapital destroyed
+
     elapsed_temporal_unit : int
         Elapsed time since event started recovering
+
     recovery_time : int
         Total time it takes the event to fully recover
+
     steep_factor: float
-        This coefficient governs the slope of the central part of the s-shape, smaller values lead to a steeper slope. As such it also affect the percentage of kapital rebuilt
-    after `recovery_time` has elapsed. A value of 0.000001 should insure 95% of the kapital is rebuild for a reasonable range of recovery duration.
+        This coefficient governs the slope of the central part of the s-shape, smaller values lead to a steeper slope. As such it also affect the percentage of kapital rebuilt after `recovery_time` has elapsed. A value of 0.000001 should insure 95% of the kapital is rebuild for a reasonable range of recovery duration.
+
     half_recovery_time : int
         This can by use to change the time the inflexion point of the s-shape curve is attained. By default it is set to half the recovery duration.
 
@@ -171,40 +185,40 @@ class Event(metaclass=abc.ABCMeta):
         "mrio_name",
     ]
     possible_sectors: SectorsList = pd.Index([])
-    """List of sectors present in the MRIO used by the model"""
+    r"""List of sectors present in the MRIO used by the model"""
 
     possible_regions: RegionsList = pd.Index([])
-    """List of regions present in the MRIO used by the model"""
+    r"""List of regions present in the MRIO used by the model"""
 
     temporal_unit_range: int = 0
-    """Maximum temporal unit simulated"""
+    r"""Maximum temporal unit simulated"""
 
     z_shape: tuple[int, int] = (0, 0)
-    """Shape of the Z (intermediate consumption) matrix in the model"""
+    r"""Shape of the Z (intermediate consumption) matrix in the model"""
 
     y_shape: tuple[int, int] = (0, 0)
-    """Shape of the Y (final demand) matrix in the model"""
+    r"""Shape of the Y (final demand) matrix in the model"""
 
     x_shape: tuple[int, int] = (0, 0)
-    """Shape of the x (production) vector in the model"""
+    r"""Shape of the x (production) vector in the model"""
 
     regions_idx: np.ndarray = np.array([])
-    """lexicographic region indexes"""
+    r"""lexicographic region indexes"""
 
     sectors_idx: np.ndarray = np.array([])
-    """lexicographic sector indexes"""
+    r"""lexicographic sector indexes"""
 
     monetary_factor: int = 0
-    """Amount of unitary currency used in the MRIO (e.g. 1000000 if in € millions)"""
+    r"""Amount of unitary currency used in the MRIO (e.g. 1000000 if in € millions)"""
 
     sectors_gva_shares: np.ndarray = np.array([])
-    """Fraction of total (regional) GVA for each sectors"""
+    r"""Fraction of total (regional) GVA for each sectors"""
 
     Z_distrib: np.ndarray = np.array([])
-    """Normalized intermediate consumption matrix"""
+    r"""Normalized intermediate consumption matrix"""
 
     mrio_name: str = ""
-    """MRIO identification"""
+    r"""MRIO identification"""
 
     def __init__(
         self,
@@ -220,7 +234,7 @@ class Event(metaclass=abc.ABCMeta):
         occurrence=1,
         duration=1,
     ) -> None:
-        """Create an event shocking the model from a dictionary.
+        r"""Create an event shocking the model from a dictionary.
 
         An Event object stores all information about a unique shock during simulation such as
         time of occurrence, duration, type of shock, amount of damages. Computation
@@ -254,7 +268,7 @@ class Event(metaclass=abc.ABCMeta):
                 )
 
         self.name: str = name
-        """An identifying name for the event (for convenience mostly)"""
+        r"""An identifying name for the event (for convenience mostly)"""
 
         self.occurrence = occurrence
         self.duration = duration
@@ -266,7 +280,7 @@ class Event(metaclass=abc.ABCMeta):
                 names=["region", "sector"],
             ),
         )
-        """A pandas Series with all possible industries as index, holding the impact vector of the event. The impact is defined for each sectors in each region."""
+        r"""A pandas Series with all possible industries as index, holding the impact vector of the event. The impact is defined for each sectors in each region."""
 
         ################## DATAFRAME INIT #################
         # CASE VECTOR 1 (everything is there and regrouped) (only df creation)
@@ -440,10 +454,10 @@ class Event(metaclass=abc.ABCMeta):
         ##################################################
 
         self.happened: bool = False
-        """States if the event happened"""
+        r"""States if the event happened"""
 
         self.over: bool = False
-        """States if the event is over"""
+        r"""States if the event is over"""
 
         self.event_dict: dict = {
             "name": str(self.name),
@@ -466,7 +480,7 @@ class Event(metaclass=abc.ABCMeta):
                 "mrio_used": self.mrio_name,
             },
         }
-        """Store relevant information about the event"""
+        r"""Store relevant information about the event"""
 
     def _default_distribute_impact_from_industries_list(self):
         # at this point, impact should still be scalar.
@@ -512,16 +526,17 @@ class Event(metaclass=abc.ABCMeta):
 
     @property
     def aff_industries(self) -> pd.MultiIndex:
-        """The industries affected by the event.
+        r"""The industries affected by the event.
 
         Parameters
         ----------
+
         index : pd.MultiIndex
              The affected industries as a pandas MultiIndex
 
         Returns
         -------
-           A pandas MultiIndex with the regions affected as first level, and sectors affected as second level
+             A pandas MultiIndex with the regions affected as first level, and sectors affected as second level
 
         """
 
@@ -563,7 +578,7 @@ class Event(metaclass=abc.ABCMeta):
 
     @property
     def occurrence(self) -> int:
-        """The temporal unit of occurrence of the event."""
+        r"""The temporal unit of occurrence of the event."""
 
         return self._occur
 
@@ -581,7 +596,7 @@ class Event(metaclass=abc.ABCMeta):
 
     @property
     def duration(self) -> int:
-        """The duration of the event."""
+        r"""The duration of the event."""
 
         return self._duration
 
@@ -599,13 +614,13 @@ class Event(metaclass=abc.ABCMeta):
 
     @property
     def aff_regions(self) -> pd.Index:
-        """The array of regions affected by the event"""
+        r"""The array of regions affected by the event"""
 
         return self._aff_regions
 
     @property
     def aff_regions_idx(self) -> np.ndarray:
-        """The array of lexicographically ordered affected region indexes"""
+        r"""The array of lexicographically ordered affected region indexes"""
 
         return self._aff_regions_idx
 
@@ -626,13 +641,13 @@ class Event(metaclass=abc.ABCMeta):
 
     @property
     def aff_sectors(self) -> pd.Index:
-        """The array of affected sectors by the event"""
+        r"""The array of affected sectors by the event"""
 
         return self._aff_sectors
 
     @property
     def aff_sectors_idx(self) -> np.ndarray:
-        """The array of lexicographically ordered affected sectors indexes"""
+        r"""The array of lexicographically ordered affected sectors indexes"""
 
         return self._aff_sectors_idx
 
@@ -653,7 +668,7 @@ class Event(metaclass=abc.ABCMeta):
 
     @property
     def impact_regional_distrib(self) -> np.ndarray:
-        """The array specifying how damages are distributed among affected regions"""
+        r"""The array specifying how damages are distributed among affected regions"""
 
         return self._impact_regional_distrib
 
@@ -679,7 +694,7 @@ class Event(metaclass=abc.ABCMeta):
 
     # @property
     # def impact_sectoral_distrib(self) -> np.ndarray:
-    #     """The array specifying how damages are distributed among affected sectors"""
+    #     r"""The array specifying how damages are distributed among affected sectors"""
     #     return self._impact_sectoral_distrib
 
     # @impact_sectoral_distrib.setter
@@ -704,7 +719,7 @@ class Event(metaclass=abc.ABCMeta):
 
     @property
     def impact_sectoral_distrib_type(self) -> str:
-        """The type of damages distribution among sectors (currently only 'gdp')"""
+        r"""The type of damages distribution among sectors (currently only 'gdp')"""
 
         return self._impact_sectoral_distrib_type
 
@@ -761,7 +776,7 @@ class EventArbitraryProd(Event):
 
     @property
     def prod_cap_delta_arbitrary(self) -> np.ndarray:
-        """The optional array storing arbitrary (as in not related to kapital destroyed) production capacity loss"""
+        r"""The optional array storing arbitrary (as in not related to kapital destroyed) production capacity loss"""
         return self._prod_cap_delta_arbitrary
 
     @prod_cap_delta_arbitrary.setter
@@ -830,7 +845,7 @@ class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
 
     @property
     def regional_sectoral_kapital_destroyed(self) -> np.ndarray:
-        """The (optional) array of kapital destroyed per industry (ie region x sector)"""
+        r"""The (optional) array of kapital destroyed per industry (ie region x sector)"""
         return self._regional_sectoral_kapital_destroyed
 
     @regional_sectoral_kapital_destroyed.setter
@@ -915,17 +930,17 @@ class EventKapitalRebuild(EventKapitalDestroyed):
 
     @property
     def rebuilding_sectors(self) -> pd.Index:
-        """The (optional) array of rebuilding sectors"""
+        r"""The (optional) array of rebuilding sectors"""
         return self._rebuilding_sectors
 
     @property
     def rebuilding_sectors_idx(self) -> np.ndarray:
-        """The (optional) array of indexes of the rebuilding sectors (in lexicographic order)"""
+        r"""The (optional) array of indexes of the rebuilding sectors (in lexicographic order)"""
         return self._rebuilding_sectors_idx
 
     @property
     def rebuilding_sectors_shares(self) -> np.ndarray:
-        """The array specifying how rebuilding demand is distributed along the rebuilding sectors"""
+        r"""The array specifying how rebuilding demand is distributed along the rebuilding sectors"""
         return self._rebuilding_sectors_shares
 
     @rebuilding_sectors.setter
@@ -973,7 +988,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
 
     @property
     def rebuilding_demand_house(self) -> np.ndarray:
-        """The optional array of rebuilding demand from households"""
+        r"""The optional array of rebuilding demand from households"""
         return self._rebuilding_demand_house
 
     @rebuilding_demand_house.setter
@@ -989,7 +1004,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
 
     @property
     def rebuilding_demand_indus(self) -> np.ndarray:
-        """The optional array of rebuilding demand from industries (to rebuild their kapital)"""
+        r"""The optional array of rebuilding demand from industries (to rebuild their kapital)"""
         return self._rebuilding_demand_indus
 
     @rebuilding_demand_indus.setter
@@ -1007,7 +1022,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
 
     @property
     def rebuildable(self) -> bool:
-        """A boolean stating if an event can start rebuild"""
+        r"""A boolean stating if an event can start rebuild"""
         return self._rebuildable
 
     @rebuildable.setter
@@ -1062,7 +1077,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
 
     @property
     def recoverable(self) -> bool:
-        """A boolean stating if an event can start recover"""
+        r"""A boolean stating if an event can start recover"""
         return self._recoverable
 
     @recoverable.setter
@@ -1082,7 +1097,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
 
     @property
     def recovery_function(self) -> Callable:
-        """The recovery function used for recovery (`Callable`)"""
+        r"""The recovery function used for recovery (`Callable`)"""
         return self._recovery_fun
 
     @recovery_function.setter

@@ -123,15 +123,15 @@ class Indicators(object):
         self.n_rows = n_temporal_units_to_sim
         self.n_temporal_units_by_step = n_temporal_units_by_step
 
-        self.kapital_df = create_df(kapital, regions, sectors)
-        self.prod_df = create_df(prod, regions, sectors)
-        self.prodmax_df = create_df(prodmax, regions, sectors)
-        self.overprod_df = create_df(overprod, regions, sectors)
+        self.kapital_to_recover_df = create_df(kapital, regions, sectors)
+        self.production_realised_df = create_df(prod, regions, sectors)
+        self.production_capacity_df = create_df(prodmax, regions, sectors)
+        self.overproduction_df = create_df(overprod, regions, sectors)
         self.final_demand_df = create_df(final_demand, regions, sectors)
-        self.io_demand_df = create_df(io_demand, regions, sectors)
-        self.r_demand_df = create_df(r_demand, regions, sectors)
-        self.r_prod_df = create_df(r_prod, regions, sectors)
-        self.fd_unmet_df = create_df(fd_unmet, regions, sectors)
+        self.intermediate_demand_df = create_df(io_demand, regions, sectors)
+        self.rebuild_demand_df = create_df(r_demand, regions, sectors)
+        self.rebuild_prod_df = create_df(r_prod, regions, sectors)
+        self.final_demand_unmet_df = create_df(fd_unmet, regions, sectors)
 
         if stocks_treatment:
             stocks_df = pd.DataFrame(
@@ -171,12 +171,12 @@ class Indicators(object):
         else:
             stocks_df = None
 
-        self.df_stocks = stocks_df
+        self.inputs_stocks_df = stocks_df
         del stocks_df
         # self.df_stocks = self.df_stocks.interpolate()
 
-        self.df_loss = (
-            self.fd_unmet_df.melt(ignore_index=False)
+        self.treated_loss_df = (
+            self.final_demand_unmet_df.melt(ignore_index=False)
             .rename(
                 columns={
                     "variable_0": "region",
@@ -187,7 +187,7 @@ class Indicators(object):
             .reset_index()
         )
 
-        self.df_limiting = pd.DataFrame(
+        self.limiting_inputs_df = pd.DataFrame(
             limiting_stocks.reshape(n_temporal_units_to_sim * len(sectors), -1),
             index=pd.MultiIndex.from_product(
                 [steps, sectors], names=["step", "stock of"]
@@ -428,7 +428,7 @@ class Indicators(object):
             shape=(t * indexes["n_sectors"], indexes["n_industries"]),
         )
         if params.get("register_stocks", False):
-            if not (records_path / "input_stocks").exists():
+            if not (records_path / "inputs_stocks").exists():
                 raise FileNotFoundError(
                     "Stocks record file was not found {}".format(
                         records_path / "stocks_record"
@@ -475,17 +475,17 @@ class Indicators(object):
         pass
 
     def calc_tot_fd_unmet(self):
-        self.indicators["tot_fd_unmet"] = self.df_loss["fdloss"].sum()
+        self.indicators["tot_fd_unmet"] = self.treated_loss_df["fdloss"].sum()
 
     def calc_aff_fd_unmet(self):
         # TODO: check this
-        self.indicators["aff_fd_unmet"] = self.df_loss[
-            self.df_loss.region.isin(self.aff_regions)
+        self.indicators["aff_fd_unmet"] = self.treated_loss_df[
+            self.treated_loss_df.region.isin(self.aff_regions)
         ]["fdloss"].sum()
 
     def calc_rebuild_durations(self):
         rebuilding = (
-            self.r_demand_df.reset_index()
+            self.rebuild_demand_df.reset_index()
             .melt(
                 id_vars="step",
                 var_name=["region", "sector"],
@@ -505,10 +505,10 @@ class Indicators(object):
 
     def calc_general_shortage(self):
         # TODO: replace hard values by soft.
-        n_regions = self.df_limiting.columns.levels[0].size
-        n_sectors = self.df_limiting.columns.levels[1].size
+        n_regions = self.limiting_inputs_df.columns.levels[0].size
+        n_sectors = self.limiting_inputs_df.columns.levels[1].size
         # have only steps in index (next step not possible with multiindex)
-        a = self.df_limiting.unstack()
+        a = self.limiting_inputs_df.unstack()
         # select only simulated steps (we can't store nan in bool or byte dtype array)
         a = a.iloc[lambda x: x.index % self.n_temporal_units_by_step == 0]
         # We put -1 initially, so this should check we have correctly selected the simulated rows
@@ -537,7 +537,7 @@ class Indicators(object):
             ].mean()
 
     def calc_first_shortages(self):
-        a = self.df_limiting.stack([0, 1])  # type: ignore
+        a = self.limiting_inputs_df.stack([0, 1])  # type: ignore
         a = a.swaplevel(1, 2).swaplevel(2, 3)
         b = a[a > 0]
         b = b[:10]
@@ -545,7 +545,7 @@ class Indicators(object):
         self.indicators["10_first_shortages_(step,region,sector,stock_of)"] = res
 
     def calc_tot_prod_change(self):
-        df2 = self.prod_df.copy()
+        df2 = self.production_realised_df.copy()
         # df2.columns=df2.columns.droplevel(0)
         prod_chg = df2 - df2.iloc[0, :]
         # Round to € to avoid floating error differences
@@ -650,7 +650,7 @@ class Indicators(object):
             json.dump(self.indicators, f, cls=numpyencoder.NumpyEncoder, indent=4)
 
     def calc_fd_loss_region(self):
-        fd_loss = self.fd_unmet_df.copy().round(6)
+        fd_loss = self.final_demand_unmet_df.copy().round(6)
         fd_loss_agg_1 = pd.concat(
             [
                 fd_loss.loc[:, pd.IndexSlice[:, self.rebuilding_sectors]]
@@ -703,21 +703,35 @@ class Indicators(object):
 
     def save_dfs(self):
         logger.info("Saving computed dataframe to results folder")
-        self.prod_df.to_parquet(self.parquets_path / "prod_df.parquet")
-        self.kapital_df.to_parquet(self.parquets_path / "kapital_df.parquet")
-        self.prodmax_df.to_parquet(self.parquets_path / "prodmax_df.parquet")
-        self.overprod_df.to_parquet(self.parquets_path / "overprod_df.parquet")
-        self.fd_unmet_df.to_parquet(self.parquets_path / "fd_unmet_df.parquet")
+        self.production_realised_df.to_parquet(
+            self.parquets_path / "production_realised_df.parquet"
+        )
+        self.kapital_to_recover_df.to_parquet(
+            self.parquets_path / "kapital_to_recover_df.parquet"
+        )
+        self.production_capacity_df.to_parquet(
+            self.parquets_path / "production_capacity_df.parquet"
+        )
+        self.overproduction_df.to_parquet(
+            self.parquets_path / "overproduction_df.parquet"
+        )
+        self.final_demand_unmet_df.to_parquet(
+            self.parquets_path / "final_demand_unmet_df.parquet"
+        )
         self.final_demand_df.to_parquet(self.parquets_path / "final_demand_df.parquet")
-        self.io_demand_df.to_parquet(self.parquets_path / "io_demand_df.parquet")
-        self.r_demand_df.to_parquet(self.parquets_path / "r_demand_df.parquet")
-        self.df_loss.to_parquet(self.parquets_path / "treated_df_loss.parquet")
-        if self.df_stocks is not None:
-            ddf = da.from_pandas(self.df_stocks, chunksize=10000000)
+        self.intermediate_demand_df.to_parquet(
+            self.parquets_path / "intermediate_demand_df.parquet"
+        )
+        self.rebuild_demand_df.to_parquet(
+            self.parquets_path / "rebuild_demand_df.parquet"
+        )
+        self.treated_loss_df.to_parquet(self.parquets_path / "treated_df_loss.parquet")
+        if self.inputs_stocks_df is not None:
+            ddf = da.from_pandas(self.inputs_stocks_df, chunksize=10000000)
             ddf.to_parquet(
                 self.parquets_path / "treated_df_stocks.parquet", engine="pyarrow"
             )
-        if self.df_limiting is not None:
+        if self.limiting_inputs_df is not None:
             # ddf_l = da.from_pandas(self.df_limiting, chunksize=10000000)
             # ddf_l = ddf_l.melt(ignore_index=False).rename(columns={'variable_0':'region','variable_1':'sector', 'variable_2':'stock of'})
             # ddf_l = ddf_l.reset_index()
@@ -725,7 +739,8 @@ class Indicators(object):
             # ddf_l['stock of'] = ddf_l['stock of'].astype("category")
             # ddf_l['region'] = ddf_l['region'].astype("category")
             # ddf_l['sector'] = ddf_l['sector'].astype("category")
-            self.df_limiting.to_parquet(
-                self.parquets_path / "treated_df_limiting.parquet", engine="pyarrow"
+            self.limiting_inputs_df.to_parquet(
+                self.parquets_path / "treated_df_limiting_inputs.parquet",
+                engine="pyarrow",
             )
         # self.df_limiting.to_feather(self.parquets_path/"treated_df_limiting.feather")
