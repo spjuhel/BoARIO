@@ -152,6 +152,7 @@ class Simulation:
         self._save_events = save_events
         self._save_params = save_params
         self._save_index = save_index
+        self._register_stocks = register_stocks
         self.output_dir = pathlib.Path(boario_output_dir)
         """pathlib.Path, optional: Optional path to the directory where output are stored."""
 
@@ -182,7 +183,6 @@ class Simulation:
         """list[Event]: A list containing all events that are happening at the current timestep of the simulation."""
 
         self.events_timings = set()
-        self._files_to_record = []
         self.n_temporal_units_to_sim = n_temporal_units_to_sim
         """int: The total number of `temporal_units` to simulate."""
 
@@ -207,6 +207,8 @@ class Simulation:
         self.records_storage: pathlib.Path = self.results_storage / "records"
         """Place where records are stored if stored"""
 
+        self._files_to_record = []
+
         if save_records != []:
             if isinstance(save_records, str):
                 if save_records == "all":
@@ -230,36 +232,7 @@ class Simulation:
             self._save_events = True
             self._save_params = True
 
-        for rec in self.__possible_records:
-            if rec == "input_stocks" and not register_stocks:
-                pass
-            else:
-                save = rec in save_records
-                filename = rec
-                dtype, attr_name, shapev, fillv = self.__file_save_array_specs[rec]
-                if shapev == "industries":
-                    shape = (
-                        self.n_temporal_units_to_sim,
-                        self.model.n_sectors * self.model.n_regions,
-                    )
-                elif shapev == "stocks":
-                    shape = (
-                        self.n_temporal_units_to_sim,
-                        self.model.n_sectors,
-                        self.model.n_sectors * self.model.n_regions,
-                    )
-                else:
-                    raise RuntimeError(f"shapev {shapev} unrecognised")
-                memmap_array = TempMemmap(
-                    filename=(self.records_storage / filename),
-                    dtype=dtype,
-                    mode="w+",
-                    shape=shape,
-                    save=save,
-                )
-                memmap_array.fill(fillv)
-                self._files_to_record.append(attr_name)
-                setattr(self, attr_name, memmap_array)
+        self.init_records(save_records, register_stocks)
 
         Event.temporal_unit_range = self.n_temporal_units_to_sim
         self.params_dict = {
@@ -623,22 +596,24 @@ class Simulation:
 
     def reset_sim_with_same_events(self):
         """Resets the model to its initial status (without removing the events). [WIP]"""
-        raise NotImplementedError("To fix")
         logger.info("Resetting model to initial status (with same events)")
         self.current_temporal_unit = 0
         self._monotony_checker = 0
+        self._n_checks = 0
         self.n_temporal_units_simulated = 0
         self.has_crashed = False
-        self.model.reset_module(self.params_dict)
+        self.reset_records()
+        self.model.reset_module()
 
     def reset_sim_full(self):
         """Resets the model to its initial status and remove all events."""
 
-        raise NotImplementedError("To fix")
         self.reset_sim_with_same_events()
         logger.info("Resetting events")
         self.all_events = []
+        self.currently_happening_events = []
         self.events_timings = set()
+
 
     def update_params(self, new_params: dict):
         """Update the parameters of the model.
@@ -816,3 +791,45 @@ class Simulation:
                 )
             else:
                 getattr(self, at).flush()
+
+    def init_records(self, save_records, register_stocks):
+        for rec in self.__possible_records:
+            if rec == "input_stocks" and not register_stocks:
+                pass
+            else:
+                save = rec in save_records
+                filename = rec
+                dtype, attr_name, shapev, fillv = self.__file_save_array_specs[rec]
+                if shapev == "industries":
+                    shape = (
+                        self.n_temporal_units_to_sim,
+                        self.model.n_sectors * self.model.n_regions,
+                    )
+                elif shapev == "stocks":
+                    shape = (
+                        self.n_temporal_units_to_sim,
+                        self.model.n_sectors,
+                        self.model.n_sectors * self.model.n_regions,
+                    )
+                else:
+                    raise RuntimeError(f"shapev {shapev} unrecognised")
+                memmap_array = TempMemmap(
+                    filename=(self.records_storage / filename),
+                    dtype=dtype,
+                    mode="w+",
+                    shape=shape,
+                    save=save,
+                )
+                memmap_array.fill(fillv)
+                self._files_to_record.append(attr_name)
+                setattr(self, attr_name, memmap_array)
+
+    def reset_records(self,):
+        for rec in self.__possible_records:
+            dtype, attr_name, shapev, fillv = self.__file_save_array_specs[rec]
+            if rec == "input_stocks" and not self._register_stocks:
+                pass
+            else:
+                memmap_array = getattr(self, attr_name)
+                memmap_array.fill(fillv)
+                setattr(self, attr_name, memmap_array)
