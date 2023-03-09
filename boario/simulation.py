@@ -614,7 +614,6 @@ class Simulation:
         self.currently_happening_events = []
         self.events_timings = set()
 
-
     def update_params(self, new_params: dict):
         """Update the parameters of the model.
 
@@ -824,7 +823,9 @@ class Simulation:
                 self._files_to_record.append(attr_name)
                 setattr(self, attr_name, memmap_array)
 
-    def reset_records(self,):
+    def reset_records(
+        self,
+    ):
         for rec in self.__possible_records:
             dtype, attr_name, shapev, fillv = self.__file_save_array_specs[rec]
             if rec == "input_stocks" and not self._register_stocks:

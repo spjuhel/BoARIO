@@ -57,6 +57,7 @@ except Exception:
 else:
     logger.info(f"You are using boario from branch {__git_branch__}")
 
+
 @lru_cache(10)
 def warn_once(logger, msg: str):
     logger.warning(msg)

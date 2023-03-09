@@ -1494,7 +1494,6 @@ class ARIOBaseModel:
         self._prod_cap_delta_arbitrary = None
         self._prod_cap_delta_tot = None
 
-
     def update_params(self, new_params: dict) -> None:
         """Update the parameters of the model.
 
