@@ -20,6 +20,12 @@ except ImportError:
 else:
     _has_coloredlogs = True
 
+try:
+    import pygit2
+except:
+    pass
+
+import pathlib
 import logging
 from functools import lru_cache
 
@@ -42,6 +48,14 @@ INFOFORMATTER = logging.Formatter(
     fmt="%(asctime)s [%(levelname)s] - %(message)s",
     datefmt="%H:%M:%S",
 )
+
+
+try:
+    __git_branch__ = pygit2.Repository(__file__).head.name
+except Exception:
+    pass
+else:
+    logger.info(f"You are using boario from branch {__git_branch__}")
 
 
 @lru_cache(10)

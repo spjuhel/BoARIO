@@ -411,19 +411,6 @@ class ARIOBaseModel:
         self._prod_cap_delta_kapital = None
         self._prod_cap_delta_arbitrary = None
         self._prod_cap_delta_tot = None
-        self.prod_max_toward_rebuilding = None
-        self.records_storage = None
-        self.production_evolution = None
-        self.production_cap_evolution = None
-        self.io_demand_evolution = None
-        self.final_demand_evolution = None
-        self.rebuild_demand_evolution = None
-        self.overproduction_evolution = None
-        self.final_demand_unmet_evolution = None
-        self.rebuild_production_evolution = None
-        self.stocks_evolution = None
-        self.limiting_stocks_evolution = None
-        self.regional_sectoral_kapital_destroyed_evol = None
 
     ## Properties
 
@@ -1478,35 +1465,34 @@ class ARIOBaseModel:
 
     def reset_module(
         self,
-        simulation_params: dict,
     ) -> None:
         """Resets the model to initial state [Deprecated]
 
         This method is currently not functioning.
         """
 
-        logger.warning("This method is quite probably deprecated")
-        self.reset_record_files(
-            simulation_params["n_temporal_units_to_sim"],
-            simulation_params["register_stocks"],
-        )
-        # Reset variable attributes
         self.kapital_lost = np.zeros(self.production.shape)
         self.overprod = np.full(
             (self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64
         )
-        with np.errstate(divide="ignore", invalid="ignore"):
-            self.matrix_stock = (
-                np.tile(self.X_0, (self.n_sectors, 1)) * self.tech_mat
-            ) * self.inv_duration[:, np.newaxis]
-        self.matrix_stock = np.nan_to_num(self.matrix_stock, nan=np.inf, posinf=np.inf)
-        self.matrix_stock_0 = self.matrix_stock.copy()
+        self.matrix_stock = self.matrix_stock_0.copy()
         self.matrix_orders = self.Z_0.copy()
         self.production = self.X_0.copy()
         self.intmd_demand = self.Z_0.copy()
         self.final_demand = self.Y_0.copy()
+        self.final_demand_not_met = np.zeros(self.Y_0.shape)
         self.rebuilding_demand = None
-        self.prod_max_toward_rebuilding = None
+        self.in_shortage = False
+        self.had_shortage = False
+        self._prod_delta_type = None
+        self._indus_rebuild_demand_tot = None
+        self._house_rebuild_demand_tot = None
+        self._indus_rebuild_demand = None
+        self._house_rebuild_demand = None
+        self._tot_rebuild_demand = None
+        self._prod_cap_delta_kapital = None
+        self._prod_cap_delta_arbitrary = None
+        self._prod_cap_delta_tot = None
 
     def update_params(self, new_params: dict) -> None:
         """Update the parameters of the model.
@@ -1540,103 +1526,6 @@ class ARIOBaseModel:
         self.reset_record_files(
             new_params["n_temporal_units_to_sim"], new_params["register_stocks"]
         )
-
-    def reset_record_files(self, n_temporal_units: int, reg_stocks: bool) -> None:
-        """Reset results memmaps
-
-        This method creates/resets the :class:`memmaps <numpy.memmap>` arrays used to track
-        production, demand, overproduction, etc.
-
-        Parameters
-        ----------
-        n_steps : int
-            number of steps of the simulation (memmaps size are predefined)
-        reg_stocks : bool
-            If true, create/reset the stock memmap (which can be huge)
-
-        """
-        self.production_evolution = np.memmap(
-            self.records_storage / "iotable_XVA_record",
-            dtype="float64",
-            mode="w+",
-            shape=(n_temporal_units, self.n_sectors * self.n_regions),
-        )
-        self.production_evolution.fill(np.nan)
-        self.production_cap_evolution = np.memmap(
-            self.records_storage / "iotable_X_max_record",
-            dtype="float64",
-            mode="w+",
-            shape=(n_temporal_units, self.n_sectors * self.n_regions),
-        )
-        self.production_cap_evolution.fill(np.nan)
-        self.io_demand_evolution = np.memmap(
-            self.records_storage / "io_demand_record",
-            dtype="float64",
-            mode="w+",
-            shape=(n_temporal_units, self.n_sectors * self.n_regions),
-        )
-        self.io_demand_evolution.fill(np.nan)
-        self.final_demand_evolution = np.memmap(
-            self.records_storage / "final_demand_record",
-            dtype="float64",
-            mode="w+",
-            shape=(n_temporal_units, self.n_sectors * self.n_regions),
-        )
-        self.final_demand_evolution.fill(np.nan)
-        self.rebuild_demand_evolution = np.memmap(
-            self.records_storage / "rebuild_demand_record",
-            dtype="float64",
-            mode="w+",
-            shape=(n_temporal_units, self.n_sectors * self.n_regions),
-        )
-        self.rebuild_demand_evolution.fill(np.nan)
-        self.overproduction_evolution = np.memmap(
-            self.records_storage / "overprodvector_record",
-            dtype="float64",
-            mode="w+",
-            shape=(n_temporal_units, self.n_sectors * self.n_regions),
-        )
-        self.overproduction_evolution.fill(np.nan)
-        self.final_demand_unmet_evolution = np.memmap(
-            self.records_storage / "final_demand_unmet_record",
-            dtype="float64",
-            mode="w+",
-            shape=(n_temporal_units, self.n_sectors * self.n_regions),
-        )
-        self.final_demand_unmet_evolution.fill(np.nan)
-        self.rebuild_production_evolution = np.memmap(
-            self.records_storage / "rebuild_prod_record",
-            dtype="float64",
-            mode="w+",
-            shape=(n_temporal_units, self.n_sectors * self.n_regions),
-        )
-        self.rebuild_production_evolution.fill(np.nan)
-        if reg_stocks:
-            self.stocks_evolution = np.memmap(
-                self.records_storage / "stocks_record",
-                dtype="float64",
-                mode="w+",
-                shape=(
-                    n_temporal_units,
-                    self.n_sectors,
-                    self.n_sectors * self.n_regions,
-                ),
-            )
-            self.stocks_evolution.fill(np.nan)
-        self.limiting_stocks_evolution = np.memmap(
-            self.records_storage / "limiting_stocks_record",
-            dtype="byte",
-            mode="w+",
-            shape=(n_temporal_units, self.n_sectors, self.n_sectors * self.n_regions),
-        )
-        self.limiting_stocks_evolution.fill(-1)
-        self.regional_sectoral_kapital_destroyed_evol = np.memmap(
-            self.records_storage / "iotable_kapital_destroyed_record",
-            dtype="float64",
-            mode="w+",
-            shape=(n_temporal_units, self.n_sectors * self.n_regions),
-        )
-        self.regional_sectoral_kapital_destroyed_evol.fill(np.nan)
 
     def write_index(self, index_file: str | pathlib.Path) -> None:
         """Write the indexes of the different dataframes of the model in a json file.
