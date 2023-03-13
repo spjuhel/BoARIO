@@ -852,7 +852,7 @@ class ARIOBaseModel:
         return self.calc_inventory_constraints(self.production)
 
     def calc_production(self, current_temporal_unit: int) -> np.ndarray:
-        r"""Computes and updates actual production
+        r"""Computes and updates actual production. See :ref:`boario-math-prod`.
 
         1. Computes ``production_opt`` and ``inventory_constraints`` as :
 
@@ -944,7 +944,7 @@ class ARIOBaseModel:
 
     def calc_inventory_constraints(self, production: np.ndarray) -> np.ndarray:
         r"""Compute inventory constraints (no psi parameter, for the psi version,
-        the recommended one, see :meth:`~boario.extended_model.ARIOPsiModel.calc_inventory_constraints`)
+        the recommended one, see :meth:`~boario.extended_models.ARIOPsiModel.calc_inventory_constraints`)
 
         See :meth:`calc_production` for how inventory constraints are computed.
 

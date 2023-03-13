@@ -27,10 +27,18 @@ Here is a non-exhaustive chronology of academic works with or about the ARIO mod
 
 .. image:: https://raw.githubusercontent.com/spjuhel/BoARIO/master/imgs/chronology.svg?sanitize=true
            :width: 900
-           :alt: ADEME Logo
+           :alt: ARIO academic work chronology
 
-Where to get it ?
-===================
+What is ARIO ?
+===============
+
+ARIO stands for Adaptive Regional Input-Output. It is an hybrid input-output / agent-based economic model, designed to compute indirect costs from economic shocks. Its first version dates back to 2008 and has originally been developed to assess the indirect costs of natural disasters (Hallegatte 2008).
+
+In ARIO, the economy is modelled as a set of economic sectors and a set of regions. Each economic sector produces its generic product and draws inputs from an inventory. Each sector answers to a total demand consisting of a final demand (household consumption, public spending and private investments) of all regions (local demand and exports) and intermediate demand (through inputs inventory resupply). An initial equilibrium state of the economy is built based on multi-regional input-output tables (MRIO tables).
+
+
+Where to get BoARIO ?
+==========================
 
 You can install BoARIO from ``pip`` with:
 
@@ -48,7 +56,7 @@ How does BoARIO work?
 
 In a nutshell, BoARIO takes the following inputs :
 
-- an IO table (such as EXIOBASE3 or EORA26) in the form of an :class:`pymrio.IOSystem` object.
+- an IO table (such as EXIOBASE3 or EORA26) in the form of an :class:`pymrio.IOSystem` object, using the `Pymrio`_ python package.
 
 - multiple parameters which govern the simulation,
 
