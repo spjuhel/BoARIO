@@ -1,0 +1,951 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Detailed model description &#8212; BoARIO  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>window.MathJax = {"chtml": {"displayAlign": "left", "displayIndent": "2em"}, "loader": {"load": ["[tex]/color"]}, "tex": {"packages": {"[+]": ["color"]}, "macros": {"colvec": ["\\begin{bmatrix}#1 \\\\ \\vdots\\\\ #2 \\end{bmatrix}", 2], "rfirmsset": ["\\mathbf{F}^{#1}", 1], "mdefentryval": ["(#1_{#3#5}( #2 )^{#7#8})_{\\substack{#3 \\in #4 \\\\ #5 \\in #6}}", 8], "mdefentry": ["(#1_{#3#5}^{#7#8})_{\\substack{#3 \\in #4 \\\\ #5 \\in #6}}", 8], "irowsum": "\\begin{bmatrix} 1 \\\\ \\vdots \\\\ 1 \\end{bmatrix}", "isum": "\\underset{s \\times p}{\\begin{bmatrix} 1 & \\cdots & 0 & & 1 & \\cdots & 0\\\\ \\vdots & \\ddots & \\vdots & \\cdots &\\vdots & \\ddots & \\vdots\\\\ 0 & \\cdots & 1 & & 0 & \\cdots & 1 \\end{bmatrix}}", "ioorders": "\\mathbf{O}", "sectorsset": "\\mathbb{S}", "sectorssetsize": "n", "regionsset": "\\mathbb{R}", "regionssetsize": "m", "firmsset": "\\mathbb{F}", "firmssetsize": "p", "catfdset": "\\mathbb{C}^{\\textrm{fd}}", "catfdsetsize": "r", "catvaset": "\\mathbb{C}^{\\textrm{va}}", "catvasetsize": "q", "ioz": "\\mathbf{Z}", "ioy": "\\mathbf{Y}", "iov": "\\mathbf{V}", "iox": "\\mathbf{x}", "ioa": "\\mathbf{A}", "iok": "\\mathbf{K}", "ioava": "\\mathbf{A}_{\\textrm{va}}", "ioinv": "\\mathbf{\\Omega}", "Damage": "\\mathbf{\\Gamma}", "damage": "\\gamma"}}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'boario-math';</script>
+    <script src="_static/js/custom.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="boario-api-reference.html" />
+    <link rel="prev" title="How to define Events" href="boario-events.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">BoARIO  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="user-guide.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="boario-api-reference.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="development.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="release-note.html">
+                        Release notes
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="boario-references.html">
+                        References
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item"><p class="last-updated">
+  Last updated on Mar 13, 2023.
+  <br/>
+</p></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="user-guide.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="boario-api-reference.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="development.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="release-note.html">
+                        Release notes
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="boario-references.html">
+                        References
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><p class="last-updated">
+  Last updated on Mar 13, 2023.
+  <br/>
+</p></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="boario-what-is.html">BoARIO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boario-installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boario-terminology.html">Terminology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boario-quickstart.html">Quickstart and examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boario-events.html">How to define Events</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Detailed model description</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="user-guide.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Detailed model description</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="detailed-model-description">
+<span id="boario-math"></span><h1>Detailed model description<a class="headerlink" href="#detailed-model-description" title="Permalink to this heading">#</a></h1>
+<p>This page details the mathematical background of the ARIO model.</p>
+<section id="notations">
+<span id="boario-math-notations"></span><h2>Notations<a class="headerlink" href="#notations" title="Permalink to this heading">#</a></h2>
+<table class="table" id="id7">
+<caption><span class="caption-text">Notations table</span><a class="headerlink" href="#id7" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 30.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Notation</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Dimension</p></th>
+<th class="head"><p>Attribute (argument) name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\sectorsset{} = \{ S_1, \ldots, S_n\}\)</span></p></td>
+<td><p>Set of sectors indices</p></td>
+<td><p><span class="math notranslate nohighlight">\(|\sectorsset| = n\)</span></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\regionsset = \{ R_1, \ldots, R_m\}\)</span></p></td>
+<td><p>Set of regions indices (countries)</p></td>
+<td><p><span class="math notranslate nohighlight">\(|\regionsset| = m\)</span></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\rfirmsset = \{f^R_1, \ldots,  f^R_n\}\)</span></p></td>
+<td><p>Set of industries of country <span class="math notranslate nohighlight">\(R\)</span> (<span class="math notranslate nohighlight">\(f^R_{S}\)</span> is the industry of sector <span class="math notranslate nohighlight">\(S\)</span> of region <span class="math notranslate nohighlight">\(R\)</span>)</p></td>
+<td><p><span class="math notranslate nohighlight">\(|\rfirmsset{}| = n\)</span></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\firmsset = \{\rfirmsset{R_1}, \ldots, \rfirmsset{R_{m}}\}\)</span></p></td>
+<td><p>Global set of industries (a sector in a region) indices.</p></td>
+<td><p><span class="math notranslate nohighlight">\(|\firmsset| = n \times  m = p\)</span></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\ioz^{RR'}\)</span></p></td>
+<td><p>Inter-regional transaction matrix (flows are from region <span class="math notranslate nohighlight">\(R\)</span> to  <span class="math notranslate nohighlight">\(R'\)</span> and industry <span class="math notranslate nohighlight">\(f\)</span> to <span class="math notranslate nohighlight">\(f'\)</span>)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\ioz^{RR'} = (z_{ff'}^{RR'})_{\substack{f      \in \rfirmsset{R}\\f'      \in \rfirmsset{R'}\\(R,R') \in \regionsset}}\)</span></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\ioz = \begin{bmatrix}               \ioz^{R_1,R_1} &amp; \cdots &amp; \ioz^{R_1,R_m}\\        \vdots &amp; \ddots &amp; \vdots\\               \ioz^{R_m,R_1} &amp; \cdots &amp; \ioz^{R_m,R_m}      \end{bmatrix}\)</span></p></td>
+<td><p>Global transaction matrix</p></td>
+<td><p><span class="math notranslate nohighlight">\(\ioz = (z_{ff'})_{f,f'    \in \firmsset}\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Z_0</span></code>, <code class="docutils literal notranslate"><span class="pre">intmd_demand</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\ioy^{RR'}\)</span></p></td>
+<td><p>Inter-regional final demand matrix (flow from industry <span class="math notranslate nohighlight">\(f\)</span> of  region <span class="math notranslate nohighlight">\(R\)</span> towards final demand of region <span class="math notranslate nohighlight">\(R'\)</span>)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\ioy^{RR'} =  (y_{f}^{RR'})_{\substack{f \in \rfirmsset\\(R,R') \in \regionsset}}\)</span></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\ioy= \begin{bmatrix}          \ioy^{R_1,R_1} &amp; \cdots &amp; \ioy^{R_1,R_m}\\          \vdots &amp; \ddots &amp; \vdots\\          \ioy^{R_m,R_1} &amp; \cdots &amp; \ioy^{R_m,R_m}        \end{bmatrix}\)</span></p></td>
+<td><p>Global final demand matrix (total flow from firm indexed by <span class="math notranslate nohighlight">\(f\)</span> toward  final demand)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\ioy  = (y_{f})_{f \in \firmsset}\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Y_0</span></code>, <code class="docutils literal notranslate"><span class="pre">final_demand</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\iov^R =      \begin{bmatrix}        v^{R}_{1} &amp; \cdots &amp; v^{R}_{n} \end{bmatrix}\)</span></p></td>
+<td><p>Regional value added vector</p></td>
+<td><p><span class="math notranslate nohighlight">\(\iov^R =  (v_{f}^R)_{\substack{f \in \rfirmsset{R}\\R \in \regionsset}}\)</span></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\iov =      \begin{bmatrix}        \iov^{R_1} &amp; \cdots &amp; \iov^{R_m}\\      \end{bmatrix}\)</span></p></td>
+<td><p>Global value added vector</p></td>
+<td><p><span class="math notranslate nohighlight">\(\iov =  (v_{f})_{f \in \firmsset}\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">VA_0</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\iok^R =      \begin{bmatrix}        k^{R}_{1} &amp; \cdots &amp; k^{R}_{n} \end{bmatrix}\)</span></p></td>
+<td><p>Regional capital stock vector</p></td>
+<td><p><span class="math notranslate nohighlight">\(\iok^R =  (k_{f}^R)_{\substack{f \in \rfirmsset{R}\\R \in \regionsset}}\)</span></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\iok =      \begin{bmatrix}        \iok^{R_1} &amp; \cdots &amp; \iok^{R_m}\\      \end{bmatrix}\)</span></p></td>
+<td><p>Global capital stock vector</p></td>
+<td><p><span class="math notranslate nohighlight">\(\iok =  (k_{f})_{f \in \firmsset}\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kapital_stock</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\iox\)</span></p></td>
+<td><p>Production vector</p></td>
+<td><p><span class="math notranslate nohighlight">\(\iox = (x_{f})_{f \in \firmsset}\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">production</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\ioa^{RR'}\)</span></p></td>
+<td><p>Inter-regional technical coefficients matrix</p></td>
+<td><p><span class="math notranslate nohighlight">\(\ioa^{RR'} =  (a_{f,f'}^{RR'})_{\substack{f \in \rfirmsset{R}\\f' \in \rfirmsset{R'}\\(R,R') \in \regionsset}}\)</span></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\ioa=    \begin{bmatrix}      \ioa^{R_1,R_1} &amp; \cdots &amp; \ioa^{R_1,R_m}\\      \vdots &amp; \ddots &amp; \vdots\\      \ioa^{R_m,R_1} &amp; \cdots &amp; \ioa^{R_m,R_m}    \end{bmatrix}\)</span></p></td>
+<td><p>Global technical coefficients matrix</p></td>
+<td><p><span class="math notranslate nohighlight">\(\ioa =  (a_{f,f'})_{f,f' \in \firmsset}\)</span></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\ioava = (a^{\textrm{va}}_{f})_{f \in \firmsset}\)</span></p></td>
+<td><p>Global value added technical coefficients matrix</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\ioinv\)</span></p></td>
+<td><p>Inventories/Inputs stock matrix</p></td>
+<td><p><span class="math notranslate nohighlight">\(\ioinv = (\omega^f_{i})_{\substack{f      \in      \firmsset\\ i \in \sectorsset}}\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">matrix_stock</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\Damage_{\textrm{Tot}} = \begin{bmatrix} \gamma_{1} \cdots \gamma_{p = n \times m} \end{bmatrix}\)</span></p></td>
+<td><p>Per industry capital lost due to event(s) (destroyed or unavaillable)</p></td>
+<td><p>scalar</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kapital_lost</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\cdot(t)\)</span></p></td>
+<td><p>Value of &lt;<span class="math notranslate nohighlight">\(\cdot\)</span>&gt; at step <span class="math notranslate nohighlight">\(t\)</span>, where &lt;<span class="math notranslate nohighlight">\(\cdot\)</span>&gt; can be any  scalar,  vector or matrix</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\psi\)</span></p></td>
+<td><p>Inventories heterogeneity parameter</p></td>
+<td><p>scalar in <span class="math notranslate nohighlight">\([0,1]\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">psi</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;psi_param&quot;</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\alpha^b\)</span></p></td>
+<td><p>Base overproduction capacity (same for all sectors and regions)</p></td>
+<td><p>scalar</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overprod_base</span></code> (<code class="docutils literal notranslate"><span class="pre">alpha_base</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\alpha^{\textrm{max}}\)</span></p></td>
+<td><p>Maximum overproduction capacity</p></td>
+<td><p>scalar</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overprod_max</span></code> (<code class="docutils literal notranslate"><span class="pre">alpha_max</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\tau_{\alpha}\)</span></p></td>
+<td><p>Overproduction increase/decrease characteristic time</p></td>
+<td><p>scalar</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overprod_tau</span></code> (<code class="docutils literal notranslate"><span class="pre">alpha_tau</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\tau_{\textrm{INV}}\)</span></p></td>
+<td><p>Characteristic time of inventory restoration</p></td>
+<td><p>scalar</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">restoration_tau</span></code> (<code class="docutils literal notranslate"><span class="pre">inventory_restoration_tau</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\tau_{\textrm{REBUILD}}\)</span></p></td>
+<td><p>Characteristic time of rebuilding</p></td>
+<td><p>scalar</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rebuild_tau</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\mathbf{s}\)</span></p></td>
+<td><p>Initial/Objective inventory vector</p></td>
+<td><p><span class="math notranslate nohighlight">\(\mathbf{s} = (s_{i})_{i \in \sectorsset}\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inv_duration</span></code> (<code class="docutils literal notranslate"><span class="pre">inventory_dict</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\mathbf{\kappa}\)</span></p></td>
+<td><p>Capital stock to value added ratio</p></td>
+<td><p><span class="math notranslate nohighlight">\(\mathbf{\kappa} = (\kappa_{i})_{i \in \sectorsset}\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kstock_ratio_to_VA</span></code> (<code class="docutils literal notranslate"><span class="pre">kapital_ratio_dict</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We use sets of indices for industries, sectors and regions to simplify the notation of matrix elements.
+As such we use both <span class="math notranslate nohighlight">\(\sum_{f' \in \firmsset} (z_{ff'})\)</span> and <span class="math notranslate nohighlight">\(\sum_{1 \leq f' \leq p} (z_{ff'})\)</span>
+to designate the sum of all flows from industry <span class="math notranslate nohighlight">\(f\)</span> (resp. indexed by <span class="math notranslate nohighlight">\(f\)</span>) to other industries.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Additionally, we use <span class="math notranslate nohighlight">\(A = B \odot C\)</span>, the Hadamard product (element wise product) (i.e. <span class="math notranslate nohighlight">\(a_{ij} = b_{ij} \cdot c_{ij}\)</span>)</p>
+</div>
+</section>
+<section id="model-s-details">
+<h2>Model(s) details<a class="headerlink" href="#model-s-details" title="Permalink to this heading">#</a></h2>
+<section id="initial-state">
+<span id="boario-math-init"></span><h3>Initial state<a class="headerlink" href="#initial-state" title="Permalink to this heading">#</a></h3>
+<p>The initial state refers to an economic equilibrium before any exogenous shocks. Initial values for intermediate orders <span class="math notranslate nohighlight">\(\ioorders\)</span>, final consumption <span class="math notranslate nohighlight">\(\ioy\)</span>, and production <span class="math notranslate nohighlight">\(\iox\)</span> are derived from MRIO tables. Inventories <span class="math notranslate nohighlight">\(\ioinv\)</span> are stocks of inputs an industry can draw into and <span class="math notranslate nohighlight">\(\ioinv(t=0)\)</span> is initialized using the initial intermediate orders <span class="math notranslate nohighlight">\(\ioorders(0) = \ioz\)</span> : by default, it is assumed that every industry has <span class="math notranslate nohighlight">\(\mathbf{s}\)</span> days of inputs ahead in their stocks.</p>
+<p>In the rest of this section, we describe this initialisation in more details.</p>
+<p>We build <span class="math notranslate nohighlight">\(\ioz\)</span>, <span class="math notranslate nohighlight">\(\ioy\)</span> and <span class="math notranslate nohighlight">\(\iov\)</span> using input output tables.
+We compute initial production <span class="math notranslate nohighlight">\(\iox_0\)</span>, technical matrix <span class="math notranslate nohighlight">\(\ioa\)</span> and
+value added technical matrix <span class="math notranslate nohighlight">\(\ioava\)</span> as follows (consistent with Leontief I-O theory):</p>
+<div class="math notranslate nohighlight">
+ \begin{gather*}
+ \iox_0 = \ioz \cdot \mathbf{i} + \ioy \cdot \mathbf{i}\\
+ \ioa = \ioz \cdot \mathbf{\hat{x}}_0^{-1}\\
+ \ioava = \ioy \cdot \mathbf{\hat{x}}_0^{-1}
+ \end{gather*}</div><p>Where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{i}\)</span> is a summation column vector of size <span class="math notranslate nohighlight">\(s \times r\)</span> (number of sectors times regions)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{\hat{x}_0}\)</span> is the diagonal matrix with the elements of <span class="math notranslate nohighlight">\(\iox_0\)</span></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that we divide these yearly values by the <code class="docutils literal notranslate"><span class="pre">iotable_year_to_temporal_unit_factor</span></code> <a class="reference internal" href="boario-quickstart.html#year-to-temporal-unit-factor"><span class="std std-ref">parameter</span></a> in order to obtain an approximation of the productions and demands per <a class="reference internal" href="boario-quickstart.html#temporal"><span class="std std-ref">temporal unit</span></a> (most often days).</p>
+</div>
+<p>We also compute the following :</p>
+<div class="math notranslate nohighlight" id="boario-math-z-agg">
+\begin{gather*}
+ \ioa^{\sectorsset} = \mathbf{I_{\textrm{sum}}} \cdot  \ioa\\
+ \ioz^{\sectorsset} = \mathbf{I_{\textrm{sum}}} \cdot  \ioz\\
+ \ioz^{\textrm{Share}} =  \ioz \oslash \left ( \ioz^{\sectorsset} \otimes \underbrace{\begin{bmatrix} 1 \\ \vdots\\ 1 \end{bmatrix}}_{\text{m-sized}} \right )
+\end{gather*}</div><p>Where :</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{I_{\textrm{sum}}}\)</span> is a row summation matrix which aggregates by sector.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{I_{\textrm{sum}}} =
+\underbrace{
+    \begin{bmatrix}
+      1 &amp; \cdots &amp; 0 &amp; &amp; 1 &amp; \cdots &amp; 0 \\
+      \vdots &amp; \ddots &amp; \vdots &amp; \cdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+      0 &amp; \cdots &amp; 1 &amp; &amp; 0 &amp; \cdots &amp; 1
+    \end{bmatrix}
+  }_{r \times s} s\end{split}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><span class="math notranslate nohighlight">\(\otimes\)</span> is the Kronecker product which repeats each row of <span class="math notranslate nohighlight">\(\ioz^{\sectorsset}\)</span> <span class="math notranslate nohighlight">\(m\)</span> times.</p>
+<p><span class="math notranslate nohighlight">\(\oslash\)</span> is the matrix element-wise division, defined such that dividing by zero gives zero. (If initial order to an industry was null, the share ordered is also null)</p>
+</div>
+<p>Hence, <span class="math notranslate nohighlight">\(\ioa^{\sectorsset}\)</span> and <span class="math notranslate nohighlight">\(\ioz^{\sectorsset}\)</span> are respectfully the technical matrix and the intermediate demand matrix, that are aggregated by sector. They indicate technology and transactions on the sector level, regardless of the region of provenance.</p>
+<p><span class="math notranslate nohighlight">\(\ioz^{\textrm{Share}}\)</span> represents for each firm and for each of their input, the share of the total ordered to a supplier, initially (i.e. <span class="math notranslate nohighlight">\(\ioz\)</span> normalized for each input). Or alternatively, the initial “market shares”.</p>
+<p id="boario-math-initial-inv">As stated previously, the initial inventory matrix <span class="math notranslate nohighlight">\(\ioinv\)</span> is initialized as follows :</p>
+<div class="math notranslate nohighlight">
+ \begin{equation*}
+   \ioinv(t=0) = \mdefentryval{\omega}{0}{i}{n}{f}{p}{}{} =
+   \begin{bmatrix}
+   \mathbf{s} \cdots \mathbf{s}
+   \end{bmatrix}
+   %% \colvec{s_1 \cdots s_1}{s_n \cdots s_n}
+   \odot \underbrace{
+   \begin{bmatrix} \iox(0)\\
+   \vdots\\
+   \iox(0) \end{bmatrix}}_{\substack{\iox(0)\\
+   n\text{ times}}} \odot \ioa^{\sectorsset} = \colvec{s_1 x_1(0) a_{11} \cdots s_1 x_{p}(0) a_{1p}}{s_n x_{1}(0) a_{n1} \cdots s_n x_{p}(0) a_{np}}
+ \end{equation*}</div><p>Such that <span class="math notranslate nohighlight">\(\omega_{if}(0) = s_i \cdot x_{f}(0) \cdot a_{if}\)</span> is the
+exact amount of product <span class="math notranslate nohighlight">\(i\)</span> required by industry <span class="math notranslate nohighlight">\(f\)</span> to produce
+<span class="math notranslate nohighlight">\(x_{f}(0)\)</span> (i.e. the initial equilibrium production of <span class="math notranslate nohighlight">\(f\)</span>) during <span class="math notranslate nohighlight">\(s_i\)</span> temporal units. Or, alternatively, that <span class="math notranslate nohighlight">\(f\)</span> could (technically) produce during <span class="math notranslate nohighlight">\(s_i\)</span> temporal units without receiving input from any industry producing <span class="math notranslate nohighlight">\(i\)</span>.</p>
+<p>Hence, all industries start with a stock of each of their intermediate inputs equal to the amount required for <span class="math notranslate nohighlight">\(s_i\)</span> temporal units of production at initial production capacity.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><span class="math notranslate nohighlight">\(s_i\)</span> does not differ on a per-industry basis, only on a per-product basis, (although this could be implemented easily).</p>
+</div>
+<p>The order matrix <span class="math notranslate nohighlight">\(\ioorders\)</span> is initialized to be equal to <span class="math notranslate nohighlight">\(\ioz\)</span> :</p>
+<div class="math notranslate nohighlight">
+ \begin{equation*}
+     \ioorders(t=0) = \left ( o_{ff'}(t=0) \right )_{\substack{f
+     \in \rfirmsset{R}\\f'
+     \in \rfirmsset{R'}\\(R,R') \in \regionsset}} = \ioz
+ \end{equation*}</div><p>And where <span class="math notranslate nohighlight">\(o_{ff'}\)</span> is the order made by firm <span class="math notranslate nohighlight">\(f'\)</span> to firm <span class="math notranslate nohighlight">\(f\)</span>.</p>
+</section>
+<section id="model-dynamics">
+<span id="boario-math-dyn"></span><h3>Model dynamics<a class="headerlink" href="#model-dynamics" title="Permalink to this heading">#</a></h3>
+<section id="production-module">
+<span id="boario-math-prod"></span><h4>Production module<a class="headerlink" href="#production-module" title="Permalink to this heading">#</a></h4>
+<p>In ARIO, production is demand-driven, which means production cannot be greater than demand. Another limit is the production capacity, which can change (positively or negatively) either due to a shock (e.g. productive capital destroyed) or due to the overproduction mechanism. Finally production can be constrained by the state of the inventory of inputs of an industry, the general philosophy being that industries will aim to have enough inputs to produce at their current production level for a given number of days, reducing their production level if that is not the case.</p>
+<p>Here is how, at each temporal unit <span class="math notranslate nohighlight">\(t\)</span>, the vecto of actual (or realised) production for each industry <span class="math notranslate nohighlight">\(f \in \firmsset\)</span>, denoted  <span class="math notranslate nohighlight">\(\iox^a(t)\)</span>, is computed in BoARIO:</p>
+<p>Let <span class="math notranslate nohighlight">\(\mathbf{\alpha} = (\alpha_{f})_{f \in \firmsset}\)</span> be the vector of overproduction such that <span class="math notranslate nohighlight">\(\alpha_{f}\)</span> is the overproduction factor of industry <span class="math notranslate nohighlight">\(f\)</span> and let <span class="math notranslate nohighlight">\(\Delta_{f}(t)\)</span> be the initial loss of production capacity of industry <span class="math notranslate nohighlight">\(f_S^R\)</span> :
+Production capacity of industry <span class="math notranslate nohighlight">\(f\)</span> at step <span class="math notranslate nohighlight">\(t\)</span> before constraints is:</p>
+<div class="math notranslate nohighlight">
+ \begin{equation*}
+   x^{Cap}_{f}(t) = \alpha_{f}(t) (1 - \Delta_{f}(t)) x_{f}(t)
+ \end{equation*}</div><p>Once we have production capacity, we can compute actual production:</p>
+<div class="math notranslate nohighlight">
+ \begin{alignat*}{4}
+       \mathbf{D}^{\textrm{Tot}}(t) &amp;= (d_{f}^{\textrm{Tot}}(t))_{f \in \firmsset} &amp;&amp;= \ioorders(t) \cdot \irowsum + \ioy \cdot \irowsum + \Damage_{\firmsset} \cdot \tau_{\textrm{REBUILD}} &amp;&amp; \text{Total demand matrix} \\
+       &amp; &amp;&amp; &amp;&amp;\\
+       \iox^{\textrm{Opt}}(t) &amp;= (x^{\textrm{Opt}}_{f}(t))_{f \in \firmsset} &amp;&amp;= \left ( \min \left ( d^{\textrm{Tot}}_{f}(t), x^{\textrm{Cap}}_{f}(t) \right ) \right )_{f \in \firmsset} &amp;&amp; \text{Optimal production}\\
+       &amp; &amp;&amp; &amp;&amp;\\
+       \ioinv^{\textrm{Cons}}(t) &amp;= (\omega^{\textrm{Cons},f}_p(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} &amp;&amp;=
+          \begin{bmatrix}
+            s^{1}_1 &amp; \cdots &amp; s^{p}_1 \\
+            \vdots &amp; \ddots &amp; \vdots\\
+            s^1_n &amp; \cdots &amp; s^{p}_n
+          \end{bmatrix}
+ \odot \begin{bmatrix} \iox^{\textrm{Opt}}(t)\\
+ \vdots\\
+ \iox^{\textrm{Opt}}(t) \end{bmatrix} \odot \ioa^{\sectorsset} &amp;&amp; \\
+ &amp;&amp;&amp;= \begin{bmatrix}
+ s^{1}_1 x^{\textrm{Opt}}_{1}(t) a_{11} &amp; \cdots &amp; s^{p}_1 x^{\textrm{Opt}}_{p}(t) a_{1p}\\
+ \vdots &amp; \ddots &amp; \vdots\\
+ s^1_n x^{\textrm{Opt}}_{1}(t) a_{n1} &amp; \cdots &amp; s^{p}_n x^{\textrm{Opt}}_{p}(t) a_{np}
+ \end{bmatrix}
+ \cdot \psi &amp;&amp; \text{Inventory constraints}  \\
+ &amp; &amp;&amp; &amp;&amp;\\
+       \iox^{a}(t) &amp;= (x^{a}_{f}(t))_{f \in \firmsset} &amp;&amp;= \left \{ \begin{aligned}
+                                                                       &amp; x^{\textrm{Opt}}_{f}(t) &amp; \text{if $\omega_{p}^f(t) \geq \omega^{\textrm{Cons},f}_p(t)$} \forall p\\
+                                                                       &amp; x^{\textrm{Opt}}_{f}(t) \cdot \min_{p \in \sectorsset} \left ( \frac{\omega^s_{p}(t)}{\omega^{\textrm{Cons,f}}_p(t)} \right ) &amp; \text{if $\omega_{p}^f(t) &lt; \omega^{\textrm{Cons},f}_p(t)$}
+                                                                    \end{aligned} \right. \quad &amp;&amp; \text{Actual production at $t$}
+ \end{alignat*}</div><p>First we compute the total demand directed towards each industry with eq. <span class="math notranslate nohighlight">\(\text{Total demand matrix}\)</span>. Then we compute optimal production without inventory constraints for each industry as the minimum between production capacity (possibly reduced by damages) and total demand, assuming an industry will not produce more than its clients demand (eq. <span class="math notranslate nohighlight">\(\text{Optimal production}\)</span>).</p>
+<p>We define inventory constraints <span class="math notranslate nohighlight">\(\ioinv^{\textrm{Cons}}\)</span> for each input, as a share <span class="math notranslate nohighlight">\(\psi\)</span> of the amount of stocks required to produce <span class="math notranslate nohighlight">\(s_p^f\)</span> temporal units of production at the level of production of the previous step (eq. <span class="math notranslate nohighlight">\(\text{Inventory constraints}\)</span>).</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>You can take a look at the documentation of the method here: <code class="xref py py-meth docutils literal notranslate"><span class="pre">calc_production()</span></code> (as well as the source code, via the <code class="docutils literal notranslate"><span class="pre">source</span></code> button)</p>
+</div>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOBaseModel</span></code> offers a simplified version of the model where <span class="math notranslate nohighlight">\(\psi = 1\)</span> (among other simplifications).</p>
+</div>
+<p>If the inventory of product <span class="math notranslate nohighlight">\(p \in \sectorsset\)</span> of an industry <span class="math notranslate nohighlight">\(f\)</span> is lower than its required level, then <span class="math notranslate nohighlight">\(f\)</span>’s production is reduced. An inventory shortage of <span class="math notranslate nohighlight">\(x\)</span> % (w.r.t. its constraint) leads to a <span class="math notranslate nohighlight">\(x\)</span> % reduction of production.</p>
+</section>
+<section id="distribution-and-inventory-module">
+<span id="boario-math-distrib"></span><h4>Distribution and inventory module<a class="headerlink" href="#distribution-and-inventory-module" title="Permalink to this heading">#</a></h4>
+<p>The distribution module defines how actual production is allocated towards the various demands:</p>
+<p>If <span class="math notranslate nohighlight">\(d_f^{\textrm{Tot}}(t) = x_f(t)\)</span>, each client receive their order. If <span class="math notranslate nohighlight">\(d_f^{\textrm{Tot}}(t) &gt; x_f(t)\)</span>, each client receive a share of their order as per a proportional rationing scheme:</p>
+<div class="math notranslate nohighlight">
+ \begin{alignat*}{4}
+   &amp;\ioorders^{\textrm{Received}}(t) &amp;&amp;= \left (\frac{o_{ff'}(t)}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f,f'\in \firmsset}\\
+   &amp;\ioy^{\textrm{Received}}(t) &amp;&amp;= \left ( \frac{y_{f}}{d^{\textrm{Tot}}_f(t)}\cdot x^a_f(t) \right )_{f\in \firmsset}\\
+   &amp;\Damage^{\textrm{Repaired}}(t) &amp;&amp;= \left ( \frac{\gamma_{f} \cdot \tau_{\textrm{REBUILD}}}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f\in \firmsset}\\
+ \end{alignat*}</div><p>Where <span class="math notranslate nohighlight">\(\damage_f\)</span> is the total rebuilding demand towards industry <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(\tau_{\textrm{REBUILD}}\)</span> is the rebuilding characteristic time.</p>
+<section id="inventory-resupply">
+<h5>Inventory resupply<a class="headerlink" href="#inventory-resupply" title="Permalink to this heading">#</a></h5>
+<p>From the received orders (or answered intermediate demand), the model can infer the changes in inputs inventories:</p>
+<div class="math notranslate nohighlight">
+ \begin{alignat*}{4}
+   &amp;\ioinv(t+1) &amp;&amp;= \ioinv(t) + \underbrace{\left ( \mathbf{I}_{\textrm{sum}} \cdot \ioorders^{\textrm{Received}}(t) \right )}_{\text{orders received aggregated by inputs}} - \underbrace{\left ( \colvec{\iox^{\textrm{a}}(t)}{\iox^{\textrm{a}}(t)} \odot \ioa^{\sectorsset} \right )}_{\text{inputs used during production}}\\
+ \end{alignat*}</div></section>
+<section id="recovery">
+<span id="boario-math-recovery"></span><h5>Recovery<a class="headerlink" href="#recovery" title="Permalink to this heading">#</a></h5>
+<div class="math notranslate nohighlight">
+ \begin{equation*}
+   \Damage_{\textrm{Tot}}(t+1) = \Damage_{\textrm{Tot}}(t) - \Damage^{\textrm{Repaired}}(t)
+ \end{equation*}</div><div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>You can take a look at the documentation of the method here: <code class="xref py py-meth docutils literal notranslate"><span class="pre">distribute_production()</span></code> (as well as the source code, via the <code class="docutils literal notranslate"><span class="pre">source</span></code> button)</p>
+</div>
+</section>
+</section>
+<section id="order-module">
+<span id="boario-math-orders"></span><h4>Order module<a class="headerlink" href="#order-module" title="Permalink to this heading">#</a></h4>
+<p>After distribution, the model can compute the orders made by each industries towards their suppliers in order to resupply their inventories of inputs.</p>
+<p>Industries seek to restore the inventory of each of their input to their goal level, that is the initial level w.r.t. its current optimal production level (see <a class="reference internal" href="#boario-math-prod"><span class="std std-ref">Production module</span></a>).</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>As such, this goal can vary during simulation as it depends on <span class="math notranslate nohighlight">\(\iox^{\textrm{Opt}}_t\)</span> (and not <span class="math notranslate nohighlight">\(\iox_0\)</span>).</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In <code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOBaseModel</span></code>, the total order matrix is simply the difference between <span class="math notranslate nohighlight">\(\ioinv^{*}(t)\)</span> and <span class="math notranslate nohighlight">\(\ioinv(t)\)</span>, whereas in <code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOPsiModel</span></code>, only a fraction of missing inventories are ordered, but in addition, the totality of inputs used for production during this step is also ordered. This difference is highlighted in red in the next equations (the red part is added in the <code class="docutils literal notranslate"><span class="pre">ARIOPsiModel</span></code> case)</p>
+</div>
+<div class="math notranslate nohighlight">
+ \begin{alignat*}{4}
+    &amp;\ioinv^{*}(t) &amp;&amp;= (\omega_p^{*,f}(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} \quad = \quad s^{f}_p \cdot \begin{bmatrix} \iox^{\textrm{Opt}}(t)\\ \vdots\\ \iox^{\textrm{Opt}}(t) \end{bmatrix} \odot  \ioa^\sectorsset &amp;&amp; \quad &amp;&amp; \text{Inventory goals} \\
+    &amp;\ioinv^{\textrm{Gap}}(t) &amp;&amp;= (\omega_p^{\textrm{Gap},f}(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} \quad = \quad \left ( \ioinv^{*} - \ioinv(t) \right )_{\geq 0} &amp;&amp; \quad &amp;&amp; \text{Inventory gaps}\\
+    &amp;\ioorders^{\sectorsset}(t) &amp;&amp;= {\color{red}{\frac{1}{\tau_{\textrm{Inv}}}}} \cdot \ioinv^{\textrm{Gap}}(t) {\color{red}{ + \begin{bmatrix} \iox^a(t)\\ \vdots\\ \iox^a(t) \end{bmatrix} \odot  \ioa^{\sectorsset}}} &amp;&amp;\quad &amp;&amp; \text{Intermediate demand total orders}\\
+    &amp;\ioorders(t) &amp;&amp;= \left ( \ioorders^{\sectorsset}(t) \otimes \underbrace{\begin{bmatrix} 1 \\ \vdots\\ 1 \end{bmatrix}}_{\text{m-sized}} \right ) \odot  {\color{green}{\ioz^{\textrm{*}}}} &amp;&amp;\quad &amp;&amp; \text{Intermediate demand orders}
+ \end{alignat*}</div><ol class="arabic simple">
+<li><p>In eq. <span class="math notranslate nohighlight">\(\text{Inventory goals}\)</span> we compute inventory goals based on optimal production. (Note that, in the version with <code class="docutils literal notranslate"><span class="pre">psi</span></code>, <span class="math notranslate nohighlight">\(\Omega^* = \frac{\Omega^{\textrm{Cons}}}{\psi}\)</span>)</p></li>
+<li><p>In eq. <span class="math notranslate nohighlight">\(\text{Inventory gaps}\)</span> we compute the inventory gaps. <span class="math notranslate nohighlight">\((\mathbf{A} - \mathbf{B})_{\geq 0}\)</span> denotes the resulting matrix of <span class="math notranslate nohighlight">\(\mathbf{A} - \mathbf{B}\)</span> where negative values are replaced by 0.</p></li>
+<li><p>In eq. <span class="math notranslate nohighlight">\(\text{Intermediate total demand orders}\)</span> we compute aggregate orders for intermediate demand.</p></li>
+<li><p>In eq. <span class="math notranslate nohighlight">\(\text{Intermediate demand orders}\)</span> we compute the actual order matrix, by distributing total orders along the different suppliers. The model has two variants based on the value of <span class="math notranslate nohighlight">\(\color{green}{\ioz^{\textrm{*}}}\)</span> which are described bellow.</p></li>
+</ol>
+<section id="orders-shares-variants">
+<span id="alt-orders"></span><h5>Orders shares variants<a class="headerlink" href="#orders-shares-variants" title="Permalink to this heading">#</a></h5>
+<ol class="upperalpha simple">
+<li><p>The model uses the initial transaction shares: <span class="math notranslate nohighlight">\(\ioz^{\textrm{*}}(t) = \ioz^{\textrm{Share}}\)</span>. In this case there is no substitution possible among supplier. As a reminder:</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\ioz^{\textrm{Share}} =  \ioz \oslash \left ( \left ( \mathbf{I_{\textrm{sum}}} \right ) \cdot  \ioz \otimes \underbrace{\begin{bmatrix} 1 \\ \vdots\\ 1 \end{bmatrix}}_{\text{m-sized}} \right )\end{split}\]</div>
+<ol class="upperalpha simple" start="2">
+<li><p>The model uses the initial transaction share, but weighted by suppliers current production level, relative to their initial production, ie we replace both occurrence of <span class="math notranslate nohighlight">\(\ioz\)</span> in the previous equation by the following:</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\ioz \odot \begin{bmatrix} \frac{x_{1}(t)}{x_{1}(0)} &amp; \cdots &amp; \frac{x_{p}(t)}{x_{p}(0)} \\ \vdots &amp; \ddots &amp; \vdots \\ \frac{x_{1}(t)}{x_{1}(0)} &amp; \cdots &amp; \frac{x_{p}(t)}{x_{p}(0)} \end{bmatrix}\end{split}\]</div>
+<p>The first variant corresponds to the order module of <span id="id1">[<a class="reference internal" href="boario-references.html#id2" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span> while the other one corresponds to the one defined in <span id="id2">[<a class="reference internal" href="boario-references.html#id4" title="Dabo Guan, Daoping Wang, Stephane Hallegatte, Steven J. Davis, Jingwen Huo, Shuping Li, Yangchun Bai, Tianyang Lei, Qianyu Xue, D'Maris Coffman, Danyang Cheng, Peipei Chen, Xi Liang, Bing Xu, Xiaosheng Lu, Shouyang Wang, Klaus Hubacek, and Peng Gong. Global supply-chain effects of covid-19 control measures. Nature Human Behaviour, 4(6):577-587, 2020. URL: http://dx.doi.org/10.1038/s41562-020-0896-8, doi:10.1038/s41562-020-0896-8.">GWH+20</a>]</span> (See <a class="reference internal" href="boario-quickstart.html#model-parameters"><span class="std std-ref">order module parameter</span></a> for how to choose implementation).</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Currently, final demand is constant throughout simulations, as such, the macro effect described in <span id="id3">[<a class="reference internal" href="boario-references.html#id3" title="Stéphane Hallegatte. An adaptive regional input-output model and its application to the assessment of the economic cost of katrina. Risk Analysis, 28(3):779-799, 2008. URL: https://doi.org/10.1111/j.1539-6924.2008.01046.x, doi:10.1111/j.1539-6924.2008.01046.x.">Hal08</a>]</span> is not implemented. The main reason being that this mechanism renders the model highly unstable when on the multi-regional scale. Eventually, a similar mechanism will be implemented in a future version (suggestions or contributions are most welcomed !)</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While final demand is fixed, the model registers the final demand not met due to the proportional rationing scheme, at each step. Which can be seen as a loss indicators.</p>
+</div>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>Looking back at the <a class="reference internal" href="#boario-math-distrib"><span class="std std-ref">distribution module</span></a>, note how equilibrium is kept intact in both cases, if no shock happens, as <span class="math notranslate nohighlight">\(\iox^{\textrm{opt}}(t) = \iox^{\textrm{a}}(t) = \iox(0)\)</span>, and so <span class="math notranslate nohighlight">\(\ioinv^{\textrm{Gap}}(t)\)</span> is always <span class="math notranslate nohighlight">\(0\)</span>, because orders are always exactly what was used to produce and are always satisfied.</p>
+</div>
+</section>
+</section>
+<section id="overproduction-module">
+<span id="boario-math-overprod"></span><h4>Overproduction module<a class="headerlink" href="#overproduction-module" title="Permalink to this heading">#</a></h4>
+<p>In ARIO, industries can temporarily increase their production capacity via an overproduction mechanism: if demand is higher than production, industries start to adapt their production level. We use the same definition as in <span id="id4">[<a class="reference internal" href="boario-references.html#id2" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span>, which uses a scarcity index <span class="math notranslate nohighlight">\(\zeta(t)\)</span>:</p>
+<div class="math notranslate nohighlight">
+ \begin{alignat*}{3}
+   &amp; \zeta(t) &amp;&amp;= \frac{d_{f}^{\textrm{Tot}}(t) - x^{a}_f(t)}{d_{f}^{\textrm{Tot}}(t)}\\
+   &amp; \alpha_f(t+1) &amp;&amp;= \begin{cases}
+          \alpha_f(t) + (\alpha^{\textrm{max}} - \alpha_f(t)) \cdot \zeta(t) \cdot \frac{1}{\tau_{\alpha}} &amp; \text{if } \zeta(t) &gt; 0\\
+          \alpha_f(t) +  (\alpha^{\textrm{b}}  - \alpha_f(t)) \cdot \frac{1}{\tau_{\alpha}}                &amp; \text{if } \zeta(t) \leq 0\\
+                   \end{cases}
+ \end{alignat*}</div></section>
+</section>
+<section id="event-impact">
+<span id="boario-math-events"></span><h3>Event impact<a class="headerlink" href="#event-impact" title="Permalink to this heading">#</a></h3>
+<p>Currently, the model allows representing the impact of the event via two effects :</p>
+<ol class="arabic simple">
+<li><p>A decrease of the production capacity of the impacted industries.</p></li>
+<li><p>An additional final demand corresponding to the capital destroyed and addressed towards the rebuilding sectors.</p></li>
+</ol>
+<p>See <a class="reference internal" href="boario-events.html#boario-events"><span class="std std-ref">How to define Events</span></a>.</p>
+<section id="production-capacity-decrease">
+<span id="boario-math-prodcapdec"></span><h4>Production capacity decrease<a class="headerlink" href="#production-capacity-decrease" title="Permalink to this heading">#</a></h4>
+<p>In the following we assume an event happens at <span class="math notranslate nohighlight">\(t=E\)</span>, causing <span class="math notranslate nohighlight">\(\Damage_{\textrm{Tot}} = \begin{bmatrix} \gamma_{1} \cdots \gamma_{p} \end{bmatrix}\)</span> damages to the different industries.</p>
+<p>We define <span class="math notranslate nohighlight">\(\Delta_{f}(t=E)\)</span>, the initial (in the sens <cite>when event occurs</cite>) loss of production capacity of industry <span class="math notranslate nohighlight">\(f\)</span>, as the fraction of its capital destroyed over its capital stock:</p>
+<div class="math notranslate nohighlight">
+ \begin{equation*}
+  \Delta_f(t=E) = \frac{
+                      \damage_{\textrm{f}(t=E)}
+                      }{
+                      k_f
+                     }
+ \end{equation*}</div><div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>In <span id="id5">[<a class="reference internal" href="boario-references.html#id2" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span>, estimate of the capital stock <span class="math notranslate nohighlight">\(k_f\)</span> of an industry <span class="math notranslate nohighlight">\(f\)</span> is computed by multiplying its value added by its so called <cite>capital to value added ratio</cite>.</p>
+<p>In BoARIO, the default behavior is the same as in <span id="id6">[<a class="reference internal" href="boario-references.html#id3" title="Stéphane Hallegatte. An adaptive regional input-output model and its application to the assessment of the economic cost of katrina. Risk Analysis, 28(3):779-799, 2008. URL: https://doi.org/10.1111/j.1539-6924.2008.01046.x, doi:10.1111/j.1539-6924.2008.01046.x.">Hal08</a>]</span>, i.e. capital is four times higher than value added: <span class="math notranslate nohighlight">\(k_f = 4 \times v_f\)</span>. You can also pass a per sector <cite>capital to value added ratio</cite> as a dictionary, or directly pass your own capital vector (see <a class="reference internal" href="boario-quickstart.html#model-parameters"><span class="std std-ref">Changing the model parameters</span></a>)</p>
+</div>
+<p>We update <span class="math notranslate nohighlight">\(\Delta_f\)</span> during every step according to how much damages remain :</p>
+<div class="math notranslate nohighlight">
+ \begin{equation*}
+         \Delta_{f}(t) = \frac{\damage_{\textrm{f}}(t)}{k_f}
+    \end{equation*}</div></section>
+</section>
+</section>
+<section id="model-overview">
+<h2>Model overview<a class="headerlink" href="#model-overview" title="Permalink to this heading">#</a></h2>
+<a class="reference internal image-reference" href="_images/boario-diagram.svg"><img alt="Diagram representing an overview of the BoARIO model." src="_images/boario-diagram.svg" width="700" /></a>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="boario-events.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">How to define Events</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="boario-api-reference.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API Reference</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notations">Notations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-s-details">Model(s) details</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-state">Initial state</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-dynamics">Model dynamics</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#production-module">Production module</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#distribution-and-inventory-module">Distribution and inventory module</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#inventory-resupply">Inventory resupply</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#recovery">Recovery</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#order-module">Order module</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#orders-shares-variants">Orders shares variants</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overproduction-module">Overproduction module</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#event-impact">Event impact</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#production-capacity-decrease">Production capacity decrease</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-overview">Model overview</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/spjuhel/BoARIO/edit/master/boario-math.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="_sources/boario-math.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner"></div>
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2022, Samuel Juhel.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://sphinx-doc.org/">Sphinx</a> 6.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

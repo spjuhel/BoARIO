@@ -1,0 +1,10 @@
+==========
+``boario``
+==========
+
+.. automodule:: boario
+
+   .. contents::
+      :local:
+
+.. currentmodule:: boario
