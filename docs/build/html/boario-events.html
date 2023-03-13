@@ -1,0 +1,707 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>How to define Events &#8212; BoARIO  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>window.MathJax = {"chtml": {"displayAlign": "left", "displayIndent": "2em"}, "loader": {"load": ["[tex]/color"]}, "tex": {"packages": {"[+]": ["color"]}, "macros": {"colvec": ["\\begin{bmatrix}#1 \\\\ \\vdots\\\\ #2 \\end{bmatrix}", 2], "rfirmsset": ["\\mathbf{F}^{#1}", 1], "mdefentryval": ["(#1_{#3#5}( #2 )^{#7#8})_{\\substack{#3 \\in #4 \\\\ #5 \\in #6}}", 8], "mdefentry": ["(#1_{#3#5}^{#7#8})_{\\substack{#3 \\in #4 \\\\ #5 \\in #6}}", 8], "irowsum": "\\begin{bmatrix} 1 \\\\ \\vdots \\\\ 1 \\end{bmatrix}", "isum": "\\underset{s \\times p}{\\begin{bmatrix} 1 & \\cdots & 0 & & 1 & \\cdots & 0\\\\ \\vdots & \\ddots & \\vdots & \\cdots &\\vdots & \\ddots & \\vdots\\\\ 0 & \\cdots & 1 & & 0 & \\cdots & 1 \\end{bmatrix}}", "ioorders": "\\mathbf{O}", "sectorsset": "\\mathbb{S}", "sectorssetsize": "n", "regionsset": "\\mathbb{R}", "regionssetsize": "m", "firmsset": "\\mathbb{F}", "firmssetsize": "p", "catfdset": "\\mathbb{C}^{\\textrm{fd}}", "catfdsetsize": "r", "catvaset": "\\mathbb{C}^{\\textrm{va}}", "catvasetsize": "q", "ioz": "\\mathbf{Z}", "ioy": "\\mathbf{Y}", "iov": "\\mathbf{V}", "iox": "\\mathbf{x}", "ioa": "\\mathbf{A}", "iok": "\\mathbf{K}", "ioava": "\\mathbf{A}_{\\textrm{va}}", "ioinv": "\\mathbf{\\Omega}", "Damage": "\\mathbf{\\Gamma}", "damage": "\\gamma"}}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'boario-events';</script>
+    <script src="_static/js/custom.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Detailed model description" href="boario-math.html" />
+    <link rel="prev" title="Quickstart and examples" href="boario-quickstart.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">BoARIO  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="user-guide.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="boario-api-reference.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="development.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="release-note.html">
+                        Release notes
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="boario-references.html">
+                        References
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item"><p class="last-updated">
+  Last updated on Mar 13, 2023.
+  <br/>
+</p></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="user-guide.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="boario-api-reference.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="development.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="release-note.html">
+                        Release notes
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="boario-references.html">
+                        References
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><p class="last-updated">
+  Last updated on Mar 13, 2023.
+  <br/>
+</p></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="boario-what-is.html">BoARIO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boario-installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boario-terminology.html">Terminology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boario-quickstart.html">Quickstart and examples</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">How to define Events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boario-math.html">Detailed model description</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="user-guide.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">How to define Events</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="how-to-define-events">
+<span id="boario-events"></span><h1>How to define Events<a class="headerlink" href="#how-to-define-events" title="Permalink to this heading">#</a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">#</a></h2>
+<p>The BoARIO model is used to study the indirect economic impacts consequent to <cite>local</cite> event <a class="footnote-reference brackets" href="#local" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
+At the moment, a shock is represented by a quantity of damages expressed in monetary value and leading to:</p>
+<ol class="arabic simple">
+<li><p>A destruction of capital leading to a reduction in production capacity production (See <a class="reference internal" href="boario-math.html#boario-math-prod"><span class="std std-ref">Production module</span></a>).</p></li>
+<li><p>A possible rebuilding demand, corresponding to destroyed capital or a part of it and addressed to a set of rebuilding sectors (See <span class="xref std std-ref">boario-math-rebuilding-demand</span>).</p></li>
+</ol>
+<p>To define such an event, we hence need the following information:</p>
+<ol class="arabic simple">
+<li><p>A quantity of damages</p></li>
+<li><p>The region(s) affected</p></li>
+<li><p>The sector(s) affected</p></li>
+<li><p>In the case a rebuilding demand is considered: the sector(s) considered to be rebuilding sectors</p></li>
+</ol>
+<p>In addition, it is also possible to define a duration (corresponding to the time before rebuilding can start)
+as well as time of occurrence (when studying interaction between multiple events).</p>
+<p>During a simulation BoARIO uses <a class="reference internal" href="autoapi/boario.event.html#boario.event.Event" title="boario.event.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> objects.
+This page details the different aspect of instantiating such objects.</p>
+<section id="simulation-context">
+<h3>Simulation context<a class="headerlink" href="#simulation-context" title="Permalink to this heading">#</a></h3>
+<p>Creating events requires a simulation context to exist,
+notably to assess the validity of the event (the affected regions, sectors, the occurrence, …). Hence,
+trying to instantiate an <code class="docutils literal notranslate"><span class="pre">Event</span></code> object without already having a <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> (and therefore a <code class="docutils literal notranslate"><span class="pre">ARIOPsiModel</span></code>)
+will raise an error.</p>
+<p>For the purpose of this page we will suppose the following code was run initially:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pymrio</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">boario.simulation</span> <span class="kn">import</span> <span class="n">Simulation</span>
+<span class="kn">from</span> <span class="nn">boario.extended_models</span> <span class="kn">import</span> <span class="n">ARIOPsiModel</span>
+
+<span class="n">mrio</span> <span class="o">=</span> <span class="n">pymrio</span><span class="o">.</span><span class="n">load_test</span><span class="p">()</span><span class="o">.</span><span class="n">calc_all</span><span class="p">()</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ARIOPsiModel</span><span class="p">(</span><span class="n">mrio</span><span class="p">)</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">n_temporal_units_to_sim</span><span class="o">=</span><span class="mi">365</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here are the regions and sectors defined in this context:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">regions</span>
+
+<span class="go">array([&#39;reg1&#39;, &#39;reg2&#39;, &#39;reg3&#39;, &#39;reg4&#39;, &#39;reg5&#39;, &#39;reg6&#39;], dtype=&#39;&lt;U4&#39;)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">sectors</span>
+
+<span class="go">array([&#39;construction&#39;, &#39;electricity&#39;, &#39;food&#39;, &#39;manufactoring&#39;, &#39;mining&#39;,</span>
+<span class="go">       &#39;other&#39;, &#39;trade&#39;, &#39;transport&#39;], dtype=&#39;&lt;U13&#39;)</span>
+</pre></div>
+</div>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="local" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>At the moment events are local to the regional unit of the MRIO used (e.g. a country/world region in the case of EXIOBASE3 MRIO).</p>
+</aside>
+</aside>
+</section>
+</section>
+<section id="different-types-of-event-objects">
+<h2>Different types of Event objects<a class="headerlink" href="#different-types-of-event-objects" title="Permalink to this heading">#</a></h2>
+<p>Currently two types of events are implemented and both consider
+a destruction of capital as the impact:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="autoapi/boario.event.html#boario.event.EventKapitalRecover" title="boario.event.EventKapitalRecover"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventKapitalRecover</span></code></a> defines events
+for which the destroyed capital is recovered (i.e. regained
+along a specified <code class="docutils literal notranslate"><span class="pre">recovery</span> <span class="pre">curve</span></code> without an associated
+rebuilding demand and rebuilding sectors)</p></li>
+<li><p><a class="reference internal" href="autoapi/boario.event.html#boario.event.EventKapitalRebuild" title="boario.event.EventKapitalRebuild"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventKapitalRebuild</span></code></a> define events for
+which the destroyed capital is rebuild (i.e. creates a corresponding
+rebuilding demand addressed toward a set of rebuilding sectors)</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="defining-event-from-an-impact-vector">
+<h2>Defining Event from an impact vector<a class="headerlink" href="#defining-event-from-an-impact-vector" title="Permalink to this heading">#</a></h2>
+<p>The more direct way to instantiate an event is to use a <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v1.5.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Series</span></code></a> object
+where the index is the set of affected industries and the values are the impact for each.</p>
+<p>Suppose you want to represent an event impacting the “manufactoring” an “mining” sectors of region “reg2” for respectively
+5’000’000€ and 3’000’000€ (assuming the MRIO is in €). You can define the following <code class="docutils literal notranslate"><span class="pre">Series</span></code>:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">impact</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="mf">5000000.0</span><span class="p">,</span> <span class="mf">3000000.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="p">[[</span><span class="s2">&quot;reg2&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;manufactoring&quot;</span><span class="p">,</span> <span class="s2">&quot;mining&quot;</span><span class="p">]],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">,</span> <span class="s2">&quot;sector&quot;</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="p">),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">impact</span>
+
+<span class="go">region  sector</span>
+<span class="go">reg2    manufactoring    5000000.0</span>
+<span class="go">        mining           3000000.0</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<section id="create-a-eventkapitalrecover">
+<h3>Create a <a class="reference internal" href="autoapi/boario.event.html#boario.event.EventKapitalRecover" title="boario.event.EventKapitalRecover"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventKapitalRecover</span></code></a><a class="headerlink" href="#create-a-eventkapitalrecover" title="Permalink to this heading">#</a></h3>
+<p>Here is how you can create an <a class="reference internal" href="autoapi/boario.event.html#boario.event.EventKapitalRecover" title="boario.event.EventKapitalRecover"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventKapitalRecover</span></code></a> from this impact.</p>
+<p>For this type of event you need to specify the characteristic time for recovery <code class="docutils literal notranslate"><span class="pre">&quot;recovery_time&quot;</span></code>: let us use 30 days here.</p>
+<p>You can also choose a recovery function/curve between <code class="docutils literal notranslate"><span class="pre">&quot;linear&quot;</span></code> (by default), <code class="docutils literal notranslate"><span class="pre">&quot;concave&quot;</span></code>
+and <code class="docutils literal notranslate"><span class="pre">&quot;convexe&quot;</span></code> following what is done in <span id="id2">[<a class="reference internal" href="boario-references.html#id6" title="E E Koks, M Thissen, L Alfieri, H De Moel, L Feyen, B Jongman, and J C J H Aerts. The macroeconomic impacts of future river flooding in europe. Environmental Research Letters, 14(8):084042, 2019. URL: http://dx.doi.org/10.1088/1748-9326/ab3306, doi:10.1088/1748-9326/ab3306.">KTA+19</a>, <a class="reference internal" href="boario-references.html#id5" title="Elco E. Koks and Mark Thissen. A multiregional impact assessment model for disaster analysis. Economic Systems Research, 28(4):429-449, 2016. URL: https://doi.org/10.1080/09535314.2016.1232701, doi:10.1080/09535314.2016.1232701.">KT16</a>]</span>.</p>
+<p>You may also choose a specific <code class="docutils literal notranslate"><span class="pre">occurrence</span></code> (default is 1) which is especially useful if you simulate multiple events.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Note that it is not advised to set the occurrence at 0 as some indicators require the first step to be at equilibrium.</p>
+</div>
+<p>You may as well choose a <code class="docutils literal notranslate"><span class="pre">duration</span></code> for the event. The duration is the amount of <cite>temporal units</cite> before which recovery
+starts. It allow the possibility to represent delayed recovery due to the event (e.g. for a flood the region inaccessible
+because of the water)</p>
+<p>Finally for convenience you can give a name for the event.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ev</span> <span class="o">=</span> <span class="n">EventKapitalRecover</span><span class="p">(</span>
+    <span class="n">impact</span><span class="o">=</span><span class="n">impact</span><span class="p">,</span>
+    <span class="n">recovery_time</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">recovery_function</span><span class="o">=</span><span class="s2">&quot;concave&quot;</span><span class="p">,</span>
+    <span class="n">occurrence</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">duration</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Flood in reg2&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="create-a-eventkapitalrebuilding">
+<h3>Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">EventKapitalRebuilding</span></code><a class="headerlink" href="#create-a-eventkapitalrebuilding" title="Permalink to this heading">#</a></h3>
+<p>When creating this type of event, you need to specify the rebuilding characteristic time <code class="docutils literal notranslate"><span class="pre">&quot;rebuild_tau&quot;</span></code>
+as well which are the rebuilding sectors and how the rebuilding demand is distributed among them.</p>
+<p>The rebuilding sectors can be given as a <code class="docutils literal notranslate"><span class="pre">Series</span></code> where the index are the sectors, and the values are the share of
+the rebuilding demand they will answer (hence, it should sum to 1).</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>The rebuilding sectors can also be given as a dict, where keys are sectors and values are shares.</p>
+</div>
+<p>By default, the rebuilding demand is equal to the totality of the impact (assuming all the value that was destroyed is rebuilt),
+but you may set a <code class="docutils literal notranslate"><span class="pre">&quot;rebuilding_factor&quot;</span></code> (default 1) to define a lower (or greater) rebuilding demand.</p>
+<p>Otherwise, you can also set <code class="docutils literal notranslate"><span class="pre">occurrence</span></code>, <code class="docutils literal notranslate"><span class="pre">duration</span></code> and <code class="docutils literal notranslate"><span class="pre">name</span></code>  similarly to <a class="reference internal" href="autoapi/boario.event.html#boario.event.EventKapitalRecover" title="boario.event.EventKapitalRecover"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventKapitalRecover</span></code></a>.</p>
+<p>The following code defines an event for which the rebuilding demand is 90% of the capital destroyed, and where 80% of the demand is
+answered by the construction sector, and 20% by the manufactoring sector.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ev</span> <span class="o">=</span> <span class="n">EventKapitalRebuild</span><span class="p">(</span>
+    <span class="n">impact</span><span class="o">=</span><span class="n">impact</span><span class="p">,</span>
+    <span class="n">rebuild_tau</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="n">rebuilding_sectors</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;construction&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">&quot;manufactoring&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">},</span>
+    <span class="n">rebuilding_factor</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+    <span class="n">occurrence</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">duration</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Flood in reg2&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="defining-events-from-a-scalar">
+<h2>Defining events from a scalar<a class="headerlink" href="#defining-events-from-a-scalar" title="Permalink to this heading">#</a></h2>
+<p>You can also define an event from a scalar impact.
+This requires to define which industries are affected and
+how the impact is distributed among the industries.</p>
+<p>In this section, we go over the different cases first, and then show
+code examples for each case.</p>
+<p>In order to define which industries are affected you can:</p>
+<ol class="arabic simple">
+<li><p>Directly give them as a pandas MultiIndex with affected regions as the first level and affected sectors at the second.</p></li>
+<li><p>Give them as a list of regions affected, as well as a list of sectors affected. The resulting affected industries being the cartesian product of those two lists.</p></li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Note that the second option does not allow to have different sectors affected in each region.</p>
+</div>
+<p>By default, the impact will be uniformally distributed among the affected regions and the impact per region
+is then also uniformally distributed among the affected sector in the region.</p>
+<p>Otherwise, there are multiple ways to parameters a custom distribution:</p>
+<ol class="arabic simple">
+<li><p>Directly give a vector (any variable that can be transformed as a numpy array) of per affected industry share of the impact (although in this case you should probably directly give the impact vector).</p></li>
+<li><p>Give a vector of the share per region, and the share per sector.</p></li>
+<li><p>Give a vector of the share per region, and specify <code class="docutils literal notranslate"><span class="pre">&quot;gdp&quot;</span></code> for the per sector distribution. This will distribute each regional impact toward each affected sector proportionally to their share of the regional GDP among the affected sectors. For example: Suppose we look at the impact in region <code class="docutils literal notranslate"><span class="pre">&quot;reg2&quot;</span></code>, and suppose <code class="docutils literal notranslate"><span class="pre">&quot;manufactoring&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;mining&quot;</span></code> are both affected. Now suppose <code class="docutils literal notranslate"><span class="pre">&quot;manufactoring&quot;</span></code> account for 40% of <code class="docutils literal notranslate"><span class="pre">&quot;reg2&quot;</span></code>’s GDP and <code class="docutils literal notranslate"><span class="pre">&quot;mining&quot;</span></code> for 10%. The <code class="docutils literal notranslate"><span class="pre">&quot;manufactoring&quot;</span></code> sector will receive <span class="math notranslate nohighlight">\((40 * 100) / (40 + 10) = 80\%\)</span> of the impact and <code class="docutils literal notranslate"><span class="pre">&quot;mining&quot;</span></code> the remaining <span class="math notranslate nohighlight">\((10 * 100) / (40 + 10) = 20\%\)</span>.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The GDP shares are estimated from the MRIO table used, based on the Value Added,
+which itself is computed as the gross output minus the intermediate demand:</p>
+<p><span class="math notranslate nohighlight">\(\textrm{GVA} = \iox - \ioz\)</span></p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You should not assume the default impact distribution setting is a good representation of the general case,
+as different regions and sectors are most probably differently impacted by an event.
+It is strongly advised to setup your own distribution in accordance with your study.</p>
+</div>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">impact</span> <span class="o">=</span> <span class="mi">1000000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">aff_industries</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[(</span><span class="s2">&quot;reg1&quot;</span><span class="p">,</span> <span class="s2">&quot;manufactoring&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;reg3&quot;</span><span class="p">,</span> <span class="s2">&quot;mining&quot;</span><span class="p">)],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">,</span> <span class="s2">&quot;sector&quot;</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="boario-quickstart.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Quickstart and examples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="boario-math.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Detailed model description</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#simulation-context">Simulation context</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#different-types-of-event-objects">Different types of Event objects</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-event-from-an-impact-vector">Defining Event from an impact vector</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-eventkapitalrecover">Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">EventKapitalRecover</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-eventkapitalrebuilding">Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">EventKapitalRebuilding</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-events-from-a-scalar">Defining events from a scalar</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/spjuhel/BoARIO/edit/master/boario-events.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="_sources/boario-events.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner"></div>
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2022, Samuel Juhel.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://sphinx-doc.org/">Sphinx</a> 6.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
