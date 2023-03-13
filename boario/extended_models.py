@@ -15,8 +15,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
-from typing import Dict
+from typing import Dict, Optional
 import numpy as np
+import pandas as pd
 from boario import logger
 from boario.model_base import *
 from boario.event import *
@@ -37,9 +38,14 @@ class ARIOPsiModel(ARIOBaseModel):
         rebuild_tau=60,
         main_inv_dur=90,
         monetary_factor=10**6,
+        temporal_units_by_step: int = 1,
+        iotable_year_to_temporal_unit_factor: int = 365,
+        infinite_inventories_sect: Optional[list] = None,
+        inventory_dict: Optional[dict] = None,
+        kapital_vector: Optional[pd.Series | np.ndarray | pd.DataFrame] = None,
+        kapital_to_VA_dict: Optional[dict] = None,
         psi_param=0.90,
         inventory_restoration_tau: int | Dict[str, int] = 60,
-        **kwargs,
     ) -> None:
         """An ARIO3 model with some additional features
 
@@ -55,7 +61,12 @@ class ARIOPsiModel(ARIOBaseModel):
             rebuild_tau=rebuild_tau,
             main_inv_dur=main_inv_dur,
             monetary_factor=monetary_factor,
-            **kwargs,
+            temporal_units_by_step=temporal_units_by_step,
+            iotable_year_to_temporal_unit_factor=iotable_year_to_temporal_unit_factor,
+            infinite_inventories_sect=infinite_inventories_sect,
+            inventory_dict=inventory_dict,
+            kapital_vector=kapital_vector,
+            kapital_to_VA_dict=kapital_to_VA_dict,
         )
 
         logger.debug("Model is an ARIOPsiModel")
