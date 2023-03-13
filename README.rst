@@ -27,10 +27,18 @@ Here is a non-exhaustive chronology of academic works with or about the ARIO mod
 
 .. image:: https://raw.githubusercontent.com/spjuhel/BoARIO/master/imgs/chronology.svg?sanitize=true
            :width: 900
-           :alt: ADEME Logo
+           :alt: ARIO academic work chronology
 
-Where to get it ?
-===================
+What is ARIO ?
+===============
+
+ARIO stands for Adaptive Regional Input-Output. It is an hybrid input-output / agent-based economic model, designed to compute indirect costs from economic shocks. Its first version dates back to 2008 and has originally been developed to assess the indirect costs of natural disasters (Hallegatte 2008).
+
+In ARIO, the economy is modelled as a set of economic sectors and a set of regions. Each economic sector produces its generic product and draws inputs from an inventory. Each sector answers to a total demand consisting of a final demand (household consumption, public spending and private investments) of all regions (local demand and exports) and intermediate demand (through inputs inventory resupply). An initial equilibrium state of the economy is built based on multi-regional input-output tables (MRIO tables).
+
+
+Where to get BoARIO ?
+==========================
 
 You can install BoARIO from ``pip`` with:
 
@@ -41,33 +49,29 @@ You can install BoARIO from ``pip`` with:
 
 The full source code is also available on Github at: https://github.com/spjuhel/BoARIO
 
-More info in the `installation page`_ of the documentation.
-
-.. _installation page: https://spjuhel.github.io/BoARIO/boario-installation.html
+More info in the :ref:`installation page<installation>` of the documentation.
 
 How does BoARIO work?
 =========================
 
 In a nutshell, BoARIO takes the following inputs :
 
-- an IO table (such as EXIOBASE3 or EORA26) in the form of an `IOSystem` object (define by the `pymrio` package)
+- an IO table (such as EXIOBASE3 or EORA26) in the form of an :class:`pymrio.IOSystem` object, using the `Pymrio`_ python package.
 
-- simulation and mrio parameters (as json files or dictionaries), which govern the simulation,
+- multiple parameters which govern the simulation,
 
-- event(s) description(s) (as json files or dictionaries), which are used as the perturbation to analyse during the simulation
+- event(s) description(s), which are used as the perturbation to analyse during the simulation
 
-in order to produce the following outputs:
+And produce the following outputs:
 
-- the step by step, sector by sector, region by region evolution of most of the variables involved in the simulation (production, demand, stocks, ...)
+- the step by step, sector by sector, region by region evolution of most of the variables involved in the simulation (`production`, `demand`, `stocks`, ...)
 
-- aggregated indicators for the whole simulation (shortages duration, aggregated impacts, ...)
+- aggregated indicators for the whole simulation (`shortages duration`, `aggregated impacts`, ...)
 
 Example of use
 =================
 
-See `boario-quickstart`_.
-
-.. _boario-quickstart: https://spjuhel.github.io/BoARIO/boario-quickstart.html
+See :ref:`Boario quickstart<boario-quickstart>`.
 
 Credits
 ========
@@ -93,11 +97,9 @@ Development
 Contributions
 ---------------
 
-* Be the first `contributor`_ !
-
-.. _`contributor`: https://spjuhel.github.io/BoARIO/development.html
+All :ref:`contributions<contributions>` to the project are welcome !
 
 Acknowledgements
 ------------------
 
-I would like to thank Vincent Viguie, Fabio D'Andrea my PhD supervisors as well as Célian Colon for their inputs during the model implementaiton.
+I would like to thank Vincent Viguie, Fabio D'Andrea my PhD supervisors as well as Célian Colon and Alessio Ciulo for their inputs during the model implementation.

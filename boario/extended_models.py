@@ -15,40 +15,21 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
-import pathlib
+from typing import Dict
 import numpy as np
 from boario import logger
 from boario.model_base import *
 from boario.event import *
 from pymrio.core.mriosystem import IOSystem
 
-__all__ = ["ARIOPsiModel", "ARIOClimadaModel"]
+__all__ = ["ARIOPsiModel"]
 
 
 class ARIOPsiModel(ARIOBaseModel):
-    """An ARIO3 model with some additional features
-
-    Added feature are parameter psi of production adjustment inventories constraint threshold, as well as a characteristic time of inventories resupplying and the alternative order module from Guan2020.
-
-    Attributes
-    ----------
-
-    psi : float
-          Value of the psi parameter. (see :ref:`boario-math`).
-    restoration_tau : numpy.ndarray of int
-                      Array of size `n_sector` setting for each inputs its characteristic restoration time in `n_temporal_units_by_step`. (see :ref:`boario-math`).
-    Raises
-    ------
-    RuntimeError
-        A RuntimeError can occur when data is inconsistent (negative stocks for
-        instance)
-    ValueError
-    NotImplementedError
-    """
-
     def __init__(
         self,
         pym_mrio: IOSystem,
+        *,
         order_type="alt",
         alpha_base=1.0,
         alpha_max=1.25,
@@ -57,18 +38,23 @@ class ARIOPsiModel(ARIOBaseModel):
         main_inv_dur=90,
         monetary_factor=10**6,
         psi_param=0.90,
-        inventory_restoration_tau=60,
+        inventory_restoration_tau: int | Dict[str, int] = 60,
         **kwargs,
     ) -> None:
+        """An ARIO3 model with some additional features
+
+        Added feature are parameter psi of production adjustment inventories constraint threshold, as well as a characteristic time of inventories resupplying.
+        """
+
         super().__init__(
             pym_mrio,
-            order_type,
-            alpha_base,
-            alpha_max,
-            alpha_tau,
-            rebuild_tau,
-            main_inv_dur,
-            monetary_factor,
+            order_type=order_type,
+            alpha_base=alpha_base,
+            alpha_max=alpha_max,
+            alpha_tau=alpha_tau,
+            rebuild_tau=rebuild_tau,
+            main_inv_dur=main_inv_dur,
+            monetary_factor=monetary_factor,
             **kwargs,
         )
 
@@ -76,6 +62,8 @@ class ARIOPsiModel(ARIOBaseModel):
 
         if isinstance(psi_param, str):
             self.psi = float(psi_param.replace("_", "."))
+            """float: Value of the psi parameter. (see :ref:`boario-math`)."""
+
         elif isinstance(psi_param, float):
             self.psi = psi_param
         else:
@@ -83,13 +71,36 @@ class ARIOPsiModel(ARIOBaseModel):
                 "'psi_param' parameter is neither a str rep of a float or a float"
             )
 
-        restoration_tau = [
-            (self.n_temporal_units_by_step / inventory_restoration_tau)
-            if v >= INV_THRESHOLD
-            else v
-            for v in self.inventories
-        ]  # for sector with no inventory TODO: reflect on that.
+        if isinstance(inventory_restoration_tau, int):
+            restoration_tau = [
+                (self.n_temporal_units_by_step / inventory_restoration_tau)
+                if v >= INV_THRESHOLD
+                else v
+                for v in self.inventories
+            ]  # for sector with no inventory TODO: reflect on that.
+        elif isinstance(inventory_restoration_tau, dict):
+            if not set(self.sectors).issubset(inventory_restoration_tau.keys()):
+                raise NotImplementedError(
+                    "The given dict for Inventory restoration tau does not contains all sectors as keys. Current implementation only allows dict with ALL sectors or just one integer value"
+                )
+
+            for _, value in inventory_restoration_tau.items():
+                if not isinstance(value, int):
+                    raise ValueError(
+                        "Invalid value in inventory_restoration_tau, values should be integer."
+                    )
+
+            inventory_restoration_tau = dict(sorted(inventory_restoration_tau.items()))
+            restoration_tau = [
+                (self.n_temporal_units_by_step / v) if v >= INV_THRESHOLD else v
+                for _, v in inventory_restoration_tau.items()
+            ]
+        else:
+            raise ValueError(
+                f"Invalid inventory_restoration_tau: expected dict or int got {type(inventory_restoration_tau)}"
+            )
         self.restoration_tau = np.array(restoration_tau)
+        """numpy.ndarray of int: Array of size :math:`n` setting for each inputs its characteristic restoration time :math:`\tau_{\textrm{INV}}` in ``n_temporal_units_by_step``. (see :ref:`boario-math`)."""
         #################################################################
 
     @property
@@ -100,7 +111,81 @@ class ARIOPsiModel(ARIOBaseModel):
     def inventory_constraints_act(self) -> np.ndarray:
         return self.calc_inventory_constraints(self.production)
 
+    # This is just so that theres a docstring for this one, it actually does the same as its parent method,
+    # the difference is in the inventory constraints computation.
+    def calc_production(self, current_temporal_unit: int) -> np.ndarray:
+        r"""Computes and updates actual production. The difference with :class:`ARIOBaseModel` is in the way
+        inventory constraints are computed. See :ref:`boario-math-prod`.
+
+        1. Computes ``production_opt`` and ``inventory_constraints`` as :
+
+        .. math::
+           :nowrap:
+
+                \begin{alignat*}{4}
+                      \iox^{\textrm{Opt}}(t) &= (x^{\textrm{Opt}}_{f}(t))_{f \in \firmsset} &&= \left ( \min \left ( d^{\textrm{Tot}}_{f}(t), x^{\textrm{Cap}}_{f}(t) \right ) \right )_{f \in \firmsset} && \text{Optimal production}\\
+                      \ioinv^{\textrm{Cons}}(t) &= (\omega^{\textrm{Cons},f}_p(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} &&=
+                           \begin{bmatrix}
+                             s^{1}_1 & \hdots & s^{p}_1 \\
+                             \vdots & \ddots & \vdots\\
+                             s^1_n & \hdots & s^{p}_n
+                           \end{bmatrix}
+                  \odot \begin{bmatrix} \iox^{\textrm{Opt}}(t)\\
+                  \vdots\\
+                  \iox^{\textrm{Opt}}(t) \end{bmatrix} \odot \ioa^{\sectorsset} && \text{Inventory constraints} \\
+                  &&&= \begin{bmatrix}
+                  s^{1}_1 x^{\textrm{Opt}}_{1}(t) a_{11} & \hdots & s^{p}_1 x^{\textrm{Opt}}_{p}(t) a_{1p}\\
+                  \vdots & \ddots & \vdots\\
+                  s^1_n x^{\textrm{Opt}}_{1}(t) a_{n1} & \hdots & s^{p}_n x^{\textrm{Opt}}_{p}(t) a_{np}
+                  \end{bmatrix}
+                  \cdot \psi &&  \\
+                   &&&= \begin{bmatrix}
+                        \tau^{1}_1 x^{\textrm{Opt}}_{1}(t) a_{11} & \hdots & \tau^{p}_1 x^{\textrm{Opt}}_{p}(t) a_{1p}\\
+                        \vdots & \ddots & \vdots\\
+                        \tau^1_n x^{\textrm{Opt}}_{1}(t) a_{n1} & \hdots & \tau^{p}_n x^{\textrm{Opt}}_{p}(t) a_{np}
+                    \end{bmatrix} && \\
+                \end{alignat*}
+
+        2. If stocks do not meet ``inventory_constraints`` for any inputs, then decrease production accordingly :
+
+        .. math::
+           :nowrap:
+
+                \begin{alignat*}{4}
+                    \iox^{a}(t) &= (x^{a}_{f}(t))_{f \in \firmsset} &&= \left \{ \begin{aligned}
+                                                           & x^{\textrm{Opt}}_{f}(t) & \text{if $\omega_{p}^f(t) \geq \omega^{\textrm{Cons},f}_p(t)$}\\
+                                                           & x^{\textrm{Opt}}_{f}(t) \cdot \min_{p \in \sectorsset} \left ( \frac{\omega^s_{p}(t)}{\omega^{\textrm{Cons,f}}_p(t)} \right ) & \text{if $\omega_{p}^f(t) < \omega^{\textrm{Cons},f}_p(t)$}
+                                                           \end{aligned} \right. \quad &&
+                \end{alignat*}
+
+        Also warns in logs if such shortages happen.
+
+
+        Parameters
+        ----------
+        current_temporal_unit : int
+            current step number
+
+        """
+        return super().calc_production(current_temporal_unit)
+
     def calc_inventory_constraints(self, production: np.ndarray) -> np.ndarray:
+        r"""Compute inventory constraints (with psi parameter, for the non psi version,
+        see :meth:`~boario.model_base.ARIOBaseModel.calc_inventory_constraints`)
+
+        Parameters
+        ----------
+        production : np.ndarray
+            The production vector to consider.
+
+        Returns
+        -------
+        np.ndarray
+            For each input, for each industry, the size of the inventory required to produce at `production` level
+        for the duration goal (`inv_duration`) times the psi parameter.
+
+        """
+
         inventory_constraints = (
             np.tile(production, (self.n_sectors, 1)) * self.tech_mat
         ) * self.psi
@@ -117,35 +202,3 @@ class ARIOPsiModel(ARIOBaseModel):
     def calc_matrix_stock_gap(self, matrix_stock_goal) -> np.ndarray:
         matrix_stock_gap = super().calc_matrix_stock_gap(matrix_stock_goal)
         return np.expand_dims(self.restoration_tau, axis=1) * matrix_stock_gap
-
-
-class ARIOClimadaModel(ARIOPsiModel):
-    def __init__(
-        self,
-        pym_mrio: IOSystem,
-        exp_stock,
-        order_type="alt",
-        alpha_base=1,
-        alpha_max=1.25,
-        alpha_tau=365,
-        rebuild_tau=60,
-        main_inv_dur=90,
-        monetary_factor=10**6,
-        psi_param=0.9,
-        inventory_restoration_tau=60,
-        **kwargs,
-    ) -> None:
-        super().__init__(
-            pym_mrio,
-            order_type,
-            alpha_base,
-            alpha_max,
-            alpha_tau,
-            rebuild_tau,
-            main_inv_dur,
-            monetary_factor,
-            psi_param,
-            inventory_restoration_tau,
-            kapital_vector=exp_stock,
-            **kwargs,
-        )

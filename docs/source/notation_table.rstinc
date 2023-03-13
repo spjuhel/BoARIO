@@ -1,0 +1,31 @@
+.. csv-table:: Notations table
+    :header: Notation,Description,Dimension,Attribute (argument) name
+    :widths: 30,30,20,20
+
+    ":math:`\sectorsset{} = \{ S_1, \ldots, S_n\}`","Set of sectors indices",":math:`|\sectorsset| = n`"
+    ":math:`\regionsset = \{ R_1, \ldots, R_m\}`","Set of regions indices (countries)",":math:`|\regionsset| = m`"
+    ":math:`\rfirmsset = \{f^R_1, \ldots,  f^R_n\}`","Set of industries of country :math:`R` (:math:`f^R_{S}` is the industry of sector :math:`S` of region :math:`R`)",":math:`|\rfirmsset{}| = n`"
+    ":math:`\firmsset = \{\rfirmsset{R_1}, \ldots, \rfirmsset{R_{m}}\}`","Global set of industries (a sector in a region) indices.",":math:`|\firmsset| = n \times  m = p`"
+    ":math:`\ioz^{RR'}`","Inter-regional transaction matrix (flows are from region :math:`R` to  :math:`R'` and industry :math:`f` to :math:`f'`)",":math:`\ioz^{RR'} = (z_{ff'}^{RR'})_{\substack{f      \in \rfirmsset{R}\\f'      \in \rfirmsset{R'}\\(R,R') \in \regionsset}}`"
+    ":math:`\ioz = \begin{bmatrix}               \ioz^{R_1,R_1} & \cdots & \ioz^{R_1,R_m}\\        \vdots & \ddots & \vdots\\               \ioz^{R_m,R_1} & \cdots & \ioz^{R_m,R_m}      \end{bmatrix}`","Global transaction matrix",":math:`\ioz = (z_{ff'})_{f,f'    \in \firmsset}`","``Z_0``, ``intmd_demand``"
+    ":math:`\ioy^{RR'}`","Inter-regional final demand matrix (flow from industry :math:`f` of  region :math:`R` towards final demand of region :math:`R'`)",":math:`\ioy^{RR'} =  (y_{f}^{RR'})_{\substack{f \in \rfirmsset\\(R,R') \in \regionsset}}`"
+    ":math:`\ioy= \begin{bmatrix}          \ioy^{R_1,R_1} & \cdots & \ioy^{R_1,R_m}\\          \vdots & \ddots & \vdots\\          \ioy^{R_m,R_1} & \cdots & \ioy^{R_m,R_m}        \end{bmatrix}`","Global final demand matrix (total flow from firm indexed by :math:`f` toward  final demand)",":math:`\ioy  = (y_{f})_{f \in \firmsset}`", "``Y_0``, ``final_demand``"
+    ":math:`\iov^R =      \begin{bmatrix}        v^{R}_{1} & \cdots & v^{R}_{n} \end{bmatrix}`","Regional value added vector",":math:`\iov^R =  (v_{f}^R)_{\substack{f \in \rfirmsset{R}\\R \in \regionsset}}`"
+    ":math:`\iov =      \begin{bmatrix}        \iov^{R_1} & \cdots & \iov^{R_m}\\      \end{bmatrix}`","Global value added vector",":math:`\iov =  (v_{f})_{f \in \firmsset}`", ``VA_0``
+    ":math:`\iok^R =      \begin{bmatrix}        k^{R}_{1} & \cdots & k^{R}_{n} \end{bmatrix}`","Regional capital stock vector",":math:`\iok^R =  (k_{f}^R)_{\substack{f \in \rfirmsset{R}\\R \in \regionsset}}`"
+    ":math:`\iok =      \begin{bmatrix}        \iok^{R_1} & \cdots & \iok^{R_m}\\      \end{bmatrix}`","Global capital stock vector",":math:`\iok =  (k_{f})_{f \in \firmsset}`", ``kapital_stock``
+    ":math:`\iox`","Production vector",":math:`\iox = (x_{f})_{f \in \firmsset}`", ``production``
+    ":math:`\ioa^{RR'}`","Inter-regional technical coefficients matrix",":math:`\ioa^{RR'} =  (a_{f,f'}^{RR'})_{\substack{f \in \rfirmsset{R}\\f' \in \rfirmsset{R'}\\(R,R') \in \regionsset}}`"
+    ":math:`\ioa=    \begin{bmatrix}      \ioa^{R_1,R_1} & \cdots & \ioa^{R_1,R_m}\\      \vdots & \ddots & \vdots\\      \ioa^{R_m,R_1} & \cdots & \ioa^{R_m,R_m}    \end{bmatrix}`","Global technical coefficients matrix",":math:`\ioa =  (a_{f,f'})_{f,f' \in \firmsset}`"
+    ":math:`\ioava = (a^{\textrm{va}}_{f})_{f \in \firmsset}`","Global value added technical coefficients matrix"
+    ":math:`\ioinv`","Inventories/Inputs stock matrix",":math:`\ioinv = (\omega^f_{i})_{\substack{f      \in      \firmsset\\ i \in \sectorsset}}`",``matrix_stock``
+    ":math:`\Damage_{\textrm{Tot}} = \begin{bmatrix} \gamma_{1} \cdots \gamma_{p = n \times m} \end{bmatrix}`","Per industry capital lost due to event(s) (destroyed or unavaillable)","scalar",``kapital_lost``
+    ":math:`\cdot(t)`","Value of <:math:`\cdot`> at step :math:`t`, where <:math:`\cdot`> can be any  scalar,  vector or matrix",""
+    ":math:`\psi`","Inventories heterogeneity parameter","scalar in :math:`[0,1]`",``psi`` (``"psi_param"``)
+    ":math:`\alpha^b`","Base overproduction capacity (same for all sectors and regions)","scalar",``overprod_base`` (``alpha_base``)
+    ":math:`\alpha^{\textrm{max}}`","Maximum overproduction capacity","scalar",``overprod_max`` (``alpha_max``)
+    ":math:`\tau_{\alpha}`","Overproduction increase/decrease characteristic time","scalar",``overprod_tau`` (``alpha_tau``)
+    ":math:`\tau_{\textrm{INV}}`","Characteristic time of inventory restoration","scalar", ``restoration_tau`` (``inventory_restoration_tau``)
+    ":math:`\tau_{\textrm{REBUILD}}`","Characteristic time of rebuilding", "scalar", ``rebuild_tau``
+    ":math:`\mathbf{s}`","Initial/Objective inventory vector",":math:`\mathbf{s} = (s_{i})_{i \in \sectorsset}`", ``inv_duration`` (``inventory_dict``)
+    ":math:`\mathbf{\kappa}`","Capital stock to value added ratio",":math:`\mathbf{\kappa} = (\kappa_{i})_{i \in \sectorsset}`", ``kstock_ratio_to_VA`` (``kapital_ratio_dict``)
