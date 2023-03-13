@@ -1,0 +1,12 @@
+.bd-content {
+    flex-grow: 1;
+    max-width: 100%;
+}
+
+.bd-sidebar-primary {
+    width: 18%;
+}
+
+.bd-page-width {
+    max-width: 92rem;
+}
