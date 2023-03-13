@@ -361,7 +361,6 @@ class Simulation:
                     )
                     break
 
-
         if self._files_to_record != []:
             self.flush_memmaps()
 
