@@ -10,7 +10,7 @@ jobs:
       - uses: actions/setup-python@v3
       - name: Install dependencies
         run: |
-          pip install sphinx pydata_sphinx_theme sphinx-copybutton sphinx-automodapi sphinxcontrib-bibtex
+          pip install sphinx pydata_sphinx_theme sphinx-copybutton sphinx-automodapi sphinxcontrib-bibtex autoapi
       - name: Sphinx build
         run: |
           sphinx-build docs/source _build
