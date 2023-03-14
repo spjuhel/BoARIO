@@ -40,7 +40,7 @@ from boario import logger
 from boario.event import *
 from boario.extended_models import *
 from boario.model_base import ARIOBaseModel
-from boario.utils.misc import CustomNumpyEncoder, TempMemmap
+from boario.utils.misc import CustomNumpyEncoder, TempMemmap, sizeof_fmt
 
 __all__ = ["Simulation"]
 
@@ -819,9 +819,14 @@ class Simulation:
 
     def _init_records(self, save_records):
         for rec in self.__possible_records:
-            if rec == "input_stocks" and not register_stocks:
+            if rec == "inputs_stocks" and not self._register_stocks:
+                logger.debug("Will not save inputs stocks")
                 pass
             else:
+                if rec == "inputs_stocks":
+                    logger.info(
+                        f"Simulation will save inputs stocks. Estimated size is {sizeof_fmt(self.n_temporal_units_to_sim * self.model.n_sectors * self.model.n_sectors * self.model.n_regions * 64)}"
+                    )
                 save = rec in save_records
                 filename = rec
                 dtype, attr_name, shapev, fillv = self.__file_save_array_specs[rec]
