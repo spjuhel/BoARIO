@@ -32,6 +32,7 @@ from pprint import pformat
 from typing import Optional, Union
 
 import numpy as np
+import pandas as pd
 import progressbar
 
 from boario import DEBUGFORMATTER
@@ -69,37 +70,52 @@ class Simulation:
     __file_save_array_specs = {
         "production_realised": (
             "float64",
-            "production_evolution",
+            "_production_evolution",
             "industries",
             np.nan,
         ),
         "production_capacity": (
             "float64",
-            "production_cap_evolution",
+            "_production_cap_evolution",
             "industries",
             np.nan,
         ),
-        "final_demand": ("float64", "final_demand_evolution", "industries", np.nan),
-        "intermediate_demand": ("float64", "io_demand_evolution", "industries", np.nan),
-        "rebuild_demand": ("float64", "rebuild_demand_evolution", "industries", np.nan),
-        "overproduction": ("float64", "overproduction_evolution", "industries", np.nan),
+        "final_demand": ("float64", "_final_demand_evolution", "industries", np.nan),
+        "intermediate_demand": (
+            "float64",
+            "_io_demand_evolution",
+            "industries",
+            np.nan,
+        ),
+        "rebuild_demand": (
+            "float64",
+            "_rebuild_demand_evolution",
+            "industries",
+            np.nan,
+        ),
+        "overproduction": (
+            "float64",
+            "_overproduction_evolution",
+            "industries",
+            np.nan,
+        ),
         "final_demand_unmet": (
             "float64",
-            "final_demand_unmet_evolution",
+            "_final_demand_unmet_evolution",
             "industries",
             np.nan,
         ),
         "rebuild_prod": (
             "float64",
-            "rebuild_production_evolution",
+            "_rebuild_production_evolution",
             "industries",
             np.nan,
         ),
-        "inputs_stocks": ("float64", "inputs_evolution", "stocks", np.nan),
-        "limiting_inputs": ("byte", "limiting_inputs_evolution", "stocks", -1),
+        "inputs_stocks": ("float64", "_inputs_evolution", "stocks", np.nan),
+        "limiting_inputs": ("byte", "_limiting_inputs_evolution", "stocks", -1),
         "kapital_to_recover": (
             "float64",
-            "regional_sectoral_kapital_destroyed_evolution",
+            "_regional_sectoral_kapital_destroyed_evolution",
             "industries",
             np.nan,
         ),
@@ -156,6 +172,19 @@ class Simulation:
         self._register_stocks = register_stocks
         self.output_dir = pathlib.Path(boario_output_dir)
         """pathlib.Path, optional: Optional path to the directory where output are stored."""
+
+        # Pre-init record variables
+        self._production_evolution = np.array([])
+        self._production_cap_evolution = np.array([])
+        self._final_demand_evolution = np.array([])
+        self._io_demand_evolution = np.array([])
+        self._rebuild_demand_evolution = np.array([])
+        self._overproduction_evolution = np.array([])
+        self._final_demand_unmet_evolution = np.array([])
+        self._rebuild_production_evolution = np.array([])
+        self._inputs_evolution = np.array([])
+        self._limiting_inputs_evolution = np.array([])
+        self._regional_sectoral_kapital_destroyed_evolution = np.array([])
 
         if save_records != [] or save_events or save_params or save_index:
             self.output_dir.resolve().mkdir(parents=True, exist_ok=True)
@@ -233,7 +262,7 @@ class Simulation:
             self._save_events = True
             self._save_params = True
 
-        self.init_records(save_records, register_stocks)
+        self._init_records(save_records)
 
         Event.temporal_unit_range = self.n_temporal_units_to_sim
         self.params_dict = {
@@ -362,7 +391,7 @@ class Simulation:
                     break
 
         if self._files_to_record != []:
-            self.flush_memmaps()
+            self._flush_memmaps()
 
         if self._save_index:
             self.model.write_index(self.results_storage / "jsons" / "indexes.json")
@@ -431,33 +460,33 @@ class Simulation:
         # Check if there are new events to add,
         # if some happening events can start rebuilding (if rebuildable),
         # and updates the internal model production_cap decrease and rebuild_demand
-        self.check_happening_events()
+        self._check_happening_events()
 
-        if "inputs_evolution" in self._files_to_record:
-            self.write_stocks()
+        if "_inputs_evolution" in self._files_to_record:
+            self._write_stocks()
 
         if self.current_temporal_unit > 1:
             self.model.calc_overproduction()
 
-        if "overproduction_evolution" in self._files_to_record:
-            self.write_overproduction()
-        if "rebuild_demand_evolution" in self._files_to_record:
-            self.write_rebuild_demand()
-        if "final_evolution" in self._files_to_record:
-            self.write_final_demand()
-        if "io_demand_evolution" in self._files_to_record:
-            self.write_io_demand()
+        if "_overproduction_evolution" in self._files_to_record:
+            self._write_overproduction()
+        if "_rebuild_demand_evolution" in self._files_to_record:
+            self._write_rebuild_demand()
+        if "_final_evolution" in self._files_to_record:
+            self._write_final_demand()
+        if "_io_demand_evolution" in self._files_to_record:
+            self._write_io_demand()
 
         constraints = self.model.calc_production(self.current_temporal_unit)
 
-        if "limiting_inputs_evolution" in self._files_to_record:
-            self.write_limiting_stocks(constraints)
-        if "production_evolution" in self._files_to_record:
-            self.write_production()
-        if "production_cap_evolution" in self._files_to_record:
-            self.write_production_max()
-        if "regional_sectoral_kapital_destroyed_evolution" in self._files_to_record:
-            self.write_kapital_lost()
+        if "_limiting_inputs_evolution" in self._files_to_record:
+            self._write_limiting_stocks(constraints)
+        if "_production_evolution" in self._files_to_record:
+            self._write_production()
+        if "_production_cap_evolution" in self._files_to_record:
+            self._write_production_max()
+        if "_regional_sectoral_kapital_destroyed_evolution" in self._files_to_record:
+            self._write_kapital_lost()
 
         try:
             rebuildable_events = [
@@ -468,10 +497,10 @@ class Simulation:
             events_to_remove = self.model.distribute_production(
                 rebuildable_events, self.scheme
             )
-            if "final_demand_unmet_evolution" in self._files_to_record:
-                self.write_final_demand_unmet()
-            if "rebuild_production_evolution" in self._files_to_record:
-                self.write_rebuild_prod()
+            if "_final_demand_unmet_evolution" in self._files_to_record:
+                self._write_final_demand_unmet()
+            if "_rebuild_production_evolution" in self._files_to_record:
+                self._write_rebuild_prod()
         except RuntimeError as e:
             logger.exception("This exception happened:", e)
             return 1
@@ -603,7 +632,7 @@ class Simulation:
         self._n_checks = 0
         self.n_temporal_units_simulated = 0
         self.has_crashed = False
-        self.reset_records()
+        self._reset_records()
         self.model.reset_module()
 
     def reset_sim_full(self):
@@ -683,7 +712,7 @@ class Simulation:
         # else:
         #     self.read_events_from_list([events])
 
-    def check_happening_events(self) -> None:
+    def _check_happening_events(self) -> None:
         """Updates the status of all events.
 
         Check the `all_events` attribute and `current_temporal_unit` and
@@ -715,74 +744,70 @@ class Simulation:
                     ev.recovery(self.current_temporal_unit)
         self.model.update_system_from_events(self.currently_happening_events)
 
-    def write_production(self) -> None:
+    def _write_production(self) -> None:
         """Saves the current production vector to the memmap."""
-        self.production_evolution[self.current_temporal_unit] = self.model.production
+        self._production_evolution[self.current_temporal_unit] = self.model.production
 
-    def write_rebuild_prod(self) -> None:
+    def _write_rebuild_prod(self) -> None:
         """Saves the current rebuilding production vector to the memmap."""
         logger.debug(
-            f"self.rebuild_production_evolution shape : {self.rebuild_production_evolution.shape}, self.model.rebuild_prod shape : {self.model.rebuild_prod.shape}"
+            f"self._rebuild_production_evolution shape : {self._rebuild_production_evolution.shape}, self.model.rebuild_prod shape : {self.model.rebuild_prod.shape}"
         )
-        self.rebuild_production_evolution[
+        self._rebuild_production_evolution[
             self.current_temporal_unit
         ] = self.model.rebuild_prod
 
-    def write_kapital_lost(self) -> None:
+    def _write_kapital_lost(self) -> None:
         """Saves the current remaining kapital to rebuild vector to the memmap."""
-        self.regional_sectoral_kapital_destroyed_evolution[
+        self._regional_sectoral_kapital_destroyed_evolution[
             self.current_temporal_unit
         ] = self.model.kapital_lost
 
-    def write_production_max(self) -> None:
+    def _write_production_max(self) -> None:
         """Saves the current production capacity vector to the memmap."""
-        self.production_cap_evolution[
+        self._production_cap_evolution[
             self.current_temporal_unit
         ] = self.model.production_cap
 
-    def write_io_demand(self) -> None:
+    def _write_io_demand(self) -> None:
         """Saves the current (total per industry) intermediate demand vector to the memmap."""
-        self.io_demand_evolution[
+        self._io_demand_evolution[
             self.current_temporal_unit
         ] = self.model.matrix_orders.sum(axis=1)
 
-    def write_final_demand(self) -> None:
+    def _write_final_demand(self) -> None:
         """Saves the current (total per industry) final demand vector to the memmap."""
-        self.final_demand_evolution[
+        self._final_demand_evolution[
             self.current_temporal_unit
         ] = self.model.final_demand.sum(axis=1)
 
-    def write_rebuild_demand(self) -> None:
+    def _write_rebuild_demand(self) -> None:
         """Saves the current (total per industry) rebuilding demand vector to the memmap."""
         to_write = np.full(self.model.n_regions * self.model.n_sectors, 0.0)
         if (r_dem := self.model.tot_rebuild_demand) is not None:
-            self.rebuild_demand_evolution[self.current_temporal_unit] = r_dem  # type: ignore
+            self._rebuild_demand_evolution[self.current_temporal_unit] = r_dem  # type: ignore
         else:
-            self.rebuild_demand_evolution[self.current_temporal_unit] = to_write  # type: ignore
+            self._rebuild_demand_evolution[self.current_temporal_unit] = to_write  # type: ignore
 
-    def write_limiting_stocks(self, limiting_stock: np.ndarray) -> None:
-        """Saves the current limiting inputs matrix to the memmap."""
-        self.limiting_inputs_evolution[self.current_temporal_unit] = limiting_stock  # type: ignore
-
-    def write_overproduction(self) -> None:
+    def _write_overproduction(self) -> None:
         """Saves the current overproduction vector to the memmap."""
-        self.overproduction_evolution[self.current_temporal_unit] = self.model.overprod
+        self._overproduction_evolution[self.current_temporal_unit] = self.model.overprod
 
-    def write_final_demand_unmet(self) -> None:
+    def _write_final_demand_unmet(self) -> None:
         """Saves the unmet final demand (for this step) vector to the memmap."""
-        self.final_demand_unmet_evolution[
+        self._final_demand_unmet_evolution[
             self.current_temporal_unit
         ] = self.model.final_demand_not_met
 
-    def write_stocks(self) -> None:
+    def _write_stocks(self) -> None:
         """Saves the current inputs stock matrix to the memmap."""
-        self.inputs_evolution[self.current_temporal_unit] = self.model.matrix_stock
+        self._inputs_evolution[self.current_temporal_unit] = self.model.matrix_stock
 
-    def write_limiting_stocks(self, limiting_stock: np.ndarray) -> None:
+    def _write_limiting_stocks(self, limiting_stock: np.ndarray) -> None:
         """Saves the current limiting inputs matrix to the memmap."""
-        self.limiting_inputs_evolution[self.current_temporal_unit] = limiting_stock  # type: ignore
+        self._limiting_inputs_evolution[self.current_temporal_unit] = limiting_stock  # type: ignore
 
-    def flush_memmaps(self) -> None:
+    def _flush_memmaps(self) -> None:
         """Saves files to record"""
         for at in self._files_to_record:
             if not hasattr(self, at):
@@ -792,7 +817,7 @@ class Simulation:
             else:
                 getattr(self, at).flush()
 
-    def init_records(self, save_records, register_stocks):
+    def _init_records(self, save_records):
         for rec in self.__possible_records:
             if rec == "input_stocks" and not register_stocks:
                 pass
@@ -824,14 +849,110 @@ class Simulation:
                 self._files_to_record.append(attr_name)
                 setattr(self, attr_name, memmap_array)
 
-    def reset_records(
+    def _reset_records(
         self,
     ):
         for rec in self.__possible_records:
-            dtype, attr_name, shapev, fillv = self.__file_save_array_specs[rec]
+            _, attr_name, _, fillv = self.__file_save_array_specs[rec]
             if rec == "input_stocks" and not self._register_stocks:
                 pass
             else:
                 memmap_array = getattr(self, attr_name)
                 memmap_array.fill(fillv)
                 setattr(self, attr_name, memmap_array)
+
+    @property
+    def production_realised(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self._production_evolution,
+            columns=self.model.industries,
+            copy=True,
+        )
+
+    @property
+    def production_capacity(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self._production_cap_evolution,
+            columns=self.model.industries,
+            copy=True,
+        )
+
+    @property
+    def final_demand(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self._final_demand_evolution,
+            columns=self.model.industries,
+            copy=True,
+        )
+
+    @property
+    def intermediate_demand(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self._io_demand_evolution,
+            columns=self.model.industries,
+            copy=True,
+        )
+
+    @property
+    def rebuild_demand(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self._rebuild_demand_evolution,
+            columns=self.model.industries,
+            copy=True,
+        )
+
+    @property
+    def overproduction(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self._overproduction_evolution,
+            columns=self.model.industries,
+            copy=True,
+        )
+
+    @property
+    def final_demand_unmet(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self._final_demand_unmet_evolution,
+            columns=self.model.industries,
+            copy=True,
+        )
+
+    @property
+    def rebuild_prod(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self._rebuild_production_evolution,
+            columns=self.model.industries,
+            copy=True,
+        )
+
+    @property
+    def inputs_stocks(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self._inputs_evolution,
+            columns=self.model.industries,
+            copy=True,
+            index=pd.MultiIndex.from_product(
+                [list(range(self.n_temporal_units_to_sim)), self.model.sectors],
+                names=["step", "input"],
+            ),
+        )
+
+    @property
+    def limiting_inputs(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self._limiting_inputs_evolution,
+            columns=self.model.industries,
+            copy=True,
+            index=pd.MultiIndex.from_product(
+                [list(range(self.n_temporal_units_to_sim)), self.model.sectors],
+                names=["step", "input"],
+            ),
+        )
+
+    @property
+    def kapital_to_recover(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self._regional_sectoral_kapital_destroyed_evolution,
+            columns=self.model.industries,
+            copy=True,
+        )

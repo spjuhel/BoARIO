@@ -174,7 +174,9 @@ class ARIOBaseModel:
         self.n_sectors = len(sec)
         r"""int : The number :math:`n` of sectors."""
 
-        self.industries = pd.MultiIndex.from_product([self.regions, self.sectors])
+        self.industries = pd.MultiIndex.from_product(
+            [self.regions, self.sectors], names=["region", "sector"]
+        )
         r"""pandas.MultiIndex : A pandas MultiIndex of the industries (region,sector) of the model."""
 
         try:
@@ -233,7 +235,8 @@ class ARIOBaseModel:
         else:
             inv = inventory_dict
             self.inventories = [
-                np.inf if inv[k] in ["inf", "Inf","Infinity","infinity"] else inv[k] for k in sorted(inv.keys())
+                np.inf if inv[k] in ["inf", "Inf", "Infinity", "infinity"] else inv[k]
+                for k in sorted(inv.keys())
             ]
 
         self.inv_duration = np.array(self.inventories) / self.n_temporal_units_by_step

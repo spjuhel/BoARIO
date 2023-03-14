@@ -84,9 +84,7 @@ class ARIOPsiModel(ARIOBaseModel):
                 "'psi_param' parameter is neither a str rep of a float or a float"
             )
         if self.psi > 1.0:
-            raise ValueError(
-                "'psi_param' parameter must be less or equal than 1."
-            )
+            raise ValueError("'psi_param' parameter must be less or equal than 1.")
 
         if isinstance(inventory_restoration_tau, int):
             restoration_tau = [
