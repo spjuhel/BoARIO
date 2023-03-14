@@ -233,7 +233,7 @@ class ARIOBaseModel:
         else:
             inv = inventory_dict
             self.inventories = [
-                np.inf if inv[k] == "inf" else inv[k] for k in sorted(inv.keys())
+                np.inf if inv[k] in ["inf", "Inf","Infinity","infinity"] else inv[k] for k in sorted(inv.keys())
             ]
 
         self.inv_duration = np.array(self.inventories) / self.n_temporal_units_by_step
