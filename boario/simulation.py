@@ -42,7 +42,6 @@ from boario.utils.misc import CustomNumpyEncoder
 
 __all__ = ["Simulation"]
 
-
 class Simulation:
     """Defines a simulation object with a set of parameters and an IOSystem.
 
@@ -114,6 +113,12 @@ class Simulation:
         )
         if not self.results_storage.exists():
             self.results_storage.mkdir(parents=True)
+
+        tmp = logging.FileHandler(self.results_storage / "simulation.log")
+        tmp.setLevel(logging.DEBUG)
+        tmp.setFormatter(DEBUGFORMATTER)
+        logger.addHandler(tmp)
+
         self.model = model
         self.all_events: list[Event] = events_list
         self.currently_happening_events: list[Event] = []
@@ -305,10 +310,6 @@ class Simulation:
                 self.model.iotable_year_to_temporal_unit_factor,
             )
         )
-        tmp = logging.FileHandler(self.results_storage / "simulation.log")
-        tmp.setLevel(logging.DEBUG)
-        tmp.setFormatter(DEBUGFORMATTER)
-        logger.addHandler(tmp)
         logger.info("Events : {}".format(self.all_events))
         (pathlib.Path(self.results_storage) / "jsons").mkdir(
             parents=True, exist_ok=True
