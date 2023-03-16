@@ -264,12 +264,12 @@ class ARIOBaseModel:
             self.k_stock = kwargs["kapital_vector"]
             if isinstance(self.k_stock, pd.DataFrame):
                 self.k_stock = self.k_stock.squeeze().sort_index().to_numpy()
-        elif kwargs.get("kapital_to_VA_dict") is None:
+        elif kwargs.get("capital_to_VA_dict") is None:
             logger.warning(f"No capital to VA dictionary given, considering 4/1 ratio")
             self.kstock_ratio_to_VA = 4
             self.k_stock = self.VA_0 * self.kstock_ratio_to_VA
         else:
-            kratio = kwargs["capital_ratio_dict"]
+            kratio = kwargs["capital_to_VA_dict"]
             kratio_ordered = [kratio[k] for k in sorted(kratio.keys())]
             self.kstock_ratio_to_VA = np.tile(np.array(kratio_ordered), self.n_regions)
             self.k_stock = self.VA_0 * self.kstock_ratio_to_VA
