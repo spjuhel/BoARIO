@@ -133,7 +133,7 @@ class Simulation:
         save_index: bool = False,
         save_records: list | str = [],
         boario_output_dir: str | pathlib.Path = tempfile.mkdtemp(prefix="boario"),
-        results_dir_name: str = "results",
+        results_dir_name: Optional[str] = None,
     ) -> None:
         """A Simulation instance can be initialized with the following parameters:
 
@@ -189,15 +189,16 @@ class Simulation:
         if save_records != [] or save_events or save_params or save_index:
             self.output_dir.resolve().mkdir(parents=True, exist_ok=True)
 
-        if save_records != []:
-            self.results_storage = self.output_dir.resolve() / results_dir_name
-            if not self.results_storage.exists():
-                self.results_storage.mkdir()
-
         self.results_storage = (
-            pathlib.Path(self.output_dir).resolve() / results_dir_name
+            self.output_dir.resolve()
+            if not results_dir_name
+            else self.output_dir.resolve() / results_dir_name
         )
         """str: Name of the folder in `output_dir` where the results will be stored if saved."""
+
+        if save_records != []:
+            if not self.results_storage.exists():
+                self.results_storage.mkdir()
 
         if not self.results_storage.exists():
             self.results_storage.mkdir(parents=True)
