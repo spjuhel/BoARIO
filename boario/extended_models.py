@@ -102,7 +102,7 @@ class ARIOPsiModel(ARIOBaseModel):
             for _, value in inventory_restoration_tau.items():
                 if not isinstance(value, int):
                     raise ValueError(
-                        "Invalid value in inventory_restoration_tau, values should be integer."
+                        f"Invalid value in inventory_restoration_tau, values should be integer: {inventory_restoration_tau}"
                     )
 
             inventory_restoration_tau = dict(sorted(inventory_restoration_tau.items()))
