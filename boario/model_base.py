@@ -239,6 +239,8 @@ class ARIOBaseModel:
                 for k in sorted(inv.keys())
             ]
 
+        logger.debug(f"inventories: {self.inventories}")
+        logger.debug(f"n_temporal_units_by_step: {self.n_temporal_units_by_step}")
         self.inv_duration = np.array(self.inventories) / self.n_temporal_units_by_step
 
         if (self.inv_duration <= 1).any():
