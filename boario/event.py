@@ -179,7 +179,7 @@ class Event(metaclass=abc.ABCMeta):
         "x_shape",
         "regions_idx",
         "sectors_idx",
-        "monetary_factor",
+        "model_monetary_factor",
         "sectors_gva_shares",
         "Z_distrib",
         "mrio_name",
