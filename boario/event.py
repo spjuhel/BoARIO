@@ -833,6 +833,7 @@ class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
         name="Unnamed",
         occurrence=1,
         duration=1,
+        event_monetary_factor=None,
     ) -> None:
         super().__init__(
             impact,
@@ -846,6 +847,7 @@ class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
             name,
             occurrence,
             duration,
+            event_monetary_factor,
         )
         # The only thing we have to do is affecting/computing the regional_sectoral_kapital_destroyed
         self.total_kapital_destroyed = self.total_impact
@@ -894,6 +896,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         occurrence=1,
         duration=1,
         rebuilding_factor=None,
+        event_monetary_factor=None,
     ) -> None:
         super().__init__(
             impact,
@@ -907,6 +910,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             name,
             occurrence,
             duration,
+            event_monetary_factor,
         )
 
         self._rebuildable = None
@@ -1074,6 +1078,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
         name="Unnamed",
         occurrence=1,
         duration=1,
+        event_monetary_factor=None,
     ) -> None:
         super().__init__(
             impact,
@@ -1087,6 +1092,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
             name,
             occurrence,
             duration,
+            event_monetary_factor,
         )
         self.recovery_time = recovery_time
         self.recovery_function = recovery_function
