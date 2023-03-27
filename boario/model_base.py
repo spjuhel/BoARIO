@@ -193,7 +193,13 @@ class ARIOBaseModel:
             self.n_fd_cat = 1
             self.fd_cat = np.array(["Final demand"])
 
-        self.monetary_factor = monetary_factor
+        if hasattr(pym_mrio, "monetary_factor"):
+            logger.warning(
+                f"Custom monetary factor found in the mrio pickle file, continuing with this one ({getattr(pym_mrio,'monetary_factor')})"
+            )
+            self.monetary_factor = getattr(pym_mrio, "monetary_factor")
+        else:
+            self.monetary_factor = monetary_factor
         r"""int, default 10^6: Monetary unit factor (i.e. if the tables unit is 10^6 € instead of 1 €, it should be set to 10^6)."""
 
         self.n_temporal_units_by_step = temporal_units_by_step
