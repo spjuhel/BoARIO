@@ -208,7 +208,7 @@ class Event(metaclass=abc.ABCMeta):
     sectors_idx: np.ndarray = np.array([])
     r"""lexicographic sector indexes"""
 
-    monetary_factor: int = 0
+    model_monetary_factor: int = 0
     r"""Amount of unitary currency used in the MRIO (e.g. 1000000 if in € millions)"""
 
     sectors_gva_shares: np.ndarray = np.array([])
@@ -233,6 +233,7 @@ class Event(metaclass=abc.ABCMeta):
         name="Unnamed",
         occurrence=1,
         duration=1,
+        event_monetary_factor: Optional[int] = None,
     ) -> None:
         r"""Create an event shocking the model from a dictionary.
 
@@ -259,6 +260,19 @@ class Event(metaclass=abc.ABCMeta):
         self._aff_regions = None
         logger.debug("Initializing new Event")
         logger.debug("Checking required Class attributes are defined")
+
+        if event_monetary_factor is None:
+            logger.info(
+                f"No event monetary factor given. Assuming it is the same as the model ({self.model_monetary_factor})"
+            )
+            self.event_monetary_factor = self.model_monetary_factor
+        else:
+            self.event_monetary_factor = event_monetary_factor
+            if self.event_monetary_factor != self.model_monetary_factor:
+                logger.warning(
+                    f"Event monetary factor ({self.event_monetary_factor}) differs from model monetary factor ({self.model_monetary_factor}). Be careful to define your impact with the correct unit (ie in event monetary factor)."
+                )
+
         for v in Event.__required_class_attributes:
             if Event.__dict__[v] is None:
                 raise AttributeError(
@@ -476,7 +490,8 @@ class Event(metaclass=abc.ABCMeta):
                 "z_shape": self.z_shape,
                 "y_shape": self.y_shape,
                 "x_shape": self.x_shape,
-                "monetary_factor": self.monetary_factor,
+                "model_monetary_factor": self.model_monetary_factor,
+                "event_monetary_factor": self.event_monetary_factor,
                 "mrio_used": self.mrio_name,
             },
         }
@@ -834,13 +849,15 @@ class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
         )
         # The only thing we have to do is affecting/computing the regional_sectoral_kapital_destroyed
         self.total_kapital_destroyed = self.total_impact
-        self.total_kapital_destroyed /= self.monetary_factor
-        self.remaining_kapital_destroyed = self.total_kapital_destroyed
-        self._regional_sectoral_kapital_destroyed_0 = (
-            self.impact_vector / self.monetary_factor
+        self.total_kapital_destroyed *= (
+            self.event_monetary_factor / self.model_monetary_factor
         )
-        self.regional_sectoral_kapital_destroyed = (
-            self.impact_vector / self.monetary_factor
+        self.remaining_kapital_destroyed = self.total_kapital_destroyed
+        self._regional_sectoral_kapital_destroyed_0 = self.impact_vector * (
+            self.event_monetary_factor / self.model_monetary_factor
+        )
+        self.regional_sectoral_kapital_destroyed = self.impact_vector * (
+            self.event_monetary_factor / self.model_monetary_factor
         )
 
     @property
@@ -1162,7 +1179,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
                 "Trying to recover event while recovery function isn't set yet"
             )
         res = self.recovery_function(elapsed_temporal_unit=elapsed)
-        precision = int(math.log10(self.monetary_factor)) + 1
+        precision = int(math.log10(self.model_monetary_factor)) + 1
         res = np.around(res, precision)
         if not np.any(res):
             self.over = True

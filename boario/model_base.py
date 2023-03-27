@@ -394,7 +394,7 @@ class ARIOBaseModel:
         Event.z_shape = self.Z_0.shape
         Event.y_shape = self.Y_0.shape
         Event.x_shape = self.X_0.shape
-        Event.monetary_factor = monetary_factor
+        Event.model_monetary_factor = monetary_factor
         Event.sectors_gva_shares = self.gdp_share_sector.copy()
         Event.Z_distrib = self.Z_distrib.copy()
 

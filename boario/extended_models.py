@@ -110,7 +110,9 @@ class ARIOPsiModel(ARIOBaseModel):
                         f"Invalid value in inventory_restoration_tau, values should be integer: {inventory_restoration_tau}"
                     )
 
-            inventory_restoration_tau = {key:int(val) for key, val in inventory_restoration_tau.items()}
+            inventory_restoration_tau = {
+                key: int(val) for key, val in inventory_restoration_tau.items()
+            }
             inventory_restoration_tau = dict(sorted(inventory_restoration_tau.items()))
             restoration_tau = [
                 (self.n_temporal_units_by_step / v) if v >= INV_THRESHOLD else v
