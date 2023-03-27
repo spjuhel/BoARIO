@@ -873,7 +873,7 @@ class Simulation:
             self._production_evolution,
             columns=self.model.industries,
             copy=True,
-        )
+        ).rename_axis("step")
 
     @property
     def production_capacity(self) -> pd.DataFrame:
@@ -881,7 +881,7 @@ class Simulation:
             self._production_cap_evolution,
             columns=self.model.industries,
             copy=True,
-        )
+        ).rename_axis("step")
 
     @property
     def final_demand(self) -> pd.DataFrame:
@@ -889,7 +889,7 @@ class Simulation:
             self._final_demand_evolution,
             columns=self.model.industries,
             copy=True,
-        )
+        ).rename_axis("step")
 
     @property
     def intermediate_demand(self) -> pd.DataFrame:
@@ -897,7 +897,7 @@ class Simulation:
             self._io_demand_evolution,
             columns=self.model.industries,
             copy=True,
-        )
+        ).rename_axis("step")
 
     @property
     def rebuild_demand(self) -> pd.DataFrame:
@@ -905,7 +905,7 @@ class Simulation:
             self._rebuild_demand_evolution,
             columns=self.model.industries,
             copy=True,
-        )
+        ).rename_axis("step")
 
     @property
     def overproduction(self) -> pd.DataFrame:
@@ -913,7 +913,7 @@ class Simulation:
             self._overproduction_evolution,
             columns=self.model.industries,
             copy=True,
-        )
+        ).rename_axis("step")
 
     @property
     def final_demand_unmet(self) -> pd.DataFrame:
@@ -921,7 +921,7 @@ class Simulation:
             self._final_demand_unmet_evolution,
             columns=self.model.industries,
             copy=True,
-        )
+        ).rename_axis("step")
 
     @property
     def rebuild_prod(self) -> pd.DataFrame:
@@ -929,7 +929,7 @@ class Simulation:
             self._rebuild_production_evolution,
             columns=self.model.industries,
             copy=True,
-        )
+        ).rename_axis("step")
 
     @property
     def inputs_stocks(self) -> pd.DataFrame:
@@ -961,4 +961,4 @@ class Simulation:
             self._regional_sectoral_kapital_destroyed_evolution,
             columns=self.model.industries,
             copy=True,
-        )
+        ).rename_axis("step")
