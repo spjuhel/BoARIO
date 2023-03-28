@@ -378,7 +378,7 @@ class Simulation:
                 if step_res == 1:
                     self.has_crashed = True
                     logger.warning(
-                        f"""Economy seems to have crashed.
+                        f"""Economy or model seems to have crashed.
                     - At step : {self.current_temporal_unit}
                     """
                     )
@@ -453,92 +453,103 @@ class Simulation:
             The minimum number of failing regions required to consider economy has crashed.
 
         """
-        if min_steps_check is None:
-            min_steps_check = self.n_temporal_units_to_sim // 5
-        if min_failing_regions is None:
-            min_failing_regions = self.model.n_regions * self.model.n_sectors // 3
-
-        # Check if there are new events to add,
-        # if some happening events can start rebuilding (if rebuildable),
-        # and updates the internal model production_cap decrease and rebuild_demand
-        self._check_happening_events()
-
-        if "_inputs_evolution" in self._files_to_record:
-            self._write_stocks()
-
-        if self.current_temporal_unit > 1:
-            self.model.calc_overproduction()
-
-        if "_overproduction_evolution" in self._files_to_record:
-            self._write_overproduction()
-        if "_rebuild_demand_evolution" in self._files_to_record:
-            self._write_rebuild_demand()
-        if "_final_evolution" in self._files_to_record:
-            self._write_final_demand()
-        if "_io_demand_evolution" in self._files_to_record:
-            self._write_io_demand()
-
-        constraints = self.model.calc_production(self.current_temporal_unit)
-
-        if "_limiting_inputs_evolution" in self._files_to_record:
-            self._write_limiting_stocks(constraints)
-        if "_production_evolution" in self._files_to_record:
-            self._write_production()
-        if "_production_cap_evolution" in self._files_to_record:
-            self._write_production_max()
-        if "_regional_sectoral_kapital_destroyed_evolution" in self._files_to_record:
-            self._write_kapital_lost()
-
         try:
-            rebuildable_events = [
-                ev
-                for ev in self.currently_happening_events
-                if isinstance(ev, EventKapitalRebuild) and ev.rebuildable
-            ]
-            events_to_remove = self.model.distribute_production(
-                rebuildable_events, self.scheme
-            )
-            if "_final_demand_unmet_evolution" in self._files_to_record:
-                self._write_final_demand_unmet()
-            if "_rebuild_production_evolution" in self._files_to_record:
-                self._write_rebuild_prod()
-        except RuntimeError as e:
-            logger.exception("This exception happened:", e)
-            self.model.matrix_stock.dump(self.results_storage / "matrix_stock_dump.pkl")
-            logger.error(
-                "Negative values in the stocks, matrix has been dumped in the results dir : \n {}".format(
+            if min_steps_check is None:
+                min_steps_check = self.n_temporal_units_to_sim // 5
+            if min_failing_regions is None:
+                min_failing_regions = self.model.n_regions * self.model.n_sectors // 3
+
+            # Check if there are new events to add,
+            # if some happening events can start rebuilding (if rebuildable),
+            # and updates the internal model production_cap decrease and rebuild_demand
+            self._check_happening_events()
+
+            if "_inputs_evolution" in self._files_to_record:
+                self._write_stocks()
+
+            if self.current_temporal_unit > 1:
+                self.model.calc_overproduction()
+
+            if "_overproduction_evolution" in self._files_to_record:
+                self._write_overproduction()
+            if "_rebuild_demand_evolution" in self._files_to_record:
+                self._write_rebuild_demand()
+            if "_final_evolution" in self._files_to_record:
+                self._write_final_demand()
+            if "_io_demand_evolution" in self._files_to_record:
+                self._write_io_demand()
+
+            constraints = self.model.calc_production(self.current_temporal_unit)
+
+            if "_limiting_inputs_evolution" in self._files_to_record:
+                self._write_limiting_stocks(constraints)
+            if "_production_evolution" in self._files_to_record:
+                self._write_production()
+            if "_production_cap_evolution" in self._files_to_record:
+                self._write_production_max()
+            if (
+                "_regional_sectoral_kapital_destroyed_evolution"
+                in self._files_to_record
+            ):
+                self._write_kapital_lost()
+
+            try:
+                rebuildable_events = [
+                    ev
+                    for ev in self.currently_happening_events
+                    if isinstance(ev, EventKapitalRebuild) and ev.rebuildable
+                ]
+                events_to_remove = self.model.distribute_production(
+                    rebuildable_events, self.scheme
+                )
+                if "_final_demand_unmet_evolution" in self._files_to_record:
+                    self._write_final_demand_unmet()
+                if "_rebuild_production_evolution" in self._files_to_record:
+                    self._write_rebuild_prod()
+            except RuntimeError as e:
+                logger.exception("This exception happened:", e)
+                self.model.matrix_stock.dump(
                     self.results_storage / "matrix_stock_dump.pkl"
                 )
-            )
-            return 1
-        events_to_remove = events_to_remove + [
-            ev for ev in self.currently_happening_events if ev.over
-        ]
-        if events_to_remove:
-            self.currently_happening_events = [
-                e for e in self.currently_happening_events if e not in events_to_remove
-            ]
-            for e in events_to_remove:
-                if isinstance(e, EventKapitalDestroyed):
-                    logger.info(
-                        "Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt/recovered".format(
-                            self.current_temporal_unit,
-                            e.name,
-                            e.occurrence,
-                            e.aff_regions,
-                            e.total_kapital_destroyed,
-                        )
+                logger.error(
+                    "Negative values in the stocks, matrix has been dumped in the results dir : \n {}".format(
+                        self.results_storage / "matrix_stock_dump.pkl"
                     )
+                )
+                return 1
+            events_to_remove = events_to_remove + [
+                ev for ev in self.currently_happening_events if ev.over
+            ]
+            if events_to_remove:
+                self.currently_happening_events = [
+                    e
+                    for e in self.currently_happening_events
+                    if e not in events_to_remove
+                ]
+                for e in events_to_remove:
+                    if isinstance(e, EventKapitalDestroyed):
+                        logger.info(
+                            "Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt/recovered".format(
+                                self.current_temporal_unit,
+                                e.name,
+                                e.occurrence,
+                                e.aff_regions,
+                                e.total_kapital_destroyed,
+                            )
+                        )
 
-        self.model.calc_orders()
+            self.model.calc_orders()
 
-        n_checks = self.current_temporal_unit // check_period
-        if n_checks > self._n_checks:
-            self.check_equilibrium(n_checks)
-            self._n_checks += 1
+            n_checks = self.current_temporal_unit // check_period
+            if n_checks > self._n_checks:
+                self.check_equilibrium(n_checks)
+                self._n_checks += 1
 
-        self.current_temporal_unit += self.model.n_temporal_units_by_step
-        return 0
+            self.current_temporal_unit += self.model.n_temporal_units_by_step
+            return 0
+        except Exception as e:
+            logger.exception(f"The following exception happened: {e}")
+            return 1
 
     def check_equilibrium(self, n_checks: int):
         """Checks the status of production, stocks and rebuilding demand.
