@@ -504,10 +504,10 @@ class Simulation:
                 self._write_rebuild_prod()
         except RuntimeError as e:
             logger.exception("This exception happened:", e)
-            self.model.matrix_stock.dump(self.records_storage / "matrix_stock_dump.pkl")
+            self.model.matrix_stock.dump(self.results_storage / "matrix_stock_dump.pkl")
             logger.error(
                 "Negative values in the stocks, matrix has been dumped in the results dir : \n {}".format(
-                    self.records_storage / "matrix_stock_dump.pkl"
+                    self.results_storage / "matrix_stock_dump.pkl"
                 )
             )
             return 1
