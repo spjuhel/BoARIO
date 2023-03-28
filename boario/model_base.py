@@ -1166,14 +1166,8 @@ class ARIOBaseModel:
         if not np.allclose(stock_add, stock_use):
             self.matrix_stock = self.matrix_stock - stock_use + stock_add
             if (self.matrix_stock < 0).any():
-                self.matrix_stock.dump(self.records_storage / "matrix_stock_dump.pkl")
-                logger.error(
-                    "Negative values in the stocks, matrix has been dumped in the results dir : \n {}".format(
-                        self.records_storage / "matrix_stock_dump.pkl"
-                    )
-                )
                 raise RuntimeError(
-                    "stock_add (restocking) contains negative values, this should not happen"
+                    "matrix_stock contains negative values, this should not happen"
                 )
 
         # 6. Compute final demand not met due to rationing

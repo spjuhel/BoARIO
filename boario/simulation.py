@@ -504,6 +504,12 @@ class Simulation:
                 self._write_rebuild_prod()
         except RuntimeError as e:
             logger.exception("This exception happened:", e)
+            self.model.matrix_stock.dump(self.records_storage / "matrix_stock_dump.pkl")
+            logger.error(
+                "Negative values in the stocks, matrix has been dumped in the results dir : \n {}".format(
+                    self.records_storage / "matrix_stock_dump.pkl"
+                )
+            )
             return 1
         events_to_remove = events_to_remove + [
             ev for ev in self.currently_happening_events if ev.over
