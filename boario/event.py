@@ -869,6 +869,9 @@ class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
 
     @regional_sectoral_kapital_destroyed.setter
     def regional_sectoral_kapital_destroyed(self, value: ArrayLike):
+        logger.debug(
+            f"Changing regional_sectoral_kapital_destroyed with {value}\n Sum is {value.sum()}"
+        )
         value = np.array(value)
         if value.shape != self.x_shape:
             raise ValueError(
@@ -916,6 +919,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         self._rebuildable = None
         self.rebuild_tau = rebuild_tau
         self.rebuilding_sectors = rebuilding_sectors
+        self.rebuilding_factor = rebuilding_factor
 
         rebuilding_demand = np.zeros(shape=self.z_shape)
         tmp = np.zeros(self.z_shape, dtype="float")
@@ -1039,7 +1043,9 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             )
         self._rebuilding_demand_indus = value
         # Also update kapital destroyed
-        self._regional_sectoral_kapital_destroyed = value.sum(axis=0)
+        self.regional_sectoral_kapital_destroyed = value.sum(axis=0) * (
+            1 / self.rebuilding_factor
+        )
 
     @property
     def rebuildable(self) -> bool:
