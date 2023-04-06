@@ -103,11 +103,11 @@ class ARIOPsiModel(ARIOBaseModel):
                 if isinstance(value, float):
                     if not value.is_integer():
                         raise ValueError(
-                            f"Invalid value in inventory_restoration_tau, values should be integer: {inventory_restoration_tau}"
+                            f"Invalid value: {value} ({type(value)}) in inventory_restoration_tau, values should be integer: {inventory_restoration_tau}"
                         )
                 elif not isinstance(value, int):
                     raise ValueError(
-                        f"Invalid value in inventory_restoration_tau, values should be integer: {inventory_restoration_tau}"
+                        f"Invalid value: {value} ({type(value)}) in inventory_restoration_tau, values should be integer: {inventory_restoration_tau}"
                     )
 
             inventory_restoration_tau = {
