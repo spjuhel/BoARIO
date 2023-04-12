@@ -79,7 +79,7 @@ class Indicators(object):
         "overproduction",
         "rebuild_demand",
         "rebuild_prod",
-        "kapital_to_recover",
+        "productive_capital_to_recover",
     ]
 
     params_list = ["simulated_params", "simulated_events"]
@@ -91,7 +91,7 @@ class Indicators(object):
         params,
         regions,
         sectors,
-        kapital,
+        productive_capital,
         prod,
         prodmax,
         overprod,
@@ -123,7 +123,9 @@ class Indicators(object):
         self.n_rows = n_temporal_units_to_sim
         self.n_temporal_units_by_step = n_temporal_units_by_step
 
-        self.kapital_to_recover_df = create_df(kapital, regions, sectors)
+        self.productive_capital_to_recover_df = create_df(
+            productive_capital, regions, sectors
+        )
         self.production_realised_df = create_df(prod, regions, sectors)
         self.production_capacity_df = create_df(prodmax, regions, sectors)
         self.overproduction_df = create_df(overprod, regions, sectors)
@@ -271,7 +273,9 @@ class Indicators(object):
             inventory_restoration_tau = None
 
         prod = getattr(sim, "production_evolution")
-        kapital = getattr(sim, "regional_sectoral_kapital_destroyed_evolution")
+        productive_capital = getattr(
+            sim, "regional_sectoral_productive_capital_destroyed_evolution"
+        )
         prodmax = getattr(sim, "production_cap_evolution")
         overprod = getattr(sim, "overproduction_evolution")
         final_demand = getattr(sim, "final_demand_evolution")
@@ -290,7 +294,7 @@ class Indicators(object):
             params=sim.params_dict,
             regions=sim.model.regions,
             sectors=sim.model.sectors,
-            kapital=kapital,
+            productive_capital=productive_capital,
             prod=prod,
             prodmax=prodmax,
             overprod=overprod,
@@ -373,8 +377,8 @@ class Indicators(object):
             dtype="float64",
             shape=(t, indexes["n_industries"]),
         )
-        kapital = np.memmap(
-            records_path / "kapital_to_recover",
+        productive_capital = np.memmap(
+            records_path / "productive_capital_to_recover",
             mode="r+",
             dtype="float64",
             shape=(t, indexes["n_industries"]),
@@ -450,7 +454,7 @@ class Indicators(object):
             params=params,
             regions=regions,
             sectors=sectors,
-            kapital=kapital,
+            productive_capital=productive_capital,
             prod=prod,
             prodmax=prodmax,
             overprod=overprod,
@@ -706,8 +710,8 @@ class Indicators(object):
         self.production_realised_df.to_parquet(
             self.parquets_path / "production_realised_df.parquet"
         )
-        self.kapital_to_recover_df.to_parquet(
-            self.parquets_path / "kapital_to_recover_df.parquet"
+        self.productive_capital_to_recover_df.to_parquet(
+            self.parquets_path / "productive_capital_to_recover_df.parquet"
         )
         self.production_capacity_df.to_parquet(
             self.parquets_path / "production_capacity_df.parquet"
