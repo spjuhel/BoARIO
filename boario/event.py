@@ -997,7 +997,7 @@ class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
                         self.aff_regions, rebuilding_demand_idx
                     ] = households_impact
             elif isinstance(households_impact, (float, int)):
-                if self.productive_capital_impact_regional_distrib:
+                if self.productive_capital_impact_regional_distrib is not None:
                     logger.warning(
                         f"households impact given as scalar, distributing among region following `productive_capital_impact_regional_distrib` ({self.productive_capital_impact_regional_distrib}) "
                     )
