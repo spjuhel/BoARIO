@@ -84,8 +84,10 @@ class ARIOBaseModel:
         iotable_year_to_temporal_unit_factor: int = 365,
         infinite_inventories_sect: Optional[list] = None,
         inventory_dict: Optional[dict] = None,
-        kapital_vector: Optional[pd.Series | np.ndarray | pd.DataFrame] = None,
-        kapital_to_VA_dict: Optional[dict] = None,
+        productive_capital_vector: Optional[
+            pd.Series | np.ndarray | pd.DataFrame
+        ] = None,
+        productive_capital_to_VA_dict: Optional[dict] = None,
     ) -> None:
         r"""The core of an ARIO model.  Handles the different arrays containing the mrio tables.
 
@@ -124,17 +126,17 @@ class ARIOBaseModel:
             List of inputs (sector) considered never constraining for production.
         inventory_dict: dict, optional
             Dictionary in the form input:initial_inventory_size, (where input is a sector, and initial_inventory_size is in "temporal_unit" (defaults to a day))
-        kapital_vector: ArrayLike, optional
+        productive_capital_vector: ArrayLike, optional
             Array of capital per industry if you need to give it exogenously.
-        kapital_to_VA_dict: dict, optional
+        productive_capital_to_VA_dict: dict, optional
             Dictionary in the form sector:ratio. Where ratio is used to estimate capital stock based on the value added of the sector.
 
         Notes
         -----
 
-        It is recommended to use ``kapital_to_VA_dict`` if you have a more precise estimation of
+        It is recommended to use ``productive_capital_to_VA_dict`` if you have a more precise estimation of
         the ratio of (Capital Stock / Value Added) per sectors.
-        You may also feed in directly a ``kapital_vector`` if you did your estimation before-hand.
+        You may also feed in directly a ``productive_capital_vector`` if you did your estimation before-hand.
         (This is especially useful if you have events based of an exposure layer for instance)
 
         Regarding inventories, they default to 90 days for all inputs (ie sectors).
@@ -180,7 +182,7 @@ class ARIOBaseModel:
         r"""pandas.MultiIndex : A pandas MultiIndex of the industries (region,sector) of the model."""
 
         try:
-            self.fd_cat = np.array(sorted(list(pym_mrio.get_Y_categories())))  # type: ignore
+            self.final_demand_cat = np.array(sorted(list(pym_mrio.get_Y_categories())))  # type: ignore
             r"""numpy.ndarray of str: An array of the final demand categories of the model (``["Final demand"]`` if there is only one)"""
 
             self.n_fd_cat = len(pym_mrio.get_Y_categories())  # type: ignore
@@ -188,10 +190,10 @@ class ARIOBaseModel:
 
         except KeyError:
             self.n_fd_cat = 1
-            self.fd_cat = np.array(["Final demand"])
+            self.final_demand_cat = np.array(["Final demand"])
         except IndexError:
             self.n_fd_cat = 1
-            self.fd_cat = np.array(["Final demand"])
+            self.final_demand_cat = np.array(["Final demand"])
 
         if hasattr(pym_mrio, "monetary_factor"):
             logger.warning(
@@ -288,6 +290,18 @@ class ARIOBaseModel:
         self.Z_distrib = np.nan_to_num(self.Z_distrib)
         self.Z_0 = pym_mrio.Z.to_numpy() * self.steply_factor
 
+        self.Y_0 = pym_mrio.Y.to_numpy()
+        self.Y_C = self._matrix_I_sum @ self.Y_0
+        r"""numpy.ndarray of float: 2-dim matrix array :math:`\ioy^{\sectorsset}` of size :math:`(n, m \times \text{number of final demand categories})` representing the final demand matrix aggregated by inputs (see :ref:`here <boario-math-z-agg>`)."""
+
+        with np.errstate(divide="ignore", invalid="ignore"):
+            self.Y_distrib = np.divide(
+                self.Y_0, (np.tile(self.Y_C, (self.n_regions, 1)))
+            )
+            r"""numpy.ndarray of float: math:`\ioy` normalised by :math:`\ioy^{\sectorsset}`, i.e. representing for each input the share of the total ordered transiting from an industry to final demand (see :ref:`here <boario-math-z-agg>`)."""
+
+        self.Y_distrib = np.nan_to_num(self.Y_distrib)
+
         self.Y_0 = pym_mrio.Y.to_numpy() * self.steply_factor
         r"""numpy.ndarray of float: 2-dim array :math:`\ioy` of size :math:`(n \times m, m \times \text{number of final demand categories})` representing the final demand matrix."""
 
@@ -309,18 +323,18 @@ class ARIOBaseModel:
         self.tech_mat = (self._matrix_I_sum @ pym_mrio.A).to_numpy()  # type: ignore #to_numpy is not superfluous !
         r"""numpy.ndarray of float: 2-dim array :math:`\ioa` of size :math:`(n \times m, n \times m)` representing the technical coefficients matrix."""
 
-        if kapital_vector is not None:
-            self.k_stock = kapital_vector
+        if productive_capital_vector is not None:
+            self.k_stock = productive_capital_vector
             """numpy.ndarray of float: Array of size :math:`n \times m` representing the estimated stock of capital of each industry."""
 
             if isinstance(self.k_stock, pd.DataFrame):
                 self.k_stock = self.k_stock.squeeze().sort_index().to_numpy()
-        elif kapital_to_VA_dict is None:
+        elif productive_capital_to_VA_dict is None:
             logger.warning(f"No capital to VA dictionary given, considering 4/1 ratio")
             self.kstock_ratio_to_VA = 4
             self.k_stock = self.VA_0 * self.kstock_ratio_to_VA
         else:
-            kratio = kapital_to_VA_dict
+            kratio = productive_capital_to_VA_dict
             kratio_ordered = [kratio[k] for k in sorted(kratio.keys())]
             self.kstock_ratio_to_VA = np.tile(np.array(kratio_ordered), self.n_regions)
             self.k_stock = self.VA_0 * self.kstock_ratio_to_VA
@@ -365,7 +379,7 @@ class ARIOBaseModel:
         self.intmd_demand = self.Z_0.copy()
         self.final_demand = self.Y_0.copy()
         self.rebuilding_demand = None
-        self.kapital_lost = np.zeros(self.production.shape)
+        self.productive_capital_lost = np.zeros(self.production.shape)
         r"""numpy.ndarray of float: Array of size :math:`n \times m` representing the estimated stock of capital currently destroyed for each industry."""
 
         self.order_type = order_type
@@ -390,6 +404,7 @@ class ARIOBaseModel:
         logger.debug(f"Possible regions is now {Event.possible_regions}")
         Event.regions_idx = np.arange(self.n_regions)
         Event.possible_sectors = self.sectors.copy()
+        Event.possible_final_demand_cat = pym_mrio.get_Y_categories().copy()
         Event.sectors_idx = np.arange(self.n_sectors)
         Event.z_shape = self.Z_0.shape
         Event.y_shape = self.Y_0.shape
@@ -397,6 +412,7 @@ class ARIOBaseModel:
         Event.model_monetary_factor = monetary_factor
         Event.sectors_gva_shares = self.gdp_share_sector.copy()
         Event.Z_distrib = self.Z_distrib.copy()
+        Event.Y_distrib = self.Y_distrib.copy()
 
         meta = pym_mrio.meta.metadata
         try:
@@ -418,8 +434,8 @@ class ARIOBaseModel:
         self._indus_rebuild_demand = None
         self._house_rebuild_demand = None
         self._tot_rebuild_demand = None
-        self._kapital_lost = np.zeros(self.VA_0.shape)
-        self._prod_cap_delta_kapital = None
+        self._productive_capital_lost = np.zeros(self.VA_0.shape)
+        self._prod_cap_delta_productive_capital = None
         self._prod_cap_delta_arbitrary = None
         self._prod_cap_delta_tot = None
 
@@ -600,10 +616,10 @@ class ARIOBaseModel:
             indus_reb_dem = np.stack(tmp, axis=-1)
             self._indus_rebuild_demand = indus_reb_dem
             self._indus_rebuild_demand_tot = indus_reb_dem.sum(axis=1)
-            logger.debug(f"Setting indus_rebuild_demand_tot to {indus_reb_dem}")
+            # logger.debug(f"Setting indus_rebuild_demand_tot to {indus_reb_dem}")
 
     @property
-    def kapital_lost(self) -> np.ndarray:
+    def productive_capital_lost(self) -> np.ndarray:
         r"""Returns current stock of destroyed capital
 
         Returns
@@ -613,10 +629,12 @@ class ARIOBaseModel:
         of capital currently destroyed for each industry.
         """
 
-        return self._kapital_lost
+        return self._productive_capital_lost
 
-    @kapital_lost.setter
-    def kapital_lost(self, source: list[EventKapitalDestroyed] | np.ndarray) -> None:
+    @productive_capital_lost.setter
+    def productive_capital_lost(
+        self, source: list[EventKapitalDestroyed] | np.ndarray
+    ) -> None:
         r"""Computes current capital lost and update production delta accordingly.
 
         Computes and sets the current stock of capital lost by each industry of
@@ -632,31 +650,36 @@ class ARIOBaseModel:
 
         """
 
-        logger.debug("Updating kapital lost from list of events")
+        logger.debug("Updating productive_capital lost from list of events")
         if isinstance(source, list):
             if source:
-                self._kapital_lost = np.add.reduce(
-                    np.array([e.regional_sectoral_kapital_destroyed for e in source])
+                self._productive_capital_lost = np.add.reduce(
+                    np.array(
+                        [
+                            e.regional_sectoral_productive_capital_destroyed
+                            for e in source
+                        ]
+                    )
                 )
             else:
-                self._kapital_lost = np.zeros(self.VA_0.shape)
+                self._productive_capital_lost = np.zeros(self.VA_0.shape)
         elif isinstance(source, np.ndarray):
-            self._kapital_lost = source
+            self._productive_capital_lost = source
 
-        productivity_loss_from_K = np.zeros(shape=self._kapital_lost.shape)
+        productivity_loss_from_K = np.zeros(shape=self._productive_capital_lost.shape)
         np.divide(
-            self._kapital_lost,
+            self._productive_capital_lost,
             self.k_stock,
             out=productivity_loss_from_K,
             where=self.k_stock != 0,
         )
-        logger.debug("Updating production delta from kapital loss")
-        self._prod_cap_delta_kapital = productivity_loss_from_K
-        if (self._prod_cap_delta_kapital > 0.0).any():
+        logger.debug("Updating production delta from productive_capital loss")
+        self._prod_cap_delta_productive_capital = productivity_loss_from_K
+        if (self._prod_cap_delta_productive_capital > 0.0).any():
             if self._prod_delta_type is None:
-                self._prod_delta_type = "from_kapital"
+                self._prod_delta_type = "from_productive_capital"
             elif self._prod_delta_type == "from_arbitrary":
-                self._prod_delta_type = "mixed_from_kapital_from_arbitrary"
+                self._prod_delta_type = "mixed_from_productive_capital_from_arbitrary"
 
     @property
     def prod_cap_delta_arbitrary(self) -> Optional[np.ndarray]:
@@ -697,11 +720,11 @@ class ARIOBaseModel:
         if (self._prod_cap_delta_arbitrary > 0.0).any():
             if self._prod_delta_type is None:
                 self._prod_delta_type = "from_arbitrary"
-            elif self._prod_delta_type == "from_kapital":
-                self._prod_delta_type = "mixed_from_kapital_from_arbitrary"
+            elif self._prod_delta_type == "from_productive_capital":
+                self._prod_delta_type = "mixed_from_productive_capital_from_arbitrary"
 
     @property
-    def prod_cap_delta_kapital(self) -> Optional[np.ndarray]:
+    def prod_cap_delta_productive_capital(self) -> Optional[np.ndarray]:
         r"""Return the possible production capacity lost due to capital destroyed vector if
         it was set.
 
@@ -712,7 +735,7 @@ class ARIOBaseModel:
         capacity lost due to capital destroyed.
         """
 
-        return self._prod_cap_delta_kapital
+        return self._prod_cap_delta_productive_capital
 
     @property
     def prod_cap_delta_tot(self) -> np.ndarray:
@@ -730,17 +753,19 @@ class ARIOBaseModel:
         tmp = []
         if self._prod_delta_type is None:
             raise AttributeError("Production delta doesn't appear to be set yet.")
-        elif self._prod_delta_type == "from_kapital":
-            logger.debug("Production delta is only set from kapital destruction")
-            tmp.append(self._prod_cap_delta_kapital)
+        elif self._prod_delta_type == "from_productive_capital":
+            logger.debug(
+                "Production delta is only set from productive_capital destruction"
+            )
+            tmp.append(self._prod_cap_delta_productive_capital)
         elif self._prod_delta_type == "from_arbitrary":
             logger.debug("Production delta is only set from arbitrary delta")
             tmp.append(self._prod_cap_delta_arbitrary)
-        elif self._prod_delta_type == "mixed_from_kapital_from_arbitrary":
+        elif self._prod_delta_type == "mixed_from_productive_capital_from_arbitrary":
             logger.debug(
-                "Production delta is a mixed form of kapital destruction and arbitrary delta"
+                "Production delta is a mixed form of productive_capital destruction and arbitrary delta"
             )
-            tmp.append(self._prod_cap_delta_kapital)
+            tmp.append(self._prod_cap_delta_productive_capital)
             tmp.append(self._prod_cap_delta_arbitrary)
         else:
             raise NotImplementedError(
@@ -776,7 +801,7 @@ class ARIOBaseModel:
                 )
             )
 
-        self.kapital_lost = [
+        self.productive_capital_lost = [
             event for event in source if isinstance(event, EventKapitalDestroyed)
         ]
         self.prod_cap_delta_arbitrary = [
@@ -1197,21 +1222,45 @@ class ARIOBaseModel:
         )
         self.rebuild_prod = rebuild_prod.copy()
 
+        logger.debug(
+            f"tot_rebuilding_demand_summed: {pd.Series(tot_rebuilding_demand_summed, index=self.industries)}"
+        )
+
         if h_reb and ind_reb:
-            # logger.debug("Entering here")
+            logger.debug(
+                "There are both household rebuilding demand and industry rebuilding demand"
+            )
+            logger.debug(
+                f"indus_reb_dem_tot_per_event: {pd.DataFrame(indus_reb_dem_tot_per_event, index=self.industries)}"
+            )
+            logger.debug(
+                f"house_reb_dem_tot_per_event: {pd.DataFrame(house_reb_dem_tot_per_event, index=self.industries)}"
+            )
+            logger.debug(
+                f"dem_tot_per_event: {pd.DataFrame(house_reb_dem_tot_per_event+indus_reb_dem_tot_per_event, index=self.industries)}"
+            )
             indus_shares = np.divide(
-                indus_reb_dem_tot_per_event,
+                indus_reb_dem_tot_per_event.flatten(),
                 tot_rebuilding_demand_summed,
                 where=(tot_rebuilding_demand_summed != 0),
-            )
+            )[:, np.newaxis]
             house_shares = np.divide(
-                house_reb_dem_tot_per_event,
+                house_reb_dem_tot_per_event.flatten(),
                 tot_rebuilding_demand_summed,
                 where=(tot_rebuilding_demand_summed != 0),
+            )[:, np.newaxis]
+            np.around(house_shares, 6, out=house_shares)
+            np.around(indus_shares, 6, out=indus_shares)
+            logger.debug(
+                f"indus_shares: {pd.DataFrame(indus_shares, index=self.industries)}"
             )
-            # logger.debug("indus_shares: {}".format(indus_shares))
+            logger.debug(
+                f"house_shares: {pd.DataFrame(house_shares, index=self.industries)}"
+            )
+            tmp = indus_shares + house_shares
+            logger.debug(f"tmp_shares: {tmp}")
             assert np.allclose(
-                indus_shares + house_shares, np.ones(shape=indus_shares.shape)
+                np.where(tmp != 0, tmp, 1), np.ones(shape=indus_shares.shape)
             )
         elif h_reb:
             house_shares = np.ones(house_reb_dem_tot_per_event.shape)
@@ -1223,8 +1272,22 @@ class ARIOBaseModel:
         else:
             return []
 
+        logger.debug(f"rebuild_prod: {rebuild_prod}")
+        logger.debug(f"indus_shares: {indus_shares}")
+
         indus_rebuild_prod = rebuild_prod[:, np.newaxis] * indus_shares  # type:ignore
         house_rebuild_prod = rebuild_prod[:, np.newaxis] * house_shares  # type:ignore
+
+        if ind_reb:
+            logger.debug(
+                f"indus_rebuild_prod: {pd.DataFrame(indus_rebuild_prod, index=self.industries)}"
+            )
+        if h_reb:
+            logger.debug(
+                f"house_rebuild_prod: {pd.DataFrame(house_rebuild_prod, index=self.industries)}"
+            )
+            # logger.debug(f"tot_rebuilding_demand_summed: {pd.DataFrame(tot_rebuilding_demand_summed, index=self.industries)}")
+        # logger.debug(f"house_rebuild_prod: {pd.Series(house_rebuild_prod.flatten(), index=self.industries)}")
 
         indus_rebuild_prod_distributed = np.zeros(shape=indus_reb_dem_per_event.shape)
         house_rebuild_prod_distributed = np.zeros(shape=house_reb_dem_per_event.shape)
@@ -1257,7 +1320,7 @@ class ARIOBaseModel:
 
         if h_reb:
             house_rebuilding_demand_shares = np.zeros(
-                shape=indus_reb_dem_per_event.shape
+                shape=house_reb_dem_per_event.shape
             )
             house_rebuilding_demand_broad = np.broadcast_to(
                 house_reb_dem_tot_per_event[:, np.newaxis],
@@ -1476,7 +1539,7 @@ class ARIOBaseModel:
         This method is currently not functioning.
         """
 
-        self.kapital_lost = np.zeros(self.production.shape)
+        self.productive_capital_lost = np.zeros(self.production.shape)
         self.overprod = np.full(
             (self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64
         )
@@ -1495,7 +1558,7 @@ class ARIOBaseModel:
         self._indus_rebuild_demand = None
         self._house_rebuild_demand = None
         self._tot_rebuild_demand = None
-        self._prod_cap_delta_kapital = None
+        self._prod_cap_delta_productive_capital = None
         self._prod_cap_delta_arbitrary = None
         self._prod_cap_delta_tot = None
 
@@ -1552,7 +1615,7 @@ class ARIOBaseModel:
         indexes = {
             "regions": list(self.regions),
             "sectors": list(self.sectors),
-            "fd_cat": list(self.fd_cat),
+            "fd_cat": list(self.final_demand_cat),
             "n_sectors": self.n_sectors,
             "n_regions": self.n_regions,
             "n_industries": self.n_sectors * self.n_regions,

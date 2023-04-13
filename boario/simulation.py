@@ -64,7 +64,7 @@ class Simulation:
         "rebuild_prod",
         "inputs_stocks",
         "limiting_inputs",
-        "kapital_to_recover",
+        "productive_capital_to_recover",
     ]
 
     __file_save_array_specs = {
@@ -113,9 +113,9 @@ class Simulation:
         ),
         "inputs_stocks": ("float64", "_inputs_evolution", "stocks", np.nan),
         "limiting_inputs": ("byte", "_limiting_inputs_evolution", "stocks", -1),
-        "kapital_to_recover": (
+        "productive_capital_to_recover": (
             "float64",
-            "_regional_sectoral_kapital_destroyed_evolution",
+            "_regional_sectoral_productive_capital_destroyed_evolution",
             "industries",
             np.nan,
         ),
@@ -184,7 +184,7 @@ class Simulation:
         self._rebuild_production_evolution = np.array([])
         self._inputs_evolution = np.array([])
         self._limiting_inputs_evolution = np.array([])
-        self._regional_sectoral_kapital_destroyed_evolution = np.array([])
+        self._regional_sectoral_productive_capital_destroyed_evolution = np.array([])
 
         if save_records != [] or save_events or save_params or save_index:
             self.output_dir.resolve().mkdir(parents=True, exist_ok=True)
@@ -488,10 +488,10 @@ class Simulation:
             if "_production_cap_evolution" in self._files_to_record:
                 self._write_production_max()
             if (
-                "_regional_sectoral_kapital_destroyed_evolution"
+                "_regional_sectoral_productive_capital_destroyed_evolution"
                 in self._files_to_record
             ):
-                self._write_kapital_lost()
+                self._write_productive_capital_lost()
 
             try:
                 rebuildable_events = [
@@ -534,7 +534,7 @@ class Simulation:
                                 e.name,
                                 e.occurrence,
                                 e.aff_regions,
-                                e.total_kapital_destroyed,
+                                e.total_productive_capital_destroyed,
                             )
                         )
 
@@ -775,11 +775,11 @@ class Simulation:
             self.current_temporal_unit
         ] = self.model.rebuild_prod
 
-    def _write_kapital_lost(self) -> None:
-        """Saves the current remaining kapital to rebuild vector to the memmap."""
-        self._regional_sectoral_kapital_destroyed_evolution[
+    def _write_productive_capital_lost(self) -> None:
+        """Saves the current remaining productive_capital to rebuild vector to the memmap."""
+        self._regional_sectoral_productive_capital_destroyed_evolution[
             self.current_temporal_unit
-        ] = self.model.kapital_lost
+        ] = self.model.productive_capital_lost
 
     def _write_production_max(self) -> None:
         """Saves the current production capacity vector to the memmap."""
@@ -973,9 +973,9 @@ class Simulation:
         )
 
     @property
-    def kapital_to_recover(self) -> pd.DataFrame:
+    def productive_capital_to_recover(self) -> pd.DataFrame:
         return pd.DataFrame(
-            self._regional_sectoral_kapital_destroyed_evolution,
+            self._regional_sectoral_productive_capital_destroyed_evolution,
             columns=self.model.industries,
             copy=True,
         ).rename_axis("step")

@@ -42,8 +42,10 @@ class ARIOPsiModel(ARIOBaseModel):
         iotable_year_to_temporal_unit_factor: int = 365,
         infinite_inventories_sect: Optional[list] = None,
         inventory_dict: Optional[dict] = None,
-        kapital_vector: Optional[pd.Series | np.ndarray | pd.DataFrame] = None,
-        kapital_to_VA_dict: Optional[dict] = None,
+        productive_capital_vector: Optional[
+            pd.Series | np.ndarray | pd.DataFrame
+        ] = None,
+        productive_capital_to_VA_dict: Optional[dict] = None,
         psi_param=0.90,
         inventory_restoration_tau: int | Dict[str, int] = 60,
     ) -> None:
@@ -65,8 +67,8 @@ class ARIOPsiModel(ARIOBaseModel):
             iotable_year_to_temporal_unit_factor=iotable_year_to_temporal_unit_factor,
             infinite_inventories_sect=infinite_inventories_sect,
             inventory_dict=inventory_dict,
-            kapital_vector=kapital_vector,
-            kapital_to_VA_dict=kapital_to_VA_dict,
+            productive_capital_vector=productive_capital_vector,
+            productive_capital_to_VA_dict=productive_capital_to_VA_dict,
         )
 
         logger.debug("Model is an ARIOPsiModel")
