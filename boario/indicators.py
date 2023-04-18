@@ -189,15 +189,16 @@ class Indicators(object):
             .reset_index()
         )
 
-        self.limiting_inputs_df = pd.DataFrame(
-            limiting_stocks.reshape(n_temporal_units_to_sim * len(sectors), -1),
-            index=pd.MultiIndex.from_product(
-                [steps, sectors], names=["step", "stock of"]
-            ),
-            columns=pd.MultiIndex.from_product(
-                [regions, sectors], names=["region", "sector"]
-            ),
-        )
+        self.limiting_inputs_df = limiting_stocks
+        # pd.DataFrame(
+        #     limiting_stocks.reshape(n_temporal_units_to_sim * len(sectors), -1),
+        #     index=pd.MultiIndex.from_product(
+        #         [steps, sectors], names=["step", "stock of"]
+        #     ),
+        #     columns=pd.MultiIndex.from_product(
+        #         [regions, sectors], names=["region", "sector"]
+        #     ),
+        # )
         self.aff_regions = []
         self.aff_sectors = []
         for e in events:
@@ -261,9 +262,9 @@ class Indicators(object):
     def from_simulation(
         cls,
         sim: Simulation,
+        results_storage: Optional[str | pathlib.Path] = None,
         stocks_treatment: bool = False,
         include_crash: bool = False,
-        results_storage: Optional[str | pathlib.Path] = None,
     ) -> Indicators:
         if isinstance(sim.model, ARIOPsiModel):
             psi = sim.model.psi
@@ -272,23 +273,21 @@ class Indicators(object):
             psi = None
             inventory_restoration_tau = None
 
-        prod = getattr(sim, "production_evolution")
-        productive_capital = getattr(
-            sim, "regional_sectoral_productive_capital_destroyed_evolution"
-        )
-        prodmax = getattr(sim, "production_cap_evolution")
-        overprod = getattr(sim, "overproduction_evolution")
-        final_demand = getattr(sim, "final_demand_evolution")
-        io_demand = getattr(sim, "io_demand_evolution")
-        r_demand = getattr(sim, "rebuild_demand_evolution")
-        r_prod = getattr(sim, "rebuild_production_evolution")
-        fd_unmet = getattr(sim, "final_demand_unmet_evolution")
+        prod = getattr(sim, "production_realised")
+        productive_capital = getattr(sim, "productive_capital_to_recover")
+        prodmax = getattr(sim, "production_capacity")
+        overprod = getattr(sim, "overproduction")
+        final_demand = getattr(sim, "final_demand")
+        io_demand = getattr(sim, "intermediate_demand")
+        r_demand = getattr(sim, "rebuild_demand")
+        r_prod = getattr(sim, "rebuild_prod")
+        fd_unmet = getattr(sim, "final_demand_unmet")
         if stocks_treatment:
-            stocks = getattr(sim, "inputs_evolution")
+            stocks = getattr(sim, "inputs_stocks")
         else:
             stocks = None
 
-        limiting_stocks = getattr(sim, "limiting_inputs_evolution")
+        limiting_stocks = getattr(sim, "limiting_inputs")
         return cls(
             has_crashed=sim.has_crashed,
             params=sim.params_dict,

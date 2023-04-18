@@ -957,7 +957,9 @@ class Simulation:
     @property
     def inputs_stocks(self) -> pd.DataFrame:
         return pd.DataFrame(
-            self._inputs_evolution,
+            self._inputs_evolution.reshape(
+                self.n_temporal_units_to_sim * self.model.n_sectors, -1
+            ),
             columns=self.model.industries,
             copy=True,
             index=pd.MultiIndex.from_product(
@@ -969,7 +971,9 @@ class Simulation:
     @property
     def limiting_inputs(self) -> pd.DataFrame:
         return pd.DataFrame(
-            self._limiting_inputs_evolution,
+            self._limiting_inputs_evolution.reshape(
+                self.n_temporal_units_to_sim * self.model.n_sectors, -1
+            ),
             columns=self.model.industries,
             copy=True,
             index=pd.MultiIndex.from_product(
