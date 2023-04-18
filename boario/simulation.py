@@ -40,7 +40,7 @@ from boario import logger
 from boario.event import *
 from boario.extended_models import *
 from boario.model_base import ARIOBaseModel
-from boario.utils.misc import CustomNumpyEncoder, TempMemmap, sizeof_fmt
+from boario.utils.misc import CustomNumpyEncoder, TempMemmap, sizeof_fmt, print_summary
 
 __all__ = ["Simulation"]
 
@@ -292,8 +292,14 @@ class Simulation:
         """dict: A dictionary saving the parameters the simulation was run with."""
 
         logger.info("Initialized !")
+        formatted_params_dict = {
+            key: print_summary(value) if key == "inventory_restoration_tau" else value
+            for key, value in self.params_dict.items()
+        }
         logger.info(
-            "Simulation parameters:\n{}".format(pformat(self.params_dict, compact=True))
+            "Simulation parameters:\n{}".format(
+                pformat(formatted_params_dict, compact=True)
+            )
         )
 
     def loop(self, progress: bool = True):
