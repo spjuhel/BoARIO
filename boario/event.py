@@ -276,7 +276,7 @@ class Event(metaclass=abc.ABCMeta):
         self._aff_sectors = None
         self._aff_regions_idx = None
         self._aff_regions = None
-        logger.debug("Initializing new Event")
+        logger.info("Initializing new Event")
         logger.debug("Checking required Class attributes are defined")
 
         if event_monetary_factor is None:
@@ -785,31 +785,6 @@ class Event(metaclass=abc.ABCMeta):
             )
         self._productive_capital_impact_regional_distrib = value
 
-    # @property
-    # def productive_capital_impact_sectoral_distrib(self) -> np.ndarray:
-    #     r"""The array specifying how damages are distributed among affected sectors"""
-    #     return self._productive_capital_impact_sectoral_distrib
-
-    # @productive_capital_impact_sectoral_distrib.setter
-    # def productive_capital_impact_sectoral_distrib(self, value: ArrayLike):
-    #     if self.aff_sectors is None:
-    #         raise AttributeError("Affected sectors attribute isn't set yet")
-    #     value = np.array(value)
-    #     if value.size != self.aff_sectors.size:
-    #         raise ValueError(
-    #             "There are {} affected sectors by the event and length of given damage distribution is {}".format(
-    #                 self.aff_sectors.size, value.size
-    #             )
-    #         )
-    #     s = value.sum()
-    #     if not math.isclose(s, 1):
-    #         raise ValueError(
-    #             "Damage distribution doesn't sum up to 1 but to {}, which is not valid".format(
-    #                 s
-    #             )
-    #         )
-    #     self._productive_capital_impact_sectoral_distrib = value
-
     @property
     def productive_capital_impact_sectoral_distrib_type(self) -> str:
         r"""The type of damages distribution among sectors (currently only 'gdp')"""
@@ -935,6 +910,9 @@ class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
         self.total_productive_capital_destroyed *= (
             self.event_monetary_factor / self.model_monetary_factor
         )
+        logger.info(
+            f"Total impact on productive capital is {self.total_productive_capital_destroyed} (in model unit)"
+        )
         self.remaining_productive_capital_destroyed = (
             self.total_productive_capital_destroyed
         )
@@ -946,7 +924,6 @@ class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
             self.productive_capital_impact_vector
             * (self.event_monetary_factor / self.model_monetary_factor)
         )
-
         self.households_impact_df: pd.Series = pd.Series(
             0,
             dtype="float64",
@@ -1007,6 +984,12 @@ class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
                         households_impact
                         * self.productive_capital_impact_regional_distrib
                     )
+            self.households_impact_df *= (
+                self.event_monetary_factor / self.model_monetary_factor
+            )
+        logger.info(
+            f"Total impact on households is {self.households_impact_df.sum()} (in model unit)"
+        )
 
     @property
     def regional_sectoral_productive_capital_destroyed(self) -> np.ndarray:
@@ -1093,6 +1076,10 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         # reb_tiled = np.tile(rebuilding_demand, (len(self.possible_regions), 1))
         # reb_tiled = reb_tiled[mask]
         tmp[mask] = self.Z_distrib[mask] * industrial_rebuilding_demand[mask]
+
+        precision = int(math.log10(self.model_monetary_factor)) + 1
+        np.around(tmp, precision, tmp)
+
         self.rebuilding_demand_indus = tmp
 
         households_rebuilding_demand = np.zeros(shape=self.y_shape)
@@ -1119,10 +1106,12 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         # self.households_impact_df.to_numpy()
         households_rebuilding_demand = households_rebuilding_demand * rebuilding_factor
         tmp[mask] = self.Y_distrib[mask] * households_rebuilding_demand[mask]
+        np.around(tmp, precision, tmp)
         self.rebuilding_demand_house = tmp
         logger.debug(
             f"house rebuilding demand is: {pd.DataFrame(self.rebuilding_demand_house, index=pd.MultiIndex.from_product([self.possible_regions,self.possible_sectors]))}"
         )
+
         self.event_dict["rebuilding_sectors"] = {
             sec: share
             for sec, share in zip(
@@ -1151,6 +1140,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             reb_sectors = pd.Series(value)
         else:
             reb_sectors = value
+        assert reb_sectors.sum() == 1.0
         impossible_sectors = np.setdiff1d(reb_sectors.index, self.possible_sectors)
         if impossible_sectors.size > 0:
             raise ValueError(
@@ -1202,6 +1192,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                     value.shape, self.y_shape
                 )
             )
+        value[value < 10 / self.model_monetary_factor] = 0.0
         self._rebuilding_demand_house = value
 
     @property
@@ -1218,6 +1209,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                     value.shape, self.z_shape
                 )
             )
+        value[value < 10 / self.model_monetary_factor] = 0.0
         self._rebuilding_demand_indus = value
         # Also update productive_capital destroyed
         self.regional_sectoral_productive_capital_destroyed = value.sum(axis=0) * (

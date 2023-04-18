@@ -1191,6 +1191,7 @@ class ARIOBaseModel:
         if not np.allclose(stock_add, stock_use):
             self.matrix_stock = self.matrix_stock - stock_use + stock_add
             if (self.matrix_stock < 0).any():
+                breakpoint()
                 raise RuntimeError(
                     "matrix_stock contains negative values, this should not happen"
                 )
@@ -1239,29 +1240,53 @@ class ARIOBaseModel:
             logger.debug(
                 f"dem_tot_per_event: {pd.DataFrame(house_reb_dem_tot_per_event+indus_reb_dem_tot_per_event, index=self.industries)}"
             )
+
+            tot_reb_dem_divider = np.tile(
+                tot_rebuilding_demand_summed[:, np.newaxis],
+                (1, indus_reb_dem_tot_per_event.shape[1]),
+            )
             indus_shares = np.divide(
-                indus_reb_dem_tot_per_event.flatten(),
-                tot_rebuilding_demand_summed,
-                where=(tot_rebuilding_demand_summed != 0),
-            )[:, np.newaxis]
+                indus_reb_dem_tot_per_event,
+                tot_reb_dem_divider,
+                out=np.zeros_like(indus_reb_dem_tot_per_event),
+                where=tot_reb_dem_divider != 0,
+            )
             house_shares = np.divide(
-                house_reb_dem_tot_per_event.flatten(),
-                tot_rebuilding_demand_summed,
-                where=(tot_rebuilding_demand_summed != 0),
-            )[:, np.newaxis]
-            np.around(house_shares, 6, out=house_shares)
-            np.around(indus_shares, 6, out=indus_shares)
+                house_reb_dem_tot_per_event,
+                tot_reb_dem_divider,
+                out=np.zeros_like(house_reb_dem_tot_per_event),
+                where=tot_reb_dem_divider != 0,
+            )
+            # np.around(house_shares, 6, out=house_shares)
+            # np.around(indus_shares, 6, out=indus_shares)
             logger.debug(
                 f"indus_shares: {pd.DataFrame(indus_shares, index=self.industries)}"
             )
             logger.debug(
                 f"house_shares: {pd.DataFrame(house_shares, index=self.industries)}"
             )
-            tmp = indus_shares + house_shares
-            logger.debug(f"tmp_shares: {tmp}")
+
+            ### J'en étais là !
+
+            #             tot_reb = pd.Series(tot_rebuilding_demand_summed, index=self.industries)
+            #             indus_reb_dem_tot = pd.DataFrame(indus_reb_dem_tot_per_event, index=self.industries)[0]
+            #             house_reb_dem_tot = pd.DataFrame(house_reb_dem_tot_per_event, index=self.industries)[0]
+            #             np.around(indus_shares,10,indus_shares)
+            #             np.around(house_shares,10,house_shares)
+            #             np.around(tmp,10,tmp)
+            #             indus_df = pd.DataFrame(indus_shares,index=self.industries)[0]
+            #             house_df = pd.DataFrame(house_shares,index=self.industries)[0]
+            #             tmp_df=pd.DataFrame(tmp, index=self.industries)[0]
+
+            #             debug_df = pd.concat([tot_reb, indus_reb_dem_tot, house_reb_dem_tot, tot_reb-(house_reb_dem_tot+indus_reb_dem_tot), indus_df, house_df, tmp_df], axis=1)
+            #             #logger.info(debug_df[debug_df.iloc[:,6]!=0].to_string())
+            #             debug_str = f"""
+            # {debug_df[debug_df.iloc[:,6]!=0].to_string()}
+            # """
             assert np.allclose(
-                np.where(tmp != 0, tmp, 1), np.ones(shape=indus_shares.shape)
+                (indus_shares + house_shares)[tot_rebuilding_demand_summed != 0], 1.0
             )
+
         elif h_reb:
             house_shares = np.ones(house_reb_dem_tot_per_event.shape)
             indus_shares = np.zeros(indus_reb_dem_tot_per_event.shape)
