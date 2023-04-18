@@ -201,14 +201,14 @@ img.toggler {
 div.modindex-jumpbox {
     border-top: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
-    margin: 1em 0 1em 0;
+    margin: 1em 0;
     padding: 0.4em;
 }
 
 div.genindex-jumpbox {
     border-top: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
-    margin: 1em 0 1em 0;
+    margin: 1em 0;
     padding: 0.4em;
 }
 
@@ -338,7 +338,7 @@ aside.topic,
 div.topic {
     border: 1px solid #ccc;
     padding: 7px;
-    margin: 10px 0 10px 0;
+    margin: 10px 0;
 }
 
 p.topic-title {
