@@ -1140,7 +1140,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             reb_sectors = pd.Series(value)
         else:
             reb_sectors = value
-        assert reb_sectors.sum() == 1.0
+        assert np.isclose(reb_sectors.sum(),1.0)
         impossible_sectors = np.setdiff1d(reb_sectors.index, self.possible_sectors)
         if impossible_sectors.size > 0:
             raise ValueError(

@@ -1191,7 +1191,6 @@ class ARIOBaseModel:
         if not np.allclose(stock_add, stock_use):
             self.matrix_stock = self.matrix_stock - stock_use + stock_add
             if (self.matrix_stock < 0).any():
-                breakpoint()
                 raise RuntimeError(
                     "matrix_stock contains negative values, this should not happen"
                 )
