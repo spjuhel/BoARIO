@@ -20,6 +20,7 @@ import pathlib
 import typing
 from typing import Optional
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from boario import logger, warn_once
 from boario.event import *
@@ -85,7 +86,7 @@ class ARIOBaseModel:
         infinite_inventories_sect: Optional[list] = None,
         inventory_dict: Optional[dict] = None,
         productive_capital_vector: Optional[
-            pd.Series | np.ndarray | pd.DataFrame
+            pd.Series | npt.NDArray | pd.DataFrame
         ] = None,
         productive_capital_to_VA_dict: Optional[dict] = None,
     ) -> None:
@@ -155,7 +156,14 @@ class ARIOBaseModel:
         logger.debug("Initiating new ARIOBaseModel instance")
         super().__init__()
         ################ Parameters variables #######################
-        logger.info("IO system metadata :\n{}".format(str(pym_mrio.meta)))
+        logger.info(
+            "IO system metadata :\n{}\n{}\n{}\n{}".format(
+                str(pym_mrio.meta.description),
+                str(pym_mrio.meta.name),
+                str(pym_mrio.meta.system),
+                str(pym_mrio.meta.version),
+            )
+        )
         pym_mrio = lexico_reindex(pym_mrio)
         self.main_inv_dur: int = main_inv_dur
         r"""int, default 90: The default numbers of days for inputs inventory to use if it is not defined for an input."""
@@ -400,11 +408,17 @@ class ARIOBaseModel:
         logger.debug(
             f"Setting possible regions (currently: {Event.possible_regions}) to: {self.regions}"
         )
-        Event.possible_regions = self.regions.copy()
+        Event.possible_regions = pd.CategoricalIndex(
+            self.regions, name="region", copy=True
+        )
         logger.debug(f"Possible regions is now {Event.possible_regions}")
         Event.regions_idx = np.arange(self.n_regions)
-        Event.possible_sectors = self.sectors.copy()
-        Event.possible_final_demand_cat = pym_mrio.get_Y_categories().copy()
+        Event.possible_sectors = pd.CategoricalIndex(
+            self.sectors, name="sector", copy=True
+        )
+        Event.possible_final_demand_cat = pd.CategoricalIndex(
+            pym_mrio.get_Y_categories(), name="final demand", copy=True
+        )
         Event.sectors_idx = np.arange(self.n_sectors)
         Event.z_shape = self.Z_0.shape
         Event.y_shape = self.Y_0.shape
@@ -415,46 +429,49 @@ class ARIOBaseModel:
         Event.Y_distrib = self.Y_distrib.copy()
 
         meta = pym_mrio.meta.metadata
+        assert isinstance(meta, dict)
+        # meta = {"name":"unnamed", "description":"", "system":"unknown","version":"unknown"}
         try:
-            Event.mrio_name = (
-                meta["name"]
-                + "_"
-                + meta["description"]
-                + "_"
-                + meta["system"]
-                + "_"
-                + meta["version"]
+            Event.mrio_name = "_".join(
+                [
+                    str(meta["name"]),
+                    str(meta["description"]),
+                    str(meta["system"]),
+                    str(meta["version"]),
+                ]
             )
         except TypeError:
             Event.mrio_name = "custom - method WIP"
 
         # initialize those (it's not very nice, but otherwise python complains)
-        self._indus_rebuild_demand_tot = None
-        self._house_rebuild_demand_tot = None
-        self._indus_rebuild_demand = None
-        self._house_rebuild_demand = None
-        self._tot_rebuild_demand = None
-        self._productive_capital_lost = np.zeros(self.VA_0.shape)
-        self._prod_cap_delta_productive_capital = None
-        self._prod_cap_delta_arbitrary = None
-        self._prod_cap_delta_tot = None
+        self._indus_rebuild_demand_tot: npt.NDArray = np.array([])
+        self._house_rebuild_demand_tot: npt.NDArray = np.array([])
+        self._indus_rebuild_demand: npt.NDArray = np.array([])
+        self._house_rebuild_demand: npt.NDArray = np.array([])
+        self._tot_rebuild_demand: npt.NDArray = np.array([])
+        self._productive_capital_lost: npt.NDArray = np.zeros(self.VA_0.shape)
+        self._prod_cap_delta_productive_capital: npt.NDArray = np.zeros(
+            len(self.industries)
+        )
+        self._prod_cap_delta_arbitrary: npt.NDArray = np.zeros(len(self.industries))
+        self._prod_cap_delta_tot: npt.NDArray = np.zeros(len(self.industries))
 
     ## Properties
 
     @property
-    def tot_rebuild_demand(self) -> Optional[np.ndarray]:
+    def tot_rebuild_demand(self) -> npt.NDArray:
         r"""Returns current total rebuilding demand (as the sum of rebuilding demand addressed to each industry)"""
         tmp = []
         logger.debug("Trying to return tot_rebuilding demand")
-        if self._indus_rebuild_demand_tot is not None:
+        if np.any(self._indus_rebuild_demand_tot > 0):
             tmp.append(self._indus_rebuild_demand_tot)
-        if self._house_rebuild_demand_tot is not None:
+        if np.any(self._house_rebuild_demand_tot > 0):
             tmp.append(self._house_rebuild_demand_tot)
         if tmp:
             ret = np.concatenate(tmp, axis=1).sum(axis=1)
             self._tot_rebuild_demand = ret
         else:
-            self._tot_rebuild_demand = None
+            self._tot_rebuild_demand = np.array([])
         return self._tot_rebuild_demand
 
     @tot_rebuild_demand.setter
@@ -481,13 +498,12 @@ class ARIOBaseModel:
         self.indus_rebuild_demand = source
 
     @property
-    def house_rebuild_demand(self) -> Optional[np.ndarray]:
-        r"""Returns household rebuilding demand matrix or `None` if
-        there is no such demand.
+    def house_rebuild_demand(self) -> npt.NDArray:
+        r"""Returns household rebuilding demand matrix.
 
         Returns
         -------
-        np.ndarray
+        npt.NDArray
             An array of same shape as math:`\ioy`, containing the sum of all currently
             rebuildable final demand stock.
         """
@@ -495,13 +511,12 @@ class ARIOBaseModel:
         return self._house_rebuild_demand
 
     @property
-    def house_rebuild_demand_tot(self) -> Optional[np.ndarray]:
-        r"""Returns total household rebuilding demand vector or `None` if
-        there is no such demand.
+    def house_rebuild_demand_tot(self) -> npt.NDArray:
+        r"""Returns total household rebuilding demand vector.
 
         Returns
         -------
-        np.ndarray
+        npt.NDArray
             An array of same shape as math:`\iox`, containing the sum of all currently
             rebuildable households demands.
         """
@@ -525,10 +540,6 @@ class ARIOBaseModel:
         events : 'list[Event]'
             A list of Event objects
 
-        Notes
-        -----
-
-        So far the model wasn't tested with such a rebuilding demand. Only intermediate demand was considered.
         """
         tmp = []
         for ev in source:
@@ -538,14 +549,14 @@ class ARIOBaseModel:
                 else:
                     rebuild_tau = ev.rebuild_tau
                     warn_once(logger, "Event has a custom rebuild_tau")
-                if ev.rebuilding_demand_house is not None:
+                if len(ev.rebuilding_demand_house) > 0:
                     tmp.append(
                         ev.rebuilding_demand_house
                         * (self.n_temporal_units_by_step / rebuild_tau)
                     )
         if not tmp:
-            self._house_rebuild_demand = None
-            self._house_rebuild_demand_tot = None
+            self._house_rebuild_demand = np.array([])
+            self._house_rebuild_demand_tot = np.array([])
         else:
             house_reb_dem = np.stack(tmp, axis=-1)
             tot = house_reb_dem.sum(axis=1)
@@ -553,14 +564,13 @@ class ARIOBaseModel:
             self._house_rebuild_demand_tot = tot
 
     @property
-    def indus_rebuild_demand(self) -> Optional[np.ndarray]:
-        r"""Returns industrial rebuilding demand matrix or `None` if
-        there is no such demand.
+    def indus_rebuild_demand(self) -> npt.NDArray:
+        r"""Returns industrial rebuilding demand matrix.
 
 
         Returns
         -------
-        np.ndarray
+        npt.NDArray
             An array of same shape as math:`\ioz`, containing the sum of all currently
             rebuildable intermediate demand stock.
         """
@@ -568,13 +578,12 @@ class ARIOBaseModel:
         return self._indus_rebuild_demand
 
     @property
-    def indus_rebuild_demand_tot(self) -> Optional[np.ndarray]:
-        r"""Returns total industrial rebuilding demand vector or `None` if
-        there is no such demand.
+    def indus_rebuild_demand_tot(self) -> npt.NDArray:
+        r"""Returns total industrial rebuilding demand vector.
 
         Returns
         -------
-        np.ndarray
+        npt.NDArray
             An array of same shape as math:`\iox`, containing the sum of all currently
             rebuildable intermediate demands.
         """
@@ -610,8 +619,8 @@ class ARIOBaseModel:
                 )
 
         if not tmp:
-            self._indus_rebuild_demand = None
-            self._indus_rebuild_demand_tot = None
+            self._indus_rebuild_demand = np.array([])
+            self._indus_rebuild_demand_tot = np.array([])
         else:
             indus_reb_dem = np.stack(tmp, axis=-1)
             self._indus_rebuild_demand = indus_reb_dem
@@ -619,12 +628,12 @@ class ARIOBaseModel:
             # logger.debug(f"Setting indus_rebuild_demand_tot to {indus_reb_dem}")
 
     @property
-    def productive_capital_lost(self) -> np.ndarray:
+    def productive_capital_lost(self) -> npt.NDArray:
         r"""Returns current stock of destroyed capital
 
         Returns
         -------
-        np.ndarray
+        npt.NDArray
             An array of same shape as math:`\iox`, containing the "stock"
         of capital currently destroyed for each industry.
         """
@@ -633,7 +642,7 @@ class ARIOBaseModel:
 
     @productive_capital_lost.setter
     def productive_capital_lost(
-        self, source: list[EventKapitalDestroyed] | np.ndarray
+        self, source: list[EventKapitalDestroyed] | npt.NDArray
     ) -> None:
         r"""Computes current capital lost and update production delta accordingly.
 
@@ -644,7 +653,7 @@ class ARIOBaseModel:
 
         Parameters
         ----------
-        source : list[EventKapitalDestroyed] | np.ndarray
+        source : list[EventKapitalDestroyed] | npt.NDArray
             Either a list of events to consider for the destruction
         of capital or directly a vector of destroyed capital for each industry.
 
@@ -682,25 +691,25 @@ class ARIOBaseModel:
                 self._prod_delta_type = "mixed_from_productive_capital_from_arbitrary"
 
     @property
-    def prod_cap_delta_arbitrary(self) -> Optional[np.ndarray]:
+    def prod_cap_delta_arbitrary(self) -> npt.NDArray:
         r"""Return the possible "arbitrary" production capacity lost vector if
         it was set.
 
         Returns
         -------
-        np.ndarray
+        npt.NDArray
             An array of same shape as math:`\iox`, stating the amount of production
         capacity lost arbitrarily (ie exogenous).
         """
         return self._prod_cap_delta_arbitrary
 
     @prod_cap_delta_arbitrary.setter
-    def prod_cap_delta_arbitrary(self, source: list[Event] | np.ndarray):
+    def prod_cap_delta_arbitrary(self, source: list[EventArbitraryProd] | npt.NDArray):
         """Computes and sets the loss of production capacity from "arbitrary" sources.
 
         Parameters
         ----------
-        source : list[Event] | np.ndarray
+        source : list[Event] | npt.NDArray
             Either a list of Event objects with arbitrary production losses
             set, or directly a vector of production capacity loss.
 
@@ -708,12 +717,16 @@ class ARIOBaseModel:
 
         if isinstance(source, list):
             event_arb = np.array(
-                [ev for ev in source if ev.prod_cap_delta_arbitrary is not None]
+                [
+                    ev.prod_cap_delta_arbitrary
+                    for ev in source
+                    if len(ev.prod_cap_delta_arbitrary) > 0
+                ]
             )
             if event_arb.size == 0:
                 self._prod_cap_delta_arbitrary = np.zeros(shape=self.X_0.shape)
             else:
-                self._prod_cap_delta_arbitrary = np.max.reduce(event_arb)
+                self._prod_cap_delta_arbitrary = np.maximum.reduce(event_arb)
         else:
             self._prod_capt_delta_arbitrary = source
         assert self._prod_cap_delta_arbitrary is not None
@@ -724,13 +737,13 @@ class ARIOBaseModel:
                 self._prod_delta_type = "mixed_from_productive_capital_from_arbitrary"
 
     @property
-    def prod_cap_delta_productive_capital(self) -> Optional[np.ndarray]:
+    def prod_cap_delta_productive_capital(self) -> npt.NDArray:
         r"""Return the possible production capacity lost due to capital destroyed vector if
         it was set.
 
         Returns
         -------
-        np.ndarray
+        npt.NDArray
             An array of same shape as math:`\iox`, stating the amount of production
         capacity lost due to capital destroyed.
         """
@@ -738,12 +751,12 @@ class ARIOBaseModel:
         return self._prod_cap_delta_productive_capital
 
     @property
-    def prod_cap_delta_tot(self) -> np.ndarray:
+    def prod_cap_delta_tot(self) -> npt.NDArray:
         r"""Computes and return total current production delta.
 
         Returns
         -------
-        np.ndarray
+        npt.NDArray
             The total production delta (ie share of production capacity lost)
             for each industry.
 
@@ -771,9 +784,9 @@ class ARIOBaseModel:
             raise NotImplementedError(
                 "Production delta type {} not recognised".format(self._prod_delta_type)
             )
-        tmp.append(np.ones(shape=self.X_0.shape))
+        # tmp.append(np.ones(shape=self.X_0.shape))
         # logger.debug("tmp: {}".format(tmp))
-        self._prod_cap_delta_tot = np.amin(np.stack(tmp, axis=-1), axis=1)
+        self._prod_cap_delta_tot = np.amax(np.stack(tmp, axis=-1), axis=1)
         assert (
             self._prod_cap_delta_tot.shape == self.X_0.shape
         ), "expected shape {}, received {}".format(
@@ -826,7 +839,7 @@ class ARIOBaseModel:
         ]
 
     @property
-    def production_cap(self) -> np.ndarray:
+    def production_cap(self) -> npt.NDArray:
         r"""Compute and update production capacity.
 
         Compute and update production capacity from current total production delta and overproduction.
@@ -854,7 +867,7 @@ class ARIOBaseModel:
         return production_cap
 
     @property
-    def total_demand(self) -> np.ndarray:
+    def total_demand(self) -> npt.NDArray:
         r"""Computes and return total demand as the sum of intermediate demand (orders), final demand, and possible rebuilding demand."""
 
         if (self.matrix_orders < 0).any():
@@ -863,12 +876,12 @@ class ARIOBaseModel:
         tot_dem = self.matrix_orders.sum(axis=1) + self.final_demand.sum(axis=1)
         if (tot_dem < 0).any():
             raise RuntimeError("Some total demand are negative which shouldn't happen")
-        if self.tot_rebuild_demand is not None:
+        if len(self.tot_rebuild_demand) > 0:
             tot_dem += self.tot_rebuild_demand
         return tot_dem
 
     @property
-    def production_opt(self) -> np.ndarray:
+    def production_opt(self) -> npt.NDArray:
         r"""Computes and returns "optimal production" :math:`\iox^{textrm{Opt}}`, as the per industry minimum between
         total demand and production capacity.
 
@@ -877,17 +890,17 @@ class ARIOBaseModel:
         return np.fmin(self.total_demand, self.production_cap)
 
     @property
-    def inventory_constraints_opt(self) -> np.ndarray:
+    def inventory_constraints_opt(self) -> npt.NDArray:
         r"""Computes and returns inventory constraints for "optimal production" (see :meth:`calc_inventory_constraints`)"""
 
         return self.calc_inventory_constraints(self.production_opt)
 
     @property
-    def inventory_constraints_act(self) -> np.ndarray:
+    def inventory_constraints_act(self) -> npt.NDArray:
         r"""Computes and returns inventory constraints for "actual production" (see :meth:`calc_inventory_constraints`)"""
         return self.calc_inventory_constraints(self.production)
 
-    def calc_production(self, current_temporal_unit: int) -> np.ndarray:
+    def calc_production(self, current_temporal_unit: int) -> npt.NDArray:
         r"""Computes and updates actual production. See :ref:`boario-math-prod`.
 
         1. Computes ``production_opt`` and ``inventory_constraints`` as :
@@ -978,7 +991,7 @@ class ARIOBaseModel:
             self.production = production_opt
         return stock_constraint
 
-    def calc_inventory_constraints(self, production: np.ndarray) -> np.ndarray:
+    def calc_inventory_constraints(self, production: npt.NDArray) -> npt.NDArray:
         r"""Compute inventory constraints (no psi parameter, for the psi version,
         the recommended one, see :meth:`~boario.extended_models.ARIOPsiModel.calc_inventory_constraints`)
 
@@ -986,12 +999,12 @@ class ARIOBaseModel:
 
         Parameters
         ----------
-        production : np.ndarray
+        production : npt.NDArray
             The production vector to consider.
 
         Returns
         -------
-        np.ndarray
+        npt.NDArray
             For each input, for each industry, the size of the inventory required to produce at `production` level
         for the duration goal (`inv_duration`).
 
@@ -1094,6 +1107,10 @@ class ARIOBaseModel:
 
         # list_of_demands = [self.matrix_orders, self.final_demand]
         ## 1. Calc demand from rebuilding requirements (with characteristic time rebuild_tau)
+        house_reb_dem_per_event = (
+            house_reb_dem_tot_per_event
+        ) = indus_reb_dem_per_event = indus_reb_dem_tot_per_event = None
+
         if rebuildable_events:
             logger.debug("There are rebuildable events")
             n_events = len(rebuildable_events)
@@ -1237,7 +1254,7 @@ class ARIOBaseModel:
                 f"house_reb_dem_tot_per_event: {pd.DataFrame(house_reb_dem_tot_per_event, index=self.industries)}"
             )
             logger.debug(
-                f"dem_tot_per_event: {pd.DataFrame(house_reb_dem_tot_per_event+indus_reb_dem_tot_per_event, index=self.industries)}"
+                f"dem_tot_per_event: {pd.DataFrame(house_reb_dem_tot_per_event+indus_reb_dem_tot_per_event, index=self.industries)}"  # type: ignore
             )
 
             tot_reb_dem_divider = np.tile(
@@ -1264,8 +1281,6 @@ class ARIOBaseModel:
             logger.debug(
                 f"house_shares: {pd.DataFrame(house_shares, index=self.industries)}"
             )
-
-            ### J'en étais là !
 
             #             tot_reb = pd.Series(tot_rebuilding_demand_summed, index=self.industries)
             #             indus_reb_dem_tot = pd.DataFrame(indus_reb_dem_tot_per_event, index=self.industries)[0]
@@ -1368,9 +1383,9 @@ class ARIOBaseModel:
         # update rebuilding demand
         events_to_remove = []
         for e_id, e in enumerate(rebuildable_events):
-            if e.rebuilding_demand_indus is not None:
+            if len(e.rebuilding_demand_indus) > 0:
                 e.rebuilding_demand_indus -= indus_rebuild_prod_distributed[:, :, e_id]
-            if e.rebuilding_demand_house is not None:
+            if len(e.rebuilding_demand_house) > 0:
                 e.rebuilding_demand_house -= house_rebuild_prod_distributed[:, :, e_id]
             if (e.rebuilding_demand_indus < (10 / self.monetary_factor)).all() and (
                 e.rebuilding_demand_house < (10 / self.monetary_factor)
@@ -1378,7 +1393,7 @@ class ARIOBaseModel:
                 events_to_remove.append(e)
         return events_to_remove
 
-    def calc_matrix_stock_gap(self, matrix_stock_goal) -> np.ndarray:
+    def calc_matrix_stock_gap(self, matrix_stock_goal) -> npt.NDArray:
         """Computes and returns inputs stock gap matrix
 
         The gap is simply the difference between the goal (given as argument)
@@ -1386,12 +1401,12 @@ class ARIOBaseModel:
 
         Parameters
         ----------
-        matrix_stock_goal : np.ndarray of float
+        matrix_stock_goal : npt.NDArray of float
             The target inventories.
 
         Returns
         -------
-        np.ndarray
+        npt.NDArray
             The (only positive) gap between goal and current inventories.
 
         Raises
@@ -1573,18 +1588,18 @@ class ARIOBaseModel:
         self.intmd_demand = self.Z_0.copy()
         self.final_demand = self.Y_0.copy()
         self.final_demand_not_met = np.zeros(self.Y_0.shape)
-        self.rebuilding_demand = None
+        self.rebuilding_demand = np.array([])
         self.in_shortage = False
         self.had_shortage = False
         self._prod_delta_type = None
-        self._indus_rebuild_demand_tot = None
-        self._house_rebuild_demand_tot = None
-        self._indus_rebuild_demand = None
-        self._house_rebuild_demand = None
-        self._tot_rebuild_demand = None
-        self._prod_cap_delta_productive_capital = None
-        self._prod_cap_delta_arbitrary = None
-        self._prod_cap_delta_tot = None
+        self._indus_rebuild_demand_tot = np.array([])
+        self._house_rebuild_demand_tot = np.array([])
+        self._indus_rebuild_demand = np.array([])
+        self._house_rebuild_demand = np.array([])
+        self._tot_rebuild_demand = np.array([])
+        self._prod_cap_delta_productive_capital = np.array([])
+        self._prod_cap_delta_arbitrary = np.array([])
+        self._prod_cap_delta_tot = np.array([])
 
     def update_params(self, new_params: dict) -> None:
         """Update the parameters of the model.
@@ -1615,9 +1630,6 @@ class ARIOBaseModel:
             self.records_storage = pathlib.Path(
                 new_params["output_dir"] + "/" + new_params["results_storage"]
             )
-        self.reset_record_files(
-            new_params["n_temporal_units_to_sim"], new_params["register_stocks"]
-        )
 
     def write_index(self, index_file: str | pathlib.Path) -> None:
         """Write the indexes of the different dataframes of the model in a json file.
@@ -1650,7 +1662,7 @@ class ARIOBaseModel:
         with index_file.open("w") as f:
             json.dump(indexes, f)
 
-    def change_inv_duration(self, new_dur: int, old_dur: Optional[int] = None) -> None:
+    def change_inv_duration(self, new_dur, old_dur=None) -> None:
         # replace this method by a property !
         if old_dur is None:
             old_dur = self.main_inv_dur

@@ -539,7 +539,7 @@ class Simulation:
                                 self.current_temporal_unit,
                                 e.name,
                                 e.occurrence,
-                                e.aff_regions,
+                                e.aff_regions.to_list(),
                                 e.total_productive_capital_destroyed,
                             )
                         )
@@ -598,43 +598,17 @@ class Simulation:
                 (n_checks, self.current_temporal_unit, "rebuilding")
             ] = "not finished"
 
-    def read_events_from_list(self, events_list: list[dict]):
-        raise NotImplementedError("I have to redo this one")
+    def add_events(self, events: list[Event]):
+        """Add a list of events to the simulation.
 
-    #     """Import a list of events (as a list of dictionaries) into the model.
+        Parameters
+        ----------
+        events : list[Event]
+            The events to add.
+        """
 
-    #     Also performs various checks on the events to avoid badly written events.
-    #     See :ref:`How to define Events <boario-events>` to understand how to write events dictionaries or JSON files.
-
-    #     Parameters
-    #     ----------
-    #     events_list :
-    #         List of events as dictionaries.
-
-    #     """
-    #     logger.info("Reading events from given list and adding them to the model")
-    #     if not isinstance(events_list, list):
-    #         if isinstance(events_list, dict):
-    #             raise TypeError(
-    #                 "read_events_from_list() takes a list of event dicts as an argument, not a single event dict, you might want to use read_event(your_event) instead."
-    #             )
-    #         else:
-    #             raise TypeError(
-    #                 "read_events_from_list() takes a list of event dicts as an argument, not a {}".format(
-    #                     type(events_list)
-    #                 )
-    #             )
-    #     for ev_dic in events_list:
-    #         self.read_event(ev_dic)
-
-    def read_event(self, ev_dic: dict):
-        raise NotImplementedError("I have to redo this one")
-
-    #     if ev_dic["aff_sectors"] == "all":
-    #         ev_dic["aff_sectors"] = list(self.model.sectors)
-    #     ev = Event(ev_dic)
-    #     self.all_events.append(ev)
-    #     self.events_timings.add(ev.occurrence)
+        for ev in events:
+            self.add_event(ev)
 
     def add_event(self, ev: Event):
         """Add an event to the simulation.
@@ -668,29 +642,6 @@ class Simulation:
         self.currently_happening_events = []
         self.events_timings = set()
 
-    def update_params(self, new_params: dict):
-        """Update the parameters of the model.
-
-        Replace the ``params`` attribute with ``new_params`` and logs the update.
-        This method also checks if the directory specified to save the results exists and create it otherwise.
-
-        .. warning::
-            Be aware this method calls :meth:`~boario.model_base.ARIOBaseModel.update_params`, which resets the memmap files located in the results directory !
-
-        Parameters
-        ----------
-        new_params : dict
-            New dictionnary of parameters to use.
-
-        """
-        raise NotImplementedError("To fix")
-        logger.info("Updating model parameters")
-        self.params_dict = new_params
-        results_storage = pathlib.Path(self.results_storage)
-        if not results_storage.exists():
-            results_storage.mkdir(parents=True)
-        self.model.update_params(self.params_dict)
-
     def write_index(self, index_file: Union[str, pathlib.Path]):
         """Write the index of the dataframes used in the model in a json file.
 
@@ -703,38 +654,6 @@ class Simulation:
 
         """
         self.model.write_index(index_file)
-
-    def read_events(self, events_file: Union[str, pathlib.Path]):
-        """Read events from a json file.
-
-        Parameters
-        ----------
-        events_file :
-            path to a json file
-
-        Raises
-        ------
-        FileNotFoundError
-            If file does not exist
-
-        """
-        raise NotImplementedError("I have to redo this one")
-        # logger.info(
-        #     "Reading events from {} and adding them to the model".format(events_file)
-        # )
-        # if isinstance(events_file, str):
-        #     events_file = pathlib.Path(events_file)
-        # elif not isinstance(events_file, pathlib.Path):
-        #     raise TypeError("Given index file is not an str or a Path")
-        # if not events_file.exists():
-        #     raise FileNotFoundError("This file does not exist: ", events_file)
-        # else:
-        #     with events_file.open("r") as f:
-        #         events = json.load(f)
-        # if isinstance(events, list):
-        #     self.read_events_from_list(events)
-        # else:
-        #     self.read_events_from_list([events])
 
     def _check_happening_events(self) -> None:
         """Updates the status of all events.
@@ -756,13 +675,15 @@ class Simulation:
                             self.current_temporal_unit
                         )
                     )
-                    logger.info("Affected regions are : {}".format(ev.aff_regions))
+                    logger.info(
+                        "Affected regions are : {}".format(ev.aff_regions.to_list())
+                    )
                     ev.happened = True
                     self.currently_happening_events.append(ev)
         for ev in self.currently_happening_events:
             if isinstance(ev, EventKapitalRebuild):
                 ev.rebuildable = self.current_temporal_unit
-            if isinstance(ev, EventKapitalRecover):
+            if isinstance(ev, (EventKapitalRecover, EventArbitraryProd)):
                 ev.recoverable = self.current_temporal_unit
                 if ev.recoverable:
                     ev.recovery(self.current_temporal_unit)
@@ -808,7 +729,7 @@ class Simulation:
     def _write_rebuild_demand(self) -> None:
         """Saves the current (total per industry) rebuilding demand vector to the memmap."""
         to_write = np.full(self.model.n_regions * self.model.n_sectors, 0.0)
-        if (r_dem := self.model.tot_rebuild_demand) is not None:
+        if len(r_dem := self.model.tot_rebuild_demand) > 0:
             self._rebuild_demand_evolution[self.current_temporal_unit] = r_dem  # type: ignore
         else:
             self._rebuild_demand_evolution[self.current_temporal_unit] = to_write  # type: ignore
