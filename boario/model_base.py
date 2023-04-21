@@ -771,9 +771,9 @@ class ARIOBaseModel:
             raise NotImplementedError(
                 "Production delta type {} not recognised".format(self._prod_delta_type)
             )
-        tmp.append(np.ones(shape=self.X_0.shape))
+        #tmp.append(np.ones(shape=self.X_0.shape))
         # logger.debug("tmp: {}".format(tmp))
-        self._prod_cap_delta_tot = np.amin(np.stack(tmp, axis=-1), axis=1)
+        self._prod_cap_delta_tot = np.amax(np.stack(tmp, axis=-1), axis=1)
         assert (
             self._prod_cap_delta_tot.shape == self.X_0.shape
         ), "expected shape {}, received {}".format(
