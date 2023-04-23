@@ -265,7 +265,6 @@ class Simulation:
 
         self._init_records(save_records)
 
-        Event.temporal_unit_range = self.n_temporal_units_to_sim
         self.params_dict = {
             "n_temporal_units_to_sim": self.n_temporal_units_to_sim,
             "output_dir": str(self.output_dir)

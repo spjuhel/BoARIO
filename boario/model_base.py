@@ -189,6 +189,9 @@ class ARIOBaseModel:
         )
         r"""pandas.MultiIndex : A pandas MultiIndex of the industries (region,sector) of the model."""
 
+        self.n_industries = len(self.industries)
+        r"""int : The number :math:`m * n` of industries."""
+
         try:
             self.final_demand_cat = np.array(sorted(list(pym_mrio.get_Y_categories())))  # type: ignore
             r"""numpy.ndarray of str: An array of the final demand categories of the model (``["Final demand"]`` if there is only one)"""
