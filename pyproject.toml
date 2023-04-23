@@ -1,35 +1,33 @@
+[tool.poetry]
+name = "boario"
+version = "0.5.0a"
+description = "BoARIO : The Adaptative Regional Input Output model in python."
+authors = ["Samuel Juhel <pro@sjuhel.org>"]
+license = "GNU General Public License v3 or later (GPLv3+)"
+readme = "README.rst"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pymrio = "^0.4.8"
+numpy = "^1.24.3"
+coloredlogs = "^15.0.1"
+country-converter = "^1.0.0"
+pandas = "^2.0.0"
+odfpy = "^1.4.1"
+pyarrow = "^11.0.0"
+progressbar2 = "^4.2.0"
+numpyencoder = "^0.3.0"
+dask = "^2023.4.0"
+
+[tool.poetry.group.dev.dependencies]
+pygit2 = "^1.12.0"
+pytest = "^7.3.1"
+
 [build-system]
-requires = [
-    "hatchling>=1.9.0",
-]
-build-backend = "hatchling.build"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [project]
-name = "boario"
-dynamic = [
-    "version",
-]
-description = "A Python implementation of ARIO models"
-readme = "README.rst"
-license = ""
-requires-python = ">=3.7, <4"
-dependencies = [
-"numpy>=1.17.4",
-"dask>=2021.9.0",
-"coloredlogs>=15.0.1",
-"country_converter>=0.7.4",
-"nptyping>=1.4.4",
-"numpyencoder>=0.3.0",
-"pandas>=1.4.1",
-"progressbar2>=2.4",
-"pymrio>=0.4.6",
-"odfpy>=1.4.1",
-"pyarrow>=9.0.0",
-]
-
-authors = [
-    { name = "Samuel JUHEL", email = "pro@sjuhel.org" },
-]
 keywords = [
     "ario",
     "economics",
@@ -41,6 +39,7 @@ keywords = [
     "modeling",
     "mrio",
 ]
+
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
@@ -61,46 +60,6 @@ Documentation = "https://spjuhel.github.io/BoARIO/index.html"
 Homepage = "https://github.com/spjuhel/BoARIO"
 Source = "https://github.com/spjuhel/BoARIO/"
 
-[tool.hatch.version]
-path = "boario/__init__.py"
-
-[tool.hatch.build.targets.sdist]
-exclude = [
-    "/.github",
-    "/docs",
-    "/.git",
-    "/imgs",
-    "/src",
-    "/testing",
-    "/.snakemake",
-    "/JupyNotebooks",
-    "/other",
-    "/new_docs",
-    "/pyrightconfig.json",
-    "/DOC_BUILDING_REMINDER",
-    "/launch.json",
-    "/.envrc",
-    "/.gitignore",
-    "/api-examples",
-]
-
-[tool.hatch.build.targets.wheel]
-packages = [
-    "boario",
-]
-
-[[tool.hatch.envs.test.matrix]]
-python = [
-    "37",
-    "38",
-    "39",
-    "310",
-    "311",
-]
-
-[tool.hatch.envs.test]
-python = "3.8"
-
 [tool.pyright]
 include = ["boario","scripts"]
 exclude = ["**/node_modules",
@@ -111,13 +70,3 @@ exclude = ["**/node_modules",
 ignore = ["src/oldstuff"]
 defineConstant = { DEBUG = true }
 stubPath = "boario/stubs"
-pythonPath = "/home/sjuhel/mambaforge-pypy3/envs/boario-dev/bin/python"
-venvPath = "/home/sjuhel/mambaforge-pypy3/envs/boario-dev/"
-
-reportMissingImports = true
-reportMissingTypeStubs = false
-pythonPlatform = "Linux"
-
-executionEnvironments = [
-  { root = "src" }
-]
