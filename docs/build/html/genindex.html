@@ -42,6 +42,7 @@
     <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
     <script src="_static/js/custom.js"></script>
     <link rel="index" title="Index" href="#" />
@@ -157,7 +158,7 @@
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -182,7 +183,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
       
@@ -269,7 +270,7 @@ document.write(`
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -283,7 +284,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
         
@@ -359,6 +360,8 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.add_event">add_event() (Simulation method)</a>
+</li>
+      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.add_events">add_events() (Simulation method)</a>
 </li>
       <li><a href="autoapi/boario.event.html#boario.event.Event.aff_industries">aff_industries (Event property)</a>
 </li>
@@ -448,10 +451,10 @@ document.write(`
       </ul></li>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.calc_orders">calc_orders() (ARIOBaseModel method)</a>
 </li>
-      <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.calc_overproduction">calc_overproduction() (ARIOBaseModel method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.calc_overproduction">calc_overproduction() (ARIOBaseModel method)</a>
+</li>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.calc_production">calc_production() (ARIOBaseModel method)</a>
 
       <ul>
@@ -459,8 +462,6 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.check_equilibrium">check_equilibrium() (Simulation method)</a>
-</li>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.check_happening_events">check_happening_events() (Simulation method)</a>
 </li>
       <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.current_temporal_unit">current_temporal_unit (Simulation attribute)</a>
 </li>
@@ -504,11 +505,7 @@ document.write(`
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.fd_cat">fd_cat (ARIOBaseModel attribute)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.flush_memmaps">flush_memmaps() (Simulation method)</a>
+      <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.final_demand_cat">final_demand_cat (ARIOBaseModel attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -530,11 +527,13 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/boario.event.html#boario.event.Event.happened">happened (Event attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.house_rebuild_demand">house_rebuild_demand (ARIOBaseModel property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.house_rebuild_demand_tot">house_rebuild_demand_tot (ARIOBaseModel property)</a>
+</li>
+      <li><a href="autoapi/boario.event.html#boario.event.EventKapitalDestroyed.households_impact_df">households_impact_df (EventKapitalDestroyed attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -589,10 +588,6 @@ document.write(`
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.k_stock">k_stock (ARIOBaseModel attribute)</a>
 </li>
   </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.kapital_lost">kapital_lost (ARIOBaseModel property)</a>
-</li>
-  </ul></td>
 </tr></table>
 
 <h2 id="L">L</h2>
@@ -620,6 +615,8 @@ document.write(`
 </li>
       <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.model">model (Simulation attribute)</a>
 </li>
+      <li><a href="autoapi/boario.event.html#boario.event.Event.model_monetary_factor">model_monetary_factor (Event attribute)</a>
+</li>
       <li>
     module
 
@@ -639,12 +636,6 @@ document.write(`
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.monetary_factor">monetary_factor (ARIOBaseModel attribute)</a>
-
-      <ul>
-        <li><a href="autoapi/boario.event.html#boario.event.Event.monetary_factor">(Event attribute)</a>
-</li>
-      </ul></li>
       <li><a href="autoapi/boario.event.html#boario.event.Event.mrio_name">mrio_name (Event attribute)</a>
 </li>
   </ul></td>
@@ -654,6 +645,8 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.n_fd_cat">n_fd_cat (ARIOBaseModel attribute)</a>
+</li>
+      <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.n_industries">n_industries (ARIOBaseModel attribute)</a>
 </li>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.n_regions">n_regions (ARIOBaseModel attribute)</a>
 </li>
@@ -699,6 +692,8 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.params_dict">params_dict (Simulation attribute)</a>
 </li>
+      <li><a href="autoapi/boario.event.html#boario.event.Event.possible_final_demand_cat">possible_final_demand_cat (Event attribute)</a>
+</li>
       <li><a href="autoapi/boario.event.html#boario.event.Event.possible_regions">possible_regions (Event attribute)</a>
 </li>
       <li><a href="autoapi/boario.event.html#boario.event.Event.possible_sectors">possible_sectors (Event attribute)</a>
@@ -711,7 +706,7 @@ document.write(`
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.prod_cap_delta_kapital">prod_cap_delta_kapital (ARIOBaseModel property)</a>
+      <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.prod_cap_delta_productive_capital">prod_cap_delta_productive_capital (ARIOBaseModel property)</a>
 </li>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.prod_cap_delta_tot">prod_cap_delta_tot (ARIOBaseModel property)</a>
 </li>
@@ -721,6 +716,8 @@ document.write(`
 </li>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.production_opt">production_opt (ARIOBaseModel property)</a>
 </li>
+      <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.productive_capital_lost">productive_capital_lost (ARIOBaseModel property)</a>
+</li>
       <li><a href="autoapi/boario.extended_models.html#boario.extended_models.ARIOPsiModel.psi">psi (ARIOPsiModel attribute)</a>
 </li>
   </ul></td>
@@ -729,8 +726,6 @@ document.write(`
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.read_events">read_events() (Simulation method)</a>
-</li>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.rebuild_tau">rebuild_tau (ARIOBaseModel attribute)</a>
 </li>
       <li><a href="autoapi/boario.event.html#boario.event.EventKapitalRebuild.rebuildable">rebuildable (EventKapitalRebuild property)</a>
@@ -747,13 +742,23 @@ document.write(`
 </li>
       <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.records_storage">records_storage (Simulation attribute)</a>
 </li>
-      <li><a href="autoapi/boario.event.html#boario.event.EventKapitalRecover.recoverable">recoverable (EventKapitalRecover property)</a>
+      <li><a href="autoapi/boario.event.html#boario.event.EventArbitraryProd.recoverable">recoverable (EventArbitraryProd property)</a>
+
+      <ul>
+        <li><a href="autoapi/boario.event.html#boario.event.EventKapitalRecover.recoverable">(EventKapitalRecover property)</a>
 </li>
+      </ul></li>
+      <li><a href="autoapi/boario.event.html#boario.event.EventArbitraryProd.recovery_function">recovery_function (EventArbitraryProd property)</a>
+
+      <ul>
+        <li><a href="autoapi/boario.event.html#boario.event.EventKapitalRecover.recovery_function">(EventKapitalRecover property)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/boario.event.html#boario.event.EventKapitalRecover.recovery_function">recovery_function (EventKapitalRecover property)</a>
+      <li><a href="autoapi/boario.event.html#boario.event.EventArbitraryProd.recovery_time">recovery_time (EventArbitraryProd attribute)</a>
 </li>
-      <li><a href="autoapi/boario.event.html#boario.event.EventKapitalDestroyed.regional_sectoral_kapital_destroyed">regional_sectoral_kapital_destroyed (EventKapitalDestroyed property)</a>
+      <li><a href="autoapi/boario.event.html#boario.event.EventKapitalDestroyed.regional_sectoral_productive_capital_destroyed">regional_sectoral_productive_capital_destroyed (EventKapitalDestroyed property)</a>
 </li>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.regions">regions (ARIOBaseModel attribute)</a>
 </li>
@@ -812,11 +817,7 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.update_params">update_params() (ARIOBaseModel method)</a>
-
-      <ul>
-        <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.update_params">(Simulation method)</a>
 </li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.update_system_from_events">update_system_from_events() (ARIOBaseModel method)</a>
@@ -841,36 +842,12 @@ document.write(`
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.write_final_demand">write_final_demand() (Simulation method)</a>
-</li>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.write_final_demand_unmet">write_final_demand_unmet() (Simulation method)</a>
-</li>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.write_index">write_index() (ARIOBaseModel method)</a>
 
       <ul>
         <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.write_index">(Simulation method)</a>
 </li>
       </ul></li>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.write_io_demand">write_io_demand() (Simulation method)</a>
-</li>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.write_kapital_lost">write_kapital_lost() (Simulation method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.write_limiting_stocks">write_limiting_stocks() (Simulation method)</a>
-</li>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.write_overproduction">write_overproduction() (Simulation method)</a>
-</li>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.write_production">write_production() (Simulation method)</a>
-</li>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.write_production_max">write_production_max() (Simulation method)</a>
-</li>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.write_rebuild_demand">write_rebuild_demand() (Simulation method)</a>
-</li>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.write_rebuild_prod">write_rebuild_prod() (Simulation method)</a>
-</li>
-      <li><a href="autoapi/boario.simulation.html#boario.simulation.Simulation.write_stocks">write_stocks() (Simulation method)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -891,8 +868,16 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.Y_0">Y_0 (ARIOBaseModel attribute)</a>
 </li>
+      <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.Y_C">Y_C (ARIOBaseModel attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.Y_distrib">Y_distrib (ARIOBaseModel attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/boario.event.html#boario.event.Event.Y_distrib">(Event attribute)</a>
+</li>
+      </ul></li>
       <li><a href="autoapi/boario.event.html#boario.event.Event.y_shape">y_shape (Event attribute)</a>
 </li>
   </ul></td>

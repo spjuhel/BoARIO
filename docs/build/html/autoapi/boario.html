@@ -43,6 +43,7 @@
     <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/boario';</script>
     <script src="../_static/js/custom.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -160,7 +161,7 @@
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -185,7 +186,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
       
@@ -276,7 +277,7 @@ document.write(`
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -290,7 +291,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
         
@@ -395,15 +396,17 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="boario.event.html#boario.event.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.possible_sectors"><code class="docutils literal notranslate"><span class="pre">Event.possible_sectors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.possible_regions"><code class="docutils literal notranslate"><span class="pre">Event.possible_regions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.possible_final_demand_cat"><code class="docutils literal notranslate"><span class="pre">Event.possible_final_demand_cat</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.temporal_unit_range"><code class="docutils literal notranslate"><span class="pre">Event.temporal_unit_range</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.z_shape"><code class="docutils literal notranslate"><span class="pre">Event.z_shape</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.y_shape"><code class="docutils literal notranslate"><span class="pre">Event.y_shape</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.x_shape"><code class="docutils literal notranslate"><span class="pre">Event.x_shape</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.regions_idx"><code class="docutils literal notranslate"><span class="pre">Event.regions_idx</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.sectors_idx"><code class="docutils literal notranslate"><span class="pre">Event.sectors_idx</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.monetary_factor"><code class="docutils literal notranslate"><span class="pre">Event.monetary_factor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.model_monetary_factor"><code class="docutils literal notranslate"><span class="pre">Event.model_monetary_factor</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.sectors_gva_shares"><code class="docutils literal notranslate"><span class="pre">Event.sectors_gva_shares</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.Z_distrib"><code class="docutils literal notranslate"><span class="pre">Event.Z_distrib</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.Y_distrib"><code class="docutils literal notranslate"><span class="pre">Event.Y_distrib</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.mrio_name"><code class="docutils literal notranslate"><span class="pre">Event.mrio_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.name"><code class="docutils literal notranslate"><span class="pre">Event.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.Event.impact_df"><code class="docutils literal notranslate"><span class="pre">Event.impact_df</span></code></a></li>
@@ -422,11 +425,15 @@ document.write(`
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="boario.event.html#boario.event.EventKapitalDestroyed"><code class="docutils literal notranslate"><span class="pre">EventKapitalDestroyed</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.EventKapitalDestroyed.regional_sectoral_kapital_destroyed"><code class="docutils literal notranslate"><span class="pre">EventKapitalDestroyed.regional_sectoral_kapital_destroyed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.EventKapitalDestroyed.households_impact_df"><code class="docutils literal notranslate"><span class="pre">EventKapitalDestroyed.households_impact_df</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.EventKapitalDestroyed.regional_sectoral_productive_capital_destroyed"><code class="docutils literal notranslate"><span class="pre">EventKapitalDestroyed.regional_sectoral_productive_capital_destroyed</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="boario.event.html#boario.event.EventArbitraryProd"><code class="docutils literal notranslate"><span class="pre">EventArbitraryProd</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.EventArbitraryProd.recovery_time"><code class="docutils literal notranslate"><span class="pre">EventArbitraryProd.recovery_time</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.EventArbitraryProd.prod_cap_delta_arbitrary"><code class="docutils literal notranslate"><span class="pre">EventArbitraryProd.prod_cap_delta_arbitrary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.EventArbitraryProd.recoverable"><code class="docutils literal notranslate"><span class="pre">EventArbitraryProd.recoverable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.event.html#boario.event.EventArbitraryProd.recovery_function"><code class="docutils literal notranslate"><span class="pre">EventArbitraryProd.recovery_function</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="boario.event.html#boario.event.EventKapitalRecover"><code class="docutils literal notranslate"><span class="pre">EventKapitalRecover</span></code></a><ul>
@@ -490,9 +497,9 @@ document.write(`
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.sectors"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.sectors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.n_sectors"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.n_sectors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.industries"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.industries</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.fd_cat"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.fd_cat</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.n_industries"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.n_industries</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.final_demand_cat"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.final_demand_cat</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.n_fd_cat"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.n_fd_cat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.monetary_factor"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.monetary_factor</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.n_temporal_units_by_step"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.n_temporal_units_by_step</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.iotable_year_to_temporal_unit_factor"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.iotable_year_to_temporal_unit_factor</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.rebuild_tau"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.rebuild_tau</span></code></a></li>
@@ -503,6 +510,8 @@ document.write(`
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.Z_C"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.Z_C</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.Z_distrib"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.Z_distrib</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.Z_0"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.Z_0</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.Y_C"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.Y_C</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.Y_distrib"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.Y_distrib</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.Y_0"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.Y_0</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.X_0"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.X_0</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.gdp_df"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.gdp_df</span></code></a></li>
@@ -520,9 +529,9 @@ document.write(`
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.house_rebuild_demand"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.house_rebuild_demand</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.indus_rebuild_demand_tot"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.indus_rebuild_demand_tot</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.indus_rebuild_demand"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.indus_rebuild_demand</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.kapital_lost"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.kapital_lost</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.productive_capital_lost"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.productive_capital_lost</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.prod_cap_delta_arbitrary"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.prod_cap_delta_arbitrary</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.prod_cap_delta_kapital"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.prod_cap_delta_kapital</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.prod_cap_delta_productive_capital"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.prod_cap_delta_productive_capital</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.prod_cap_delta_tot"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.prod_cap_delta_tot</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.update_system_from_events"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.update_system_from_events()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.production_cap"><code class="docutils literal notranslate"><span class="pre">ARIOBaseModel.production_cap</span></code></a></li>
@@ -566,25 +575,11 @@ document.write(`
 <li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.loop"><code class="docutils literal notranslate"><span class="pre">Simulation.loop()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.next_step"><code class="docutils literal notranslate"><span class="pre">Simulation.next_step()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.check_equilibrium"><code class="docutils literal notranslate"><span class="pre">Simulation.check_equilibrium()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.add_events"><code class="docutils literal notranslate"><span class="pre">Simulation.add_events()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.add_event"><code class="docutils literal notranslate"><span class="pre">Simulation.add_event()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.reset_sim_with_same_events"><code class="docutils literal notranslate"><span class="pre">Simulation.reset_sim_with_same_events()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.reset_sim_full"><code class="docutils literal notranslate"><span class="pre">Simulation.reset_sim_full()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.update_params"><code class="docutils literal notranslate"><span class="pre">Simulation.update_params()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.write_index"><code class="docutils literal notranslate"><span class="pre">Simulation.write_index()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.read_events"><code class="docutils literal notranslate"><span class="pre">Simulation.read_events()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.check_happening_events"><code class="docutils literal notranslate"><span class="pre">Simulation.check_happening_events()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.write_production"><code class="docutils literal notranslate"><span class="pre">Simulation.write_production()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.write_rebuild_prod"><code class="docutils literal notranslate"><span class="pre">Simulation.write_rebuild_prod()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.write_kapital_lost"><code class="docutils literal notranslate"><span class="pre">Simulation.write_kapital_lost()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.write_production_max"><code class="docutils literal notranslate"><span class="pre">Simulation.write_production_max()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.write_io_demand"><code class="docutils literal notranslate"><span class="pre">Simulation.write_io_demand()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.write_final_demand"><code class="docutils literal notranslate"><span class="pre">Simulation.write_final_demand()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.write_rebuild_demand"><code class="docutils literal notranslate"><span class="pre">Simulation.write_rebuild_demand()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.write_overproduction"><code class="docutils literal notranslate"><span class="pre">Simulation.write_overproduction()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.write_final_demand_unmet"><code class="docutils literal notranslate"><span class="pre">Simulation.write_final_demand_unmet()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.write_stocks"><code class="docutils literal notranslate"><span class="pre">Simulation.write_stocks()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.write_limiting_stocks"><code class="docutils literal notranslate"><span class="pre">Simulation.write_limiting_stocks()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="boario.simulation.html#boario.simulation.Simulation.flush_memmaps"><code class="docutils literal notranslate"><span class="pre">Simulation.flush_memmaps()</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -23,6 +23,14 @@ on the repository, or `contact the developer`_.
 
 .. _contact the developer: pro@sjuhel.org
 
+Install from a specific branch
+=================================
+
+Note that you can directly install BoARIO from a branch of its github repository using:
+
+.. code-block:: console
+
+   pip install git+https://github.com/spjuhel/boario.git@branch-name
 
 Requirements
 ===============
@@ -34,3 +42,8 @@ Installing via pip should install all the required dependencies.
 You can also check the ``pyproject.toml`` file in the sources to see all current dependencies.
 
 If you are experiencing difficulties in setting up a working environment feel free to open an issue on the Github repository or to contact the developer.
+
+Platform
+==========
+
+The code is known to run under both Linux and Windows operating systems.

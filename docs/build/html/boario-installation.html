@@ -43,6 +43,7 @@
     <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'boario-installation';</script>
     <script src="_static/js/custom.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -160,7 +161,7 @@
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -185,7 +186,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
       
@@ -276,7 +277,7 @@ document.write(`
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -290,7 +291,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
         
@@ -390,12 +391,23 @@ document.write(`
 <p>If you encounter any problems while installing the package, please <a class="reference external" href="https://github.com/spjuhel/BoARIO/issues/new">raise an issue</a>
 on the repository, or <a class="reference external" href="mailto:pro&#37;&#52;&#48;sjuhel&#46;org">contact the developer</a>.</p>
 </section>
+<section id="install-from-a-specific-branch">
+<h2>Install from a specific branch<a class="headerlink" href="#install-from-a-specific-branch" title="Permalink to this heading">#</a></h2>
+<p>Note that you can directly install BoARIO from a branch of its github repository using:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install git+https://github.com/spjuhel/boario.git@branch-name</span>
+</pre></div>
+</div>
+</section>
 <section id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading">#</a></h2>
 <p>BoARIO is currently developed using python <code class="docutils literal notranslate"><span class="pre">3.8</span></code>. It might work with older python versions, but no check were made regarding this.</p>
 <p>Installing via pip should install all the required dependencies.</p>
 <p>You can also check the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file in the sources to see all current dependencies.</p>
 <p>If you are experiencing difficulties in setting up a working environment feel free to open an issue on the Github repository or to contact the developer.</p>
+</section>
+<section id="platform">
+<h2>Platform<a class="headerlink" href="#platform" title="Permalink to this heading">#</a></h2>
+<p>The code is known to run under both Linux and Windows operating systems.</p>
 </section>
 </section>
 
@@ -441,7 +453,9 @@ on the repository, or <a class="reference external" href="mailto:pro&#37;&#52;&#
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-via-pip">Install via pip</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-from-a-specific-branch">Install from a specific branch</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#platform">Platform</a></li>
 </ul>
   </nav></div>
 

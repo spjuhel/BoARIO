@@ -42,6 +42,7 @@
     <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/boario/simulation';</script>
     <script src="../../_static/js/custom.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -157,7 +158,7 @@
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -182,7 +183,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
       
@@ -269,7 +270,7 @@ document.write(`
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -283,7 +284,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
         
@@ -389,6 +390,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">progressbar</span>
 
 <span class="kn">from</span> <span class="nn">boario</span> <span class="kn">import</span> <span class="n">DEBUGFORMATTER</span>
@@ -396,7 +398,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">boario.event</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">boario.extended_models</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">boario.model_base</span> <span class="kn">import</span> <span class="n">ARIOBaseModel</span>
-<span class="kn">from</span> <span class="nn">boario.utils.misc</span> <span class="kn">import</span> <span class="n">CustomNumpyEncoder</span><span class="p">,</span> <span class="n">TempMemmap</span>
+<span class="kn">from</span> <span class="nn">boario.utils.misc</span> <span class="kn">import</span> <span class="n">CustomNumpyEncoder</span><span class="p">,</span> <span class="n">TempMemmap</span><span class="p">,</span> <span class="n">sizeof_fmt</span><span class="p">,</span> <span class="n">print_summary</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Simulation&quot;</span><span class="p">]</span>
 
@@ -420,43 +422,58 @@ document.write(`
         <span class="s2">&quot;rebuild_prod&quot;</span><span class="p">,</span>
         <span class="s2">&quot;inputs_stocks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;limiting_inputs&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;kapital_to_recover&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;productive_capital_to_recover&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="n">__file_save_array_specs</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;production_realised&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;production_evolution&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_production_evolution&quot;</span><span class="p">,</span>
             <span class="s2">&quot;industries&quot;</span><span class="p">,</span>
             <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="s2">&quot;production_capacity&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;production_cap_evolution&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_production_cap_evolution&quot;</span><span class="p">,</span>
             <span class="s2">&quot;industries&quot;</span><span class="p">,</span>
             <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
         <span class="p">),</span>
-        <span class="s2">&quot;final_demand&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="s2">&quot;final_demand_evolution&quot;</span><span class="p">,</span> <span class="s2">&quot;industries&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
-        <span class="s2">&quot;intermediate_demand&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="s2">&quot;io_demand_evolution&quot;</span><span class="p">,</span> <span class="s2">&quot;industries&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
-        <span class="s2">&quot;rebuild_demand&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="s2">&quot;rebuild_demand_evolution&quot;</span><span class="p">,</span> <span class="s2">&quot;industries&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
-        <span class="s2">&quot;overproduction&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="s2">&quot;overproduction_evolution&quot;</span><span class="p">,</span> <span class="s2">&quot;industries&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
+        <span class="s2">&quot;final_demand&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="s2">&quot;_final_demand_evolution&quot;</span><span class="p">,</span> <span class="s2">&quot;industries&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
+        <span class="s2">&quot;intermediate_demand&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_io_demand_evolution&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;industries&quot;</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;rebuild_demand&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_rebuild_demand_evolution&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;industries&quot;</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;overproduction&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_overproduction_evolution&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;industries&quot;</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="p">),</span>
         <span class="s2">&quot;final_demand_unmet&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;final_demand_unmet_evolution&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_final_demand_unmet_evolution&quot;</span><span class="p">,</span>
             <span class="s2">&quot;industries&quot;</span><span class="p">,</span>
             <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="s2">&quot;rebuild_prod&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rebuild_production_evolution&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_rebuild_production_evolution&quot;</span><span class="p">,</span>
             <span class="s2">&quot;industries&quot;</span><span class="p">,</span>
             <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
         <span class="p">),</span>
-        <span class="s2">&quot;inputs_stocks&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="s2">&quot;inputs_evolution&quot;</span><span class="p">,</span> <span class="s2">&quot;stocks&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
-        <span class="s2">&quot;limiting_inputs&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;byte&quot;</span><span class="p">,</span> <span class="s2">&quot;limiting_inputs_evolution&quot;</span><span class="p">,</span> <span class="s2">&quot;stocks&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
-        <span class="s2">&quot;kapital_to_recover&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;inputs_stocks&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="s2">&quot;_inputs_evolution&quot;</span><span class="p">,</span> <span class="s2">&quot;stocks&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
+        <span class="s2">&quot;limiting_inputs&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;byte&quot;</span><span class="p">,</span> <span class="s2">&quot;_limiting_inputs_evolution&quot;</span><span class="p">,</span> <span class="s2">&quot;stocks&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+        <span class="s2">&quot;productive_capital_to_recover&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;regional_sectoral_kapital_destroyed_evolution&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_regional_sectoral_productive_capital_destroyed_evolution&quot;</span><span class="p">,</span>
             <span class="s2">&quot;industries&quot;</span><span class="p">,</span>
             <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
         <span class="p">),</span>
@@ -474,7 +491,7 @@ document.write(`
         <span class="n">save_index</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">save_records</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">[],</span>
         <span class="n">boario_output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;boario&quot;</span><span class="p">),</span>
-        <span class="n">results_dir_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;results&quot;</span><span class="p">,</span>
+        <span class="n">results_dir_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;A Simulation instance can be initialized with the following parameters:</span>
 
@@ -514,18 +531,32 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">boario_output_dir</span><span class="p">)</span>
         <span class="sd">&quot;&quot;&quot;pathlib.Path, optional: Optional path to the directory where output are stored.&quot;&quot;&quot;</span>
 
+        <span class="c1"># Pre-init record variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_production_evolution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_production_cap_evolution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_final_demand_evolution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_io_demand_evolution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_demand_evolution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_overproduction_evolution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_final_demand_unmet_evolution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_production_evolution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inputs_evolution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_limiting_inputs_evolution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regional_sectoral_productive_capital_destroyed_evolution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
         <span class="k">if</span> <span class="n">save_records</span> <span class="o">!=</span> <span class="p">[]</span> <span class="ow">or</span> <span class="n">save_events</span> <span class="ow">or</span> <span class="n">save_params</span> <span class="ow">or</span> <span class="n">save_index</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">save_records</span> <span class="o">!=</span> <span class="p">[]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">results_storage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">/</span> <span class="n">results_dir_name</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_storage</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">results_storage</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">results_storage</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">/</span> <span class="n">results_dir_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">results_dir_name</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">/</span> <span class="n">results_dir_name</span>
         <span class="p">)</span>
         <span class="sd">&quot;&quot;&quot;str: Name of the folder in `output_dir` where the results will be stored if saved.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">save_records</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_storage</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">results_storage</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_storage</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">results_storage</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -541,6 +572,8 @@ document.write(`
         <span class="sd">&quot;&quot;&quot;list[Event]: A list containing all events that are happening at the current timestep of the simulation.&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">events_timings</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_temporal_units_to_sim</span><span class="p">,</span><span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">n_temporal_units_to_sim</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_temporal_units_to_sim should be a positive integer (got </span><span class="si">{</span><span class="n">n_temporal_units_to_sim</span><span class="si">}</span><span class="s2"> of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">n_temporal_units_to_sim</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_to_sim</span> <span class="o">=</span> <span class="n">n_temporal_units_to_sim</span>
         <span class="sd">&quot;&quot;&quot;int: The total number of `temporal_units` to simulate.&quot;&quot;&quot;</span>
 
@@ -590,9 +623,8 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_events</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_params</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">init_records</span><span class="p">(</span><span class="n">save_records</span><span class="p">,</span> <span class="n">register_stocks</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_records</span><span class="p">(</span><span class="n">save_records</span><span class="p">)</span>
 
-        <span class="n">Event</span><span class="o">.</span><span class="n">temporal_unit_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_to_sim</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params_dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;n_temporal_units_to_sim&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_to_sim</span><span class="p">,</span>
             <span class="s2">&quot;output_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
@@ -619,8 +651,14 @@ document.write(`
         <span class="sd">&quot;&quot;&quot;dict: A dictionary saving the parameters the simulation was run with.&quot;&quot;&quot;</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Initialized !&quot;</span><span class="p">)</span>
+        <span class="n">formatted_params_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="n">print_summary</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;inventory_restoration_tau&quot;</span> <span class="k">else</span> <span class="n">value</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Simulation parameters:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params_dict</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="s2">&quot;Simulation parameters:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">pformat</span><span class="p">(</span><span class="n">formatted_params_dict</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="Simulation.loop"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.loop">[docs]</a>    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
@@ -705,7 +743,7 @@ document.write(`
                 <span class="k">if</span> <span class="n">step_res</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">has_crashed</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Economy seems to have crashed.</span>
+                        <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Economy or model seems to have crashed.</span>
 <span class="s2">                    - At step : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                    &quot;&quot;&quot;</span>
                     <span class="p">)</span>
@@ -719,7 +757,7 @@ document.write(`
                     <span class="k">break</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span> <span class="o">!=</span> <span class="p">[]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">flush_memmaps</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_flush_memmaps</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_index</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_storage</span> <span class="o">/</span> <span class="s2">&quot;jsons&quot;</span> <span class="o">/</span> <span class="s2">&quot;indexes.json&quot;</span><span class="p">)</span>
@@ -780,86 +818,103 @@ document.write(`
 <span class="sd">            The minimum number of failing regions required to consider economy has crashed.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">min_steps_check</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">min_steps_check</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_to_sim</span> <span class="o">//</span> <span class="mi">5</span>
-        <span class="k">if</span> <span class="n">min_failing_regions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">min_failing_regions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_regions</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_sectors</span> <span class="o">//</span> <span class="mi">3</span>
-
-        <span class="c1"># Check if there are new events to add,</span>
-        <span class="c1"># if some happening events can start rebuilding (if rebuildable),</span>
-        <span class="c1"># and updates the internal model production_cap decrease and rebuild_demand</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_happening_events</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="s2">&quot;inputs_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_stocks</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">calc_overproduction</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="s2">&quot;overproduction_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_overproduction</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;rebuild_demand_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_rebuild_demand</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;final_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_final_demand</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;io_demand_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_io_demand</span><span class="p">()</span>
-
-        <span class="n">constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">calc_production</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="s2">&quot;limiting_inputs_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_limiting_stocks</span><span class="p">(</span><span class="n">constraints</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;production_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_production</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;production_cap_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_production_max</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;regional_sectoral_kapital_destroyed_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_kapital_lost</span><span class="p">()</span>
-
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">rebuildable_events</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">ev</span>
-                <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">EventKapitalRebuild</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ev</span><span class="o">.</span><span class="n">rebuildable</span>
-            <span class="p">]</span>
-            <span class="n">events_to_remove</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">distribute_production</span><span class="p">(</span>
-                <span class="n">rebuildable_events</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="s2">&quot;final_demand_unmet_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">write_final_demand_unmet</span><span class="p">()</span>
-            <span class="k">if</span> <span class="s2">&quot;rebuild_production_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">write_rebuild_prod</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;This exception happened:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-            <span class="k">return</span> <span class="mi">1</span>
-        <span class="n">events_to_remove</span> <span class="o">=</span> <span class="n">events_to_remove</span> <span class="o">+</span> <span class="p">[</span>
-            <span class="n">ev</span> <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span> <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">over</span>
-        <span class="p">]</span>
-        <span class="k">if</span> <span class="n">events_to_remove</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">events_to_remove</span>
-            <span class="p">]</span>
-            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">events_to_remove</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">EventKapitalDestroyed</span><span class="p">):</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="s2">&quot;Temporal_Unit : </span><span class="si">{}</span><span class="s2"> ~ Event named </span><span class="si">{}</span><span class="s2"> that occured at </span><span class="si">{}</span><span class="s2"> in </span><span class="si">{}</span><span class="s2"> for </span><span class="si">{}</span><span class="s2"> damages is completely rebuilt/recovered&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">,</span>
-                            <span class="n">e</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                            <span class="n">e</span><span class="o">.</span><span class="n">occurrence</span><span class="p">,</span>
-                            <span class="n">e</span><span class="o">.</span><span class="n">aff_regions</span><span class="p">,</span>
-                            <span class="n">e</span><span class="o">.</span><span class="n">total_kapital_destroyed</span><span class="p">,</span>
-                        <span class="p">)</span>
+            <span class="k">if</span> <span class="n">min_steps_check</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">min_steps_check</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_to_sim</span> <span class="o">//</span> <span class="mi">5</span>
+            <span class="k">if</span> <span class="n">min_failing_regions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">min_failing_regions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_regions</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_sectors</span> <span class="o">//</span> <span class="mi">3</span>
+
+            <span class="c1"># Check if there are new events to add,</span>
+            <span class="c1"># if some happening events can start rebuilding (if rebuildable),</span>
+            <span class="c1"># and updates the internal model production_cap decrease and rebuild_demand</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_happening_events</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="s2">&quot;_inputs_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_stocks</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">calc_overproduction</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="s2">&quot;_overproduction_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_overproduction</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s2">&quot;_rebuild_demand_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_rebuild_demand</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s2">&quot;_final_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_final_demand</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s2">&quot;_io_demand_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_io_demand</span><span class="p">()</span>
+
+            <span class="n">constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">calc_production</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s2">&quot;_limiting_inputs_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_limiting_stocks</span><span class="p">(</span><span class="n">constraints</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;_production_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_production</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s2">&quot;_production_cap_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_production_max</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="s2">&quot;_regional_sectoral_productive_capital_destroyed_evolution&quot;</span>
+                <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_productive_capital_lost</span><span class="p">()</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rebuildable_events</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">ev</span>
+                    <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">EventKapitalRebuild</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ev</span><span class="o">.</span><span class="n">rebuildable</span>
+                <span class="p">]</span>
+                <span class="n">events_to_remove</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">distribute_production</span><span class="p">(</span>
+                    <span class="n">rebuildable_events</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;_final_demand_unmet_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_write_final_demand_unmet</span><span class="p">()</span>
+                <span class="k">if</span> <span class="s2">&quot;_rebuild_production_evolution&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_write_rebuild_prod</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;This exception happened:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">matrix_stock</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">results_storage</span> <span class="o">/</span> <span class="s2">&quot;matrix_stock_dump.pkl&quot;</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Negative values in the stocks, matrix has been dumped in the results dir : </span><span class="se">\n</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">results_storage</span> <span class="o">/</span> <span class="s2">&quot;matrix_stock_dump.pkl&quot;</span>
                     <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="mi">1</span>
+            <span class="n">events_to_remove</span> <span class="o">=</span> <span class="n">events_to_remove</span> <span class="o">+</span> <span class="p">[</span>
+                <span class="n">ev</span> <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span> <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">over</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">events_to_remove</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">e</span>
+                    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span>
+                    <span class="k">if</span> <span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">events_to_remove</span>
+                <span class="p">]</span>
+                <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">events_to_remove</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">EventKapitalDestroyed</span><span class="p">):</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="s2">&quot;Temporal_Unit : </span><span class="si">{}</span><span class="s2"> ~ Event named </span><span class="si">{}</span><span class="s2"> that occured at </span><span class="si">{}</span><span class="s2"> in </span><span class="si">{}</span><span class="s2"> for </span><span class="si">{}</span><span class="s2"> damages is completely rebuilt/recovered&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">,</span>
+                                <span class="n">e</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                <span class="n">e</span><span class="o">.</span><span class="n">occurrence</span><span class="p">,</span>
+                                <span class="n">e</span><span class="o">.</span><span class="n">aff_regions</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span>
+                                <span class="n">e</span><span class="o">.</span><span class="n">total_productive_capital_destroyed</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">calc_orders</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">calc_orders</span><span class="p">()</span>
 
-        <span class="n">n_checks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span> <span class="o">//</span> <span class="n">check_period</span>
-        <span class="k">if</span> <span class="n">n_checks</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_checks</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">check_equilibrium</span><span class="p">(</span><span class="n">n_checks</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_n_checks</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">n_checks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span> <span class="o">//</span> <span class="n">check_period</span>
+            <span class="k">if</span> <span class="n">n_checks</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_checks</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">check_equilibrium</span><span class="p">(</span><span class="n">n_checks</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_n_checks</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_temporal_units_by_step</span>
-        <span class="k">return</span> <span class="mi">0</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_temporal_units_by_step</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The following exception happened: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span></div>
 
 <div class="viewcode-block" id="Simulation.check_equilibrium"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.check_equilibrium">[docs]</a>    <span class="k">def</span> <span class="nf">check_equilibrium</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_checks</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks the status of production, stocks and rebuilding demand.</span>
@@ -902,43 +957,18 @@ document.write(`
                 <span class="p">(</span><span class="n">n_checks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">,</span> <span class="s2">&quot;rebuilding&quot;</span><span class="p">)</span>
             <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;not finished&quot;</span></div>
 
-    <span class="k">def</span> <span class="nf">read_events_from_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">events_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;I have to redo this one&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="Simulation.add_events"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.add_events">[docs]</a>    <span class="k">def</span> <span class="nf">add_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">events</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Event</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Add a list of events to the simulation.</span>
 
-    <span class="c1">#     &quot;&quot;&quot;Import a list of events (as a list of dictionaries) into the model.</span>
-
-    <span class="c1">#     Also performs various checks on the events to avoid badly written events.</span>
-    <span class="c1">#     See :ref:`How to define Events &lt;boario-events&gt;` to understand how to write events dictionaries or JSON files.</span>
-
-    <span class="c1">#     Parameters</span>
-    <span class="c1">#     ----------</span>
-    <span class="c1">#     events_list :</span>
-    <span class="c1">#         List of events as dictionaries.</span>
-
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#     logger.info(&quot;Reading events from given list and adding them to the model&quot;)</span>
-    <span class="c1">#     if not isinstance(events_list, list):</span>
-    <span class="c1">#         if isinstance(events_list, dict):</span>
-    <span class="c1">#             raise TypeError(</span>
-    <span class="c1">#                 &quot;read_events_from_list() takes a list of event dicts as an argument, not a single event dict, you might want to use read_event(your_event) instead.&quot;</span>
-    <span class="c1">#             )</span>
-    <span class="c1">#         else:</span>
-    <span class="c1">#             raise TypeError(</span>
-    <span class="c1">#                 &quot;read_events_from_list() takes a list of event dicts as an argument, not a {}&quot;.format(</span>
-    <span class="c1">#                     type(events_list)</span>
-    <span class="c1">#                 )</span>
-    <span class="c1">#             )</span>
-    <span class="c1">#     for ev_dic in events_list:</span>
-    <span class="c1">#         self.read_event(ev_dic)</span>
-
-    <span class="k">def</span> <span class="nf">read_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ev_dic</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;I have to redo this one&quot;</span><span class="p">)</span>
-
-    <span class="c1">#     if ev_dic[&quot;aff_sectors&quot;] == &quot;all&quot;:</span>
-    <span class="c1">#         ev_dic[&quot;aff_sectors&quot;] = list(self.model.sectors)</span>
-    <span class="c1">#     ev = Event(ev_dic)</span>
-    <span class="c1">#     self.all_events.append(ev)</span>
-    <span class="c1">#     self.events_timings.add(ev.occurrence)</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        events : list[Event]</span>
+<span class="sd">            The events to add.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;list[Event] expected, </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">events</span><span class="p">)</span><span class="si">}</span><span class="s2"> received.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Simulation.add_event"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.add_event">[docs]</a>    <span class="k">def</span> <span class="nf">add_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ev</span><span class="p">:</span> <span class="n">Event</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add an event to the simulation.</span>
@@ -948,7 +978,8 @@ document.write(`
 <span class="sd">        ev : Event</span>
 <span class="sd">            The event to add.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">Event</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Event expected, </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span><span class="si">}</span><span class="s2"> received.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">all_events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">events_timings</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">occurrence</span><span class="p">)</span></div>
 
@@ -960,7 +991,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">_n_checks</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_simulated</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_crashed</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reset_records</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_records</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">reset_module</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Simulation.reset_sim_full"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.reset_sim_full">[docs]</a>    <span class="k">def</span> <span class="nf">reset_sim_full</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -971,29 +1002,6 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">all_events</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">events_timings</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="Simulation.update_params"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.update_params">[docs]</a>    <span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Update the parameters of the model.</span>
-
-<span class="sd">        Replace the ``params`` attribute with ``new_params`` and logs the update.</span>
-<span class="sd">        This method also checks if the directory specified to save the results exists and create it otherwise.</span>
-
-<span class="sd">        .. warning::</span>
-<span class="sd">            Be aware this method calls :meth:`~boario.model_base.ARIOBaseModel.update_params`, which resets the memmap files located in the results directory !</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        new_params : dict</span>
-<span class="sd">            New dictionnary of parameters to use.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;To fix&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Updating model parameters&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params_dict</span> <span class="o">=</span> <span class="n">new_params</span>
-        <span class="n">results_storage</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_storage</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">results_storage</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">results_storage</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params_dict</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Simulation.write_index"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.write_index">[docs]</a>    <span class="k">def</span> <span class="nf">write_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;Write the index of the dataframes used in the model in a json file.</span>
@@ -1008,39 +1016,7 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="n">index_file</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Simulation.read_events"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.read_events">[docs]</a>    <span class="k">def</span> <span class="nf">read_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">events_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;Read events from a json file.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        events_file :</span>
-<span class="sd">            path to a json file</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        FileNotFoundError</span>
-<span class="sd">            If file does not exist</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;I have to redo this one&quot;</span><span class="p">)</span></div>
-        <span class="c1"># logger.info(</span>
-        <span class="c1">#     &quot;Reading events from {} and adding them to the model&quot;.format(events_file)</span>
-        <span class="c1"># )</span>
-        <span class="c1"># if isinstance(events_file, str):</span>
-        <span class="c1">#     events_file = pathlib.Path(events_file)</span>
-        <span class="c1"># elif not isinstance(events_file, pathlib.Path):</span>
-        <span class="c1">#     raise TypeError(&quot;Given index file is not an str or a Path&quot;)</span>
-        <span class="c1"># if not events_file.exists():</span>
-        <span class="c1">#     raise FileNotFoundError(&quot;This file does not exist: &quot;, events_file)</span>
-        <span class="c1"># else:</span>
-        <span class="c1">#     with events_file.open(&quot;r&quot;) as f:</span>
-        <span class="c1">#         events = json.load(f)</span>
-        <span class="c1"># if isinstance(events, list):</span>
-        <span class="c1">#     self.read_events_from_list(events)</span>
-        <span class="c1"># else:</span>
-        <span class="c1">#     self.read_events_from_list([events])</span>
-
-<div class="viewcode-block" id="Simulation.check_happening_events"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.check_happening_events">[docs]</a>    <span class="k">def</span> <span class="nf">check_happening_events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_check_happening_events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Updates the status of all events.</span>
 
 <span class="sd">        Check the `all_events` attribute and `current_temporal_unit` and</span>
@@ -1060,86 +1036,84 @@ document.write(`
                             <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Affected regions are : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">aff_regions</span><span class="p">))</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;Affected regions are : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">aff_regions</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+                    <span class="p">)</span>
                     <span class="n">ev</span><span class="o">.</span><span class="n">happened</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">EventKapitalRebuild</span><span class="p">):</span>
                 <span class="n">ev</span><span class="o">.</span><span class="n">rebuildable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">EventKapitalRecover</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="p">(</span><span class="n">EventKapitalRecover</span><span class="p">,</span> <span class="n">EventArbitraryProd</span><span class="p">)):</span>
                 <span class="n">ev</span><span class="o">.</span><span class="n">recoverable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span>
                 <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">recoverable</span><span class="p">:</span>
                     <span class="n">ev</span><span class="o">.</span><span class="n">recovery</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update_system_from_events</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update_system_from_events</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currently_happening_events</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Simulation.write_production"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.write_production">[docs]</a>    <span class="k">def</span> <span class="nf">write_production</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_write_production</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Saves the current production vector to the memmap.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">production_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">production</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_production_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">production</span>
 
-<div class="viewcode-block" id="Simulation.write_rebuild_prod"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.write_rebuild_prod">[docs]</a>    <span class="k">def</span> <span class="nf">write_rebuild_prod</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_write_rebuild_prod</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Saves the current rebuilding production vector to the memmap.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;self.rebuild_production_evolution shape : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rebuild_production_evolution</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, self.model.rebuild_prod shape : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">rebuild_prod</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;self._rebuild_production_evolution shape : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_production_evolution</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, self.model.rebuild_prod shape : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">rebuild_prod</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rebuild_production_evolution</span><span class="p">[</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_production_evolution</span><span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">rebuild_prod</span></div>
+        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">rebuild_prod</span>
 
-<div class="viewcode-block" id="Simulation.write_kapital_lost"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.write_kapital_lost">[docs]</a>    <span class="k">def</span> <span class="nf">write_kapital_lost</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Saves the current remaining kapital to rebuild vector to the memmap.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">regional_sectoral_kapital_destroyed_evolution</span><span class="p">[</span>
+    <span class="k">def</span> <span class="nf">_write_productive_capital_lost</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Saves the current remaining productive_capital to rebuild vector to the memmap.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regional_sectoral_productive_capital_destroyed_evolution</span><span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">kapital_lost</span></div>
+        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">productive_capital_lost</span>
 
-<div class="viewcode-block" id="Simulation.write_production_max"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.write_production_max">[docs]</a>    <span class="k">def</span> <span class="nf">write_production_max</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_write_production_max</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Saves the current production capacity vector to the memmap.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">production_cap_evolution</span><span class="p">[</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_production_cap_evolution</span><span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">production_cap</span></div>
+        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">production_cap</span>
 
-<div class="viewcode-block" id="Simulation.write_io_demand"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.write_io_demand">[docs]</a>    <span class="k">def</span> <span class="nf">write_io_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_write_io_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Saves the current (total per industry) intermediate demand vector to the memmap.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io_demand_evolution</span><span class="p">[</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_io_demand_evolution</span><span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">matrix_orders</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">matrix_orders</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Simulation.write_final_demand"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.write_final_demand">[docs]</a>    <span class="k">def</span> <span class="nf">write_final_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_write_final_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Saves the current (total per industry) final demand vector to the memmap.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">final_demand_evolution</span><span class="p">[</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_final_demand_evolution</span><span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">final_demand</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">final_demand</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Simulation.write_rebuild_demand"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.write_rebuild_demand">[docs]</a>    <span class="k">def</span> <span class="nf">write_rebuild_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_write_rebuild_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Saves the current (total per industry) rebuilding demand vector to the memmap.&quot;&quot;&quot;</span>
         <span class="n">to_write</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_regions</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_sectors</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">r_dem</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">tot_rebuild_demand</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rebuild_demand_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_dem</span>  <span class="c1"># type: ignore</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_dem</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">tot_rebuild_demand</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_demand_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_dem</span>  <span class="c1"># type: ignore</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rebuild_demand_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_write</span>  <span class="c1"># type: ignore</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_demand_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_write</span>  <span class="c1"># type: ignore</span>
 
-    <span class="k">def</span> <span class="nf">write_limiting_stocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limiting_stock</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Saves the current limiting inputs matrix to the memmap.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">limiting_inputs_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="n">limiting_stock</span>  <span class="c1"># type: ignore</span>
-
-<div class="viewcode-block" id="Simulation.write_overproduction"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.write_overproduction">[docs]</a>    <span class="k">def</span> <span class="nf">write_overproduction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_write_overproduction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Saves the current overproduction vector to the memmap.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">overproduction_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">overprod</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_overproduction_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">overprod</span>
 
-<div class="viewcode-block" id="Simulation.write_final_demand_unmet"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.write_final_demand_unmet">[docs]</a>    <span class="k">def</span> <span class="nf">write_final_demand_unmet</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_write_final_demand_unmet</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Saves the unmet final demand (for this step) vector to the memmap.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">final_demand_unmet_evolution</span><span class="p">[</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_final_demand_unmet_evolution</span><span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">final_demand_not_met</span></div>
+        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">final_demand_not_met</span>
 
-<div class="viewcode-block" id="Simulation.write_stocks"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.write_stocks">[docs]</a>    <span class="k">def</span> <span class="nf">write_stocks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_write_stocks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Saves the current inputs stock matrix to the memmap.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">inputs_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">matrix_stock</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inputs_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">matrix_stock</span>
 
-<div class="viewcode-block" id="Simulation.write_limiting_stocks"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.write_limiting_stocks">[docs]</a>    <span class="k">def</span> <span class="nf">write_limiting_stocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limiting_stock</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_write_limiting_stocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limiting_stock</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Saves the current limiting inputs matrix to the memmap.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">limiting_inputs_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="n">limiting_stock</span>  <span class="c1"># type: ignore</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_limiting_inputs_evolution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_temporal_unit</span><span class="p">]</span> <span class="o">=</span> <span class="n">limiting_stock</span>  <span class="c1"># type: ignore</span>
 
-<div class="viewcode-block" id="Simulation.flush_memmaps"><a class="viewcode-back" href="../../autoapi/boario.simulation.html#boario.simulation.Simulation.flush_memmaps">[docs]</a>    <span class="k">def</span> <span class="nf">flush_memmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_flush_memmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Saves files to record&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">at</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at</span><span class="p">):</span>
@@ -1147,13 +1121,18 @@ document.write(`
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">at</span><span class="si">}</span><span class="s2"> should be a member yet it isn&#39;t. This shouldn&#39;t happen.&quot;</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at</span><span class="p">)</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+                <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at</span><span class="p">)</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">init_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_records</span><span class="p">,</span> <span class="n">register_stocks</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_init_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_records</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__possible_records</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">rec</span> <span class="o">==</span> <span class="s2">&quot;input_stocks&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">register_stocks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">rec</span> <span class="o">==</span> <span class="s2">&quot;inputs_stocks&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_stocks</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Will not save inputs stocks&quot;</span><span class="p">)</span>
                 <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">rec</span> <span class="o">==</span> <span class="s2">&quot;inputs_stocks&quot;</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Simulation will save inputs stocks. Estimated size is </span><span class="si">{</span><span class="n">sizeof_fmt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_to_sim</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_sectors</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_sectors</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_regions</span> <span class="o">*</span> <span class="mi">64</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
                 <span class="n">save</span> <span class="o">=</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">save_records</span>
                 <span class="n">filename</span> <span class="o">=</span> <span class="n">rec</span>
                 <span class="n">dtype</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">shapev</span><span class="p">,</span> <span class="n">fillv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__file_save_array_specs</span><span class="p">[</span><span class="n">rec</span><span class="p">]</span>
@@ -1181,17 +1160,117 @@ document.write(`
                 <span class="bp">self</span><span class="o">.</span><span class="n">_files_to_record</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr_name</span><span class="p">)</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">memmap_array</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">reset_records</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_reset_records</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__possible_records</span><span class="p">:</span>
-            <span class="n">dtype</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">shapev</span><span class="p">,</span> <span class="n">fillv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__file_save_array_specs</span><span class="p">[</span><span class="n">rec</span><span class="p">]</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">fillv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__file_save_array_specs</span><span class="p">[</span><span class="n">rec</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">rec</span> <span class="o">==</span> <span class="s2">&quot;input_stocks&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_stocks</span><span class="p">:</span>
                 <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">memmap_array</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">)</span>
                 <span class="n">memmap_array</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">fillv</span><span class="p">)</span>
-                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">memmap_array</span><span class="p">)</span></div>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">memmap_array</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">production_realised</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_production_evolution</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">production_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_production_cap_evolution</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">final_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_final_demand_evolution</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intermediate_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_io_demand_evolution</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rebuild_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_demand_evolution</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">overproduction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_overproduction_evolution</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">final_demand_unmet</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_final_demand_unmet_evolution</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rebuild_prod</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_production_evolution</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inputs_stocks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inputs_evolution</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_to_sim</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_sectors</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="p">),</span>
+            <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_to_sim</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">sectors</span><span class="p">],</span>
+                <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">limiting_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_limiting_inputs_evolution</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_to_sim</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">n_sectors</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="p">),</span>
+            <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_to_sim</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">sectors</span><span class="p">],</span>
+                <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">productive_capital_to_recover</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_regional_sectoral_productive_capital_destroyed_evolution</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">)</span></div>
 </pre></div>
 
                 </article>

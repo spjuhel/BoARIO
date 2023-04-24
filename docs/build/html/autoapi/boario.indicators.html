@@ -43,6 +43,7 @@
     <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/boario.indicators';</script>
     <script src="../_static/js/custom.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -160,7 +161,7 @@
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -185,7 +186,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
       
@@ -276,7 +277,7 @@ document.write(`
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -290,7 +291,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
         
@@ -397,7 +398,7 @@ Undocumented.</p></li>
 </ul>
 <dl class="py class">
 <dt class="sig sig-object py" id="boario.indicators.Indicators">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Indicators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_crashed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kapital</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prodmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overprod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">io_demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_prod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fd_unmet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limiting_stocks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_temporal_units_to_sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_temporal_units_by_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_storage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inventory_restoration_tau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stocks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stocks_treatment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_crash</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/indicators.html#Indicators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.indicators.Indicators" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Indicators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_crashed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">productive_capital</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prodmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overprod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">io_demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_demand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_prod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fd_unmet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limiting_stocks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_temporal_units_to_sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_temporal_units_by_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_storage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inventory_restoration_tau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stocks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stocks_treatment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_crash</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/indicators.html#Indicators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.indicators.Indicators" title="Permalink to this definition">#</a></dt>
 <dd><p class="rubric">Inheritance</p>
 <div class="graphviz"><img src="../_images/inheritance-401d55459151c56c7adcb16946846f98606226db.png" alt="Inheritance diagram of Indicators" usemap="#inheritancee077cfc90a" class="inheritance graphviz" /></div>
 <map id="inheritancee077cfc90a" name="inheritancee077cfc90a">

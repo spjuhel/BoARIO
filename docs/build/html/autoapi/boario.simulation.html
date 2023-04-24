@@ -43,6 +43,7 @@
     <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/boario.simulation';</script>
     <script src="../_static/js/custom.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -160,7 +161,7 @@
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -185,7 +186,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
       
@@ -276,7 +277,7 @@ document.write(`
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -290,7 +291,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
         
@@ -399,7 +400,7 @@ Defines a simulation object with a set of parameters and an IOSystem.</p></li>
 </ul>
 <dl class="py class">
 <dt class="sig sig-object py" id="boario.simulation.Simulation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_stocks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_temporal_units_to_sim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">365</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separate_sims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_records</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boario_output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/tmp/boario2t1bw66t'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_dir_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'results'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_stocks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_temporal_units_to_sim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">365</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separate_sims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_records</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boario_output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/tmp/boariozfjuamam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_dir_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation" title="Permalink to this definition">#</a></dt>
 <dd><p>Defines a simulation object with a set of parameters and an IOSystem.</p>
 <p>This class wraps a <a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel" title="boario.model_base.ARIOBaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOBaseModel</span></code></a> or descendant, and create the context for
 simulations using this model. It stores execution parameters as well as events perturbing
@@ -431,7 +432,7 @@ which can rapidly lead to very large files.</p></li>
 <li><p><strong>save_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – </p></li>
 <li><p><strong>save_records</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – </p></li>
 <li><p><strong>boario_output_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><em>pathlib.Path</em></a>) – </p></li>
-<li><p><strong>results_dir_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – </p></li>
+<li><p><strong>results_dir_name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -617,6 +618,20 @@ and rebuilding demand and store the information in <code class="docutils literal
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="boario.simulation.Simulation.add_events">
+<span class="sig-name descname"><span class="pre">add_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">events</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.add_events"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.add_events" title="Permalink to this definition">#</a></dt>
+<dd><p>Add a list of events to the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>events</strong> (<em>list[Event]</em>) – The events to add.</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>events</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>[</em><a class="reference internal" href="boario.event.html#boario.event.Event" title="boario.event.Event"><em>boario.event.Event</em></a><em>]</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="boario.simulation.Simulation.add_event">
 <span class="sig-name descname"><span class="pre">add_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ev</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.add_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.add_event" title="Permalink to this definition">#</a></dt>
 <dd><p>Add an event to the simulation.</p>
@@ -643,26 +658,6 @@ and rebuilding demand and store the information in <code class="docutils literal
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.update_params">
-<span class="sig-name descname"><span class="pre">update_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.update_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.update_params" title="Permalink to this definition">#</a></dt>
-<dd><p>Update the parameters of the model.</p>
-<p>Replace the <code class="docutils literal notranslate"><span class="pre">params</span></code> attribute with <code class="docutils literal notranslate"><span class="pre">new_params</span></code> and logs the update.
-This method also checks if the directory specified to save the results exists and create it otherwise.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Be aware this method calls <a class="reference internal" href="boario.model_base.html#boario.model_base.ARIOBaseModel.update_params" title="boario.model_base.ARIOBaseModel.update_params"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_params()</span></code></a>, which resets the memmap files located in the results directory !</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>new_params</strong> (<em>dict</em>) – New dictionnary of parameters to use.</p>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>new_params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="boario.simulation.Simulation.write_index">
 <span class="sig-name descname"><span class="pre">write_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.write_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.write_index" title="Permalink to this definition">#</a></dt>
 <dd><p>Write the index of the dataframes used in the model in a json file.</p>
@@ -673,172 +668,6 @@ This method also checks if the directory specified to save the results exists an
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>index_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><em>Path</em></a>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.read_events">
-<span class="sig-name descname"><span class="pre">read_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">events_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.read_events"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.read_events" title="Permalink to this definition">#</a></dt>
-<dd><p>Read events from a json file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>events_file</strong> – path to a json file</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#FileNotFoundError" title="(in Python v3.11)"><strong>FileNotFoundError</strong></a> – If file does not exist</p>
-</dd>
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>events_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><em>Path</em></a>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.check_happening_events">
-<span class="sig-name descname"><span class="pre">check_happening_events</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.check_happening_events"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.check_happening_events" title="Permalink to this definition">#</a></dt>
-<dd><p>Updates the status of all events.</p>
-<p>Check the <cite>all_events</cite> attribute and <cite>current_temporal_unit</cite> and
-updates the events accordingly (ie if they happened, if they can start
-rebuild/recover)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.write_production">
-<span class="sig-name descname"><span class="pre">write_production</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.write_production"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.write_production" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves the current production vector to the memmap.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.write_rebuild_prod">
-<span class="sig-name descname"><span class="pre">write_rebuild_prod</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.write_rebuild_prod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.write_rebuild_prod" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves the current rebuilding production vector to the memmap.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.write_kapital_lost">
-<span class="sig-name descname"><span class="pre">write_kapital_lost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.write_kapital_lost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.write_kapital_lost" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves the current remaining kapital to rebuild vector to the memmap.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.write_production_max">
-<span class="sig-name descname"><span class="pre">write_production_max</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.write_production_max"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.write_production_max" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves the current production capacity vector to the memmap.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.write_io_demand">
-<span class="sig-name descname"><span class="pre">write_io_demand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.write_io_demand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.write_io_demand" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves the current (total per industry) intermediate demand vector to the memmap.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.write_final_demand">
-<span class="sig-name descname"><span class="pre">write_final_demand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.write_final_demand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.write_final_demand" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves the current (total per industry) final demand vector to the memmap.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.write_rebuild_demand">
-<span class="sig-name descname"><span class="pre">write_rebuild_demand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.write_rebuild_demand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.write_rebuild_demand" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves the current (total per industry) rebuilding demand vector to the memmap.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.write_overproduction">
-<span class="sig-name descname"><span class="pre">write_overproduction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.write_overproduction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.write_overproduction" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves the current overproduction vector to the memmap.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.write_final_demand_unmet">
-<span class="sig-name descname"><span class="pre">write_final_demand_unmet</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.write_final_demand_unmet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.write_final_demand_unmet" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves the unmet final demand (for this step) vector to the memmap.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.write_stocks">
-<span class="sig-name descname"><span class="pre">write_stocks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.write_stocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.write_stocks" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves the current inputs stock matrix to the memmap.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.write_limiting_stocks">
-<span class="sig-name descname"><span class="pre">write_limiting_stocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limiting_stock</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.write_limiting_stocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.write_limiting_stocks" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves the current limiting inputs matrix to the memmap.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>limiting_stock</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.24)"><em>ndarray</em></a>) – </p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boario.simulation.Simulation.flush_memmaps">
-<span class="sig-name descname"><span class="pre">flush_memmaps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/boario/simulation.html#Simulation.flush_memmaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boario.simulation.Simulation.flush_memmaps" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves files to record</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -903,25 +732,11 @@ rebuild/recover)</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.loop"><code class="docutils literal notranslate"><span class="pre">Simulation.loop()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.next_step"><code class="docutils literal notranslate"><span class="pre">Simulation.next_step()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.check_equilibrium"><code class="docutils literal notranslate"><span class="pre">Simulation.check_equilibrium()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.add_events"><code class="docutils literal notranslate"><span class="pre">Simulation.add_events()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.add_event"><code class="docutils literal notranslate"><span class="pre">Simulation.add_event()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.reset_sim_with_same_events"><code class="docutils literal notranslate"><span class="pre">Simulation.reset_sim_with_same_events()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.reset_sim_full"><code class="docutils literal notranslate"><span class="pre">Simulation.reset_sim_full()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.update_params"><code class="docutils literal notranslate"><span class="pre">Simulation.update_params()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.write_index"><code class="docutils literal notranslate"><span class="pre">Simulation.write_index()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.read_events"><code class="docutils literal notranslate"><span class="pre">Simulation.read_events()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.check_happening_events"><code class="docutils literal notranslate"><span class="pre">Simulation.check_happening_events()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.write_production"><code class="docutils literal notranslate"><span class="pre">Simulation.write_production()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.write_rebuild_prod"><code class="docutils literal notranslate"><span class="pre">Simulation.write_rebuild_prod()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.write_kapital_lost"><code class="docutils literal notranslate"><span class="pre">Simulation.write_kapital_lost()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.write_production_max"><code class="docutils literal notranslate"><span class="pre">Simulation.write_production_max()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.write_io_demand"><code class="docutils literal notranslate"><span class="pre">Simulation.write_io_demand()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.write_final_demand"><code class="docutils literal notranslate"><span class="pre">Simulation.write_final_demand()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.write_rebuild_demand"><code class="docutils literal notranslate"><span class="pre">Simulation.write_rebuild_demand()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.write_overproduction"><code class="docutils literal notranslate"><span class="pre">Simulation.write_overproduction()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.write_final_demand_unmet"><code class="docutils literal notranslate"><span class="pre">Simulation.write_final_demand_unmet()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.write_stocks"><code class="docutils literal notranslate"><span class="pre">Simulation.write_stocks()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.write_limiting_stocks"><code class="docutils literal notranslate"><span class="pre">Simulation.write_limiting_stocks()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#boario.simulation.Simulation.flush_memmaps"><code class="docutils literal notranslate"><span class="pre">Simulation.flush_memmaps()</span></code></a></li>
 </ul>
 </li>
 </ul>

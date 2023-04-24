@@ -42,6 +42,7 @@
     <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/boario/extended_models';</script>
     <script src="../../_static/js/custom.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -157,7 +158,7 @@
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -182,7 +183,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
       
@@ -269,7 +270,7 @@ document.write(`
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -283,7 +284,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
         
@@ -372,8 +373,9 @@ document.write(`
 <span class="c1"># along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">boario</span> <span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span> <span class="nn">boario.model_base</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">boario.event</span> <span class="kn">import</span> <span class="o">*</span>
@@ -394,9 +396,16 @@ document.write(`
         <span class="n">rebuild_tau</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
         <span class="n">main_inv_dur</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
         <span class="n">monetary_factor</span><span class="o">=</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span><span class="p">,</span>
+        <span class="n">temporal_units_by_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">iotable_year_to_temporal_unit_factor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">365</span><span class="p">,</span>
+        <span class="n">infinite_inventories_sect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">inventory_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">productive_capital_vector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">productive_capital_to_VA_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">psi_param</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span>
         <span class="n">inventory_restoration_tau</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;An ARIO3 model with some additional features</span>
 
@@ -412,7 +421,12 @@ document.write(`
             <span class="n">rebuild_tau</span><span class="o">=</span><span class="n">rebuild_tau</span><span class="p">,</span>
             <span class="n">main_inv_dur</span><span class="o">=</span><span class="n">main_inv_dur</span><span class="p">,</span>
             <span class="n">monetary_factor</span><span class="o">=</span><span class="n">monetary_factor</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="n">temporal_units_by_step</span><span class="o">=</span><span class="n">temporal_units_by_step</span><span class="p">,</span>
+            <span class="n">iotable_year_to_temporal_unit_factor</span><span class="o">=</span><span class="n">iotable_year_to_temporal_unit_factor</span><span class="p">,</span>
+            <span class="n">infinite_inventories_sect</span><span class="o">=</span><span class="n">infinite_inventories_sect</span><span class="p">,</span>
+            <span class="n">inventory_dict</span><span class="o">=</span><span class="n">inventory_dict</span><span class="p">,</span>
+            <span class="n">productive_capital_vector</span><span class="o">=</span><span class="n">productive_capital_vector</span><span class="p">,</span>
+            <span class="n">productive_capital_to_VA_dict</span><span class="o">=</span><span class="n">productive_capital_to_VA_dict</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Model is an ARIOPsiModel&quot;</span><span class="p">)</span>
@@ -423,10 +437,14 @@ document.write(`
 
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">psi_param</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">psi</span> <span class="o">=</span> <span class="n">psi_param</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">psi_param</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">psi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">psi_param</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;&#39;psi_param&#39; parameter is neither a str rep of a float or a float&quot;</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">psi</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;psi_param&#39; parameter must be less or equal than 1.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inventory_restoration_tau</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">restoration_tau</span> <span class="o">=</span> <span class="p">[</span>
@@ -442,11 +460,19 @@ document.write(`
                 <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">inventory_restoration_tau</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">is_integer</span><span class="p">():</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Invalid value: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">) in inventory_restoration_tau, values should be integer: </span><span class="si">{</span><span class="n">inventory_restoration_tau</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;Invalid value in inventory_restoration_tau, values should be integer.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Invalid value: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">) in inventory_restoration_tau, values should be integer: </span><span class="si">{</span><span class="n">inventory_restoration_tau</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
 
+            <span class="n">inventory_restoration_tau</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">key</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">inventory_restoration_tau</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
             <span class="n">inventory_restoration_tau</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">inventory_restoration_tau</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
             <span class="n">restoration_tau</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_by_step</span> <span class="o">/</span> <span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;=</span> <span class="n">INV_THRESHOLD</span> <span class="k">else</span> <span class="n">v</span>

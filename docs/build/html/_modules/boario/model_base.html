@@ -42,6 +42,7 @@
     <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/boario/model_base';</script>
     <script src="../../_static/js/custom.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -157,7 +158,7 @@
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -182,7 +183,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
       
@@ -269,7 +270,7 @@ document.write(`
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -283,7 +284,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
         
@@ -377,6 +378,7 @@ document.write(`
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">boario</span> <span class="kn">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">warn_once</span>
 <span class="kn">from</span> <span class="nn">boario.event</span> <span class="kn">import</span> <span class="o">*</span>
@@ -441,8 +443,10 @@ document.write(`
         <span class="n">iotable_year_to_temporal_unit_factor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">365</span><span class="p">,</span>
         <span class="n">infinite_inventories_sect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">inventory_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">kapital_vector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">kapital_to_VA_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">productive_capital_vector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">productive_capital_to_VA_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The core of an ARIO model.  Handles the different arrays containing the mrio tables.</span>
 
@@ -481,17 +485,17 @@ document.write(`
 <span class="sd">            List of inputs (sector) considered never constraining for production.</span>
 <span class="sd">        inventory_dict: dict, optional</span>
 <span class="sd">            Dictionary in the form input:initial_inventory_size, (where input is a sector, and initial_inventory_size is in &quot;temporal_unit&quot; (defaults to a day))</span>
-<span class="sd">        kapital_vector: ArrayLike, optional</span>
+<span class="sd">        productive_capital_vector: ArrayLike, optional</span>
 <span class="sd">            Array of capital per industry if you need to give it exogenously.</span>
-<span class="sd">        kapital_to_VA_dict: dict, optional</span>
+<span class="sd">        productive_capital_to_VA_dict: dict, optional</span>
 <span class="sd">            Dictionary in the form sector:ratio. Where ratio is used to estimate capital stock based on the value added of the sector.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 
-<span class="sd">        It is recommended to use ``kapital_to_VA_dict`` if you have a more precise estimation of</span>
+<span class="sd">        It is recommended to use ``productive_capital_to_VA_dict`` if you have a more precise estimation of</span>
 <span class="sd">        the ratio of (Capital Stock / Value Added) per sectors.</span>
-<span class="sd">        You may also feed in directly a ``kapital_vector`` if you did your estimation before-hand.</span>
+<span class="sd">        You may also feed in directly a ``productive_capital_vector`` if you did your estimation before-hand.</span>
 <span class="sd">        (This is especially useful if you have events based of an exposure layer for instance)</span>
 
 <span class="sd">        Regarding inventories, they default to 90 days for all inputs (ie sectors).</span>
@@ -510,7 +514,14 @@ document.write(`
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Initiating new ARIOBaseModel instance&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="c1">################ Parameters variables #######################</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;IO system metadata :</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">pym_mrio</span><span class="o">.</span><span class="n">meta</span><span class="p">)))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;IO system metadata :</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">pym_mrio</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">description</span><span class="p">),</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">pym_mrio</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">pym_mrio</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">system</span><span class="p">),</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">pym_mrio</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">version</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
         <span class="n">pym_mrio</span> <span class="o">=</span> <span class="n">lexico_reindex</span><span class="p">(</span><span class="n">pym_mrio</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">main_inv_dur</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">main_inv_dur</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;int, default 90: The default numbers of days for inputs inventory to use if it is not defined for an input.&quot;&quot;&quot;</span>
@@ -531,11 +542,16 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">n_sectors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sec</span><span class="p">)</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;int : The number :math:`n` of sectors.&quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">industries</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sectors</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">industries</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sectors</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">,</span> <span class="s2">&quot;sector&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;pandas.MultiIndex : A pandas MultiIndex of the industries (region,sector) of the model.&quot;&quot;&quot;</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_industries</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">industries</span><span class="p">)</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;int : The number :math:`m * n` of industries.&quot;&quot;&quot;</span>
+
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fd_cat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">pym_mrio</span><span class="o">.</span><span class="n">get_Y_categories</span><span class="p">())))</span>  <span class="c1"># type: ignore</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_demand_cat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">pym_mrio</span><span class="o">.</span><span class="n">get_Y_categories</span><span class="p">())))</span>  <span class="c1"># type: ignore</span>
             <span class="sa">r</span><span class="sd">&quot;&quot;&quot;numpy.ndarray of str: An array of the final demand categories of the model (``[&quot;Final demand&quot;]`` if there is only one)&quot;&quot;&quot;</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">n_fd_cat</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pym_mrio</span><span class="o">.</span><span class="n">get_Y_categories</span><span class="p">())</span>  <span class="c1"># type: ignore</span>
@@ -543,12 +559,18 @@ document.write(`
 
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">n_fd_cat</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fd_cat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;Final demand&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_demand_cat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;Final demand&quot;</span><span class="p">])</span>
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">n_fd_cat</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fd_cat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;Final demand&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_demand_cat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;Final demand&quot;</span><span class="p">])</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">monetary_factor</span> <span class="o">=</span> <span class="n">monetary_factor</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pym_mrio</span><span class="p">,</span> <span class="s2">&quot;monetary_factor&quot;</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Custom monetary factor found in the mrio pickle file, continuing with this one (</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">pym_mrio</span><span class="p">,</span><span class="s1">&#39;monetary_factor&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">monetary_factor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pym_mrio</span><span class="p">,</span> <span class="s2">&quot;monetary_factor&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">monetary_factor</span> <span class="o">=</span> <span class="n">monetary_factor</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;int, default 10^6: Monetary unit factor (i.e. if the tables unit is 10^6 € instead of 1 €, it should be set to 10^6).&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_by_step</span> <span class="o">=</span> <span class="n">temporal_units_by_step</span>
@@ -590,9 +612,12 @@ document.write(`
         <span class="k">else</span><span class="p">:</span>
             <span class="n">inv</span> <span class="o">=</span> <span class="n">inventory_dict</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">inventories</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">inf</span> <span class="k">if</span> <span class="n">inv</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span> <span class="k">else</span> <span class="n">inv</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">inv</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">inf</span> <span class="k">if</span> <span class="n">inv</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;inf&quot;</span><span class="p">,</span> <span class="s2">&quot;Inf&quot;</span><span class="p">,</span> <span class="s2">&quot;Infinity&quot;</span><span class="p">,</span> <span class="s2">&quot;infinity&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">inv</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">inv</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
             <span class="p">]</span>
 
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;inventories: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">inventories</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_temporal_units_by_step: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_by_step</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inv_duration</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inventories</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_by_step</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inv_duration</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
@@ -634,6 +659,18 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">Z_distrib</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z_distrib</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Z_0</span> <span class="o">=</span> <span class="n">pym_mrio</span><span class="o">.</span><span class="n">Z</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">steply_factor</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">Y_0</span> <span class="o">=</span> <span class="n">pym_mrio</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Y_C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matrix_I_sum</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_0</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;numpy.ndarray of float: 2-dim matrix array :math:`\ioy^{\sectorsset}` of size :math:`(n, m \times \text{number of final demand categories})` representing the final demand matrix aggregated by inputs (see :ref:`here &lt;boario-math-z-agg&gt;`).&quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Y_distrib</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Y_0</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Y_C</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_regions</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+            <span class="p">)</span>
+            <span class="sa">r</span><span class="sd">&quot;&quot;&quot;numpy.ndarray of float: math:`\ioy` normalised by :math:`\ioy^{\sectorsset}`, i.e. representing for each input the share of the total ordered transiting from an industry to final demand (see :ref:`here &lt;boario-math-z-agg&gt;`).&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Y_distrib</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Y_distrib</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">Y_0</span> <span class="o">=</span> <span class="n">pym_mrio</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">steply_factor</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;numpy.ndarray of float: 2-dim array :math:`\ioy` of size :math:`(n \times m, m \times \text{number of final demand categories})` representing the final demand matrix.&quot;&quot;&quot;</span>
 
@@ -655,18 +692,18 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">tech_mat</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix_I_sum</span> <span class="o">@</span> <span class="n">pym_mrio</span><span class="o">.</span><span class="n">A</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>  <span class="c1"># type: ignore #to_numpy is not superfluous !</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;numpy.ndarray of float: 2-dim array :math:`\ioa` of size :math:`(n \times m, n \times m)` representing the technical coefficients matrix.&quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">kapital_vector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">k_stock</span> <span class="o">=</span> <span class="n">kapital_vector</span>
+        <span class="k">if</span> <span class="n">productive_capital_vector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">k_stock</span> <span class="o">=</span> <span class="n">productive_capital_vector</span>
             <span class="sd">&quot;&quot;&quot;numpy.ndarray of float: Array of size :math:`n \times m` representing the estimated stock of capital of each industry.&quot;&quot;&quot;</span>
 
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_stock</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">k_stock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_stock</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">kapital_to_VA_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">productive_capital_to_VA_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No capital to VA dictionary given, considering 4/1 ratio&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">kstock_ratio_to_VA</span> <span class="o">=</span> <span class="mi">4</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">k_stock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">VA_0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">kstock_ratio_to_VA</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">kratio</span> <span class="o">=</span> <span class="n">kapital_to_VA_dict</span>
+            <span class="n">kratio</span> <span class="o">=</span> <span class="n">productive_capital_to_VA_dict</span>
             <span class="n">kratio_ordered</span> <span class="o">=</span> <span class="p">[</span><span class="n">kratio</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">kratio</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">kstock_ratio_to_VA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">kratio_ordered</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_regions</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">k_stock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">VA_0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">kstock_ratio_to_VA</span>
@@ -711,7 +748,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">intmd_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z_0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rebuilding_demand</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kapital_lost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">productive_capital_lost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;numpy.ndarray of float: Array of size :math:`n \times m` representing the estimated stock of capital currently destroyed for each industry.&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">order_type</span> <span class="o">=</span> <span class="n">order_type</span>
@@ -732,59 +769,70 @@ document.write(`
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Setting possible regions (currently: </span><span class="si">{</span><span class="n">Event</span><span class="o">.</span><span class="n">possible_regions</span><span class="si">}</span><span class="s2">) to: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
-        <span class="n">Event</span><span class="o">.</span><span class="n">possible_regions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">Event</span><span class="o">.</span><span class="n">possible_regions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalIndex</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;region&quot;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Possible regions is now </span><span class="si">{</span><span class="n">Event</span><span class="o">.</span><span class="n">possible_regions</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">Event</span><span class="o">.</span><span class="n">regions_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_regions</span><span class="p">)</span>
-        <span class="n">Event</span><span class="o">.</span><span class="n">possible_sectors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sectors</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">Event</span><span class="o">.</span><span class="n">possible_sectors</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalIndex</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sectors</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sector&quot;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">Event</span><span class="o">.</span><span class="n">possible_final_demand_cat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalIndex</span><span class="p">(</span>
+            <span class="n">pym_mrio</span><span class="o">.</span><span class="n">get_Y_categories</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;final demand&quot;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
         <span class="n">Event</span><span class="o">.</span><span class="n">sectors_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sectors</span><span class="p">)</span>
         <span class="n">Event</span><span class="o">.</span><span class="n">z_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z_0</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">Event</span><span class="o">.</span><span class="n">y_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_0</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">Event</span><span class="o">.</span><span class="n">x_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_0</span><span class="o">.</span><span class="n">shape</span>
-        <span class="n">Event</span><span class="o">.</span><span class="n">monetary_factor</span> <span class="o">=</span> <span class="n">monetary_factor</span>
+        <span class="n">Event</span><span class="o">.</span><span class="n">model_monetary_factor</span> <span class="o">=</span> <span class="n">monetary_factor</span>
         <span class="n">Event</span><span class="o">.</span><span class="n">sectors_gva_shares</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdp_share_sector</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">Event</span><span class="o">.</span><span class="n">Z_distrib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z_distrib</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">Event</span><span class="o">.</span><span class="n">Y_distrib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_distrib</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="n">meta</span> <span class="o">=</span> <span class="n">pym_mrio</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">metadata</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="c1"># meta = {&quot;name&quot;:&quot;unnamed&quot;, &quot;description&quot;:&quot;&quot;, &quot;system&quot;:&quot;unknown&quot;,&quot;version&quot;:&quot;unknown&quot;}</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">Event</span><span class="o">.</span><span class="n">mrio_name</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-                <span class="o">+</span> <span class="s2">&quot;_&quot;</span>
-                <span class="o">+</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span>
-                <span class="o">+</span> <span class="s2">&quot;_&quot;</span>
-                <span class="o">+</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;system&quot;</span><span class="p">]</span>
-                <span class="o">+</span> <span class="s2">&quot;_&quot;</span>
-                <span class="o">+</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]</span>
+            <span class="n">Event</span><span class="o">.</span><span class="n">mrio_name</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;system&quot;</span><span class="p">]),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]),</span>
+                <span class="p">]</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
             <span class="n">Event</span><span class="o">.</span><span class="n">mrio_name</span> <span class="o">=</span> <span class="s2">&quot;custom - method WIP&quot;</span>
 
         <span class="c1"># initialize those (it&#39;s not very nice, but otherwise python complains)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand_tot</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand_tot</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tot_rebuild_demand</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_kapital_lost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">VA_0</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_kapital</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_tot</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand_tot</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand_tot</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tot_rebuild_demand</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_productive_capital_lost</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">VA_0</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_productive_capital</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">industries</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">industries</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_tot</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">industries</span><span class="p">))</span>
 
     <span class="c1">## Properties</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tot_rebuild_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">tot_rebuild_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns current total rebuilding demand (as the sum of rebuilding demand addressed to each industry)&quot;&quot;&quot;</span>
         <span class="n">tmp</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Trying to return tot_rebuilding demand&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand_tot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand_tot</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
             <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand_tot</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand_tot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand_tot</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
             <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand_tot</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">tmp</span><span class="p">:</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tot_rebuild_demand</span> <span class="o">=</span> <span class="n">ret</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_tot_rebuild_demand</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tot_rebuild_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tot_rebuild_demand</span>
 
     <span class="nd">@tot_rebuild_demand</span><span class="o">.</span><span class="n">setter</span>
@@ -811,13 +859,12 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">indus_rebuild_demand</span> <span class="o">=</span> <span class="n">source</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">house_rebuild_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns household rebuilding demand matrix or `None` if</span>
-<span class="sd">        there is no such demand.</span>
+    <span class="k">def</span> <span class="nf">house_rebuild_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns household rebuilding demand matrix.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
+<span class="sd">        npt.NDArray</span>
 <span class="sd">            An array of same shape as math:`\ioy`, containing the sum of all currently</span>
 <span class="sd">            rebuildable final demand stock.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -825,13 +872,12 @@ document.write(`
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">house_rebuild_demand_tot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns total household rebuilding demand vector or `None` if</span>
-<span class="sd">        there is no such demand.</span>
+    <span class="k">def</span> <span class="nf">house_rebuild_demand_tot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns total household rebuilding demand vector.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
+<span class="sd">        npt.NDArray</span>
 <span class="sd">            An array of same shape as math:`\iox`, containing the sum of all currently</span>
 <span class="sd">            rebuildable households demands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -855,10 +901,6 @@ document.write(`
 <span class="sd">        events : &#39;list[Event]&#39;</span>
 <span class="sd">            A list of Event objects</span>
 
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-
-<span class="sd">        So far the model wasn&#39;t tested with such a rebuilding demand. Only intermediate demand was considered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tmp</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
@@ -868,14 +910,14 @@ document.write(`
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">rebuild_tau</span> <span class="o">=</span> <span class="n">ev</span><span class="o">.</span><span class="n">rebuild_tau</span>
                     <span class="n">warn_once</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="s2">&quot;Event has a custom rebuild_tau&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">rebuilding_demand_house</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">rebuilding_demand_house</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">ev</span><span class="o">.</span><span class="n">rebuilding_demand_house</span>
                         <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_by_step</span> <span class="o">/</span> <span class="n">rebuild_tau</span><span class="p">)</span>
                     <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">tmp</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand_tot</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">house_reb_dem</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">tot</span> <span class="o">=</span> <span class="n">house_reb_dem</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -883,14 +925,13 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand_tot</span> <span class="o">=</span> <span class="n">tot</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">indus_rebuild_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns industrial rebuilding demand matrix or `None` if</span>
-<span class="sd">        there is no such demand.</span>
+    <span class="k">def</span> <span class="nf">indus_rebuild_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns industrial rebuilding demand matrix.</span>
 
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
+<span class="sd">        npt.NDArray</span>
 <span class="sd">            An array of same shape as math:`\ioz`, containing the sum of all currently</span>
 <span class="sd">            rebuildable intermediate demand stock.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -898,13 +939,12 @@ document.write(`
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">indus_rebuild_demand_tot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns total industrial rebuilding demand vector or `None` if</span>
-<span class="sd">        there is no such demand.</span>
+    <span class="k">def</span> <span class="nf">indus_rebuild_demand_tot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns total industrial rebuilding demand vector.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
+<span class="sd">        npt.NDArray</span>
 <span class="sd">            An array of same shape as math:`\iox`, containing the sum of all currently</span>
 <span class="sd">            rebuildable intermediate demands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -940,29 +980,31 @@ document.write(`
                 <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">tmp</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand_tot</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">indus_reb_dem</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand</span> <span class="o">=</span> <span class="n">indus_reb_dem</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand_tot</span> <span class="o">=</span> <span class="n">indus_reb_dem</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting indus_rebuild_demand_tot to </span><span class="si">{</span><span class="n">indus_reb_dem</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># logger.debug(f&quot;Setting indus_rebuild_demand_tot to {indus_reb_dem}&quot;)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">kapital_lost</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">productive_capital_lost</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns current stock of destroyed capital</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
+<span class="sd">        npt.NDArray</span>
 <span class="sd">            An array of same shape as math:`\iox`, containing the &quot;stock&quot;</span>
 <span class="sd">        of capital currently destroyed for each industry.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kapital_lost</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_productive_capital_lost</span>
 
-    <span class="nd">@kapital_lost</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">kapital_lost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">EventKapitalDestroyed</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nd">@productive_capital_lost</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">productive_capital_lost</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">EventKapitalDestroyed</span><span class="p">]</span> <span class="o">|</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes current capital lost and update production delta accordingly.</span>
 
 <span class="sd">        Computes and sets the current stock of capital lost by each industry of</span>
@@ -972,58 +1014,63 @@ document.write(`
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        source : list[EventKapitalDestroyed] | np.ndarray</span>
+<span class="sd">        source : list[EventKapitalDestroyed] | npt.NDArray</span>
 <span class="sd">            Either a list of events to consider for the destruction</span>
 <span class="sd">        of capital or directly a vector of destroyed capital for each industry.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updating kapital lost from list of events&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updating productive_capital lost from list of events&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">source</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_kapital_lost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">regional_sectoral_kapital_destroyed</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">source</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_productive_capital_lost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">e</span><span class="o">.</span><span class="n">regional_sectoral_productive_capital_destroyed</span>
+                            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">source</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_kapital_lost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">VA_0</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_productive_capital_lost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">VA_0</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_kapital_lost</span> <span class="o">=</span> <span class="n">source</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_productive_capital_lost</span> <span class="o">=</span> <span class="n">source</span>
 
-        <span class="n">productivity_loss_from_K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_kapital_lost</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">productivity_loss_from_K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_productive_capital_lost</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
         <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_kapital_lost</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_productive_capital_lost</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">k_stock</span><span class="p">,</span>
             <span class="n">out</span><span class="o">=</span><span class="n">productivity_loss_from_K</span><span class="p">,</span>
             <span class="n">where</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">k_stock</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updating production delta from kapital loss&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_kapital</span> <span class="o">=</span> <span class="n">productivity_loss_from_K</span>
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_kapital</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updating production delta from productive_capital loss&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_productive_capital</span> <span class="o">=</span> <span class="n">productivity_loss_from_K</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_productive_capital</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">=</span> <span class="s2">&quot;from_kapital&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">=</span> <span class="s2">&quot;from_productive_capital&quot;</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">==</span> <span class="s2">&quot;from_arbitrary&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">=</span> <span class="s2">&quot;mixed_from_kapital_from_arbitrary&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">=</span> <span class="s2">&quot;mixed_from_productive_capital_from_arbitrary&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">prod_cap_delta_arbitrary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">prod_cap_delta_arbitrary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the possible &quot;arbitrary&quot; production capacity lost vector if</span>
 <span class="sd">        it was set.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
+<span class="sd">        npt.NDArray</span>
 <span class="sd">            An array of same shape as math:`\iox`, stating the amount of production</span>
 <span class="sd">        capacity lost arbitrarily (ie exogenous).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span>
 
     <span class="nd">@prod_cap_delta_arbitrary</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">prod_cap_delta_arbitrary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Event</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">prod_cap_delta_arbitrary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">EventArbitraryProd</span><span class="p">]</span> <span class="o">|</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Computes and sets the loss of production capacity from &quot;arbitrary&quot; sources.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        source : list[Event] | np.ndarray</span>
+<span class="sd">        source : list[Event] | npt.NDArray</span>
 <span class="sd">            Either a list of Event objects with arbitrary production losses</span>
 <span class="sd">            set, or directly a vector of production capacity loss.</span>
 
@@ -1031,42 +1078,46 @@ document.write(`
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">event_arb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">ev</span> <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="n">source</span> <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">prod_cap_delta_arbitrary</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+                <span class="p">[</span>
+                    <span class="n">ev</span><span class="o">.</span><span class="n">prod_cap_delta_arbitrary</span>
+                    <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="n">source</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">prod_cap_delta_arbitrary</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="p">]</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">event_arb</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">X_0</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">event_arb</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">event_arb</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_prod_capt_delta_arbitrary</span> <span class="o">=</span> <span class="n">source</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">=</span> <span class="s2">&quot;from_arbitrary&quot;</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">==</span> <span class="s2">&quot;from_kapital&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">=</span> <span class="s2">&quot;mixed_from_kapital_from_arbitrary&quot;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">==</span> <span class="s2">&quot;from_productive_capital&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">=</span> <span class="s2">&quot;mixed_from_productive_capital_from_arbitrary&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">prod_cap_delta_kapital</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">prod_cap_delta_productive_capital</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the possible production capacity lost due to capital destroyed vector if</span>
 <span class="sd">        it was set.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
+<span class="sd">        npt.NDArray</span>
 <span class="sd">            An array of same shape as math:`\iox`, stating the amount of production</span>
 <span class="sd">        capacity lost due to capital destroyed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_kapital</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_productive_capital</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">prod_cap_delta_tot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">prod_cap_delta_tot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes and return total current production delta.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
+<span class="sd">        npt.NDArray</span>
 <span class="sd">            The total production delta (ie share of production capacity lost)</span>
 <span class="sd">            for each industry.</span>
 
@@ -1076,25 +1127,27 @@ document.write(`
         <span class="n">tmp</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Production delta doesn&#39;t appear to be set yet.&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">==</span> <span class="s2">&quot;from_kapital&quot;</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Production delta is only set from kapital destruction&quot;</span><span class="p">)</span>
-            <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_kapital</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">==</span> <span class="s2">&quot;from_productive_capital&quot;</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Production delta is only set from productive_capital destruction&quot;</span>
+            <span class="p">)</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_productive_capital</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">==</span> <span class="s2">&quot;from_arbitrary&quot;</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Production delta is only set from arbitrary delta&quot;</span><span class="p">)</span>
             <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">==</span> <span class="s2">&quot;mixed_from_kapital_from_arbitrary&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">==</span> <span class="s2">&quot;mixed_from_productive_capital_from_arbitrary&quot;</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Production delta is a mixed form of kapital destruction and arbitrary delta&quot;</span>
+                <span class="s2">&quot;Production delta is a mixed form of productive_capital destruction and arbitrary delta&quot;</span>
             <span class="p">)</span>
-            <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_kapital</span><span class="p">)</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_productive_capital</span><span class="p">)</span>
             <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                 <span class="s2">&quot;Production delta type </span><span class="si">{}</span><span class="s2"> not recognised&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span><span class="p">)</span>
             <span class="p">)</span>
-        <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">X_0</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+        <span class="c1"># tmp.append(np.ones(shape=self.X_0.shape))</span>
         <span class="c1"># logger.debug(&quot;tmp: {}&quot;.format(tmp))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_tot</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_0</span><span class="o">.</span><span class="n">shape</span>
         <span class="p">),</span> <span class="s2">&quot;expected shape </span><span class="si">{}</span><span class="s2">, received </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -1122,7 +1175,7 @@ document.write(`
                 <span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">kapital_lost</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">productive_capital_lost</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">event</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">source</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">EventKapitalDestroyed</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prod_cap_delta_arbitrary</span> <span class="o">=</span> <span class="p">[</span>
@@ -1147,7 +1200,7 @@ document.write(`
         <span class="p">]</span></div>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">production_cap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">production_cap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute and update production capacity.</span>
 
 <span class="sd">        Compute and update production capacity from current total production delta and overproduction.</span>
@@ -1175,7 +1228,7 @@ document.write(`
         <span class="k">return</span> <span class="n">production_cap</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">total_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">total_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes and return total demand as the sum of intermediate demand (orders), final demand, and possible rebuilding demand.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix_orders</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
@@ -1184,12 +1237,12 @@ document.write(`
         <span class="n">tot_dem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_orders</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_demand</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">tot_dem</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Some total demand are negative which shouldn&#39;t happen&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_rebuild_demand</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tot_rebuild_demand</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">tot_dem</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_rebuild_demand</span>
         <span class="k">return</span> <span class="n">tot_dem</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">production_opt</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">production_opt</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes and returns &quot;optimal production&quot; :math:`\iox^{textrm{Opt}}`, as the per industry minimum between</span>
 <span class="sd">        total demand and production capacity.</span>
 
@@ -1198,17 +1251,17 @@ document.write(`
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_demand</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_cap</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">inventory_constraints_opt</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">inventory_constraints_opt</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes and returns inventory constraints for &quot;optimal production&quot; (see :meth:`calc_inventory_constraints`)&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_inventory_constraints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production_opt</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">inventory_constraints_act</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">inventory_constraints_act</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes and returns inventory constraints for &quot;actual production&quot; (see :meth:`calc_inventory_constraints`)&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_inventory_constraints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ARIOBaseModel.calc_production"><a class="viewcode-back" href="../../autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.calc_production">[docs]</a>    <span class="k">def</span> <span class="nf">calc_production</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_temporal_unit</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="ARIOBaseModel.calc_production"><a class="viewcode-back" href="../../autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.calc_production">[docs]</a>    <span class="k">def</span> <span class="nf">calc_production</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_temporal_unit</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes and updates actual production. See :ref:`boario-math-prod`.</span>
 
 <span class="sd">        1. Computes ``production_opt`` and ``inventory_constraints`` as :</span>
@@ -1299,7 +1352,7 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">production</span> <span class="o">=</span> <span class="n">production_opt</span>
         <span class="k">return</span> <span class="n">stock_constraint</span></div>
 
-<div class="viewcode-block" id="ARIOBaseModel.calc_inventory_constraints"><a class="viewcode-back" href="../../autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.calc_inventory_constraints">[docs]</a>    <span class="k">def</span> <span class="nf">calc_inventory_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">production</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="ARIOBaseModel.calc_inventory_constraints"><a class="viewcode-back" href="../../autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.calc_inventory_constraints">[docs]</a>    <span class="k">def</span> <span class="nf">calc_inventory_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">production</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute inventory constraints (no psi parameter, for the psi version,</span>
 <span class="sd">        the recommended one, see :meth:`~boario.extended_models.ARIOPsiModel.calc_inventory_constraints`)</span>
 
@@ -1307,12 +1360,12 @@ document.write(`
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        production : np.ndarray</span>
+<span class="sd">        production : npt.NDArray</span>
 <span class="sd">            The production vector to consider.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
+<span class="sd">        npt.NDArray</span>
 <span class="sd">            For each input, for each industry, the size of the inventory required to produce at `production` level</span>
 <span class="sd">        for the duration goal (`inv_duration`).</span>
 
@@ -1415,6 +1468,10 @@ document.write(`
 
         <span class="c1"># list_of_demands = [self.matrix_orders, self.final_demand]</span>
         <span class="c1">## 1. Calc demand from rebuilding requirements (with characteristic time rebuild_tau)</span>
+        <span class="n">house_reb_dem_per_event</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">house_reb_dem_tot_per_event</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">indus_reb_dem_per_event</span> <span class="o">=</span> <span class="n">indus_reb_dem_tot_per_event</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">if</span> <span class="n">rebuildable_events</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;There are rebuildable events&quot;</span><span class="p">)</span>
             <span class="n">n_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rebuildable_events</span><span class="p">)</span>
@@ -1512,14 +1569,8 @@ document.write(`
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">stock_add</span><span class="p">,</span> <span class="n">stock_use</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">matrix_stock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_stock</span> <span class="o">-</span> <span class="n">stock_use</span> <span class="o">+</span> <span class="n">stock_add</span>
             <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix_stock</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">matrix_stock</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records_storage</span> <span class="o">/</span> <span class="s2">&quot;matrix_stock_dump.pkl&quot;</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s2">&quot;Negative values in the stocks, matrix has been dumped in the results dir : </span><span class="se">\n</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">records_storage</span> <span class="o">/</span> <span class="s2">&quot;matrix_stock_dump.pkl&quot;</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;stock_add (restocking) contains negative values, this should not happen&quot;</span>
+                    <span class="s2">&quot;matrix_stock contains negative values, this should not happen&quot;</span>
                 <span class="p">)</span>
 
         <span class="c1"># 6. Compute final demand not met due to rationing</span>
@@ -1549,22 +1600,68 @@ document.write(`
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rebuild_prod</span> <span class="o">=</span> <span class="n">rebuild_prod</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;tot_rebuilding_demand_summed: </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">tot_rebuilding_demand_summed</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">industries</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
         <span class="k">if</span> <span class="n">h_reb</span> <span class="ow">and</span> <span class="n">ind_reb</span><span class="p">:</span>
-            <span class="c1"># logger.debug(&quot;Entering here&quot;)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;There are both household rebuilding demand and industry rebuilding demand&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;indus_reb_dem_tot_per_event: </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">indus_reb_dem_tot_per_event</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">industries</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;house_reb_dem_tot_per_event: </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">house_reb_dem_tot_per_event</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">industries</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;dem_tot_per_event: </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">house_reb_dem_tot_per_event</span><span class="o">+</span><span class="n">indus_reb_dem_tot_per_event</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">industries</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># type: ignore</span>
+            <span class="p">)</span>
+
+            <span class="n">tot_reb_dem_divider</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                <span class="n">tot_rebuilding_demand_summed</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span>
+                <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">indus_reb_dem_tot_per_event</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="p">)</span>
             <span class="n">indus_shares</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
                 <span class="n">indus_reb_dem_tot_per_event</span><span class="p">,</span>
-                <span class="n">tot_rebuilding_demand_summed</span><span class="p">,</span>
-                <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">tot_rebuilding_demand_summed</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">tot_reb_dem_divider</span><span class="p">,</span>
+                <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">indus_reb_dem_tot_per_event</span><span class="p">),</span>
+                <span class="n">where</span><span class="o">=</span><span class="n">tot_reb_dem_divider</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">house_shares</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
                 <span class="n">house_reb_dem_tot_per_event</span><span class="p">,</span>
-                <span class="n">tot_rebuilding_demand_summed</span><span class="p">,</span>
-                <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="n">tot_rebuilding_demand_summed</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">tot_reb_dem_divider</span><span class="p">,</span>
+                <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">house_reb_dem_tot_per_event</span><span class="p">),</span>
+                <span class="n">where</span><span class="o">=</span><span class="n">tot_reb_dem_divider</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="c1"># logger.debug(&quot;indus_shares: {}&quot;.format(indus_shares))</span>
+            <span class="c1"># np.around(house_shares, 6, out=house_shares)</span>
+            <span class="c1"># np.around(indus_shares, 6, out=indus_shares)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;indus_shares: </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">indus_shares</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">industries</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;house_shares: </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">house_shares</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">industries</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="c1">#             tot_reb = pd.Series(tot_rebuilding_demand_summed, index=self.industries)</span>
+            <span class="c1">#             indus_reb_dem_tot = pd.DataFrame(indus_reb_dem_tot_per_event, index=self.industries)[0]</span>
+            <span class="c1">#             house_reb_dem_tot = pd.DataFrame(house_reb_dem_tot_per_event, index=self.industries)[0]</span>
+            <span class="c1">#             np.around(indus_shares,10,indus_shares)</span>
+            <span class="c1">#             np.around(house_shares,10,house_shares)</span>
+            <span class="c1">#             np.around(tmp,10,tmp)</span>
+            <span class="c1">#             indus_df = pd.DataFrame(indus_shares,index=self.industries)[0]</span>
+            <span class="c1">#             house_df = pd.DataFrame(house_shares,index=self.industries)[0]</span>
+            <span class="c1">#             tmp_df=pd.DataFrame(tmp, index=self.industries)[0]</span>
+
+            <span class="c1">#             debug_df = pd.concat([tot_reb, indus_reb_dem_tot, house_reb_dem_tot, tot_reb-(house_reb_dem_tot+indus_reb_dem_tot), indus_df, house_df, tmp_df], axis=1)</span>
+            <span class="c1">#             #logger.info(debug_df[debug_df.iloc[:,6]!=0].to_string())</span>
+            <span class="c1">#             debug_str = f&quot;&quot;&quot;</span>
+            <span class="c1"># {debug_df[debug_df.iloc[:,6]!=0].to_string()}</span>
+            <span class="c1"># &quot;&quot;&quot;</span>
             <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
-                <span class="n">indus_shares</span> <span class="o">+</span> <span class="n">house_shares</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">indus_shares</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="p">(</span><span class="n">indus_shares</span> <span class="o">+</span> <span class="n">house_shares</span><span class="p">)[</span><span class="n">tot_rebuilding_demand_summed</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">],</span> <span class="mf">1.0</span>
             <span class="p">)</span>
+
         <span class="k">elif</span> <span class="n">h_reb</span><span class="p">:</span>
             <span class="n">house_shares</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">house_reb_dem_tot_per_event</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
             <span class="n">indus_shares</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">indus_reb_dem_tot_per_event</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -1575,8 +1672,22 @@ document.write(`
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
 
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;rebuild_prod: </span><span class="si">{</span><span class="n">rebuild_prod</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;indus_shares: </span><span class="si">{</span><span class="n">indus_shares</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
         <span class="n">indus_rebuild_prod</span> <span class="o">=</span> <span class="n">rebuild_prod</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">indus_shares</span>  <span class="c1"># type:ignore</span>
         <span class="n">house_rebuild_prod</span> <span class="o">=</span> <span class="n">rebuild_prod</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">house_shares</span>  <span class="c1"># type:ignore</span>
+
+        <span class="k">if</span> <span class="n">ind_reb</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;indus_rebuild_prod: </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">indus_rebuild_prod</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">industries</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">h_reb</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;house_rebuild_prod: </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">house_rebuild_prod</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">industries</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="c1"># logger.debug(f&quot;tot_rebuilding_demand_summed: {pd.DataFrame(tot_rebuilding_demand_summed, index=self.industries)}&quot;)</span>
+        <span class="c1"># logger.debug(f&quot;house_rebuild_prod: {pd.Series(house_rebuild_prod.flatten(), index=self.industries)}&quot;)</span>
 
         <span class="n">indus_rebuild_prod_distributed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">indus_reb_dem_per_event</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
         <span class="n">house_rebuild_prod_distributed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">house_reb_dem_per_event</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -1609,7 +1720,7 @@ document.write(`
 
         <span class="k">if</span> <span class="n">h_reb</span><span class="p">:</span>
             <span class="n">house_rebuilding_demand_shares</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
-                <span class="n">shape</span><span class="o">=</span><span class="n">indus_reb_dem_per_event</span><span class="o">.</span><span class="n">shape</span>
+                <span class="n">shape</span><span class="o">=</span><span class="n">house_reb_dem_per_event</span><span class="o">.</span><span class="n">shape</span>
             <span class="p">)</span>
             <span class="n">house_rebuilding_demand_broad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span>
                 <span class="n">house_reb_dem_tot_per_event</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span>
@@ -1633,9 +1744,9 @@ document.write(`
         <span class="c1"># update rebuilding demand</span>
         <span class="n">events_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">e_id</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rebuildable_events</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">rebuilding_demand_indus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">rebuilding_demand_indus</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">e</span><span class="o">.</span><span class="n">rebuilding_demand_indus</span> <span class="o">-=</span> <span class="n">indus_rebuild_prod_distributed</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">e_id</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">rebuilding_demand_house</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">rebuilding_demand_house</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">e</span><span class="o">.</span><span class="n">rebuilding_demand_house</span> <span class="o">-=</span> <span class="n">house_rebuild_prod_distributed</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">e_id</span><span class="p">]</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">rebuilding_demand_indus</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">10</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">monetary_factor</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span>
                 <span class="n">e</span><span class="o">.</span><span class="n">rebuilding_demand_house</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">10</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">monetary_factor</span><span class="p">)</span>
@@ -1643,7 +1754,7 @@ document.write(`
                 <span class="n">events_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">events_to_remove</span></div>
 
-<div class="viewcode-block" id="ARIOBaseModel.calc_matrix_stock_gap"><a class="viewcode-back" href="../../autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.calc_matrix_stock_gap">[docs]</a>    <span class="k">def</span> <span class="nf">calc_matrix_stock_gap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix_stock_goal</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="ARIOBaseModel.calc_matrix_stock_gap"><a class="viewcode-back" href="../../autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.calc_matrix_stock_gap">[docs]</a>    <span class="k">def</span> <span class="nf">calc_matrix_stock_gap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix_stock_goal</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Computes and returns inputs stock gap matrix</span>
 
 <span class="sd">        The gap is simply the difference between the goal (given as argument)</span>
@@ -1651,12 +1762,12 @@ document.write(`
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        matrix_stock_goal : np.ndarray of float</span>
+<span class="sd">        matrix_stock_goal : npt.NDArray of float</span>
 <span class="sd">            The target inventories.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
+<span class="sd">        npt.NDArray</span>
 <span class="sd">            The (only positive) gap between goal and current inventories.</span>
 
 <span class="sd">        Raises</span>
@@ -1828,7 +1939,7 @@ document.write(`
 <span class="sd">        This method is currently not functioning.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">kapital_lost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">productive_capital_lost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">production</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">overprod</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_regions</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_sectors</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">overprod_base</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span>
         <span class="p">)</span>
@@ -1838,18 +1949,18 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">intmd_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z_0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_demand_not_met</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Y_0</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rebuilding_demand</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rebuilding_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">in_shortage</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">had_shortage</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prod_delta_type</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand_tot</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand_tot</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tot_rebuild_demand</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_kapital</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_tot</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indus_rebuild_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_house_rebuild_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tot_rebuild_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_productive_capital</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span></div>
 
 <div class="viewcode-block" id="ARIOBaseModel.update_params"><a class="viewcode-back" href="../../autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.update_params">[docs]</a>    <span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Update the parameters of the model.</span>
@@ -1879,10 +1990,7 @@ document.write(`
         <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">records_storage</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
                 <span class="n">new_params</span><span class="p">[</span><span class="s2">&quot;output_dir&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">new_params</span><span class="p">[</span><span class="s2">&quot;results_storage&quot;</span><span class="p">]</span>
-            <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reset_record_files</span><span class="p">(</span>
-            <span class="n">new_params</span><span class="p">[</span><span class="s2">&quot;n_temporal_units_to_sim&quot;</span><span class="p">],</span> <span class="n">new_params</span><span class="p">[</span><span class="s2">&quot;register_stocks&quot;</span><span class="p">]</span>
-        <span class="p">)</span></div>
+            <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ARIOBaseModel.write_index"><a class="viewcode-back" href="../../autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel.write_index">[docs]</a>    <span class="k">def</span> <span class="nf">write_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Write the indexes of the different dataframes of the model in a json file.</span>
@@ -1904,7 +2012,7 @@ document.write(`
         <span class="n">indexes</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;regions&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">),</span>
             <span class="s2">&quot;sectors&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sectors</span><span class="p">),</span>
-            <span class="s2">&quot;fd_cat&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fd_cat</span><span class="p">),</span>
+            <span class="s2">&quot;fd_cat&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_demand_cat</span><span class="p">),</span>
             <span class="s2">&quot;n_sectors&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_sectors</span><span class="p">,</span>
             <span class="s2">&quot;n_regions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_regions</span><span class="p">,</span>
             <span class="s2">&quot;n_industries&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_sectors</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_regions</span><span class="p">,</span>
@@ -1915,7 +2023,7 @@ document.write(`
         <span class="k">with</span> <span class="n">index_file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">indexes</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">change_inv_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_dur</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">old_dur</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">change_inv_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_dur</span><span class="p">,</span> <span class="n">old_dur</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># replace this method by a property !</span>
         <span class="k">if</span> <span class="n">old_dur</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">old_dur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_inv_dur</span>

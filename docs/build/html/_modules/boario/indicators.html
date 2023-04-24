@@ -42,6 +42,7 @@
     <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/boario/indicators';</script>
     <script src="../../_static/js/custom.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -157,7 +158,7 @@
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -182,7 +183,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
       
@@ -269,7 +270,7 @@ document.write(`
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -283,7 +284,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Apr 24, 2023.
   <br/>
 </p></div>
         
@@ -436,7 +437,7 @@ document.write(`
         <span class="s2">&quot;overproduction&quot;</span><span class="p">,</span>
         <span class="s2">&quot;rebuild_demand&quot;</span><span class="p">,</span>
         <span class="s2">&quot;rebuild_prod&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;kapital_to_recover&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;productive_capital_to_recover&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="n">params_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;simulated_params&quot;</span><span class="p">,</span> <span class="s2">&quot;simulated_events&quot;</span><span class="p">]</span>
@@ -448,7 +449,7 @@ document.write(`
         <span class="n">params</span><span class="p">,</span>
         <span class="n">regions</span><span class="p">,</span>
         <span class="n">sectors</span><span class="p">,</span>
-        <span class="n">kapital</span><span class="p">,</span>
+        <span class="n">productive_capital</span><span class="p">,</span>
         <span class="n">prod</span><span class="p">,</span>
         <span class="n">prodmax</span><span class="p">,</span>
         <span class="n">overprod</span><span class="p">,</span>
@@ -480,7 +481,9 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span> <span class="o">=</span> <span class="n">n_temporal_units_to_sim</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_temporal_units_by_step</span> <span class="o">=</span> <span class="n">n_temporal_units_by_step</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">kapital_to_recover_df</span> <span class="o">=</span> <span class="n">create_df</span><span class="p">(</span><span class="n">kapital</span><span class="p">,</span> <span class="n">regions</span><span class="p">,</span> <span class="n">sectors</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">productive_capital_to_recover_df</span> <span class="o">=</span> <span class="n">create_df</span><span class="p">(</span>
+            <span class="n">productive_capital</span><span class="p">,</span> <span class="n">regions</span><span class="p">,</span> <span class="n">sectors</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">production_realised_df</span> <span class="o">=</span> <span class="n">create_df</span><span class="p">(</span><span class="n">prod</span><span class="p">,</span> <span class="n">regions</span><span class="p">,</span> <span class="n">sectors</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">production_capacity_df</span> <span class="o">=</span> <span class="n">create_df</span><span class="p">(</span><span class="n">prodmax</span><span class="p">,</span> <span class="n">regions</span><span class="p">,</span> <span class="n">sectors</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">overproduction_df</span> <span class="o">=</span> <span class="n">create_df</span><span class="p">(</span><span class="n">overprod</span><span class="p">,</span> <span class="n">regions</span><span class="p">,</span> <span class="n">sectors</span><span class="p">)</span>
@@ -544,15 +547,16 @@ document.write(`
             <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">limiting_inputs_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-            <span class="n">limiting_stocks</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_temporal_units_to_sim</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">sectors</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
-            <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">steps</span><span class="p">,</span> <span class="n">sectors</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="s2">&quot;stock of&quot;</span><span class="p">]</span>
-            <span class="p">),</span>
-            <span class="n">columns</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">regions</span><span class="p">,</span> <span class="n">sectors</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">,</span> <span class="s2">&quot;sector&quot;</span><span class="p">]</span>
-            <span class="p">),</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">limiting_inputs_df</span> <span class="o">=</span> <span class="n">limiting_stocks</span>
+        <span class="c1"># pd.DataFrame(</span>
+        <span class="c1">#     limiting_stocks.reshape(n_temporal_units_to_sim * len(sectors), -1),</span>
+        <span class="c1">#     index=pd.MultiIndex.from_product(</span>
+        <span class="c1">#         [steps, sectors], names=[&quot;step&quot;, &quot;stock of&quot;]</span>
+        <span class="c1">#     ),</span>
+        <span class="c1">#     columns=pd.MultiIndex.from_product(</span>
+        <span class="c1">#         [regions, sectors], names=[&quot;region&quot;, &quot;sector&quot;]</span>
+        <span class="c1">#     ),</span>
+        <span class="c1"># )</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aff_sectors</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
@@ -616,9 +620,9 @@ document.write(`
     <span class="k">def</span> <span class="nf">from_simulation</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">sim</span><span class="p">:</span> <span class="n">Simulation</span><span class="p">,</span>
+        <span class="n">results_storage</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">stocks_treatment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">include_crash</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">results_storage</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Indicators</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">ARIOPsiModel</span><span class="p">):</span>
             <span class="n">psi</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">psi</span>
@@ -627,27 +631,27 @@ document.write(`
             <span class="n">psi</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">inventory_restoration_tau</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="n">prod</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;production_evolution&quot;</span><span class="p">)</span>
-        <span class="n">kapital</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;regional_sectoral_kapital_destroyed_evolution&quot;</span><span class="p">)</span>
-        <span class="n">prodmax</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;production_cap_evolution&quot;</span><span class="p">)</span>
-        <span class="n">overprod</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;overproduction_evolution&quot;</span><span class="p">)</span>
-        <span class="n">final_demand</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;final_demand_evolution&quot;</span><span class="p">)</span>
-        <span class="n">io_demand</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;io_demand_evolution&quot;</span><span class="p">)</span>
-        <span class="n">r_demand</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;rebuild_demand_evolution&quot;</span><span class="p">)</span>
-        <span class="n">r_prod</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;rebuild_production_evolution&quot;</span><span class="p">)</span>
-        <span class="n">fd_unmet</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;final_demand_unmet_evolution&quot;</span><span class="p">)</span>
+        <span class="n">prod</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;production_realised&quot;</span><span class="p">)</span>
+        <span class="n">productive_capital</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;productive_capital_to_recover&quot;</span><span class="p">)</span>
+        <span class="n">prodmax</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;production_capacity&quot;</span><span class="p">)</span>
+        <span class="n">overprod</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;overproduction&quot;</span><span class="p">)</span>
+        <span class="n">final_demand</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;final_demand&quot;</span><span class="p">)</span>
+        <span class="n">io_demand</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;intermediate_demand&quot;</span><span class="p">)</span>
+        <span class="n">r_demand</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;rebuild_demand&quot;</span><span class="p">)</span>
+        <span class="n">r_prod</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;rebuild_prod&quot;</span><span class="p">)</span>
+        <span class="n">fd_unmet</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;final_demand_unmet&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">stocks_treatment</span><span class="p">:</span>
-            <span class="n">stocks</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;inputs_evolution&quot;</span><span class="p">)</span>
+            <span class="n">stocks</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;inputs_stocks&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">stocks</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="n">limiting_stocks</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;limiting_inputs_evolution&quot;</span><span class="p">)</span>
+        <span class="n">limiting_stocks</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="s2">&quot;limiting_inputs&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">has_crashed</span><span class="o">=</span><span class="n">sim</span><span class="o">.</span><span class="n">has_crashed</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="n">sim</span><span class="o">.</span><span class="n">params_dict</span><span class="p">,</span>
             <span class="n">regions</span><span class="o">=</span><span class="n">sim</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">regions</span><span class="p">,</span>
             <span class="n">sectors</span><span class="o">=</span><span class="n">sim</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">sectors</span><span class="p">,</span>
-            <span class="n">kapital</span><span class="o">=</span><span class="n">kapital</span><span class="p">,</span>
+            <span class="n">productive_capital</span><span class="o">=</span><span class="n">productive_capital</span><span class="p">,</span>
             <span class="n">prod</span><span class="o">=</span><span class="n">prod</span><span class="p">,</span>
             <span class="n">prodmax</span><span class="o">=</span><span class="n">prodmax</span><span class="p">,</span>
             <span class="n">overprod</span><span class="o">=</span><span class="n">overprod</span><span class="p">,</span>
@@ -730,8 +734,8 @@ document.write(`
             <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
             <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">indexes</span><span class="p">[</span><span class="s2">&quot;n_industries&quot;</span><span class="p">]),</span>
         <span class="p">)</span>
-        <span class="n">kapital</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">memmap</span><span class="p">(</span>
-            <span class="n">records_path</span> <span class="o">/</span> <span class="s2">&quot;kapital_to_recover&quot;</span><span class="p">,</span>
+        <span class="n">productive_capital</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">memmap</span><span class="p">(</span>
+            <span class="n">records_path</span> <span class="o">/</span> <span class="s2">&quot;productive_capital_to_recover&quot;</span><span class="p">,</span>
             <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">,</span>
             <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
             <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">indexes</span><span class="p">[</span><span class="s2">&quot;n_industries&quot;</span><span class="p">]),</span>
@@ -807,7 +811,7 @@ document.write(`
             <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
             <span class="n">regions</span><span class="o">=</span><span class="n">regions</span><span class="p">,</span>
             <span class="n">sectors</span><span class="o">=</span><span class="n">sectors</span><span class="p">,</span>
-            <span class="n">kapital</span><span class="o">=</span><span class="n">kapital</span><span class="p">,</span>
+            <span class="n">productive_capital</span><span class="o">=</span><span class="n">productive_capital</span><span class="p">,</span>
             <span class="n">prod</span><span class="o">=</span><span class="n">prod</span><span class="p">,</span>
             <span class="n">prodmax</span><span class="o">=</span><span class="n">prodmax</span><span class="p">,</span>
             <span class="n">overprod</span><span class="o">=</span><span class="n">overprod</span><span class="p">,</span>
@@ -1063,8 +1067,8 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">production_realised_df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">parquets_path</span> <span class="o">/</span> <span class="s2">&quot;production_realised_df.parquet&quot;</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kapital_to_recover_df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parquets_path</span> <span class="o">/</span> <span class="s2">&quot;kapital_to_recover_df.parquet&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">productive_capital_to_recover_df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parquets_path</span> <span class="o">/</span> <span class="s2">&quot;productive_capital_to_recover_df.parquet&quot;</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">production_capacity_df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">parquets_path</span> <span class="o">/</span> <span class="s2">&quot;production_capacity_df.parquet&quot;</span>
