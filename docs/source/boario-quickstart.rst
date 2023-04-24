@@ -19,63 +19,7 @@ on the repository, or `contact the developer`_.
 Minimal working full example
 __________________________________
 
-In the following example, we use the "test" MRIO of the pymrio module,
-which doesn't require to load additional data and has a low number of sectors and
-regions, allowing fast computation.
-
-.. code:: python
-
-          # import pymrio for the test MRIO
-          import pymrio
-
-          # import pandas for the plot
-          import pandas as pd
-
-          # import the different classes
-          from boario.simulation import Simulation  # Simulation wraps the model
-          from boario.extended_models import ARIOPsiModel  # The core of the model
-
-          # A class computing and storing indicators based on a simulation
-          from boario.indicators import Indicators
-          from boario.event import EventKapitalRecover  # A class defining a shock on capital
-
-          # Load the IOSystem from pymrio
-          mrio = pymrio.load_test().calc_all()
-
-          # Instantiate the model and the simulation
-          model = ARIOPsiModel(mrio)
-          sim = Simulation(model)
-
-          # Instantiate an event.
-          ev = EventKapitalRebuild(
-              impact=10000000,
-              aff_regions=["reg1"],
-              aff_sectors=["manufactoring", "mining"],
-              rebuilding_sectors={"construction": 1.0},
-              rebuilding_factor=1.0,
-          )
-
-          # Add the event to the simulation
-          sim.add_event(ev)
-
-          # Launch the simulation
-          sim.loop()
-
-          # You should be able to generate a dataframe of
-          # the production with the following line
-          df = pd.DataFrame(sim.production_evolution, columns=model.industries)
-
-          # This allows to normalize production at its initial level
-          df = df / df.loc[0]
-
-          df.loc[:, ("reg1", slice(None))].plot()
-
-You should get a plot looking like this one:
-
-.. image:: ./imgs/boario-minimal-example-1-plot.png
-  :width: 600
-  :alt: Example of results plot
-
+See here `link <notebooks/boario-quickstart.ipynb>`_
 
 ARIO vs :class:`~boario.model_base.ARIOBaseModel` vs :class:`~boario.extended_models.ARIOPsiModel`
 _____________________________________________________________________________________________________________

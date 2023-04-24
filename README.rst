@@ -7,6 +7,14 @@ BoARIO
 
 BoARIO : The Adaptative Regional Input Output model in python.
 
+.. _`Documentation Website`: https://spjuhel.github.io/BoARIO/boario-what-is.html
+
+Disclaimer
+===========
+
+This work is in progress. The code has not been extensively tested. Any results produced with the model should be interpreted with great care.
+Do not hesitate to contact the author when using the model !
+
 What is BoARIO ?
 =================
 
@@ -23,11 +31,8 @@ It is still an ongoing project (in parallel of a PhD project).
 .. _`Hallegatte 2013`: https://doi.org/10.1111/j.1539-6924.2008.01046.x
 .. _`Pymrio`: https://pymrio.readthedocs.io/en/latest/intro.html
 
-Here is a non-exhaustive chronology of academic works with or about the ARIO model :
+You can find most academic literature using ARIO or related models :ref:`here <references>`
 
-.. image:: https://raw.githubusercontent.com/spjuhel/BoARIO/master/imgs/chronology.svg?sanitize=true
-           :width: 900
-           :alt: ARIO academic work chronology
 
 What is ARIO ?
 ===============
@@ -92,7 +97,7 @@ This work was supported by the French Environment and Energy Management Agency
 Development
 ------------
 
-* Samuel Juhel
+* Samuel Juhel (pro@sjuhel.org)
 
 Contributions
 ---------------
