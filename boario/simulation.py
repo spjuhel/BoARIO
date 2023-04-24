@@ -214,8 +214,10 @@ class Simulation:
         """list[Event]: A list containing all events that are happening at the current timestep of the simulation."""
 
         self.events_timings = set()
-        if not isinstance(n_temporal_units_to_sim,int) or n_temporal_units_to_sim <= 0:
-            raise ValueError(f"n_temporal_units_to_sim should be a positive integer (got {n_temporal_units_to_sim} of type {type(n_temporal_units_to_sim)})")
+        if not isinstance(n_temporal_units_to_sim, int) or n_temporal_units_to_sim <= 0:
+            raise ValueError(
+                f"n_temporal_units_to_sim should be a positive integer (got {n_temporal_units_to_sim} of type {type(n_temporal_units_to_sim)})"
+            )
         self.n_temporal_units_to_sim = n_temporal_units_to_sim
         """int: The total number of `temporal_units` to simulate."""
 
@@ -607,7 +609,7 @@ class Simulation:
         events : list[Event]
             The events to add.
         """
-        if not isinstance(events,list):
+        if not isinstance(events, list):
             raise TypeError(f"list[Event] expected, {type(events)} received.")
         for ev in events:
             self.add_event(ev)
