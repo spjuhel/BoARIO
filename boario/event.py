@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from __future__ import annotations
-import abc
-from typing import Callable, Optional, Union, List, Tuple
+from abc import ABC, abstractmethod
+from typing import Callable, Optional, Union, List, Tuple, get_origin, get_args
 import numpy.typing as npt
 import numpy as np
 import pandas as pd
@@ -43,7 +43,7 @@ __all__ = [
     "RegionsList",
 ]
 
-Impact = Union[int, float, list, dict, npt.NDArray, pd.DataFrame, pd.Series]
+Impact = Union[int, float, list, dict, np.ndarray, pd.DataFrame, pd.Series]
 IndustriesList = Union[List[Tuple[str, str]], pd.MultiIndex, npt.NDArray]
 SectorsList = Union[List[str], pd.Index, npt.NDArray]
 RegionsList = Union[List[str], pd.Index, npt.NDArray]
@@ -52,22 +52,9 @@ FinalCatList = Union[List[str], pd.Index, npt.NDArray]
 rebuilding_finaldemand_cat_regex = r".*[hH]ousehold.*|HFCE"
 
 
-class Event(metaclass=abc.ABCMeta):
+class Event(ABC):
     # Class Attributes
-    __required_class_attributes = [
-        "possible_sectors",
-        "possible_regions",
-        "temporal_unit_range",
-        "z_shape",
-        "y_shape",
-        "x_shape",
-        "regions_idx",
-        "sectors_idx",
-        "model_monetary_factor",
-        "sectors_gva_shares",
-        "Z_distrib",
-        "mrio_name",
-    ]
+
     possible_sectors: pd.Index = pd.Index([])
     r"""List of sectors present in the MRIO used by the model"""
 
@@ -110,6 +97,7 @@ class Event(metaclass=abc.ABCMeta):
     mrio_name: str = ""
     r"""MRIO identification"""
 
+    @abstractmethod
     def __init__(
         self,
         *,
@@ -144,6 +132,15 @@ class Event(metaclass=abc.ABCMeta):
             FIXME: Add docs.
 
         """
+        if len(self.possible_regions) == 0 or len(self.possible_sectors) == 0:
+            raise AttributeError(
+                "It appears that no model has been instantiated as some class attributes are not initialized (possible_regions, possible_sectors). Events require to instantiate a model and a simulation context before they can be instantiated"
+            )
+
+        if self.temporal_unit_range == 0:
+            raise AttributeError(
+                "It appears that no simulation context has been instantiated as some class attributes are not initialized (temporal_unit_range). Events require to instantiate a model and a simulation context before they can be instantiated"
+            )
 
         self._aff_sectors_idx = np.array([])
         self._aff_sectors = pd.Index([])
@@ -177,14 +174,6 @@ class Event(metaclass=abc.ABCMeta):
             if self.event_monetary_factor != self.model_monetary_factor:
                 logger.warning(
                     f"Event monetary factor ({self.event_monetary_factor}) differs from model monetary factor ({self.model_monetary_factor}). Be careful to define your impact with the correct unit (ie in event monetary factor)."
-                )
-
-        for v in Event.__required_class_attributes:
-            if Event.__dict__[v] is None:
-                raise AttributeError(
-                    "Required Event Class attribute {} is not set yet so instantiating an Event isn't possible".format(
-                        v
-                    )
                 )
 
         self.name: str = name
@@ -247,7 +236,9 @@ class Event(metaclass=abc.ABCMeta):
                 pd.MultiIndex.from_product([aff_regions, aff_sectors])
             ] = impact
         else:
-            raise ValueError("Invalid input format. Could not initiate pandas Series.")
+            raise ValueError(
+                "Invalid input format. Could not initiate pandas Series. Check https://spjuhel.github.io/BoARIO/boario-events.html for in depths explanation on how to define Events."
+            )
 
         # Check for <0 values and remove 0.
         if (self.impact_df < 0).any():
@@ -508,9 +499,9 @@ class Event(metaclass=abc.ABCMeta):
 
     @occurrence.setter
     def occurrence(self, value: int):
-        if not 0 <= value <= self.temporal_unit_range:
+        if not 0 < value <= self.temporal_unit_range:
             raise ValueError(
-                "Occurrence of event is not in the range of simulation steps : {} not in [0-{}]".format(
+                "Occurrence of event is not in the range of simulation steps (cannot be 0) : {} not in ]0-{}]".format(
                     value, self.temporal_unit_range
                 )
             )
@@ -798,7 +789,7 @@ class EventArbitraryProd(Event):
         self._prod_cap_delta_arbitrary = res
 
 
-class EventKapitalDestroyed(Event, metaclass=abc.ABCMeta):
+class EventKapitalDestroyed(Event, ABC):
     def __init__(
         self,
         *,

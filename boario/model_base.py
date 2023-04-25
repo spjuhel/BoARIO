@@ -26,6 +26,7 @@ from boario import logger, warn_once
 from boario.event import *
 from pymrio.core.mriosystem import IOSystem
 from boario.utils.misc import lexico_reindex
+from boario.event import *
 
 
 __all__ = [
