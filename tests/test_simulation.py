@@ -11,23 +11,45 @@ import numpy as np
 # import the different classes
 import boario
 from boario.model_base import ARIOBaseModel
-from boario.simulation import Simulation         # Simulation wraps the model
+from boario.simulation import Simulation  # Simulation wraps the model
 from boario.extended_models import ARIOPsiModel  # The core of the model
-from boario.indicators import Indicators         # A class computing and storing indicators based on a simulation
-from boario.event import Event, EventKapitalRebuild, EventArbitraryProd, EventKapitalRecover  # A class defining a shock on capital
+from boario.indicators import (
+    Indicators,
+)  # A class computing and storing indicators based on a simulation
+from boario.event import (
+    Event,
+    EventKapitalRebuild,
+    EventArbitraryProd,
+    EventKapitalRecover,
+)  # A class defining a shock on capital
 from boario.utils.recovery_functions import *
+
 
 @pytest.fixture
 def test_mrio():
-    mrio = pymrio.load_test()#.calc_all()
-    mrio.aggregate(region_agg= ["reg1", "reg1", "reg2", "reg2", "reg3", "reg3"], sector_agg=["food","mining","manufactoring","other","construction","other","other","other"])
+    mrio = pymrio.load_test()  # .calc_all()
+    mrio.aggregate(
+        region_agg=["reg1", "reg1", "reg2", "reg2", "reg3", "reg3"],
+        sector_agg=[
+            "food",
+            "mining",
+            "manufactoring",
+            "other",
+            "construction",
+            "other",
+            "other",
+            "other",
+        ],
+    )
     mrio.calc_all()
     return mrio
+
 
 @pytest.fixture
 def test_model(test_mrio):
     model = ARIOPsiModel(test_mrio)
     return model
+
 
 # Tests that a Simulation object can be initialized with a valid model and default parameters.
 def test_initialize_simulation_with_valid_model_and_default_parameters(test_model):
@@ -68,19 +90,56 @@ def test_initialize_simulation_with_valid_model_and_default_parameters(test_mode
     assert isinstance(sim._rebuild_production_evolution, np.ndarray)
     assert isinstance(sim._inputs_evolution, np.ndarray)
     assert isinstance(sim._limiting_inputs_evolution, np.ndarray)
-    assert isinstance(sim._regional_sectoral_productive_capital_destroyed_evolution, np.ndarray)
+    assert isinstance(
+        sim._regional_sectoral_productive_capital_destroyed_evolution, np.ndarray
+    )
 
-    assert sim._production_evolution.shape == (sim.n_temporal_units_to_sim, test_model.n_sectors * test_model.n_regions)
-    assert sim._production_cap_evolution.shape == (sim.n_temporal_units_to_sim, test_model.n_sectors * test_model.n_regions)
-    assert sim._final_demand_evolution.shape == (sim.n_temporal_units_to_sim, test_model.n_sectors * test_model.n_regions)
-    assert sim._io_demand_evolution.shape == (sim.n_temporal_units_to_sim, test_model.n_sectors * test_model.n_regions)
-    assert sim._rebuild_demand_evolution.shape == (sim.n_temporal_units_to_sim, test_model.n_sectors * test_model.n_regions)
-    assert sim._overproduction_evolution.shape == (sim.n_temporal_units_to_sim, test_model.n_sectors * test_model.n_regions)
-    assert sim._final_demand_unmet_evolution.shape == (sim.n_temporal_units_to_sim, test_model.n_sectors * test_model.n_regions)
-    assert sim._rebuild_production_evolution.shape == (sim.n_temporal_units_to_sim, test_model.n_sectors * test_model.n_regions)
-    assert sim._inputs_evolution.shape == (sim.n_temporal_units_to_sim, test_model.n_sectors, test_model.n_sectors * test_model.n_regions)
-    assert sim._limiting_inputs_evolution.shape == (sim.n_temporal_units_to_sim, test_model.n_sectors, test_model.n_sectors * test_model.n_regions)
-    assert sim._regional_sectoral_productive_capital_destroyed_evolution.shape == (sim.n_temporal_units_to_sim, test_model.n_sectors * test_model.n_regions)
+    assert sim._production_evolution.shape == (
+        sim.n_temporal_units_to_sim,
+        test_model.n_sectors * test_model.n_regions,
+    )
+    assert sim._production_cap_evolution.shape == (
+        sim.n_temporal_units_to_sim,
+        test_model.n_sectors * test_model.n_regions,
+    )
+    assert sim._final_demand_evolution.shape == (
+        sim.n_temporal_units_to_sim,
+        test_model.n_sectors * test_model.n_regions,
+    )
+    assert sim._io_demand_evolution.shape == (
+        sim.n_temporal_units_to_sim,
+        test_model.n_sectors * test_model.n_regions,
+    )
+    assert sim._rebuild_demand_evolution.shape == (
+        sim.n_temporal_units_to_sim,
+        test_model.n_sectors * test_model.n_regions,
+    )
+    assert sim._overproduction_evolution.shape == (
+        sim.n_temporal_units_to_sim,
+        test_model.n_sectors * test_model.n_regions,
+    )
+    assert sim._final_demand_unmet_evolution.shape == (
+        sim.n_temporal_units_to_sim,
+        test_model.n_sectors * test_model.n_regions,
+    )
+    assert sim._rebuild_production_evolution.shape == (
+        sim.n_temporal_units_to_sim,
+        test_model.n_sectors * test_model.n_regions,
+    )
+    assert sim._inputs_evolution.shape == (
+        sim.n_temporal_units_to_sim,
+        test_model.n_sectors,
+        test_model.n_sectors * test_model.n_regions,
+    )
+    assert sim._limiting_inputs_evolution.shape == (
+        sim.n_temporal_units_to_sim,
+        test_model.n_sectors,
+        test_model.n_sectors * test_model.n_regions,
+    )
+    assert sim._regional_sectoral_productive_capital_destroyed_evolution.shape == (
+        sim.n_temporal_units_to_sim,
+        test_model.n_sectors * test_model.n_regions,
+    )
 
     assert sim.currently_happening_events == []
     assert Event.temporal_unit_range == sim.n_temporal_units_to_sim
@@ -104,13 +163,17 @@ def test_add_events_with_invalid_parameters(test_model):
     with pytest.raises(TypeError):
         sim.add_event(Event())
 
+
 # Tests that an error is raised when trying to run the simulation loop with a negative number of temporal units to simulate.
 def test_run_simulation_loop_with_negative_number_of_temporal_units(test_model):
     with pytest.raises(ValueError):
         sim = Simulation(test_model, n_temporal_units_to_sim=-1)
 
+
 # Tests that the simulation results can be saved to memmaps and retrieved as pandas dataframes.
-def test_save_simulation_results_to_memmaps_and_retrieve_as_pandas_dataframes(test_model):
+def test_save_simulation_results_to_memmaps_and_retrieve_as_pandas_dataframes(
+    test_model,
+):
     sim = Simulation(test_model, register_stocks=True)
     sim.loop(progress=False)
     assert isinstance(sim.production_realised, pd.DataFrame)
@@ -125,10 +188,18 @@ def test_save_simulation_results_to_memmaps_and_retrieve_as_pandas_dataframes(te
     assert isinstance(sim.limiting_inputs, pd.DataFrame)
     assert isinstance(sim.productive_capital_to_recover, pd.DataFrame)
 
+
 # Tests the behavior of the simulation with different combinations of parameters.
 def test_of_simulation_with_different_combinations_of_parameters(test_model):
-    sim = Simulation(test_model, register_stocks=True, n_temporal_units_to_sim=100,
-                        save_events=True, save_params=True, save_index=True, save_records=['production_realised'])
+    sim = Simulation(
+        test_model,
+        register_stocks=True,
+        n_temporal_units_to_sim=100,
+        save_events=True,
+        save_params=True,
+        save_index=True,
+        save_records=["production_realised"],
+    )
     sim.loop(progress=False)
     assert sim.production_realised.shape == (100, test_model.n_industries)
 
@@ -138,6 +209,7 @@ def minimal_simulation(test_model):
     sim = Simulation(test_model)
     sim.loop()
     raise SystemExit(0)
+
 
 def test_minimal_simulation(test_model):
     with pytest.raises(SystemExit):
