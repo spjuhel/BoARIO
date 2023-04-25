@@ -130,28 +130,31 @@ def sizeof_fmt(num, suffix="B"):
 
 
 def print_summary(my_list):
-    current_element = None
-    current_count = 0
-    summary = []
-    for element in my_list:
-        if element != current_element:
-            if current_element is not None:
-                if current_count == 1:
-                    summary.append(str(current_element))
-                else:
-                    summary.append(f"{current_element} (x {current_count})")
-            current_element = element
-            current_count = 1
-        else:
-            current_count += 1
-    if current_element is not None:
-        if current_count == 1:
-            summary.append(str(current_element))
-        else:
-            summary.append(f"{current_element} (x {current_count})")
-    total_length = len(my_list)
-    total_sum = sum(my_list)
-    summary_string = (
-        "[" + ", ".join(summary) + f"] (len: {total_length}, sum: {total_sum})"
-    )
-    return textwrap.wrap(summary_string, width=80)
+    if my_list:
+        current_element = None
+        current_count = 0
+        summary = []
+        for element in my_list:
+            if element != current_element:
+                if current_element is not None:
+                    if current_count == 1:
+                        summary.append(str(current_element))
+                    else:
+                        summary.append(f"{current_element} (x {current_count})")
+                current_element = element
+                current_count = 1
+            else:
+                current_count += 1
+        if current_element is not None:
+            if current_count == 1:
+                summary.append(str(current_element))
+            else:
+                summary.append(f"{current_element} (x {current_count})")
+        total_length = len(my_list)
+        total_sum = sum(my_list)
+        summary_string = (
+            "[" + ", ".join(summary) + f"] (len: {total_length}, sum: {total_sum})"
+        )
+        return textwrap.wrap(summary_string, width=80)
+    else:
+        return ""
