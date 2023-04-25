@@ -132,6 +132,7 @@ class Event(ABC):
             FIXME: Add docs.
 
         """
+        
         if len(self.possible_regions) == 0 or len(self.possible_sectors) == 0:
             raise AttributeError(
                 "It appears that no model has been instantiated as some class attributes are not initialized (possible_regions, possible_sectors). Events require to instantiate a model and a simulation context before they can be instantiated"
@@ -141,6 +142,16 @@ class Event(ABC):
             raise AttributeError(
                 "It appears that no simulation context has been instantiated as some class attributes are not initialized (temporal_unit_range). Events require to instantiate a model and a simulation context before they can be instantiated"
             )
+
+
+        if np.size(impact) < 1:
+            raise ValueError(f"Impact is empty : {impact}")
+        
+        if np.size(impact) == 1 and (np.size(aff_regions) < 1 or np.size(aff_sectors) < 1) and np.size(aff_industries) < 1:
+            raise ValueError(f"Impact is scalar but no affected industries or (region,sector) couples has been given")
+        
+        if np.less_equal(impact, 0).any():
+            raise ValueError("Impact has negative values")
 
         self._aff_sectors_idx = np.array([])
         self._aff_sectors = pd.Index([])
