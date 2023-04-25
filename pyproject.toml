@@ -65,8 +65,14 @@ include = ["boario","scripts"]
 exclude = ["**/node_modules",
     "**/__pycache__",
     "src/",
-    "api-examples"
+    "api-examples",
+    "docs/",
+    "dist/",
+    "imgs/",
+    "other/",
+    "tests/",
+    "dist/"
 ]
-ignore = ["src/oldstuff"]
+
 defineConstant = { DEBUG = true }
 stubPath = "boario/stubs"
