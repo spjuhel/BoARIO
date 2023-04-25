@@ -162,3 +162,5 @@ workflow/config_full.json
 
 DOC_BUILDING_REMINDER
 new_docs
+pyproject.toml.bak
+.vscode/settings.json
