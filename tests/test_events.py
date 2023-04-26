@@ -52,21 +52,12 @@ def test_sim(test_model):
     sim = Simulation(test_model)
     return sim
 
-
-def test_Event_abstract(test_sim):
-    with pytest.raises(TypeError):
-        ev = Event(
-            impact=100000, aff_regions=["reg1"], aff_sectors=["manufactoring", "mining"]
-        )
-
-
 def test_EventKapitalRecover_init_empty():
     with pytest.raises(TypeError):
         ev = EventKapitalRecover()
 
     with pytest.raises(TypeError):
         ev = EventKapitalRecover(impact=1)
-
 
 def test_EventKapitalRecover_init_before_model():
     with pytest.raises(AttributeError):
@@ -77,7 +68,6 @@ def test_EventKapitalRecover_init_before_model():
             recovery_time=30,
         )
 
-
 def test_EventKapitalRecover_init_before_sim_after_model(test_model):
     with pytest.raises(AttributeError):
         ev = EventKapitalRecover(
@@ -87,16 +77,21 @@ def test_EventKapitalRecover_init_before_sim_after_model(test_model):
             recovery_time=30,
         )
 
+def test_Event_abstract(test_sim):
+    with pytest.raises(TypeError):
+        ev = Event(
+            impact=100000, aff_regions=["reg1"], aff_sectors=["manufactoring", "mining"]
+        )
 
 def test_EventKapitalRecover_wrong_init_after_sim_after_model(test_sim):
     with pytest.raises(ValueError):
         ev = EventKapitalRecover(impact=1, recovery_time=30)
 
     with pytest.raises(ValueError):
-        ev = EventKapitalRecover(impact=pd.Series(), recovery_time=30)
+        ev = EventKapitalRecover(impact=pd.Series(dtype="float64"), recovery_time=30)
 
     with pytest.raises(ValueError):
-        ev = EventKapitalRecover(impact=pd.DataFrame(), recovery_time=30)
+        ev = EventKapitalRecover(impact=pd.DataFrame(dtype="float64"), recovery_time=30)
 
     with pytest.raises(ValueError):
         ev = EventKapitalRecover(impact=[], recovery_time=30)
@@ -108,8 +103,8 @@ def test_EventKapitalRecover_wrong_init_after_sim_after_model(test_sim):
         0,
         -1,
         [],
-        pd.Series([]),
-        pd.DataFrame([]),
+        pd.Series([],dtype="float64"),
+        pd.DataFrame([],dtype="float64"),
         np.array([]),
         np.array([1, -1]),
         "str",
@@ -143,7 +138,7 @@ def test_EventKapitalRecover_incorrect_impact(test_sim, impact):
         1,
         [1],
         [],
-        pd.DataFrame([]),
+        pd.DataFrame([],dtype="float64"),
         np.array([]),
         ["reg1", "reg1"],
     ],
@@ -176,7 +171,7 @@ def test_EventKapitalRecover_incorrect_regions(test_sim, regions):
         1,
         [1],
         [],
-        pd.DataFrame([]),
+        pd.DataFrame([],dtype="float64"),
         np.array([]),
         ["mining", "mining"],
     ],
@@ -214,7 +209,7 @@ def test_EventKapitalRecover_industries_regions_sectors(test_sim):
 
 @pytest.mark.parametrize(
     "industries",
-    ["non_existing", ["non_existing"], 1, [1], [], pd.DataFrame([]), np.array([])],
+    ["non_existing", ["non_existing"], 1, [1], [], pd.DataFrame([],dtype="float64"), np.array([])],
     ids=[
         "non_exist_str",
         "non_exist_l_str",

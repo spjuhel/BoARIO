@@ -50,6 +50,10 @@ def test_model(test_mrio):
     model = ARIOPsiModel(test_mrio)
     return model
 
+@pytest.fixture
+def test_sim(test_model):
+    sim = Simulation(test_model)
+    return sim
 
 # Tests that a Simulation object can be initialized with a valid model and default parameters.
 def test_initialize_simulation_with_valid_model_and_default_parameters(test_model):
@@ -214,3 +218,42 @@ def minimal_simulation(test_model):
 def test_minimal_simulation(test_model):
     with pytest.raises(SystemExit):
         minimal_simulation(test_model)
+
+def test_minor_event(test_sim):
+    ev = EventKapitalRecover(
+        impact=100,
+        aff_regions=["reg1"],
+        aff_sectors=["mining"],
+        recovery_time=30,
+    )
+    test_sim.add_event(ev)
+    test_sim.loop()
+    min_values = (test_sim.production_realised.loc[:,"reg1"]/ test_sim.production_realised.loc[0,"reg1"]).min()
+    assert (min_values < 1.).all()
+    assert min_values.drop("mining") > (1.0 - 1 / test_sim.model.monetary_factor).all()
+
+def test_medium_event(test_sim):
+    ev = EventKapitalRecover(
+        impact=100000,
+        aff_regions=["reg1"],
+        aff_sectors=["mining"],
+        recovery_time=30,
+    )
+    test_sim.add_event(ev)
+    test_sim.loop()
+    min_values = (test_sim.production_realised.loc[:,"reg1"]/ test_sim.production_realised.loc[0,"reg1"]).min()
+    assert (min_values < 1.).all()
+    assert min_values.drop("mining") < (1.0 - 1 / test_sim.model.monetary_factor).all()
+
+def test_crashing_event(test_sim):
+    ev = EventKapitalRecover(
+        impact=100000,
+        aff_regions=["reg1"],
+        aff_sectors=["mining"],
+        recovery_time=30,
+    )
+    test_sim.add_event(ev)
+    test_sim.loop()
+    min_values = (test_sim.production_realised.loc[:,"reg1"]/ test_sim.production_realised.loc[0,"reg1"]).min()
+    assert (min_values < 1.).all()
+    assert min_values.drop("mining") < (1.0 - 1 / test_sim.model.monetary_factor).all()
