@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 
 <!DOCTYPE html>
@@ -1696,3 +1697,1599 @@ document.write(`
   </footer>
   </body>
 </html>
+||||||| 66c6efed
+=======
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>boario.event &#8212; BoARIO  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/boario/event';</script>
+    <script src="../../_static/js/custom.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">BoARIO  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../user-guide.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../boario-api-reference.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../development.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../release-note.html">
+                        Release notes
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../boario-references.html">
+                        References
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item"><p class="last-updated">
+  Last updated on Mar 13, 2023.
+  <br/>
+</p></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../user-guide.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../boario-api-reference.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../development.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../release-note.html">
+                        Release notes
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../boario-references.html">
+                        References
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><p class="last-updated">
+  Last updated on Mar 13, 2023.
+  <br/>
+</p></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">boario.event</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for boario.event</h1><div class="highlight"><pre>
+<span></span><span class="c1"># BoARIO : The Adaptative Regional Input Output model in python.</span>
+<span class="c1"># Copyright (C) 2022  Samuel Juhel</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">ArrayLike</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">boario</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Event&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EventKapitalDestroyed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EventArbitraryProd&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EventKapitalRecover&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EventKapitalRebuild&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Impact&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;IndustriesList&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SectorsList&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RegionsList&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">Impact</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span>
+<span class="n">IndustriesList</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="n">SectorsList</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="n">RegionsList</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">linear_recovery</span><span class="p">(</span>
+    <span class="n">elapsed_temporal_unit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">init_kapital_destroyed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">recovery_time</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Linear Kapital recovery function</span>
+
+<span class="sd">    Kapital is entirely recovered when `recovery_time` has passed since event</span>
+<span class="sd">    started recovering</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    init_kapital_destroyed : float</span>
+<span class="sd">        Initial kapital destroyed</span>
+
+<span class="sd">    elapsed_temporal_unit : int</span>
+<span class="sd">        Elapsed time since event started recovering</span>
+
+<span class="sd">    recovery_time : int</span>
+<span class="sd">        Total time it takes the event to fully recover</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">init_kapital_destroyed</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">elapsed_temporal_unit</span> <span class="o">/</span> <span class="n">recovery_time</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">convexe_recovery</span><span class="p">(</span>
+    <span class="n">elapsed_temporal_unit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">init_kapital_destroyed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">recovery_time</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Convexe Kapital recovery function</span>
+
+<span class="sd">    Kapital is recovered with characteristic time `recovery_time`. (This doesn&#39;t mean Kapital is fully recovered after this time !)</span>
+<span class="sd">    This function models a recovery similar as the one happening in the rebuilding case, for the same characteristic time.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    init_kapital_destroyed : float</span>
+<span class="sd">        Initial kapital destroyed</span>
+
+<span class="sd">    elapsed_temporal_unit : int</span>
+<span class="sd">        Elapsed time since event started recovering</span>
+
+<span class="sd">    recovery_time : int</span>
+<span class="sd">        Total time it takes the event to fully recover</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">init_kapital_destroyed</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">recovery_time</span><span class="p">))</span> <span class="o">**</span> <span class="n">elapsed_temporal_unit</span>
+
+
+<span class="k">def</span> <span class="nf">convexe_recovery_scaled</span><span class="p">(</span>
+    <span class="n">elapsed_temporal_unit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">init_kapital_destroyed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">recovery_time</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">scaling_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Convexe Kapital recovery function (scaled to match other recovery duration)</span>
+
+<span class="sd">    Kapital is mostly recovered (&gt;95% by default for most cases) when `recovery_time` has passed since event</span>
+<span class="sd">    started recovering.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    init_kapital_destroyed : float</span>
+<span class="sd">        Initial kapital destroyed</span>
+
+<span class="sd">    elapsed_temporal_unit : int</span>
+<span class="sd">        Elapsed time since event started recovering</span>
+
+<span class="sd">    recovery_time : int</span>
+<span class="sd">        Total time it takes the event to fully recover</span>
+
+<span class="sd">    scaling_factor: float</span>
+<span class="sd">        Used to scale the exponent in the function so that kapital is mostly rebuilt after `recovery_time`. A value of 4 insure &gt;95% of kapital is recovered for a reasonable range of `recovery_time` values.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">init_kapital_destroyed</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">recovery_time</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span>
+        <span class="n">scaling_factor</span> <span class="o">*</span> <span class="n">elapsed_temporal_unit</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">concave_recovery</span><span class="p">(</span>
+    <span class="n">elapsed_temporal_unit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">init_kapital_destroyed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">recovery_time</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">steep_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.000001</span><span class="p">,</span>
+    <span class="n">half_recovery_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Concave (s-shaped) Kapital recovery function</span>
+
+<span class="sd">    Kapital is mostly (&gt;95% in most cases) recovered when `recovery_time` has passed since event started recovering.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    init_kapital_destroyed : float</span>
+<span class="sd">        Initial kapital destroyed</span>
+
+<span class="sd">    elapsed_temporal_unit : int</span>
+<span class="sd">        Elapsed time since event started recovering</span>
+
+<span class="sd">    recovery_time : int</span>
+<span class="sd">        Total time it takes the event to fully recover</span>
+
+<span class="sd">    steep_factor: float</span>
+<span class="sd">        This coefficient governs the slope of the central part of the s-shape, smaller values lead to a steeper slope. As such it also affect the percentage of kapital rebuilt after `recovery_time` has elapsed. A value of 0.000001 should insure 95% of the kapital is rebuild for a reasonable range of recovery duration.</span>
+
+<span class="sd">    half_recovery_time : int</span>
+<span class="sd">        This can by use to change the time the inflexion point of the s-shape curve is attained. By default it is set to half the recovery duration.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">half_recovery_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tau_h</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tau_h</span> <span class="o">=</span> <span class="n">recovery_time</span> <span class="o">/</span> <span class="n">half_recovery_time</span>
+    <span class="n">exponent</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">recovery_time</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">steep_factor</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">recovery_time</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">tau_h</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">init_kapital_destroyed</span> <span class="o">*</span> <span class="n">recovery_time</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="n">recovery_time</span> <span class="o">+</span> <span class="n">steep_factor</span> <span class="o">*</span> <span class="p">(</span><span class="n">elapsed_temporal_unit</span><span class="o">**</span><span class="n">exponent</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="Event"><a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.Event">[docs]</a><span class="k">class</span> <span class="nc">Event</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="c1"># Class Attributes</span>
+    <span class="n">__required_class_attributes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;possible_sectors&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;possible_regions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;temporal_unit_range&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;z_shape&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;y_shape&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;x_shape&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;regions_idx&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sectors_idx&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;monetary_factor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sectors_gva_shares&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Z_distrib&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mrio_name&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">possible_sectors</span><span class="p">:</span> <span class="n">SectorsList</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([])</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;List of sectors present in the MRIO used by the model&quot;&quot;&quot;</span>
+
+    <span class="n">possible_regions</span><span class="p">:</span> <span class="n">RegionsList</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([])</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;List of regions present in the MRIO used by the model&quot;&quot;&quot;</span>
+
+    <span class="n">temporal_unit_range</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Maximum temporal unit simulated&quot;&quot;&quot;</span>
+
+    <span class="n">z_shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Shape of the Z (intermediate consumption) matrix in the model&quot;&quot;&quot;</span>
+
+    <span class="n">y_shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Shape of the Y (final demand) matrix in the model&quot;&quot;&quot;</span>
+
+    <span class="n">x_shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Shape of the x (production) vector in the model&quot;&quot;&quot;</span>
+
+    <span class="n">regions_idx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;lexicographic region indexes&quot;&quot;&quot;</span>
+
+    <span class="n">sectors_idx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;lexicographic sector indexes&quot;&quot;&quot;</span>
+
+    <span class="n">monetary_factor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Amount of unitary currency used in the MRIO (e.g. 1000000 if in € millions)&quot;&quot;&quot;</span>
+
+    <span class="n">sectors_gva_shares</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Fraction of total (regional) GVA for each sectors&quot;&quot;&quot;</span>
+
+    <span class="n">Z_distrib</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalized intermediate consumption matrix&quot;&quot;&quot;</span>
+
+    <span class="n">mrio_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;MRIO identification&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">impact</span><span class="p">:</span> <span class="n">Impact</span><span class="p">,</span>
+        <span class="n">aff_regions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RegionsList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">aff_sectors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SectorsList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">aff_industries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IndustriesList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_industries_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_regional_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_sectoral_distrib_type</span><span class="o">=</span><span class="s2">&quot;custom&quot;</span><span class="p">,</span>
+        <span class="n">impact_sectoral_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Unnamed&quot;</span><span class="p">,</span>
+        <span class="n">occurrence</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">duration</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Create an event shocking the model from a dictionary.</span>
+
+<span class="sd">        An Event object stores all information about a unique shock during simulation such as</span>
+<span class="sd">        time of occurrence, duration, type of shock, amount of damages. Computation</span>
+<span class="sd">        of recovery or initially requested rebuilding demand is also done in this</span>
+<span class="sd">        class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        event : dict</span>
+<span class="sd">            A dictionary holding the necessary information to define an event.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">            FIXME: Add docs.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors_idx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions_idx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Initializing new Event&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking required Class attributes are defined&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">Event</span><span class="o">.</span><span class="n">__required_class_attributes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">Event</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Required Event Class attribute </span><span class="si">{}</span><span class="s2"> is not set yet so instantiating an Event isn&#39;t possible&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">v</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;An identifying name for the event (for convenience mostly)&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">occurrence</span> <span class="o">=</span> <span class="n">occurrence</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_regions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">],</span>
+                <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">,</span> <span class="s2">&quot;sector&quot;</span><span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;A pandas Series with all possible industries as index, holding the impact vector of the event. The impact is defined for each sectors in each region.&quot;&quot;&quot;</span>
+
+        <span class="c1">################## DATAFRAME INIT #################</span>
+        <span class="c1"># CASE VECTOR 1 (everything is there and regrouped) (only df creation)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">impact</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Given impact is a pandas Series&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">impact</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">impact</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;Unnamed&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">impact</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">impact</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">impact</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Given impact is a dict, converting it to pandas Series&quot;</span><span class="p">)</span>
+            <span class="n">impact</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">impact</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">impact</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">impact</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">impact</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Given Impact is a pandas DataFrame, squeezing it to a Series&quot;</span><span class="p">)</span>
+            <span class="n">impact</span> <span class="o">=</span> <span class="n">impact</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">impact</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;The given impact DataFrame is not a Series after being squeezed&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">impact</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">impact</span>
+        <span class="c1"># CASE VECTOR 2 (everything is there but not regrouped) AND CASE SCALAR (Only df creation)</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">impact</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span>
+            <span class="ow">and</span> <span class="n">aff_industries</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Given Impact is a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">impact</span><span class="p">)</span><span class="si">}</span><span class="s2"> and list of impacted industries given. Proceeding.&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">aff_industries</span><span class="p">]</span> <span class="o">=</span> <span class="n">impact</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">impact</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span>
+            <span class="ow">and</span> <span class="n">aff_regions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">aff_sectors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Given Impact is a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">impact</span><span class="p">)</span><span class="si">}</span><span class="s2"> and lists of impacted regions and sectors given. Proceeding.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aff_regions</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">aff_regions</span> <span class="o">=</span> <span class="p">[</span><span class="n">aff_regions</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aff_sectors</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">aff_sectors</span> <span class="o">=</span> <span class="p">[</span><span class="n">aff_sectors</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">([</span><span class="n">aff_regions</span><span class="p">,</span> <span class="n">aff_sectors</span><span class="p">])</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="n">impact</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid input format. Could not initiate pandas Series.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check for &lt;0 values and remove 0.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Found negative values in impact vector. This should raise concern&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># SORT DF</span>
+        <span class="c1"># at this point impact_df is built, and can be sorted. Note that if impact was a scalar, impact_df contains copies of this scalar.</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Sorting Impact Series&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+        <span class="c1"># Init self.impact_sectoral_distrib_type,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impact_sectoral_distrib_type</span> <span class="o">=</span> <span class="n">impact_sectoral_distrib_type</span>
+        <span class="c1">#################################################</span>
+
+        <span class="c1"># SET INDEXES ATTR</span>
+        <span class="c1"># note that the following also sets aff_regions and aff_sectors</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">)</span>
+        <span class="c1"># Only look for industries where impact is greater than 0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Impact df at the moment:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1">###### SCALAR DISTRIBUTION ######################</span>
+        <span class="c1"># if impact_industries_distrib is given, set it. We assume impact is scalar !</span>
+        <span class="c1"># CASE SCALAR + INDUS DISTRIB</span>
+        <span class="k">if</span> <span class="n">impact_industries_distrib</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">impact</span><span class="p">,</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Impact is Scalar and impact_industries_distrib was given&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_industries_distrib</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">impact_industries_distrib</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">impact_industries_distrib</span>
+            <span class="p">)</span>
+        <span class="c1"># if impact_reg_dis and sec_dis are give, deduce the rest. We also assume impact is scalar !</span>
+        <span class="c1"># CASE SCALAR + REGION and SECTOR DISTRIB</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">impact_regional_distrib</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">impact_sectoral_distrib</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">impact</span><span class="p">,</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Impact is Scalar and impact_regional_distrib and impact_sectoral_distrib were given&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">impact_regional_distrib</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="n">impact_sectoral_distrib</span>
+            <span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_sectors</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Lengths of `impact_regional_distrib` and/or `impact_sectoral_distrib` are incompatible with `aff_regions` and/or `aff_sectors`.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">impact_regional_distrib</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">impact_regional_distrib</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">impact_sectoral_distrib</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">impact_sectoral_distrib</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">impact_industries_distrib</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">impact_regional_distrib</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+                    <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">impact_sectoral_distrib</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span>
+                    <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">impact_industries_distrib</span>
+                <span class="p">)</span>
+        <span class="c1"># CASE SCALAR + &#39;gdp&#39; distrib</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">impact_regional_distrib</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">impact_sectoral_distrib_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">impact_sectoral_distrib_type</span> <span class="o">==</span> <span class="s2">&quot;gdp&quot;</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">impact</span><span class="p">,</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Impact is Scalar and impact_sectoral_distrib_type is &#39;gdp&#39;&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_regional_distrib</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">impact_regional_distrib</span><span class="p">)</span>
+
+            <span class="n">shares</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sectors_gva_shares</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_regions</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_sectoral_distrib</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">shares</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions_idx</span><span class="p">][:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors_idx</span><span class="p">]</span>
+                <span class="o">/</span> <span class="n">shares</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions_idx</span><span class="p">][:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors_idx</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span>
+                    <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_industries_distrib</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">impact_regional_distrib</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">impact_sectoral_distrib</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">impact_industries_distrib</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_sectoral_distrib_type</span> <span class="o">=</span> <span class="s2">&quot;gdp&quot;</span>
+        <span class="c1"># CASE SCALAR + NO DISTRIB + list of industries</span>
+        <span class="c1"># if neither was given, we use default values. Again impact should be scalar here !</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aff_industries</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">impact</span><span class="p">,</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Impact is Scalar and no distribution was given but a list of affected industries was given&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_distribute_impact_from_industries_list</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_sectoral_distrib_type</span> <span class="o">=</span> <span class="s2">&quot;default (shared equally between affected regions and then affected sectors)&quot;</span>
+        <span class="c1"># CASE SCALAR + NO DISTRIB + list of region + list of sectors</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">aff_regions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">aff_sectors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">impact</span><span class="p">,</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Impact is Scalar and no distribution was given but lists of regions and sectors affected were given&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_distribute_impact_from_industries_list</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_sectoral_distrib_type</span> <span class="o">=</span> <span class="s2">&quot;default (shared equally between affected regions and then affected sectors)&quot;</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">impact</span><span class="p">,</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid input format: Could not compute impact&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_finish_init</span><span class="p">()</span>
+        <span class="c1">##################################################</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">happened</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;States if the event happened&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">over</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;States if the event is over&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">event_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+            <span class="s2">&quot;occurrence&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">occurrence</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
+            <span class="s2">&quot;aff_regions&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span><span class="p">),</span>
+            <span class="s2">&quot;aff_sectors&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_sectors</span><span class="p">),</span>
+            <span class="s2">&quot;impact&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_impact</span><span class="p">,</span>
+            <span class="s2">&quot;impact_industries_distrib&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">impact_industries_distrib</span><span class="p">),</span>
+            <span class="s2">&quot;impact_regional_distrib&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">impact_regional_distrib</span><span class="p">),</span>
+            <span class="s2">&quot;impact_sectoral_distrib_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">impact_sectoral_distrib_type</span><span class="p">,</span>
+            <span class="s2">&quot;globals_vars&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;possible_sectors&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">),</span>
+                <span class="s2">&quot;possible_regions&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_regions</span><span class="p">),</span>
+                <span class="s2">&quot;temporal_unit_range&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">temporal_unit_range</span><span class="p">,</span>
+                <span class="s2">&quot;z_shape&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_shape</span><span class="p">,</span>
+                <span class="s2">&quot;y_shape&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_shape</span><span class="p">,</span>
+                <span class="s2">&quot;x_shape&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_shape</span><span class="p">,</span>
+                <span class="s2">&quot;monetary_factor&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">monetary_factor</span><span class="p">,</span>
+                <span class="s2">&quot;mrio_used&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mrio_name</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Store relevant information about the event&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_default_distribute_impact_from_industries_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># at this point, impact should still be scalar.</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Using default impact distribution to industries&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Impact df at the moment:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impact_regional_distrib</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span><span class="p">),</span> <span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;self.impact_regional_distrib: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">impact_regional_distrib</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;len aff_regions: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">impact_sec_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">reg</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span> <span class="o">*</span> <span class="n">impact_sec_vec</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Impact df after default distrib:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_finish_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finishing Event init&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impact_vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_impact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">impact_vector</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impact_industries_distrib</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_vector</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">impact_vector</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_impact</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impact_regional_distrib</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_industries</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+            <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_impact</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">aff_industries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The industries affected by the event.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        index : pd.MultiIndex</span>
+<span class="sd">             The affected industries as a pandas MultiIndex</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">             A pandas MultiIndex with the regions affected as first level, and sectors affected as second level</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_industries</span>
+
+    <span class="nd">@aff_industries</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">aff_industries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Given impact vector does not have a (region,sector) MultiIndex&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="o">!=</span> <span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">,</span> <span class="s2">&quot;sector&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;MultiIndex must have levels named &#39;region&#39; and &#39;sector&#39;&quot;</span><span class="p">)</span>
+
+        <span class="n">regions</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">sectors</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;sector&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">regions</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_regions</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Regions </span><span class="si">{</span><span class="nb">set</span><span class="p">(</span><span class="n">regions</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_regions</span><span class="p">)</span><span class="si">}</span><span class="s2"> are not in the possible regions list&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">sectors</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Sectors </span><span class="si">{</span><span class="nb">set</span><span class="p">(</span><span class="n">sectors</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">)</span><span class="si">}</span><span class="s2"> are not in the possible sectors list&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span> <span class="o">=</span> <span class="n">regions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aff_sectors</span> <span class="o">=</span> <span class="n">sectors</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Setting _aff_industries. There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="si">}</span><span class="s2"> affected industries&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aff_industries</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aff_industries_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">)</span> <span class="o">*</span> <span class="n">ri</span> <span class="o">+</span> <span class="n">si</span>
+                <span class="k">for</span> <span class="n">ri</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions_idx</span>
+                <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors_idx</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">occurrence</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The temporal unit of occurrence of the event.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_occur</span>
+
+    <span class="nd">@occurrence</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">occurrence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temporal_unit_range</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Occurrence of event is not in the range of simulation steps : </span><span class="si">{}</span><span class="s2"> not in [0-</span><span class="si">{}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temporal_unit_range</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting occurence to </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_occur</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The duration of the event.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span>
+
+    <span class="nd">@duration</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">occurrence</span> <span class="o">+</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temporal_unit_range</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Occurrence + duration of event is not in the range of simulation steps : </span><span class="si">{}</span><span class="s2"> + </span><span class="si">{}</span><span class="s2"> not in [0-</span><span class="si">{}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">occurrence</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temporal_unit_range</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting duration to </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">aff_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The array of regions affected by the event&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">aff_regions_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The array of lexicographically ordered affected region indexes&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions_idx</span>
+
+    <span class="nd">@aff_regions</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">aff_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">impossible_regions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">possible_regions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">impossible_regions</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;These regions are not in the model : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">impossible_regions</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;region&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting _aff_regions to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_regions</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">aff_sectors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The array of affected sectors by the event&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">aff_sectors_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The array of lexicographically ordered affected sectors indexes&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors_idx</span>
+
+    <span class="nd">@aff_sectors</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">aff_sectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sector&quot;</span><span class="p">)</span>
+        <span class="n">impossible_sectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">impossible_sectors</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;These sectors are not in the model : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">impossible_sectors</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sector&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting _aff_sectors to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">impact_regional_distrib</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The array specifying how damages are distributed among affected regions&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impact_regional_distrib</span>
+
+    <span class="nd">@impact_regional_distrib</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">impact_regional_distrib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Affected regions attribute isn&#39;t set yet&quot;</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;There are </span><span class="si">{}</span><span class="s2"> affected regions by the event and length of given damage distribution is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">size</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Damage distribution doesn&#39;t sum up to 1 but to </span><span class="si">{}</span><span class="s2">, which is not valid&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">s</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impact_regional_distrib</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def impact_sectoral_distrib(self) -&gt; np.ndarray:</span>
+    <span class="c1">#     r&quot;&quot;&quot;The array specifying how damages are distributed among affected sectors&quot;&quot;&quot;</span>
+    <span class="c1">#     return self._impact_sectoral_distrib</span>
+
+    <span class="c1"># @impact_sectoral_distrib.setter</span>
+    <span class="c1"># def impact_sectoral_distrib(self, value: ArrayLike):</span>
+    <span class="c1">#     if self.aff_sectors is None:</span>
+    <span class="c1">#         raise AttributeError(&quot;Affected sectors attribute isn&#39;t set yet&quot;)</span>
+    <span class="c1">#     value = np.array(value)</span>
+    <span class="c1">#     if value.size != self.aff_sectors.size:</span>
+    <span class="c1">#         raise ValueError(</span>
+    <span class="c1">#             &quot;There are {} affected sectors by the event and length of given damage distribution is {}&quot;.format(</span>
+    <span class="c1">#                 self.aff_sectors.size, value.size</span>
+    <span class="c1">#             )</span>
+    <span class="c1">#         )</span>
+    <span class="c1">#     s = value.sum()</span>
+    <span class="c1">#     if not math.isclose(s, 1):</span>
+    <span class="c1">#         raise ValueError(</span>
+    <span class="c1">#             &quot;Damage distribution doesn&#39;t sum up to 1 but to {}, which is not valid&quot;.format(</span>
+    <span class="c1">#                 s</span>
+    <span class="c1">#             )</span>
+    <span class="c1">#         )</span>
+    <span class="c1">#     self._impact_sectoral_distrib = value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">impact_sectoral_distrib_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The type of damages distribution among sectors (currently only &#39;gdp&#39;)&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impact_sectoral_distrib_type</span>
+
+    <span class="nd">@impact_sectoral_distrib_type</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">impact_sectoral_distrib_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting _impact_sectoral_distrib_type to </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impact_sectoral_distrib_type</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: find ways to represent long lists</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot; [Representation WIP]</span>
+<span class="s2">        Event(</span>
+<span class="s2">              name = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">              occur = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">occurrence</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">              duration = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">              aff_regions = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">              aff_sectors = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_sectors</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">             )</span>
+<span class="s2">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="EventArbitraryProd"><a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.EventArbitraryProd">[docs]</a><span class="k">class</span> <span class="nc">EventArbitraryProd</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">impact</span><span class="p">:</span> <span class="n">Impact</span><span class="p">,</span>
+        <span class="n">aff_regions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RegionsList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">aff_sectors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SectorsList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">aff_industries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IndustriesList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_industries_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_regional_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_sectoral_distrib_type</span><span class="o">=</span><span class="s2">&quot;equally shared&quot;</span><span class="p">,</span>
+        <span class="n">impact_sectoral_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Unnamed&quot;</span><span class="p">,</span>
+        <span class="n">occurrence</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">duration</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">impact</span><span class="p">,</span>
+            <span class="n">aff_regions</span><span class="p">,</span>
+            <span class="n">aff_sectors</span><span class="p">,</span>
+            <span class="n">aff_industries</span><span class="p">,</span>
+            <span class="n">impact_industries_distrib</span><span class="p">,</span>
+            <span class="n">impact_regional_distrib</span><span class="p">,</span>
+            <span class="n">impact_sectoral_distrib_type</span><span class="p">,</span>
+            <span class="n">impact_sectoral_distrib</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">occurrence</span><span class="p">,</span>
+            <span class="n">duration</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors_idx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">prod_cap_delta_arbitrary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The optional array storing arbitrary (as in not related to kapital destroyed) production capacity loss&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span>
+
+    <span class="nd">@prod_cap_delta_arbitrary</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">prod_cap_delta_arbitrary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Affected regions attribute isn&#39;t set yet&quot;</span><span class="p">)</span>
+        <span class="n">aff_sectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="n">aff_shares</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="n">impossible_sectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">aff_sectors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">impossible_sectors</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;These sectors are not in the model : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">impossible_sectors</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors</span> <span class="o">=</span> <span class="n">aff_sectors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">,</span> <span class="n">aff_sectors</span><span class="p">)</span>
+        <span class="n">aff_industries_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">)</span> <span class="o">*</span> <span class="n">ri</span> <span class="o">+</span> <span class="n">si</span>
+                <span class="k">for</span> <span class="n">ri</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions_idx</span>
+                <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_sectors_idx</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span><span class="p">[</span><span class="n">aff_industries_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+            <span class="n">aff_shares</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions</span><span class="o">.</span><span class="n">size</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EventKapitalDestroyed"><a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.EventKapitalDestroyed">[docs]</a><span class="k">class</span> <span class="nc">EventKapitalDestroyed</span><span class="p">(</span><span class="n">Event</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">impact</span><span class="p">:</span> <span class="n">Impact</span><span class="p">,</span>
+        <span class="n">aff_regions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RegionsList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">aff_sectors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SectorsList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">aff_industries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IndustriesList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_industries_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_regional_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_sectoral_distrib_type</span><span class="o">=</span><span class="s2">&quot;equally shared&quot;</span><span class="p">,</span>
+        <span class="n">impact_sectoral_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Unnamed&quot;</span><span class="p">,</span>
+        <span class="n">occurrence</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">duration</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">impact</span><span class="p">,</span>
+            <span class="n">aff_regions</span><span class="p">,</span>
+            <span class="n">aff_sectors</span><span class="p">,</span>
+            <span class="n">aff_industries</span><span class="p">,</span>
+            <span class="n">impact_industries_distrib</span><span class="p">,</span>
+            <span class="n">impact_regional_distrib</span><span class="p">,</span>
+            <span class="n">impact_sectoral_distrib_type</span><span class="p">,</span>
+            <span class="n">impact_sectoral_distrib</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">occurrence</span><span class="p">,</span>
+            <span class="n">duration</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># The only thing we have to do is affecting/computing the regional_sectoral_kapital_destroyed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_kapital_destroyed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_impact</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_kapital_destroyed</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">monetary_factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remaining_kapital_destroyed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_kapital_destroyed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regional_sectoral_kapital_destroyed_0</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_vector</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">monetary_factor</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regional_sectoral_kapital_destroyed</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impact_vector</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">monetary_factor</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">regional_sectoral_kapital_destroyed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The (optional) array of kapital destroyed per industry (ie region x sector)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regional_sectoral_kapital_destroyed</span>
+
+    <span class="nd">@regional_sectoral_kapital_destroyed</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">regional_sectoral_kapital_destroyed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Incorrect shape give for regional_sectoral_kapital_destroyed: </span><span class="si">{}</span><span class="s2"> given and </span><span class="si">{}</span><span class="s2"> expected&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_shape</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regional_sectoral_kapital_destroyed</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="EventKapitalRebuild"><a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.EventKapitalRebuild">[docs]</a><span class="k">class</span> <span class="nc">EventKapitalRebuild</span><span class="p">(</span><span class="n">EventKapitalDestroyed</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">impact</span><span class="p">:</span> <span class="n">Impact</span><span class="p">,</span>
+        <span class="n">rebuilding_sectors</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span>
+        <span class="n">rebuild_tau</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+        <span class="n">aff_regions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RegionsList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">aff_sectors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SectorsList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">aff_industries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IndustriesList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_industries_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_regional_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_sectoral_distrib_type</span><span class="o">=</span><span class="s2">&quot;equally shared&quot;</span><span class="p">,</span>
+        <span class="n">impact_sectoral_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Unnamed&quot;</span><span class="p">,</span>
+        <span class="n">occurrence</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">duration</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">rebuilding_factor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">impact</span><span class="p">,</span>
+            <span class="n">aff_regions</span><span class="p">,</span>
+            <span class="n">aff_sectors</span><span class="p">,</span>
+            <span class="n">aff_industries</span><span class="p">,</span>
+            <span class="n">impact_industries_distrib</span><span class="p">,</span>
+            <span class="n">impact_regional_distrib</span><span class="p">,</span>
+            <span class="n">impact_sectoral_distrib_type</span><span class="p">,</span>
+            <span class="n">impact_sectoral_distrib</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">occurrence</span><span class="p">,</span>
+            <span class="n">duration</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rebuildable</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rebuild_tau</span> <span class="o">=</span> <span class="n">rebuild_tau</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rebuilding_sectors</span> <span class="o">=</span> <span class="n">rebuilding_sectors</span>
+
+        <span class="n">rebuilding_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">z_shape</span><span class="p">)</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">union1d</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_industries_RoW_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_industries_idx</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_aff_industries_idx</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">rebuilding_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rebuilding_sectors_shares</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">regional_sectoral_kapital_destroyed</span>
+        <span class="p">)</span>
+        <span class="n">rebuilding_demand</span> <span class="o">=</span> <span class="n">rebuilding_demand</span> <span class="o">*</span> <span class="n">rebuilding_factor</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;kapital destroyed vec is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">regional_sectoral_kapital_destroyed</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;rebuilding sectors shares are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rebuilding_sectors_shares</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Z shape is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">z_shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Z_distrib[mask] has shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">Z_distrib</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;reb_demand: </span><span class="si">{</span><span class="n">rebuilding_demand</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;reb_demand: </span><span class="si">{</span><span class="n">rebuilding_demand</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># reb_tiled = np.tile(rebuilding_demand, (len(self.possible_regions), 1))</span>
+        <span class="c1"># reb_tiled = reb_tiled[mask]</span>
+        <span class="n">tmp</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z_distrib</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">*</span> <span class="n">rebuilding_demand</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rebuilding_demand_indus</span> <span class="o">=</span> <span class="n">tmp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rebuilding_demand_house</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y_shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event_dict</span><span class="p">[</span><span class="s2">&quot;rebuilding_sectors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">sec</span><span class="p">:</span> <span class="n">share</span>
+            <span class="k">for</span> <span class="n">sec</span><span class="p">,</span> <span class="n">share</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rebuilding_sectors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rebuilding_sectors_shares</span>
+            <span class="p">)</span>
+        <span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rebuilding_sectors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The (optional) array of rebuilding sectors&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_sectors</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rebuilding_sectors_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The (optional) array of indexes of the rebuilding sectors (in lexicographic order)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_sectors_idx</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rebuilding_sectors_shares</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The array specifying how rebuilding demand is distributed along the rebuilding sectors&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_sectors_shares</span>
+
+    <span class="nd">@rebuilding_sectors</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">rebuilding_sectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">reb_sectors</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reb_sectors</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="n">impossible_sectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">reb_sectors</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">impossible_sectors</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;These sectors are not in the model : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">impossible_sectors</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_sectors</span> <span class="o">=</span> <span class="n">reb_sectors</span><span class="o">.</span><span class="n">index</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_sectors_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">,</span> <span class="n">reb_sectors</span><span class="o">.</span><span class="n">index</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_sectors_shares</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_shape</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_industries_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">)</span> <span class="o">*</span> <span class="n">ri</span> <span class="o">+</span> <span class="n">si</span>
+                    <span class="k">for</span> <span class="n">ri</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions_idx</span>
+                    <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_sectors_idx</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_industries_RoW_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_sectors</span><span class="p">)</span> <span class="o">*</span> <span class="n">ri</span> <span class="o">+</span> <span class="n">si</span>
+                    <span class="k">for</span> <span class="n">ri</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_regions</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">ri</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions_idx</span>
+                    <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_sectors_idx</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_sectors_shares</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_industries_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">reb_sectors</span><span class="o">.</span><span class="n">values</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_sectors_shares</span><span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_industries_RoW_idx</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">reb_sectors</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>
+                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_regions</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aff_regions</span><span class="p">)),</span>
+            <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rebuilding_demand_house</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The optional array of rebuilding demand from households&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_demand_house</span>
+
+    <span class="nd">@rebuilding_demand_house</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">rebuilding_demand_house</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Incorrect shape give for rebuilding_demand_house: </span><span class="si">{}</span><span class="s2"> given and </span><span class="si">{}</span><span class="s2"> expected&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_shape</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_demand_house</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rebuilding_demand_indus</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The optional array of rebuilding demand from industries (to rebuild their kapital)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_demand_indus</span>
+
+    <span class="nd">@rebuilding_demand_indus</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">rebuilding_demand_indus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Incorrect shape give for rebuilding_demand_indus: </span><span class="si">{}</span><span class="s2"> given and </span><span class="si">{}</span><span class="s2"> expected&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_shape</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rebuilding_demand_indus</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="c1"># Also update kapital destroyed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regional_sectoral_kapital_destroyed</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rebuildable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;A boolean stating if an event can start rebuild&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rebuildable</span>
+
+    <span class="nd">@rebuildable</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">rebuildable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_temporal_unit</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">reb</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occurrence</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">current_temporal_unit</span>
+        <span class="k">if</span> <span class="n">reb</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">rebuildable</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Temporal_Unit : </span><span class="si">{}</span><span class="s2"> ~ Event named </span><span class="si">{}</span><span class="s2"> that occured at </span><span class="si">{}</span><span class="s2"> in </span><span class="si">{}</span><span class="s2"> for </span><span class="si">{}</span><span class="s2"> damages has started rebuilding&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">current_temporal_unit</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">occurrence</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">total_kapital_destroyed</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rebuildable</span> <span class="o">=</span> <span class="n">reb</span></div>
+
+
+<div class="viewcode-block" id="EventKapitalRecover"><a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.EventKapitalRecover">[docs]</a><span class="k">class</span> <span class="nc">EventKapitalRecover</span><span class="p">(</span><span class="n">EventKapitalDestroyed</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">impact</span><span class="p">:</span> <span class="n">Impact</span><span class="p">,</span>
+        <span class="n">recovery_time</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">recovery_function</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+        <span class="n">aff_regions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RegionsList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">aff_sectors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SectorsList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">aff_industries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IndustriesList</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_industries_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_regional_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">impact_sectoral_distrib_type</span><span class="o">=</span><span class="s2">&quot;equally shared&quot;</span><span class="p">,</span>
+        <span class="n">impact_sectoral_distrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Unnamed&quot;</span><span class="p">,</span>
+        <span class="n">occurrence</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">duration</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">impact</span><span class="p">,</span>
+            <span class="n">aff_regions</span><span class="p">,</span>
+            <span class="n">aff_sectors</span><span class="p">,</span>
+            <span class="n">aff_industries</span><span class="p">,</span>
+            <span class="n">impact_industries_distrib</span><span class="p">,</span>
+            <span class="n">impact_regional_distrib</span><span class="p">,</span>
+            <span class="n">impact_sectoral_distrib_type</span><span class="p">,</span>
+            <span class="n">impact_sectoral_distrib</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">occurrence</span><span class="p">,</span>
+            <span class="n">duration</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recovery_time</span> <span class="o">=</span> <span class="n">recovery_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recovery_function</span> <span class="o">=</span> <span class="n">recovery_function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_recoverable</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">recoverable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;A boolean stating if an event can start recover&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recoverable</span>
+
+    <span class="nd">@recoverable</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">recoverable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_temporal_unit</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">reb</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occurrence</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">current_temporal_unit</span>
+        <span class="k">if</span> <span class="n">reb</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">recoverable</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Temporal_Unit : </span><span class="si">{}</span><span class="s2"> ~ Event named </span><span class="si">{}</span><span class="s2"> that occured at </span><span class="si">{}</span><span class="s2"> in </span><span class="si">{}</span><span class="s2"> for </span><span class="si">{}</span><span class="s2"> damages has started recovering (no rebuilding demand)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">current_temporal_unit</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">occurrence</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_aff_regions</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">total_kapital_destroyed</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_recoverable</span> <span class="o">=</span> <span class="n">reb</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">recovery_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The recovery function used for recovery (`Callable`)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recovery_fun</span>
+
+    <span class="nd">@recovery_function</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">recovery_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_fun</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Callable</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">r_fun</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">r_fun</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">recovery_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;Impossible to set recovery function if no recovery time is given.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">r_fun</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">r_fun</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span><span class="p">:</span>
+                <span class="n">fun</span> <span class="o">=</span> <span class="n">linear_recovery</span>
+            <span class="k">elif</span> <span class="n">r_fun</span> <span class="o">==</span> <span class="s2">&quot;convexe&quot;</span><span class="p">:</span>
+                <span class="n">fun</span> <span class="o">=</span> <span class="n">convexe_recovery_scaled</span>
+            <span class="k">elif</span> <span class="n">r_fun</span> <span class="o">==</span> <span class="s2">&quot;convexe noscale&quot;</span><span class="p">:</span>
+                <span class="n">fun</span> <span class="o">=</span> <span class="n">convexe_recovery</span>
+            <span class="k">elif</span> <span class="n">r_fun</span> <span class="o">==</span> <span class="s2">&quot;concave&quot;</span><span class="p">:</span>
+                <span class="n">fun</span> <span class="o">=</span> <span class="n">concave_recovery</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="s2">&quot;No implemented recovery function corresponding to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r_fun</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">r_fun</span><span class="p">):</span>
+            <span class="n">r_fun_argsspec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">r_fun</span><span class="p">)</span>
+            <span class="n">r_fun_args</span> <span class="o">=</span> <span class="n">r_fun_argsspec</span><span class="o">.</span><span class="n">args</span> <span class="o">+</span> <span class="n">r_fun_argsspec</span><span class="o">.</span><span class="n">kwonlyargs</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">args</span> <span class="ow">in</span> <span class="n">r_fun_args</span>
+                <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="s2">&quot;init_kapital_destroyed&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;elapsed_temporal_unit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;recovery_time&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Recovery function has to have at least the following keyword arguments: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;init_kapital_destroyed&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;elapsed_temporal_unit&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;recovery_time&quot;</span><span class="p">,</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">fun</span> <span class="o">=</span> <span class="n">r_fun</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Given recovery function is not a str or callable&quot;</span><span class="p">)</span>
+
+        <span class="n">r_fun_partial</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+            <span class="n">fun</span><span class="p">,</span>
+            <span class="n">init_kapital_destroyed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_regional_sectoral_kapital_destroyed_0</span><span class="p">,</span>
+            <span class="n">recovery_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">recovery_time</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_recovery_fun</span> <span class="o">=</span> <span class="n">r_fun_partial</span>
+
+    <span class="k">def</span> <span class="nf">recovery</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_temporal_unit</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">current_temporal_unit</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occurrence</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Trying to recover before event is over&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">recovery_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Trying to recover event while recovery function isn&#39;t set yet&quot;</span>
+            <span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recovery_function</span><span class="p">(</span><span class="n">elapsed_temporal_unit</span><span class="o">=</span><span class="n">elapsed</span><span class="p">)</span>
+        <span class="n">precision</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monetary_factor</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">precision</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">res</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">over</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regional_sectoral_kapital_destroyed</span> <span class="o">=</span> <span class="n">res</span></div>
+</pre></div>
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner"></div>
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2022, Samuel Juhel.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://sphinx-doc.org/">Sphinx</a> 6.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
+>>>>>>> master
