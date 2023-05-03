@@ -140,7 +140,6 @@ def test_EventKapitalRecover_incorrect_impact(test_sim, impact):
         [],
         pd.DataFrame([],dtype="float64"),
         np.array([]),
-        ["reg1", "reg1"],
     ],
     ids=[
         "non_exist_str",
@@ -150,7 +149,6 @@ def test_EventKapitalRecover_incorrect_impact(test_sim, impact):
         "empty_l",
         "empty_df",
         "empty_np",
-        "multiple",
     ],
 )
 def test_EventKapitalRecover_incorrect_regions(test_sim, regions):
@@ -173,7 +171,6 @@ def test_EventKapitalRecover_incorrect_regions(test_sim, regions):
         [],
         pd.DataFrame([],dtype="float64"),
         np.array([]),
-        ["mining", "mining"],
     ],
     ids=[
         "non_exist_str",
@@ -183,7 +180,6 @@ def test_EventKapitalRecover_incorrect_regions(test_sim, regions):
         "empty_l",
         "empty_df",
         "empty_np",
-        "multiple",
     ],
 )
 def test_EventKapitalRecover_incorrect_sectors(test_sim, sectors):
@@ -195,9 +191,27 @@ def test_EventKapitalRecover_incorrect_sectors(test_sim, sectors):
             recovery_time=30,
         )
 
+def test_EventKapitalRecover_duplicate_sectors(test_sim):
+    with pytest.warns(UserWarning):
+        ev = EventKapitalRecover(
+            impact=1000,
+            aff_regions="reg1",
+            aff_sectors=["mining", "mining"],
+            recovery_time=30,
+        )
+
+def test_EventKapitalRecover_duplicate_regions(test_sim):
+    with pytest.warns(UserWarning):
+        ev = EventKapitalRecover(
+            impact=1000,
+            aff_regions=["reg1","reg1"],
+            aff_sectors="mining",
+            recovery_time=30,
+        )
+
 
 def test_EventKapitalRecover_industries_regions_sectors(test_sim):
-    with pytest.raises((ValueError, TypeError, KeyError)):
+    with pytest.raises(ValueError):
         ev = EventKapitalRecover(
             impact=1000,
             aff_regions="reg1",

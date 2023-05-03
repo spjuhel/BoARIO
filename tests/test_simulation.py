@@ -230,7 +230,7 @@ def test_minor_event(test_sim):
     test_sim.loop()
     min_values = (test_sim.production_realised.loc[:,"reg1"]/ test_sim.production_realised.loc[0,"reg1"]).min()
     assert (min_values < 1.).all()
-    assert min_values.drop("mining") > (1.0 - 1 / test_sim.model.monetary_factor).all()
+    assert (min_values.drop("mining") > (1.0 - 1 / test_sim.model.monetary_factor)).all()
 
 def test_medium_event(test_sim):
     ev = EventKapitalRecover(
@@ -243,7 +243,7 @@ def test_medium_event(test_sim):
     test_sim.loop()
     min_values = (test_sim.production_realised.loc[:,"reg1"]/ test_sim.production_realised.loc[0,"reg1"]).min()
     assert (min_values < 1.).all()
-    assert min_values.drop("mining") < (1.0 - 1 / test_sim.model.monetary_factor).all()
+    assert (min_values.drop("mining") < (1.0 - 1 / test_sim.model.monetary_factor)).all()
 
 def test_crashing_event(test_sim):
     ev = EventKapitalRecover(
@@ -256,4 +256,4 @@ def test_crashing_event(test_sim):
     test_sim.loop()
     min_values = (test_sim.production_realised.loc[:,"reg1"]/ test_sim.production_realised.loc[0,"reg1"]).min()
     assert (min_values < 1.).all()
-    assert min_values.drop("mining") < (1.0 - 1 / test_sim.model.monetary_factor).all()
+    assert (min_values.drop("mining") < (1.0 - 1 / test_sim.model.monetary_factor)).all()

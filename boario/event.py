@@ -23,6 +23,7 @@ from boario import logger
 import math
 import inspect
 from functools import partial
+import warnings
 
 from boario.utils.recovery_functions import (
     concave_recovery,
@@ -155,6 +156,20 @@ class Event(ABC):
 
         if np.less_equal(impact, 0).any():
             raise ValueError("Impact has negative values")
+
+        if np.size(aff_sectors) > 1:
+            if pd.Index(aff_sectors).duplicated().any():
+                warnings.warn(UserWarning("Multiple presence of the same sector in affected sectors. (Will remove duplicate)"))
+                aff_sectors = pd.Index(aff_sectors).drop_duplicates()
+
+        if np.size(aff_regions) > 1:
+            if pd.Index(aff_regions).duplicated().any():
+                warnings.warn(UserWarning("Multiple presence of the same region in affected region. (Will remove duplicate)"))
+                aff_regions = pd.Index(aff_regions).drop_duplicates()
+
+        if np.size(aff_regions) > 0 and np.size(aff_sectors) > 0 and np.size(aff_industries) > 0:
+            raise ValueError("Both aff_industries, and (aff_regions, aff_sectors) were given. Choose between a set of industries (region,sector couples) or a list of region and a list of sectors.")
+
 
         self._aff_sectors_idx = np.array([])
         self._aff_sectors = pd.Index([])
@@ -351,6 +366,9 @@ class Event(ABC):
                 self.impact_df.loc[self.aff_industries] * self.impact_industries_distrib
             )
             self.impact_sectoral_distrib_type = "gdp"
+            logger.debug(
+                f"impact df at the moment:\n {self.impact_df.loc[self.aff_industries]}"
+            )
         # CASE SCALAR + NO DISTRIB + list of industries
         # if neither was given, we use default values. Again impact should be scalar here !
         elif isinstance(aff_industries, (list, np.ndarray)) and not isinstance(
