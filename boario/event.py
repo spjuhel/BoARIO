@@ -923,8 +923,9 @@ class EventKapitalDestroyed(Event, ABC):
             elif isinstance(households_impact, (float, int)):
                 if self.impact_regional_distrib is not None:
                     logger.warning(
-                        f"households impact given as scalar, distributing among region following `impact_regional_distrib` ({self.impact_regional_distrib}) "
+                        f"households impact ({households_impact}) given as scalar, distributing among region following `impact_regional_distrib` ({self.impact_regional_distrib}) to {self.aff_regions}"
                     )
+                    logger.debug(f"{rebuilding_demand_idx}")
                     self.households_impact_df.loc[
                         self.aff_regions, rebuilding_demand_idx
                     ] = (households_impact * self.impact_regional_distrib)
