@@ -50,7 +50,7 @@ SectorsList = Union[List[str], pd.Index, npt.NDArray]
 RegionsList = Union[List[str], pd.Index, npt.NDArray]
 FinalCatList = Union[List[str], pd.Index, npt.NDArray]
 
-rebuilding_finaldemand_cat_regex = r".*[hH]ousehold.*|HFCE"
+rebuilding_finaldemand_cat_regex = r".*[hH]ousehold(?!.*NPISH|profit).*|HFCE"
 
 
 class Event(ABC):
@@ -889,6 +889,7 @@ class EventKapitalDestroyed(Event, ABC):
                 ]  # .values[0]
 
             except IndexError:
+                logger.warning(f"No final demand category matched common rebuilding final demand category, hence we will put it in the first available ({self.possible_final_demand_cat[0]}).")
                 rebuilding_demand_idx = self.possible_final_demand_cat[0]
             if isinstance(households_impact, pd.Series):
                 logger.debug("Given household impact is a pandas Series")
