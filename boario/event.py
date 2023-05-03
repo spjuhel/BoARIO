@@ -467,7 +467,7 @@ class Event(ABC):
             self.impact_vector[self.impact_vector > 0] / self.total_impact
         )
         self.impact_regional_distrib = (
-            self.impact_df.loc[self.aff_industries].groupby("region").sum().values
+            self.impact_df.loc[self.aff_industries].groupby("region",observed=True).sum().values
             / self.total_impact
         )
 
