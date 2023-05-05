@@ -46,7 +46,7 @@ class ARIOPsiModel(ARIOBaseModel):
             pd.Series | np.ndarray | pd.DataFrame
         ] = None,
         productive_capital_to_VA_dict: Optional[dict] = None,
-        psi_param=0.90,
+        psi_param=0.80,
         inventory_restoration_tau: int | Dict[str, int] = 60,
     ) -> None:
         """An ARIO3 model with some additional features
