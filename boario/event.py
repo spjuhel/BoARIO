@@ -154,6 +154,14 @@ class Event(ABC):
         if not np.issubdtype(np.array(impact).dtype, np.number):
             raise ValueError("Impact has non numeric values")
 
+        if isinstance(impact, pd.DataFrame):
+            impact = impact.squeeze()
+            if not isinstance(impact, pd.Series):
+                raise ValueError("Could not squeeze impact dataframe to a serie.")
+
+        if isinstance(impact, pd.Series):
+            impact = impact[impact!=0]
+
         if np.less_equal(impact, 0).any():
             logger.debug(f"Impact has negative values:\n{impact}\n{impact[impact<0]}")
             raise ValueError("Impact has negative values")
