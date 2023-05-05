@@ -155,6 +155,7 @@ class Event(ABC):
             raise ValueError("Impact has non numeric values")
 
         if np.less_equal(impact, 0).any():
+            logger.debug(f"Impact has negative values:\n{impact}\n{impact[impact<0]}")
             raise ValueError("Impact has negative values")
 
         if np.size(aff_sectors) > 1:
