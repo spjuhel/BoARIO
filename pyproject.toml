@@ -7,6 +7,7 @@ license = "GNU General Public License v3 or later (GPLv3+)"
 readme = "README.rst"
 
 [tool.poetry.dependencies]
+python="^3.10"
 coloredlogs = "^15.0.1"
 country-converter = "^1.0.0"
 dask = ">=2023"
@@ -17,12 +18,13 @@ pandas = ">=1.5,<2.0"
 progressbar2 = "^4.2.0"
 pyarrow = "^11.0.0"
 pymrio = "^0.4.8"
-python = "^3.9"
+
 
 [tool.poetry.group.dev.dependencies]
-pygit2 = "^1.12.0"
 pytest = "^7.3.1"
-ipykernel = "^6.22.0"
+pygit2 = "^1.12.1"
+ipykernel = "^6.23.0"
+black = "^23.3.0"
 
 [build-system]
 requires = ["poetry-core"]
