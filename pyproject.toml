@@ -7,7 +7,7 @@ license = "GNU General Public License v3 or later (GPLv3+)"
 readme = "README.rst"
 
 [tool.poetry.dependencies]
-python=">=3.9,^3.10"
+python=">=3.9"
 coloredlogs = "^15.0.1"
 country-converter = "^1.0.0"
 dask = ">=2023"
