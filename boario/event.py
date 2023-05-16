@@ -367,7 +367,7 @@ class Event(ABC):
             sectoral_distrib = pd.Series(1.0 / len(sectors), index=sectors)
         elif (
             isinstance(impact_sectoral_distrib, str)
-            and impact_regional_distrib == "gdp"
+            and impact_sectoral_distrib == "gdp"
         ):
             gva = cls.gva_df.loc[(regions, sectors)]
             sectoral_distrib = gva.groupby("region").transform(lambda x: x / sum(x))
