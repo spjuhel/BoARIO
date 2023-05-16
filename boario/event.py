@@ -50,7 +50,7 @@ SectorsList = Union[List[str], pd.Index, npt.NDArray]
 RegionsList = Union[List[str], pd.Index, npt.NDArray]
 FinalCatList = Union[List[str], pd.Index, npt.NDArray]
 
-rebuilding_finaldemand_cat_regex = r".*[hH]ousehold(?!.*NPISH|profit).*|HFCE"
+rebuilding_finaldemand_cat_regex = r"(?i)(?=.*household)(?=.*final)(?!.*NPISH|profit).*|HFCE"
 
 
 class Event(ABC):
@@ -896,6 +896,8 @@ class EventKapitalDestroyed(Event, ABC):
                         rebuilding_finaldemand_cat_regex
                     )
                 ]  # .values[0]
+                if len(rebuilding_demand_idx) > 1:
+                    raise ValueError(f"The rebuilding demand index ({rebuilding_demand_idx}) contains multiple values which is a problem. Contact the dev to update the matching regexp.")
 
             except IndexError:
                 logger.warning(f"No final demand category matched common rebuilding final demand category, hence we will put it in the first available ({self.possible_final_demand_cat[0]}).")
