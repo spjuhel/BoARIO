@@ -52,6 +52,7 @@ FinalCatList = Union[List[str], pd.Index, npt.NDArray]
 
 rebuilding_finaldemand_cat_regex = r"(?i)(?=.*household)(?=.*final)(?!.*NPISH|profit).*|HFCE"
 
+LOW_DEMAND_THRESH = 10
 
 class Event(ABC):
     # Class Attributes
@@ -1130,7 +1131,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                     value.shape, self.y_shape
                 )
             )
-        value[value < 10 / self.model_monetary_factor] = 0.0
+        value[value < LOW_DEMAND_THRESH / self.model_monetary_factor] = 0.0
         self._rebuilding_demand_house = value
 
     @property
@@ -1147,7 +1148,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                     value.shape, self.z_shape
                 )
             )
-        value[value < 10 / self.model_monetary_factor] = 0.0
+        value[value < LOW_DEMAND_THRESH / self.model_monetary_factor] = 0.0
         self._rebuilding_demand_indus = value
         # Also update productive_capital destroyed
         self.regional_sectoral_productive_capital_destroyed = value.sum(axis=0) * (
