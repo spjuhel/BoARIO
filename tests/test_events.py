@@ -52,6 +52,7 @@ def test_sim(test_model):
     sim = Simulation(test_model)
     return sim
 
+
 def test_EventKapitalRecover_init_empty():
     with pytest.raises(TypeError):
         ev = EventKapitalRecover()
@@ -59,42 +60,47 @@ def test_EventKapitalRecover_init_empty():
     with pytest.raises(TypeError):
         ev = EventKapitalRecover(impact=1)
 
+
 def test_EventKapitalRecover_init_before_model():
     with pytest.raises(AttributeError):
-        ev = EventKapitalRecover(
+        ev = EventKapitalRecover.from_scalar_regions_sectors(
             impact=100000,
-            aff_regions=["reg1"],
-            aff_sectors=["manufactoring", "mining"],
+            regions=["reg1"],
+            sectors=["manufactoring", "mining"],
             recovery_time=30,
         )
+
 
 def test_EventKapitalRecover_init_before_sim_after_model(test_model):
     with pytest.raises(AttributeError):
-        ev = EventKapitalRecover(
+        ev = EventKapitalRecover.from_scalar_regions_sectors(
             impact=1,
-            aff_regions=["reg1"],
-            aff_sectors=["manufactoring", "mining"],
+            regions=["reg1"],
+            sectors=["manufactoring", "mining"],
             recovery_time=30,
         )
 
+
 def test_Event_abstract(test_sim):
     with pytest.raises(TypeError):
-        ev = Event(
-            impact=100000, aff_regions=["reg1"], aff_sectors=["manufactoring", "mining"]
+        ev = Event.from_scalar_regions_sectors(
+            impact=100000, regions=["reg1"], sectors=["manufactoring", "mining"]
         )
 
+
 def test_EventKapitalRecover_wrong_init_after_sim_after_model(test_sim):
-    with pytest.raises(ValueError):
-        ev = EventKapitalRecover(impact=1, recovery_time=30)
+    with pytest.raises(TypeError):
+        ev = EventKapitalRecover.from_scalar_regions_sectors(impact=1, recovery_time=30)
 
     with pytest.raises(ValueError):
-        ev = EventKapitalRecover(impact=pd.Series(dtype="float64"), recovery_time=30)
+        ev = EventKapitalRecover.from_series(
+            impact=pd.Series(dtype="float64"), recovery_time=30
+        )
 
     with pytest.raises(ValueError):
-        ev = EventKapitalRecover(impact=pd.DataFrame(dtype="float64"), recovery_time=30)
-
-    with pytest.raises(ValueError):
-        ev = EventKapitalRecover(impact=[], recovery_time=30)
+        ev = EventKapitalRecover.from_dataframe(
+            impact=pd.DataFrame(dtype="float64"), recovery_time=30
+        )
 
 
 @pytest.mark.parametrize(
@@ -103,8 +109,8 @@ def test_EventKapitalRecover_wrong_init_after_sim_after_model(test_sim):
         0,
         -1,
         [],
-        pd.Series([],dtype="float64"),
-        pd.DataFrame([],dtype="float64"),
+        pd.Series([], dtype="float64"),
+        pd.DataFrame([], dtype="float64"),
         np.array([]),
         np.array([1, -1]),
         "str",
@@ -121,13 +127,35 @@ def test_EventKapitalRecover_wrong_init_after_sim_after_model(test_sim):
     ],
 )
 def test_EventKapitalRecover_incorrect_impact(test_sim, impact):
-    with pytest.raises((ValueError, UFuncTypeError)):
-        ev = EventKapitalRecover(
-            impact=impact,
-            aff_regions="reg1",
-            aff_sectors="manufactoring",
-            recovery_time=30,
-        )
+    with pytest.raises((ValueError, UFuncTypeError, TypeError)):
+        if isinstance(impact, int):
+            ev = EventKapitalRecover.from_scalar_regions_sectors(
+                impact=impact,
+                regions="reg1",
+                sectors="manufactoring",
+                recovery_time=30,
+            )
+        elif isinstance(impact, pd.Series):
+            ev = EventKapitalRecover.from_series(
+                impact=impact,
+                regions="reg1",
+                sectors="manufactoring",
+                recovery_time=30,
+            )
+        elif isinstance(impact, pd.DataFrame):
+            ev = EventKapitalRecover.from_dataframe(
+                impact=impact,
+                regions="reg1",
+                sectors="manufactoring",
+                recovery_time=30,
+            )
+        else:
+            ev = EventKapitalRecover.from_scalar_regions_sectors(
+                impact=impact,
+                regions="reg1",
+                sectors="manufactoring",
+                recovery_time=30,
+            )
 
 
 @pytest.mark.parametrize(
@@ -138,7 +166,7 @@ def test_EventKapitalRecover_incorrect_impact(test_sim, impact):
         1,
         [1],
         [],
-        pd.DataFrame([],dtype="float64"),
+        pd.DataFrame([], dtype="float64"),
         np.array([]),
     ],
     ids=[
@@ -153,10 +181,10 @@ def test_EventKapitalRecover_incorrect_impact(test_sim, impact):
 )
 def test_EventKapitalRecover_incorrect_regions(test_sim, regions):
     with pytest.raises((ValueError, TypeError, KeyError)):
-        ev = EventKapitalRecover(
+        ev = EventKapitalRecover.from_scalar_regions_sectors(
             impact=1000,
-            aff_regions=regions,
-            aff_sectors="manufactoring",
+            regions=regions,
+            sectors="manufactoring",
             recovery_time=30,
         )
 
@@ -169,7 +197,7 @@ def test_EventKapitalRecover_incorrect_regions(test_sim, regions):
         1,
         [1],
         [],
-        pd.DataFrame([],dtype="float64"),
+        pd.DataFrame([], dtype="float64"),
         np.array([]),
     ],
     ids=[
@@ -184,46 +212,45 @@ def test_EventKapitalRecover_incorrect_regions(test_sim, regions):
 )
 def test_EventKapitalRecover_incorrect_sectors(test_sim, sectors):
     with pytest.raises((ValueError, TypeError, KeyError)):
-        ev = EventKapitalRecover(
+        ev = EventKapitalRecover.from_scalar_regions_sectors(
             impact=1000,
-            aff_regions="reg1",
-            aff_sectors=sectors,
+            regions="reg1",
+            sectors=sectors,
             recovery_time=30,
         )
+
 
 def test_EventKapitalRecover_duplicate_sectors(test_sim):
     with pytest.warns(UserWarning):
-        ev = EventKapitalRecover(
+        ev = EventKapitalRecover.from_scalar_regions_sectors(
             impact=1000,
-            aff_regions="reg1",
-            aff_sectors=["mining", "mining"],
+            regions="reg1",
+            sectors=["mining", "mining"],
             recovery_time=30,
         )
+
 
 def test_EventKapitalRecover_duplicate_regions(test_sim):
     with pytest.warns(UserWarning):
-        ev = EventKapitalRecover(
+        ev = EventKapitalRecover.from_scalar_regions_sectors(
             impact=1000,
-            aff_regions=["reg1","reg1"],
-            aff_sectors="mining",
-            recovery_time=30,
-        )
-
-
-def test_EventKapitalRecover_industries_regions_sectors(test_sim):
-    with pytest.raises(ValueError):
-        ev = EventKapitalRecover(
-            impact=1000,
-            aff_regions="reg1",
-            aff_sectors="manufactoring",
-            aff_industries=[("reg1", "manufactoring")],
+            regions=["reg1", "reg1"],
+            sectors="mining",
             recovery_time=30,
         )
 
 
 @pytest.mark.parametrize(
     "industries",
-    ["non_existing", ["non_existing"], 1, [1], [], pd.DataFrame([],dtype="float64"), np.array([])],
+    [
+        "non_existing",
+        ["non_existing"],
+        1,
+        [1],
+        [],
+        pd.DataFrame([], dtype="float64"),
+        np.array([]),
+    ],
     ids=[
         "non_exist_str",
         "non_exist_l_str",
@@ -236,28 +263,8 @@ def test_EventKapitalRecover_industries_regions_sectors(test_sim):
 )
 def test_EventKapitalRecover_incorrect_industries(test_sim, industries):
     with pytest.raises((ValueError, TypeError, KeyError)):
-        ev = EventKapitalRecover(
+        ev = EventKapitalRecover.from_scalar_industries(
             impact=1000,
-            aff_industries=industries,
-            recovery_time=30,
-        )
-
-
-@pytest.mark.parametrize(
-    "impact, regions, sectors",
-    [
-        pytest.param([1000, 1000], ["reg1"], ["manufactoring"], id="more_impact"),
-        pytest.param([1000], ["reg1", "reg2"], ["manufactoring"], id="less_impact_1"),
-        pytest.param([1000], ["reg1"], ["manufactoring", "mining"], id="less_impact_2"),
-    ],
-)
-def test_EventKapitalRecover_invalid_impact_industry_shape(
-    test_sim, impact, regions, sectors
-):
-    with pytest.raises((ValueError, TypeError, KeyError)):
-        ev = EventKapitalRecover(
-            impact=impact,
-            aff_regions=regions,
-            aff_sectors=sectors,
+            industries=industries,
             recovery_time=30,
         )

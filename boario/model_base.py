@@ -157,14 +157,20 @@ class ARIOBaseModel:
         logger.debug("Initiating new ARIOBaseModel instance")
         super().__init__()
         ################ Parameters variables #######################
-        logger.info(
-            "IO system metadata :\n{}\n{}\n{}\n{}".format(
-                str(pym_mrio.meta.description),
-                str(pym_mrio.meta.name),
-                str(pym_mrio.meta.system),
-                str(pym_mrio.meta.version),
+        try:
+            logger.info(
+                "IO system metadata :\n{}\n{}\n{}\n{}".format(
+                    str(pym_mrio.meta.description),
+                    str(pym_mrio.meta.name),
+                    str(pym_mrio.meta.system),
+                    str(pym_mrio.meta.version),
+                )
             )
-        )
+        except AttributeError:
+            logger.warning(
+                "It seems the MRIOT you loaded doesn't have metadata to print."
+            )
+
         pym_mrio = lexico_reindex(pym_mrio)
         self.main_inv_dur: int = main_inv_dur
         r"""int, default 90: The default numbers of days for inputs inventory to use if it is not defined for an input."""
@@ -325,6 +331,12 @@ class ARIOBaseModel:
         value_added = pym_mrio.x.T - pym_mrio.Z.sum(axis=0)
         value_added = value_added.reindex(sorted(value_added.index), axis=0)
         value_added = value_added.reindex(sorted(value_added.columns), axis=1)
+        if (value_added < 0).any().any():
+            logger.warning(
+                """Found negative values in the value added, will set to 0, but this
+                           should not happen."""
+            )
+
         value_added[value_added < 0] = 0.0
         self.gdp_df = value_added.groupby("region", axis=1).sum()
         r"""pandas.DataFrame: Dataframe of the total GDP of each region of the model"""
