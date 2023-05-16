@@ -214,7 +214,10 @@ class Simulation:
         """list[Event]: A list containing all events that are happening at the current timestep of the simulation."""
 
         self.events_timings = set()
-        if not isinstance(n_temporal_units_to_sim, (int, np.integer)) or n_temporal_units_to_sim <= 0:
+        if (
+            not isinstance(n_temporal_units_to_sim, (int, np.integer))
+            or n_temporal_units_to_sim <= 0
+        ):
             raise ValueError(
                 f"n_temporal_units_to_sim should be a positive integer (got {n_temporal_units_to_sim} of type {type(n_temporal_units_to_sim)})"
             )
