@@ -319,39 +319,42 @@ class Event(ABC):
         if isinstance(sectors, str):
             sectors = [sectors]
 
-        if len(regions) < 1:
+        _regions = pd.Index(regions, name="region")
+        _sectors = pd.Index(sectors, name="sector")
+
+        if len(_regions) < 1:
             raise ValueError(f"Null sized affected regions ?")
 
-        if len(sectors) < 1:
+        if len(_sectors) < 1:
             raise ValueError(f"Null sized affected sectors ?")
 
-        if pd.Index(sectors).duplicated().any():
+        if _sectors.duplicated().any():
             warnings.warn(
                 UserWarning(
                     "Multiple presence of the same sector in affected sectors. (Will remove duplicate)"
                 )
             )
-            sectors = pd.Index(sectors).drop_duplicates()
+            _sectors = _sectors.drop_duplicates()
 
-        if pd.Index(regions).duplicated().any():
+        if _regions.duplicated().any():
             warnings.warn(
                 UserWarning(
                     "Multiple presence of the same region in affected region. (Will remove duplicate)"
                 )
             )
-            regions = pd.Index(regions).drop_duplicates()
+            _regions = _regions.drop_duplicates()
 
         industries = pd.MultiIndex.from_product(
-            [regions, sectors], names=["region", "sector"]
+            [_regions, _sectors], names=["region", "sector"]
         )
 
         impact_vec = pd.Series(impact, dtype="float64", index=industries)
 
         if impact_regional_distrib is None:
-            regional_distrib = pd.Series(1.0 / len(regions), index=regions)
+            regional_distrib = pd.Series(1.0 / len(_regions), index=_regions)
         elif not isinstance(impact_regional_distrib, pd.Series):
-            impact_regional_distrib = pd.Series(impact_regional_distrib, index=regions)
-            regional_distrib = pd.Series(0.0, index=regions)
+            impact_regional_distrib = pd.Series(impact_regional_distrib, index=_regions)
+            regional_distrib = pd.Series(0.0, index=_regions)
             regional_distrib.loc[
                 impact_regional_distrib.index
             ] = impact_regional_distrib
@@ -361,19 +364,19 @@ class Event(ABC):
                     impact_regional_distrib.index
                 ] = impact_regional_distrib
             except KeyError:
-                regional_distrib.loc[regions] = impact_regional_distrib.values
+                regional_distrib.loc[_regions] = impact_regional_distrib.values
 
         if impact_sectoral_distrib is None:
-            sectoral_distrib = pd.Series(1.0 / len(sectors), index=sectors)
+            sectoral_distrib = pd.Series(1.0 / len(_sectors), index=_sectors)
         elif (
             isinstance(impact_sectoral_distrib, str)
             and impact_sectoral_distrib == "gdp"
         ):
-            gva = cls.gva_df.loc[(regions, sectors)]
+            gva = cls.gva_df.loc[(_regions, _sectors)]
             sectoral_distrib = gva.groupby("region").transform(lambda x: x / sum(x))
         elif not isinstance(impact_sectoral_distrib, pd.Series):
-            impact_sectoral_distrib = pd.Series(impact_sectoral_distrib, index=sectors)
-            sectoral_distrib = pd.Series(0.0, index=sectors)
+            impact_sectoral_distrib = pd.Series(impact_sectoral_distrib, index=_sectors)
+            sectoral_distrib = pd.Series(0.0, index=_sectors)
             sectoral_distrib.loc[
                 impact_sectoral_distrib.index
             ] = impact_sectoral_distrib
@@ -383,14 +386,19 @@ class Event(ABC):
                     impact_sectoral_distrib.index
                 ] = impact_sectoral_distrib
             except KeyError:
-                sectoral_distrib.loc[sectors] = impact_sectoral_distrib.values
+                sectoral_distrib.loc[_sectors] = impact_sectoral_distrib.values
 
-        industries_distrib = pd.Series(
-            np.outer(regional_distrib.values, sectoral_distrib.values).flatten(),
-            index=pd.MultiIndex.from_product(
-                [regional_distrib.index, sectoral_distrib.index]
-            ),
-        )
+        logger.debug(f"{sectoral_distrib}")
+        logger.debug(f"{regional_distrib}")
+        if isinstance(sectoral_distrib.index, pd.MultiIndex):
+            industries_distrib = sectoral_distrib * regional_distrib
+        else:
+            industries_distrib = pd.Series(
+                np.outer(regional_distrib.values, sectoral_distrib.values).flatten(),
+                index=pd.MultiIndex.from_product(
+                    [regional_distrib.index, sectoral_distrib.index]
+                ),
+            )
 
         impact_vec *= industries_distrib
 
