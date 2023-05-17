@@ -333,8 +333,9 @@ class ARIOBaseModel:
         value_added = value_added.reindex(sorted(value_added.columns), axis=1)
         if (value_added < 0).any().any():
             logger.warning(
-                """Found negative values in the value added, will set to 0, but this
-                           should not happen."""
+                f"""Found negative values in the value added, will set to 0. Note that sectors with null value added are not impacted by capital destruction.
+                industries with negative VA: {(value_added[value_added < 0].dropna(axis=1)).index}
+                """
             )
 
         value_added[value_added < 0] = 0.0
@@ -443,6 +444,7 @@ class ARIOBaseModel:
         Event.sectors_gva_shares = self.gdp_share_sector.copy()
         Event.Z_distrib = self.Z_distrib.copy()
         Event.Y_distrib = self.Y_distrib.copy()
+        Event.gva_df = value_added.loc['indout'].copy()
 
         meta = pym_mrio.meta.metadata
         assert isinstance(meta, dict)
