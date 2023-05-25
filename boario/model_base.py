@@ -334,7 +334,7 @@ class ARIOBaseModel:
         if (value_added < 0).any().any():
             logger.warning(
                 f"""Found negative values in the value added, will set to 0. Note that sectors with null value added are not impacted by capital destruction.
-                industries with negative VA: {(value_added[value_added < 0].dropna(axis=1)).index}
+                industries with negative VA: {(value_added[value_added < 0].dropna(axis=1)).columns}
                 """
             )
 
@@ -444,7 +444,8 @@ class ARIOBaseModel:
         Event.sectors_gva_shares = self.gdp_share_sector.copy()
         Event.Z_distrib = self.Z_distrib.copy()
         Event.Y_distrib = self.Y_distrib.copy()
-        Event.gva_df = value_added.loc['indout'].copy()
+        #logger.warning(f"{value_added}")
+        Event.gva_df = value_added.iloc[0].copy()
 
         meta = pym_mrio.meta.metadata
         assert isinstance(meta, dict)
@@ -1465,7 +1466,7 @@ class ARIOBaseModel:
         with np.errstate(invalid="ignore"):
             matrix_stock_goal *= self.inv_duration[:, np.newaxis]
         if np.allclose(self.matrix_stock, matrix_stock_goal):
-            matrix_stock_gap = matrix_stock_goal * 0
+            matrix_stock_gap = np.zeros(matrix_stock_goal.shape)
         else:
             matrix_stock_gap = self.calc_matrix_stock_gap(matrix_stock_goal)
         matrix_stock_gap += (
