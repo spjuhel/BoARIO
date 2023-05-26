@@ -1135,7 +1135,8 @@ class ARIOBaseModel:
             n_events = len(rebuildable_events)
             tot_rebuilding_demand_summed = self.tot_rebuild_demand.copy()
             # debugging assert
-            assert tot_rebuilding_demand_summed.shape == self.X_0.shape
+            if not tot_rebuilding_demand_summed.shape == self.X_0.shape:
+                raise RuntimeError(f"received {tot_rebuilding_demand_summed.shape}, expected {self.X_0.shape}")
             indus_reb_dem_tot_per_event = self.indus_rebuild_demand_tot.copy()
             indus_reb_dem_per_event = self.indus_rebuild_demand.copy()
 

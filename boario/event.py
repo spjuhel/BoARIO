@@ -769,19 +769,13 @@ class EventKapitalDestroyed(Event, ABC):
     def __init__(
         self,
         *,
-        impact: Impact,
+        impact: pd.Series,
         households_impact: Optional[Impact] = None,
         name: str = "Unnamed",
         occurrence: int = 1,
         duration: int = 1,
         event_monetary_factor: Optional[int] = None,
     ) -> None:
-        super().__init__(
-            impact=impact,
-            name=name,
-            occurrence=occurrence,
-            duration=duration,
-        )
 
         self.event_monetary_factor = 0
         r"""The monetary factor for the impact of the event (e.g. 10**6, 10**3, ...)"""
@@ -797,6 +791,17 @@ class EventKapitalDestroyed(Event, ABC):
                 logger.warning(
                     f"Event monetary factor ({self.event_monetary_factor}) differs from model monetary factor ({self.model_monetary_factor}). Be careful to define your impact with the correct unit (ie in event monetary factor)."
                 )
+
+        if (impact < LOW_DEMAND_THRESH / self.event_monetary_factor).all():
+            raise ValueError("Impact is too small to be considered by the model. Check you units perhaps ?")
+
+        super().__init__(
+            impact=impact,
+            name=name,
+            occurrence=occurrence,
+            duration=duration,
+        )
+
         # The only thing we have to do is affecting/computing the regional_sectoral_productive_capital_destroyed
         self.impact_df = self.impact_df * (
             self.event_monetary_factor / self.model_monetary_factor
