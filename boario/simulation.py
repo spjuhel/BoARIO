@@ -162,7 +162,23 @@ class Simulation:
         See #add link to example page.
 
         """
-
+        self.output_dir = pathlib.Path(boario_output_dir)
+        """pathlib.Path, optional: Optional path to the directory where output are stored."""
+        self.results_storage = (
+            self.output_dir.resolve()
+            if not results_dir_name
+            else self.output_dir.resolve() / results_dir_name
+        )
+        
+        if not self.results_storage.exists():
+            self.results_storage.mkdir(parents=True)
+        
+        """str: Name of the folder in `output_dir` where the results will be stored if saved."""
+        tmp = logging.FileHandler(self.results_storage / "simulation.log")
+        tmp.setLevel(logging.INFO)
+        tmp.setFormatter(DEBUGFORMATTER)
+        logger.addHandler(tmp)
+        
         if events_list is None:
             events_list = []
         logger.info("Initializing new simulation instance")
@@ -170,8 +186,6 @@ class Simulation:
         self._save_params = save_params
         self._save_index = save_index
         self._register_stocks = register_stocks
-        self.output_dir = pathlib.Path(boario_output_dir)
-        """pathlib.Path, optional: Optional path to the directory where output are stored."""
 
         # Pre-init record variables
         self._production_evolution = np.array([])
@@ -188,13 +202,6 @@ class Simulation:
 
         if save_records != [] or save_events or save_params or save_index:
             self.output_dir.resolve().mkdir(parents=True, exist_ok=True)
-
-        self.results_storage = (
-            self.output_dir.resolve()
-            if not results_dir_name
-            else self.output_dir.resolve() / results_dir_name
-        )
-        """str: Name of the folder in `output_dir` where the results will be stored if saved."""
 
         if save_records != []:
             if not self.results_storage.exists():
@@ -264,7 +271,7 @@ class Simulation:
                     f"{impossible_records} are not possible records ({self.__possible_records})"
                 )
             logger.info(f"Will save {save_records} records")
-            logger.info("Records storage is: {}".format(self.records_storage))
+            logger.info("Records storage is: {self.records_storage}")
             self.records_storage.mkdir(parents=True, exist_ok=True)
             self._save_index = True
             self._save_events = True
@@ -303,9 +310,7 @@ class Simulation:
             for key, value in self.params_dict.items()
         }
         logger.info(
-            "Simulation parameters:\n{}".format(
-                pformat(formatted_params_dict, compact=True)
-            )
+            f"Simulation parameters:\n{pformat(formatted_params_dict, compact=True)}"
         )
 
     def loop(self, progress: bool = True):
@@ -324,21 +329,12 @@ class Simulation:
             If True, shows a progress bar of the loop in the console.
         """
         logger.info(
-            "Starting model loop for at most {} steps".format(
-                self.n_temporal_units_to_sim // self.model.n_temporal_units_by_step + 1
-            )
+            f"Starting model loop for at most {self.n_temporal_units_to_sim // self.model.n_temporal_units_by_step + 1} steps"
         )
         logger.info(
-            "One step is {}/{} of a year".format(
-                self.model.n_temporal_units_by_step,
-                self.model.iotable_year_to_temporal_unit_factor,
-            )
+            f"One step is {self.model.n_temporal_units_by_step}/{self.model.iotable_year_to_temporal_unit_factor} of a year"
         )
-        tmp = logging.FileHandler(self.results_storage / "simulation.log")
-        tmp.setLevel(logging.INFO)
-        tmp.setFormatter(DEBUGFORMATTER)
-        logger.addHandler(tmp)
-        logger.info("Events : {}".format(self.all_events))
+        logger.info("Events : {self.all_events}")
 
         run_range = range(
             0,
@@ -518,15 +514,13 @@ class Simulation:
                     self._write_final_demand_unmet()
                 if "_rebuild_production_evolution" in self._files_to_record:
                     self._write_rebuild_prod()
-            except RuntimeError as e:
-                logger.exception("This exception happened:", e)
+            except RuntimeError:
+                logger.exception("An exception happened:")
                 self.model.matrix_stock.dump(
                     self.results_storage / "matrix_stock_dump.pkl"
                 )
                 logger.error(
-                    "Negative values in the stocks, matrix has been dumped in the results dir : \n {}".format(
-                        self.results_storage / "matrix_stock_dump.pkl"
-                    )
+                    f"Negative values in the stocks, matrix has been dumped in the results dir : \n {self.results_storage / 'matrix_stock_dump.pkl'}"
                 )
                 return 1
             events_to_remove = events_to_remove + [
@@ -541,13 +535,7 @@ class Simulation:
                 for e in events_to_remove:
                     if isinstance(e, EventKapitalDestroyed):
                         logger.info(
-                            "Temporal_Unit : {} ~ Event named {} that occured at {} in {} for {} damages is completely rebuilt/recovered".format(
-                                self.current_temporal_unit,
-                                e.name,
-                                e.occurrence,
-                                e.aff_regions.to_list(),
-                                e.total_productive_capital_destroyed,
-                            )
+                            f"""Temporal_Unit : {self.current_temporal_unit} ~ Event named {e.name} that occured at {e.occurrence} in {e.aff_regions.to_list()} for {e.total_productive_capital_destroyed} damages is completely rebuilt/recovered"""
                         )
 
             self.model.calc_orders()
@@ -559,8 +547,8 @@ class Simulation:
 
             self.current_temporal_unit += self.model.n_temporal_units_by_step
             return 0
-        except Exception as e:
-            logger.exception(f"The following exception happened: {e}")
+        except Exception:
+            logger.exception(f"The following exception happened:")
             return 1
 
     def check_equilibrium(self, n_checks: int):
@@ -638,6 +626,11 @@ class Simulation:
         self._n_checks = 0
         self.n_temporal_units_simulated = 0
         self.has_crashed = False
+        self.equi = {
+            (int(0), int(0), "production"): "equi",
+            (int(0), int(0), "stocks"): "equi",
+            (int(0), int(0), "rebuilding"): "equi",
+        }
         self._reset_records()
         self.model.reset_module()
 
@@ -671,30 +664,28 @@ class Simulation:
         rebuild/recover)
 
         """
-        for ev in self.all_events:
-            if not ev.happened:
+        for evnt in self.all_events:
+            if not evnt.happened:
                 if (
                     (self.current_temporal_unit - self.model.n_temporal_units_by_step)
-                    <= ev.occurrence
+                    <= evnt.occurrence
                     <= self.current_temporal_unit
                 ):
                     logger.info(
-                        "Temporal_Unit : {} ~ Shocking model with new event".format(
-                            self.current_temporal_unit
-                        )
+                        f"Temporal_Unit : {self.current_temporal_unit} ~ Shocking model with new event"
                     )
                     logger.info(
-                        "Affected regions are : {}".format(ev.aff_regions.to_list())
+                        f"Affected regions are : {evnt.aff_regions.to_list()}"
                     )
-                    ev.happened = True
-                    self.currently_happening_events.append(ev)
-        for ev in self.currently_happening_events:
-            if isinstance(ev, EventKapitalRebuild):
-                ev.rebuildable = self.current_temporal_unit
-            if isinstance(ev, (EventKapitalRecover, EventArbitraryProd)):
-                ev.recoverable = self.current_temporal_unit
-                if ev.recoverable:
-                    ev.recovery(self.current_temporal_unit)
+                    evnt.happened = True
+                    self.currently_happening_events.append(evnt)
+        for evnt in self.currently_happening_events:
+            if isinstance(evnt, EventKapitalRebuild):
+                evnt.rebuildable = self.current_temporal_unit
+            if isinstance(evnt, (EventKapitalRecover, EventArbitraryProd)):
+                evnt.recoverable = self.current_temporal_unit
+                if evnt.recoverable:
+                    evnt.recovery(self.current_temporal_unit)
         self.model.update_system_from_events(self.currently_happening_events)
 
     def _write_production(self) -> None:
