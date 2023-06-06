@@ -1,4 +1,7 @@
+typings/*
 boario/archive.py
+archive.py
+*.el
 *.lprof
 *.prof
 *.zip
