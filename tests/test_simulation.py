@@ -222,7 +222,7 @@ def test_minimal_simulation(test_model):
         minimal_simulation(test_model)
 
 
-def test_minor_event(test_sim):
+def test_minor_rec_event(test_sim):
     ev = EventKapitalRecover.from_scalar_regions_sectors(
         impact=100,
         regions=["reg1"],
@@ -241,7 +241,7 @@ def test_minor_event(test_sim):
     ).all()
 
 
-def test_medium_event(test_sim):
+def test_medium_rec_event(test_sim):
     ev = EventKapitalRecover.from_scalar_regions_sectors(
         impact=100000,
         regions=["reg1"],
@@ -260,7 +260,7 @@ def test_medium_event(test_sim):
     ).all()
 
 
-def test_crashing_event(test_sim):
+def test_crashing_rec_event(test_sim):
     ev = EventKapitalRecover.from_scalar_regions_sectors(
         impact=100000,
         regions=["reg1"],
@@ -277,3 +277,57 @@ def test_crashing_event(test_sim):
     assert (
         min_values.drop("mining") < (1.0 - 1 / test_sim.model.monetary_factor)
     ).all()
+
+def test_minor_reb_event(test_sim):
+    ev = EventKapitalRebuild.from_scalar_regions_sectors(
+        impact=100000,
+        regions=["reg1"],
+        sectors=["manufactoring"],
+        rebuilding_sectors={"construction":1.0},
+        duration=350,
+        rebuild_tau=100,
+    )
+    test_sim.add_event(ev)
+    test_sim.loop()
+    min_values = (
+        test_sim.production_realised.loc[:, "reg1"]
+        / test_sim.production_realised.loc[0, "reg1"]
+    ).min()
+    assert (min_values < 1.0).all()
+    assert (
+        min_values.drop(["mining","manufactoring"]) > (1.0 - 1 / test_sim.model.monetary_factor)
+    ).all()
+    
+def test_shortage_reb_event(test_sim):
+    ev = EventKapitalRebuild.from_scalar_regions_sectors(
+        impact=10000000,
+        regions=["reg1"],
+        sectors=["manufactoring"],
+        rebuilding_sectors={"construction":1.0},
+        duration=90,
+        rebuild_tau=100,
+    )
+    test_sim.add_event(ev)
+    test_sim.loop()
+    min_values = (
+        test_sim.production_realised.loc[:, "reg1"]
+        / test_sim.production_realised.loc[0, "reg1"]
+    ).min()
+    assert (min_values < 1.0).all()
+    assert (
+        min_values < (1.0 - 1 / test_sim.model.monetary_factor)
+    ).all()
+    assert test_sim.model.had_shortage
+    
+def test_crashing_reb_event(test_sim):
+    ev = EventKapitalRebuild.from_scalar_regions_sectors(
+        impact=10000000000,
+        regions=["reg1"],
+        sectors=["manufactoring"],
+        rebuilding_sectors={"construction":1.0},
+        duration=90,
+        rebuild_tau=100,
+    )
+    test_sim.add_event(ev)
+    test_sim.loop()
+    assert test_sim.has_crashed
