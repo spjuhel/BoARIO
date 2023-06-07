@@ -24,7 +24,7 @@ import pathlib
 import logging
 from functools import lru_cache
 
-__version__ = "v0.4.1b0"
+__version__ = "v0.5.0a"
 __author__ = "sjuhel <pro@sjuhel.org>"
 
 # __minimum_python_version__ = "3.8"
