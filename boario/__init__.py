@@ -20,11 +20,6 @@ except ImportError:
 else:
     _has_coloredlogs = True
 
-try:
-    import pygit2
-except:
-    pass
-
 import pathlib
 import logging
 from functools import lru_cache
@@ -49,14 +44,12 @@ INFOFORMATTER = logging.Formatter(
     datefmt="%H:%M:%S",
 )
 
-
 try:
+    import pygit2
     __git_branch__ = pygit2.Repository(__file__).head.name
-except Exception:
-    pass
-else:
-    logger.info(f"You are using boario from branch {__git_branch__}")
-
+    logger.info("You are using boario from branch %s", __git_branch__)
+except ModuleNotFoundError:
+    logger.info("Unable to tell git branch as pygit2 was not found.")
 
 @lru_cache(10)
 def warn_once(logger, msg: str):

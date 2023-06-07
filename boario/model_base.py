@@ -25,7 +25,12 @@ import pandas as pd
 from pymrio.core.mriosystem import IOSystem
 
 from boario import logger, warn_once
-from boario.event import *
+from boario.event import (
+    Event,
+    EventKapitalDestroyed,
+    EventKapitalRebuild,
+    EventArbitraryProd,
+)
 from boario.utils.misc import lexico_reindex
 
 
@@ -39,7 +44,9 @@ __all__ = [
 
 INV_THRESHOLD = 0  # 20 #temporal_units
 
-TECHNOLOGY_THRESHOLD = 0.00001 # Do not care about input if producing requires less than this value
+TECHNOLOGY_THRESHOLD = (
+    0.00001  # Do not care about input if producing requires less than this value
+)
 
 VALUE_ADDED_NAMES = [
     "VA",
@@ -100,7 +107,7 @@ class ARIOBaseModel:
         Most default parameters are the same as in :cite:`2013:hallegatte` and
         default order mechanisms comes from :cite:`2020:guan`. By default each
         industry capital stock is 4 times its value added (:cite:`2008:hallegatte`).
-        
+
         Parameters
         ----------
         pym_mrio : IOSystem
@@ -407,16 +414,16 @@ class ARIOBaseModel:
         ################## SIMULATION TRACKING VARIABLES ################
         self.in_shortage = False
         r"""Boolean stating if at least one industry is in shortage (i.e.) if at least one of its inputs inventory is low enough to reduce production."""
-        
+
         self.had_shortage = False
         r"""Boolean stating if at least one industry was in shortage at some point."""
-        
+
         self.rebuild_prod = np.zeros(shape=self.X_0.shape)
         r"""numpy.ndarray of float: Array of size :math:`n \times m` representing the remaining stock of rebuilding demand asked of each industry."""
-        
+
         self.final_demand_not_met = np.zeros(self.Y_0.shape)
         r"""numpy.ndarray of float: Array of size :math:`n \times m` representing the final demand that could not be met at current step for each industry."""
-        
+
         #################################################################
 
         ### Internals
@@ -446,7 +453,7 @@ class ARIOBaseModel:
         Event.sectors_gva_shares = self.gdp_share_sector.copy()
         Event.Z_distrib = self.Z_distrib.copy()
         Event.Y_distrib = self.Y_distrib.copy()
-        #logger.warning(f"{value_added}")
+        # logger.warning(f"{value_added}")
         Event.gva_df = value_added.iloc[0].copy()
 
         meta = pym_mrio.meta.metadata
@@ -511,9 +518,7 @@ class ARIOBaseModel:
         logger.debug(f"Trying to set tot_rebuilding demand from {source}")
         if not isinstance(source, list):
             ValueError(
-                "Setting tot_rebuild_demand can only be done with a list of events, not a {}".format(
-                    type(source)
-                )
+                f"Setting tot_rebuild_demand can only be done with a list of events, not a {type(source)}"
             )
         self.house_rebuild_demand = source
         self.indus_rebuild_demand = source
@@ -695,7 +700,9 @@ class ARIOBaseModel:
         elif isinstance(source, np.ndarray):
             self._productive_capital_lost = source
 
-        productivity_loss_from_capital_destroyed = np.zeros(shape=self._productive_capital_lost.shape)
+        productivity_loss_from_capital_destroyed = np.zeros(
+            shape=self._productive_capital_lost.shape
+        )
         np.divide(
             self._productive_capital_lost,
             self.k_stock,
@@ -703,7 +710,9 @@ class ARIOBaseModel:
             where=self.k_stock != 0,
         )
         logger.debug("Updating production delta from productive_capital loss")
-        self._prod_cap_delta_productive_capital = productivity_loss_from_capital_destroyed
+        self._prod_cap_delta_productive_capital = (
+            productivity_loss_from_capital_destroyed
+        )
         if (self._prod_cap_delta_productive_capital > 0.0).any():
             if self._prod_delta_type is None:
                 self._prod_delta_type = "from_productive_capital"
@@ -1129,7 +1138,9 @@ class ARIOBaseModel:
             tot_rebuilding_demand_summed = self.tot_rebuild_demand.copy()
             # debugging assert
             if not tot_rebuilding_demand_summed.shape == self.X_0.shape:
-                raise RuntimeError(f"received {tot_rebuilding_demand_summed.shape}, expected {self.X_0.shape}")
+                raise RuntimeError(
+                    f"received {tot_rebuilding_demand_summed.shape}, expected {self.X_0.shape}"
+                )
             indus_reb_dem_tot_per_event = self.indus_rebuild_demand_tot.copy()
             indus_reb_dem_per_event = self.indus_rebuild_demand.copy()
 
@@ -1395,15 +1406,19 @@ class ARIOBaseModel:
 
         # update rebuilding demand
         events_to_remove = []
-        for e_id, e in enumerate(rebuildable_events):
-            if len(e.rebuilding_demand_indus) > 0:
-                e.rebuilding_demand_indus -= indus_rebuild_prod_distributed[:, :, e_id]
-            if len(e.rebuilding_demand_house) > 0:
-                e.rebuilding_demand_house -= house_rebuild_prod_distributed[:, :, e_id]
-            if (e.rebuilding_demand_indus < (10 / self.monetary_factor)).all() and (
-                e.rebuilding_demand_house < (10 / self.monetary_factor)
+        for e_id, evnt in enumerate(rebuildable_events):
+            if len(evnt.rebuilding_demand_indus) > 0:
+                evnt.rebuilding_demand_indus -= indus_rebuild_prod_distributed[
+                    :, :, e_id
+                ]
+            if len(evnt.rebuilding_demand_house) > 0:
+                evnt.rebuilding_demand_house -= house_rebuild_prod_distributed[
+                    :, :, e_id
+                ]
+            if (evnt.rebuilding_demand_indus < (10 / self.monetary_factor)).all() and (
+                evnt.rebuilding_demand_house < (10 / self.monetary_factor)
             ).all():
-                events_to_remove.append(e)
+                events_to_remove.append(evnt)
         return events_to_remove
 
     def calc_matrix_stock_gap(self, matrix_stock_goal) -> npt.NDArray:
@@ -1565,8 +1580,8 @@ class ARIOBaseModel:
         if isinstance(index_file, str):
             index_file = pathlib.Path(index_file)
         index_file.parent.mkdir(parents=True, exist_ok=True)
-        with index_file.open("w") as f:
-            json.dump(indexes, f)
+        with index_file.open("w") as ffile:
+            json.dump(indexes, ffile)
 
     def change_inv_duration(self, new_dur, old_dur=None) -> None:
         # replace this method by a property !

@@ -37,8 +37,8 @@ import progressbar
 
 from boario import DEBUGFORMATTER
 from boario import logger
-from boario.event import *
-from boario.extended_models import *
+from boario.event import Event, EventArbitraryProd, EventKapitalDestroyed, EventKapitalRebuild, EventKapitalRecover
+from boario.extended_models import ARIOPsiModel
 from boario.model_base import ARIOBaseModel
 from boario.utils.misc import CustomNumpyEncoder, TempMemmap, sizeof_fmt, print_summary
 
@@ -177,11 +177,11 @@ class Simulation:
             if not results_dir_name
             else self.output_dir.resolve() / results_dir_name
         )
+        """str: Name of the folder in `output_dir` where the results will be stored if saved."""
         
         if not self.results_storage.exists():
             self.results_storage.mkdir(parents=True)
         
-        """str: Name of the folder in `output_dir` where the results will be stored if saved."""
         tmp = logging.FileHandler(self.results_storage / "simulation.log")
         tmp.setLevel(logging.INFO)
         tmp.setFormatter(DEBUGFORMATTER)
@@ -353,9 +353,9 @@ class Simulation:
             )
             with (
                 pathlib.Path(self.results_storage) / "jsons" / "simulated_events.json"
-            ).open("w") as f:
+            ).open("w") as ffile:
                 event_dicts = [ev.event_dict for ev in self.all_events]
-                json.dump(event_dicts, f, indent=4, cls=CustomNumpyEncoder)
+                json.dump(event_dicts, ffile, indent=4, cls=CustomNumpyEncoder)
         if progress:
             widgets = [
                 "Processed: ",
@@ -404,7 +404,7 @@ class Simulation:
                     )
                     break
 
-        if self._files_to_record != []:
+        if self._files_to_record:
             self._flush_memmaps()
 
         if self._save_index:
@@ -416,14 +416,14 @@ class Simulation:
         if self._save_params:
             with (
                 pathlib.Path(self.results_storage) / "jsons" / "simulated_params.json"
-            ).open("w") as f:
-                json.dump(self.params_dict, f, indent=4, cls=CustomNumpyEncoder)
+            ).open("w") as ffile:
+                json.dump(self.params_dict, ffile, indent=4, cls=CustomNumpyEncoder)
             with (
                 pathlib.Path(self.results_storage) / "jsons" / "equilibrium_checks.json"
-            ).open("w") as f:
+            ).open("w") as ffile:
                 json.dump(
                     {str(k): v for k, v in self.equi.items()},
-                    f,
+                    ffile,
                     indent=4,
                     cls=CustomNumpyEncoder,
                 )
@@ -540,10 +540,10 @@ class Simulation:
                     for e in self.currently_happening_events
                     if e not in events_to_remove
                 ]
-                for e in events_to_remove:
-                    if isinstance(e, EventKapitalDestroyed):
+                for evnt in events_to_remove:
+                    if isinstance(evnt, EventKapitalDestroyed):
                         logger.info(
-                            f"""Temporal_Unit : {self.current_temporal_unit} ~ Event named {e.name} that occured at {e.occurrence} in {e.aff_regions.to_list()} for {e.total_productive_capital_destroyed} damages is completely rebuilt/recovered"""
+                            f"""Temporal_Unit : {self.current_temporal_unit} ~ Event named {evnt.name} that occured at {evnt.occurrence} in {evnt.aff_regions.to_list()} for {evnt.total_productive_capital_destroyed} damages is completely rebuilt/recovered"""
                         )
 
             self.model.calc_orders()
@@ -761,19 +761,18 @@ class Simulation:
 
     def _flush_memmaps(self) -> None:
         """Saves files to record"""
-        for at in self._files_to_record:
-            if not hasattr(self, at):
+        for attr in self._files_to_record:
+            if not hasattr(self, attr):
                 raise RuntimeError(
-                    f"{at} should be a member yet it isn't. This shouldn't happen."
+                    f"{attr} should be a member yet it isn't. This shouldn't happen."
                 )
             else:
-                getattr(self, at).flush()
+                getattr(self, attr).flush()
 
     def _init_records(self, save_records):
         for rec in self.__possible_records:
             if rec == "inputs_stocks" and not self._register_stocks:
                 logger.debug("Will not save inputs stocks")
-                pass
             else:
                 if rec == "inputs_stocks":
                     logger.info(
@@ -825,7 +824,7 @@ class Simulation:
         Returns:
             pd.DataFrame: A pandas DataFrame where the value is the production realised, the columns are the industries
             and the index is the step considered.
-        """        
+        """
         return pd.DataFrame(
             self._production_evolution,
             columns=self.model.industries,
