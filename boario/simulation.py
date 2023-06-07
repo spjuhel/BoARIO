@@ -37,7 +37,13 @@ import progressbar
 
 from boario import DEBUGFORMATTER
 from boario import logger
-from boario.event import Event, EventArbitraryProd, EventKapitalDestroyed, EventKapitalRebuild, EventKapitalRecover
+from boario.event import (
+    Event,
+    EventArbitraryProd,
+    EventKapitalDestroyed,
+    EventKapitalRebuild,
+    EventKapitalRecover,
+)
 from boario.extended_models import ARIOPsiModel
 from boario.model_base import ARIOBaseModel
 from boario.utils.misc import CustomNumpyEncoder, TempMemmap, sizeof_fmt, print_summary
@@ -178,15 +184,15 @@ class Simulation:
             else self.output_dir.resolve() / results_dir_name
         )
         """str: Name of the folder in `output_dir` where the results will be stored if saved."""
-        
+
         if not self.results_storage.exists():
             self.results_storage.mkdir(parents=True)
-        
+
         tmp = logging.FileHandler(self.results_storage / "simulation.log")
         tmp.setLevel(logging.INFO)
         tmp.setFormatter(DEBUGFORMATTER)
         logger.addHandler(tmp)
-        
+
         if events_list is None:
             events_list = []
         logger.info("Initializing new simulation instance")
@@ -493,7 +499,7 @@ class Simulation:
             if "_io_demand_evolution" in self._files_to_record:
                 self._write_io_demand()
 
-            #1)
+            # 1)
             constraints = self.model.calc_production(self.current_temporal_unit)
 
             if "_limiting_inputs_evolution" in self._files_to_record:
@@ -508,7 +514,7 @@ class Simulation:
             ):
                 self._write_productive_capital_lost()
 
-            #2)
+            # 2)
             try:
                 rebuildable_events = [
                     ev
@@ -682,9 +688,7 @@ class Simulation:
                     logger.info(
                         f"Temporal_Unit : {self.current_temporal_unit} ~ Shocking model with new event"
                     )
-                    logger.info(
-                        f"Affected regions are : {evnt.aff_regions.to_list()}"
-                    )
+                    logger.info(f"Affected regions are : {evnt.aff_regions.to_list()}")
                     evnt.happened = True
                     self.currently_happening_events.append(evnt)
         for evnt in self.currently_happening_events:
@@ -838,7 +842,7 @@ class Simulation:
         Returns:
             pd.DataFrame: A pandas DataFrame where the value is the production capacity, the columns are the industries
             and the index is the step considered.
-        """        
+        """
         return pd.DataFrame(
             self._production_cap_evolution,
             columns=self.model.industries,
@@ -852,7 +856,7 @@ class Simulation:
         Returns:
             pd.DataFrame: A pandas DataFrame where the value is the final demand asked, the columns are the industries
             and the index is the step considered.
-        """        
+        """
         return pd.DataFrame(
             self._final_demand_evolution,
             columns=self.model.industries,
@@ -866,7 +870,7 @@ class Simulation:
         Returns:
             pd.DataFrame: A pandas DataFrame where the value is the intermediate demand asked, the columns are the industries
             and the index is the step considered.
-        """ 
+        """
         return pd.DataFrame(
             self._io_demand_evolution,
             columns=self.model.industries,
@@ -880,7 +884,7 @@ class Simulation:
         Returns:
             pd.DataFrame: A pandas DataFrame where the value is the rebuild demand asked, the columns are the industries
             and the index is the step considered.
-        """ 
+        """
         return pd.DataFrame(
             self._rebuild_demand_evolution,
             columns=self.model.industries,
@@ -894,7 +898,7 @@ class Simulation:
         Returns:
             pd.DataFrame: A pandas DataFrame where the value is the overproduction factor, the columns are the industries
             and the index is the step considered.
-        """        
+        """
         return pd.DataFrame(
             self._overproduction_evolution,
             columns=self.model.industries,
@@ -908,7 +912,7 @@ class Simulation:
         Returns:
             pd.DataFrame: A pandas DataFrame where the value is the final demand not met, the columns are the industries
             and the index is the step considered.
-        """        
+        """
         return pd.DataFrame(
             self._final_demand_unmet_evolution,
             columns=self.model.industries,
@@ -922,7 +926,7 @@ class Simulation:
         Returns:
             pd.DataFrame: A pandas DataFrame where the value is the production allocated, the columns are the industries
             and the index is the step considered.
-        """        
+        """
         return pd.DataFrame(
             self._rebuild_production_evolution,
             columns=self.model.industries,
@@ -937,7 +941,7 @@ class Simulation:
         Returns:
             pd.DataFrame: A pandas DataFrame where the value is the amount in inventory, the columns are the industries
             and the index are the step and input considered (MultiIndex).
-        """        
+        """
         return pd.DataFrame(
             self._inputs_evolution.reshape(
                 self.n_temporal_units_to_sim * self.model.n_sectors, -1
@@ -957,7 +961,7 @@ class Simulation:
         Returns:
             pd.DataFrame: A pandas DataFrame where the value is a boolean set to 1 if considered input constrains production, the columns are the industries
             and the index are the step and input considered (MultiIndex).
-        """        
+        """
         return pd.DataFrame(
             self._limiting_inputs_evolution.reshape(
                 self.n_temporal_units_to_sim * self.model.n_sectors, -1
@@ -977,7 +981,7 @@ class Simulation:
         Returns:
             pd.DataFrame: A pandas DataFrame where the value is the amount of capital (still) destroyed, the columns are the industries
             and the index is the step considered.
-        """        
+        """
         return pd.DataFrame(
             self._regional_sectoral_productive_capital_destroyed_evolution,
             columns=self.model.industries,

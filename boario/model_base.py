@@ -264,7 +264,10 @@ class ARIOBaseModel:
                 [] if infinite_inventories_sect is None else infinite_inventories_sect
             )
             self.inventories = [
-                np.inf if inventory_dict[k] in ["inf", "Inf", "Infinity", "infinity"] or k in infinite_inventories_sect else inventory_dict[k]
+                np.inf
+                if inventory_dict[k] in ["inf", "Inf", "Infinity", "infinity"]
+                or k in infinite_inventories_sect
+                else inventory_dict[k]
                 for k in sorted(inventory_dict.keys())
             ]
 

@@ -46,10 +46,12 @@ INFOFORMATTER = logging.Formatter(
 
 try:
     import pygit2
+
     __git_branch__ = pygit2.Repository(__file__).head.name
     logger.info("You are using boario from branch %s", __git_branch__)
 except ModuleNotFoundError:
     logger.info("Unable to tell git branch as pygit2 was not found.")
+
 
 @lru_cache(10)
 def warn_once(logger, msg: str):

@@ -52,9 +52,12 @@ SectorsList = Union[List[str], pd.Index, str]
 RegionsList = Union[List[str], pd.Index, str]
 FinalCatList = Union[List[str], pd.Index, str]
 
-REBUILDING_FINALDEMAND_CAT_REGEX = r"(?i)(?=.*household)(?=.*final)(?!.*NPISH|profit).*|HFCE"
+REBUILDING_FINALDEMAND_CAT_REGEX = (
+    r"(?i)(?=.*household)(?=.*final)(?!.*NPISH|profit).*|HFCE"
+)
 
 LOW_DEMAND_THRESH = 10
+
 
 class Event(ABC):
     # Class Attributes
@@ -89,7 +92,7 @@ class Event(ABC):
     model_monetary_factor: int = 1
     r"""Amount of unitary currency used in the MRIO (e.g. 1000000 if in € millions)"""
 
-    gva_df: pd.Series = pd.Series([],dtype="float64")
+    gva_df: pd.Series = pd.Series([], dtype="float64")
     r"""GVA per (region,sector)"""
 
     sectors_gva_shares: npt.NDArray = np.array([])
@@ -214,7 +217,7 @@ class Event(ABC):
 
         Returns:
             Event: an Event object (or one of its subclass).
-        """        
+        """
         if impact.size == 0:
             raise ValueError(
                 "Empty impact Series at init, did you not set the impact correctly ?"
@@ -242,13 +245,13 @@ class Event(ABC):
         **kwarg,
     ) -> Event:
         """Convenience function for DataFrames. See :meth:`~boario.event.Event.from_series`
-        
+
         Raises:
             ValueError: If impact cannot be squeezed to a Series
 
         Returns:
             Event: an Event object (or one of its subclass).
-        """        
+        """
         impact = impact.squeeze()
         if not isinstance(impact, pd.Series):
             raise ValueError("Could not squeeze impact dataframe to a serie.")
@@ -263,27 +266,27 @@ class Event(ABC):
 
     @classmethod
     def distribute_impact_by_gva(cls, impact_vec: pd.Series) -> pd.Series:
-        """Distribute a vector of impact by the GVA of affected industries. 
-        
+        """Distribute a vector of impact by the GVA of affected industries.
+
         Each values of the given impact are mutliplied by the share of the GVA
         the industry has over the GVA of all affected industries.
 
         Args:
-            impact_vec (pd.Series): The impact values to be reweigthed. 
+            impact_vec (pd.Series): The impact values to be reweigthed.
             Current use-case assumes all values are the total impact.
 
         Returns:
-            pd.Series: The impact where each value was multiplied by the share 
+            pd.Series: The impact where each value was multiplied by the share
             of GVA of each affected industry (over total GVA affected).
-        """        
+        """
         gva = cls.gva_df.loc[impact_vec.index]
         gva = gva.transform(lambda x: x / sum(x))
         return impact_vec * gva
 
     @classmethod
     def distribute_impact_equally(cls, impact_vec: pd.Series) -> pd.Series:
-        """Distribute an impact equally between all affected regions. 
-        
+        """Distribute an impact equally between all affected regions.
+
         Assume impact is given as a vector with all value being the
         total impact to distribute.
 
@@ -292,7 +295,7 @@ class Event(ABC):
 
         Returns:
             pd.Series: The impact vector equally distributed among affected industries.
-        """        
+        """
         dfg = impact_vec.groupby("region")
         return dfg.transform(lambda x: x / (dfg.ngroups * x.count()))
 
@@ -317,19 +320,19 @@ class Event(ABC):
         Args:
             impact (ScalarImpact): The scalar impact.
             industries (IndustriesList): The list of industries affected by the impact
-            impact_industries_distrib (Optional[npt.ArrayLike], optional): A vector of equal size to the list of industries, stating the 
+            impact_industries_distrib (Optional[npt.ArrayLike], optional): A vector of equal size to the list of industries, stating the
             share of the impact each industry should receive. Defaults to None.
             gva_distrib (bool, optional): A boolean stating if the impact should be distributed proportionnaly to GVA. Defaults to False.
             occurrence (int, optional): The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
             duration (int, optional): The duration of the event (entire impact applied during this number of steps). Defaults to 1.
             name (Optional[str], optional): A possible name for the event, for convenience. Defaults to None.
-            
+
         Raises:
             ValueError: Raise if Impact is null, if len(industries) < 1 or if the sum of impact_industries_distrib differs from 1.0.
 
         Returns:
             Event: An Event object or one of its subclass.
-        """        
+        """
         if impact <= 0:
             raise ValueError(f"Impact is null")
 
@@ -347,7 +350,7 @@ class Event(ABC):
             if np.sum(impact_industries_distrib) != 1.0:
                 raise ValueError("Impact distribution doesn't sum up to 1.0")
             else:
-                impact_vec *= impact_industries_distrib # type: ignore
+                impact_vec *= impact_industries_distrib  # type: ignore
 
         elif gva_distrib:
             impact_vec = cls.distribute_impact_by_gva(impact_vec)
@@ -378,16 +381,16 @@ class Event(ABC):
         **kwarg,
     ) -> Event:
         """Creates an Event from a scalar, a list of regions and a list of sectors affected.
-        
-        
+
+
 
         Args:
             impact (ScalarImpact): The scalar impact.
             regions (RegionsList): The list of regions affected.
             sectors (SectorsList): The list of sectors affected in each region.
-            impact_regional_distrib (Optional[npt.ArrayLike], optional): A vector of equal size to the list of regions affected, stating the 
+            impact_regional_distrib (Optional[npt.ArrayLike], optional): A vector of equal size to the list of regions affected, stating the
             share of the impact each industry should receive. Defaults to None.
-            impact_sectoral_distrib (Optional[Union[str, npt.ArrayLike]], optional): A vector of equal size to the list of sectors affected, stating the 
+            impact_sectoral_distrib (Optional[Union[str, npt.ArrayLike]], optional): A vector of equal size to the list of sectors affected, stating the
             share of the impact each industry should receive. Defaults to None.
             occurrence (int, optional): The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
             duration (int, optional): The duration of the event (entire impact applied during this number of steps). Defaults to 1.
@@ -398,7 +401,7 @@ class Event(ABC):
 
         Returns:
             Event: An Event object or one of its subclass
-        """        
+        """
         if impact <= 0:
             raise ValueError(f"Impact is null")
 
@@ -439,7 +442,7 @@ class Event(ABC):
 
         impact_vec = pd.Series(impact, dtype="float64", index=industries)
 
-        assert isinstance(_regions,pd.Index)
+        assert isinstance(_regions, pd.Index)
         if impact_regional_distrib is None:
             regional_distrib = pd.Series(1.0 / len(_regions), index=_regions)
         elif not isinstance(impact_regional_distrib, pd.Series):
@@ -457,7 +460,7 @@ class Event(ABC):
             except KeyError:
                 regional_distrib.loc[_regions] = impact_regional_distrib.values
 
-        assert isinstance(_sectors,pd.Index)
+        assert isinstance(_sectors, pd.Index)
         if impact_sectoral_distrib is None:
             sectoral_distrib = pd.Series(1.0 / len(_sectors), index=_sectors)
         elif (
@@ -487,7 +490,7 @@ class Event(ABC):
             industries_distrib = sectoral_distrib * regional_distrib
         else:
             industries_distrib = pd.Series(
-                np.outer(regional_distrib.values, sectoral_distrib.values).flatten(), # type: ignore
+                np.outer(regional_distrib.values, sectoral_distrib.values).flatten(),  # type: ignore
                 index=pd.MultiIndex.from_product(
                     [regional_distrib.index, sectoral_distrib.index]
                 ),
@@ -521,7 +524,7 @@ class Event(ABC):
         self._impact_df[value.index] = value
         logger.debug("Sorting impact Series")
         self._impact_df.sort_index(inplace=True)
-        self.aff_industries = self.impact_df.loc[self.impact_df > 0].index # type: ignore
+        self.aff_industries = self.impact_df.loc[self.impact_df > 0].index  # type: ignore
         self.impact_industries_distrib = self.impact_df.transform(lambda x: x / sum(x))
         self.total_impact = self.impact_df.sum()
         self.impact_vector = self.impact_df.values
@@ -630,7 +633,7 @@ class Event(ABC):
     def aff_regions(self, value: npt.ArrayLike | str):
         if isinstance(value, str):
             value = [value]
-        value = pd.Index(value) # type: ignore
+        value = pd.Index(value)  # type: ignore
         impossible_regions = np.setdiff1d(value, self.possible_regions)
         if impossible_regions.size > 0:
             raise ValueError(
@@ -657,7 +660,7 @@ class Event(ABC):
     def aff_sectors(self, value: npt.ArrayLike | str):
         if isinstance(value, str):
             value = [value]
-        value = pd.Index(value, name="sector") # type: ignore
+        value = pd.Index(value, name="sector")  # type: ignore
         impossible_sectors = np.setdiff1d(value, self.possible_sectors)
         if impossible_sectors.size > 0:
             raise ValueError(
@@ -869,14 +872,13 @@ class EventKapitalDestroyed(Event, ABC):
         duration: int = 1,
         event_monetary_factor: Optional[int] = None,
     ) -> None:
-
         if event_monetary_factor is None:
             logger.info(
                 f"No event monetary factor given. Assuming it is the same as the model ({self.model_monetary_factor})"
             )
             self.event_monetary_factor = self.model_monetary_factor
             r"""The monetary factor for the impact of the event (e.g. 10**6, 10**3, ...)"""
-            
+
         else:
             self.event_monetary_factor = event_monetary_factor
             if self.event_monetary_factor != self.model_monetary_factor:
@@ -885,7 +887,9 @@ class EventKapitalDestroyed(Event, ABC):
                 )
 
         if (impact < LOW_DEMAND_THRESH / self.event_monetary_factor).all():
-            raise ValueError("Impact is too small to be considered by the model. Check you units perhaps ?")
+            raise ValueError(
+                "Impact is too small to be considered by the model. Check you units perhaps ?"
+            )
 
         super().__init__(
             impact=impact,
@@ -908,7 +912,7 @@ class EventKapitalDestroyed(Event, ABC):
         self._regional_sectoral_productive_capital_destroyed_0 = (
             self.impact_vector.copy()
         )
-        self.regional_sectoral_productive_capital_destroyed = self.impact_vector.copy() # type: ignore
+        self.regional_sectoral_productive_capital_destroyed = self.impact_vector.copy()  # type: ignore
         self.households_impact_df: pd.Series = pd.Series(
             0,
             dtype="float64",
@@ -927,7 +931,9 @@ class EventKapitalDestroyed(Event, ABC):
                     )
                 ]  # .values[0]
                 if len(rebuilding_demand_idx) > 1:
-                    raise ValueError(f"The rebuilding demand index ({rebuilding_demand_idx}) contains multiple values which is a problem. Contact the dev to update the matching regexp.")
+                    raise ValueError(
+                        f"The rebuilding demand index ({rebuilding_demand_idx}) contains multiple values which is a problem. Contact the dev to update the matching regexp."
+                    )
 
             except IndexError:
                 logger.warning(
@@ -938,13 +944,13 @@ class EventKapitalDestroyed(Event, ABC):
                 logger.debug("Given household impact is a pandas Series")
                 self.households_impact_df.loc[
                     households_impact.index, rebuilding_demand_idx
-                ] = households_impact # type: ignore
+                ] = households_impact  # type: ignore
             elif isinstance(households_impact, dict):
                 logger.debug("Given household impact is a dict")
                 households_impact = pd.Series(households_impact, dtype="float64")
                 self.households_impact_df.loc[
                     households_impact.index, rebuilding_demand_idx
-                ] = households_impact # type: ignore
+                ] = households_impact  # type: ignore
             elif isinstance(households_impact, pd.DataFrame):
                 logger.debug("Given household impact is a dataframe")
                 households_impact = households_impact.squeeze()
@@ -954,7 +960,7 @@ class EventKapitalDestroyed(Event, ABC):
                     )
                 self.households_impact_df.loc[
                     households_impact.index, rebuilding_demand_idx
-                ] = households_impact # type: ignore
+                ] = households_impact  # type: ignore
             elif isinstance(households_impact, (list, np.ndarray)):
                 if np.size(households_impact) != np.size(self.aff_regions):
                     raise ValueError(
@@ -963,7 +969,7 @@ class EventKapitalDestroyed(Event, ABC):
                 else:
                     self.households_impact_df.loc[
                         self.aff_regions, rebuilding_demand_idx
-                    ] = households_impact # type: ignore
+                    ] = households_impact  # type: ignore
             elif isinstance(households_impact, (float, int)):
                 if self.impact_regional_distrib is not None:
                     logger.warning(
@@ -972,7 +978,9 @@ class EventKapitalDestroyed(Event, ABC):
                     logger.debug(f"{rebuilding_demand_idx}")
                     self.households_impact_df.loc[
                         self.aff_regions, rebuilding_demand_idx
-                    ] = (households_impact * self.impact_regional_distrib) # type: ignore
+                    ] = (
+                        households_impact * self.impact_regional_distrib
+                    )  # type: ignore
             self.households_impact_df *= (
                 self.event_monetary_factor / self.model_monetary_factor
             )
