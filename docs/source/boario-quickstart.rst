@@ -16,8 +16,8 @@ on the repository, or `contact the developer`_.
 .. _contact the developer: pro@sjuhel.org
 
 
-Minimal working full example
-__________________________________
+Quickstart example
+___________________
 
 See here `link <notebooks/boario-quickstart.ipynb>`_
 
@@ -104,8 +104,10 @@ Parameters are set when instantiating the model. The following block shows all c
               iotable_year_to_temporal_unit_factor=365,
               infinite_inventories_sect=None,
               inventory_dict=None,
-              kapital_vector=self.stock_exp,
-              kapital_to_VA_dict=None,
+              productive_capital_vector=None,
+              productive_capital_to_VA_dict=None,
+              psi_param = 0.80,
+              inventory_restoration_tau = 60,
           )
 
 
@@ -131,9 +133,11 @@ Here a quick description of each parameters. Please refer to both :ref:`the math
 
 * ``iotable_year_to_temporal_unit_factor`` defines the `temporal unit` assuming the MRIO contains yearly values. Note that this has not been extensively tested and should be used with care.
 
-* ``kapital_to_VA_dict`` should be a dictionary of ``sector:ratio`` format, where ratio is an estimate of Capital Stock over Value Added ratio. This is used to estimate the capital stock of each sector. By default the ratio is 4/1 for all sectors.
+* ``productive_capital_to_VA_dict`` should be a dictionary of ``sector:ratio`` format, where ratio is an estimate of Capital Stock over Value Added ratio. This is used to estimate the capital stock of each sector. By default the ratio is 4/1 for all sectors.
 
-* ``kapital_vector`` can directly set the capital stock for all industries (ie regions*sectors sized). This overrides ``kapital_to_VA_dict``.
+* ``productive_capital_vector`` can directly set the capital stock for all industries (ie regions*sectors sized). This overrides ``kapital_to_VA_dict``.
+
+* ``psi_param`` and ``inventory_restoration_tau`` : see :ref:`boario-math-dyn`
 
 .. note::
 
@@ -151,8 +155,8 @@ Monitoring the model variables
 
 By default, simulations record the evolution of variables in temporary files, and the arrays
 are accessible directly as attributes as long as the ``Simulation`` object exists.
-For convenience all such attributes ends with ``_evolution``.
-The arrays contains the variables values for each regions for each sector for each temporal unit.
+
+Their available as DataFrame and contain the variables values for each regions for each sector for each temporal unit.
 Each row represent a temporal unit. The columns are all the possible (region,sector) tuples, ie industries,
 ordered in lexicographic order.
 
@@ -161,41 +165,41 @@ Here is a commented list of these attributes:
 .. code:: python
 
         # The realised production
-        sim.production_evolution
+        sim.production_realised
 
         # The production capacity
-        sim.production_cap_evolution
+        sim.production_capacity
 
         # The share of realised production distributed to rebuilding
-        sim.rebuild_production_evolution
+        sim.rebuild_prod
 
         # The overproduction factor
-        sim.overproduction_evolution
+        sim.overproduction
 
         # The (total) intermediate demand (ie how much intermediate demand was addressed to sector i in region j)
-        sim.io_demand_evolution
+        sim.intermediate_demand
 
-        # The (total) final demand (note the final demand is currently fix in the model)
-        sim.final_demand_evolution
+        # The (total) final demand (note that the final demand is currently fix in the model)
+        sim.final_demand
 
         # The (total) rebuild demand
-        sim.rebuild_demand_evolution
+        sim.rebuild_demand
 
         # The amount of final demand that couldn't be satisfied
-        sim.final_demand_unmet_evolution
+        sim.final_demand_unmet
 
         # The remaining amount of destroyed (ie not recovered/rebuilt) capital
-        sim.regional_sectoral_kapital_destroyed_evolution
+        sim.productive_capital_to_recover
 
         # Note that the following array have one more dimension,
         # their shape is (temporal units, sectors, regions*sectors)
         # This one states for each temporal unit, for each input, for each (region,sector)
         # if the input was limiting production. For efficiency, information is stored as a
         # byte, -1 for False, 1 for True
-        sim.limiting_inputs_evolution
+        sim.limiting_inputs
 
 It is also possible to record the inputs stocks, but this is disabled by defaults as its shape is the same as
-``limiting_inputs_evolution``, but its ``dtype`` is ``float64``, which can very rapidly lead to huge files.
+``limiting_inputs``, but its ``dtype`` is ``float64``, which can very rapidly lead to huge files.
 
 .. code:: python
 
@@ -203,14 +207,7 @@ It is also possible to record the inputs stocks, but this is disabled by default
           sim = simulation(model, register_stocks=True)
 
           # Access the array
-          sim.inputs_evolution
-
-These files are raw numpy arrays (for efficiency purpose) but you can easily transform them to pandas DataFrame as ``model.industries`` stores
-the relevant MultiIndex.
-
-.. code:: python
-
-          df = pd.DataFrame(sim.production_evolution, columns=model.industries)
+          sim.inputs_stocks
 
 .. _index_records:
 
@@ -221,18 +218,18 @@ In order to keep experiments organized and reproducible,
 the following arguments can be used when instantiating a
 ``Simulation`` object:
 
-* ``"save_index"`` : ``True|False``, if ``True``, save a file :file:`boario_output_dir/results/jsons/indexes.json`, where the indexes (regions, sectors, final demand categories, etc.) are stored.
+* ``"save_index"`` : ``True|False``, if ``True``, saves a file :file:`boario_output_dir/results/jsons/indexes.json`, where the indexes (regions, sectors, final demand categories, etc.) are stored.
 
-* ``"save_params"`` : ``True|False``, if ``True``, save a file :file:`boario_output_dir/results/jsons/simulated_params.json`, where the simulation parameters are stored.
+* ``"save_params"`` : ``True|False``, if ``True``, saves a file :file:`boario_output_dir/results/jsons/simulated_params.json`, where the simulation parameters are stored.
 
-* ``"save_events"`` : ``True|False``, if ``True``, save a file :file:`boario_output_dir/results/jsons/simulated_events.json`, where the indexes (regions, sectors, final demand categories, etc.) are stored.
+* ``"save_events"`` : ``True|False``, if ``True``, saves a file :file:`boario_output_dir/results/jsons/simulated_events.json`, where the indexes (regions, sectors, final demand categories, etc.) are stored.
 
 .. _recording:
 
 Record files
 -------------
 
-By defaults the arrays recording the evolution of variables are temporary files (:ref:`variables_evolution`),
+By defaults the arrays recording the evolution of variables are temporary files,
 which are deleted when the ``Simulation`` object is destroyed.
 
 It is however possible to ask the ``Simulation`` object to save any selection of these raw arrays,
@@ -258,7 +255,7 @@ in the specified folder (or to a temporary directory prefixed by ``"boario"`` by
           )
 
 
-Files saved like this can then be read with:
+Files saved like this are raw numpy arrays and can then be read with:
 
 .. code:: python
 
@@ -288,41 +285,5 @@ Files saved like this can then be read with:
               shape=(n_sectors * n_temporal_units, n_sectors * n_regions),
           )
 
-Indicators and parquet files
--------------------------------
-
-You may also pass the ``Simulation`` object to ``indic = Indicators.from_sim()`` to create an :class:`~boario.indicators.Indicators` object,
-which will among other things, generate all the pandas dataframe. These dataframes can then be accessed by ``ind.production_realised_df`` for example.
-
-If you also specify a ``results_storage`` argument, instantiating will also produce a ``parquets`` folder at the path given
-, inside which all dataframes will be stored as `parquets`_ files (which can then be read easily using :py:func:`~pandas.read_parquet`).
-
-.. code:: python
-
-   from boario.indicators import Indicators
-
-   indic = Indicators.from_sim(sim, results_storage="path/to/save/results")
-
-Calling ``indic.update_indicators()`` fills the ``indic.indicators`` dictionary with the following indicators:
-
-- The total (whole world, all sectors) final consumption not met during the simulation ``indicator['tot_fd_unmet']``.
-
-- The final consumption not met in the region(s) affected by the shock ``indicator['aff_fd_unmet']``.
-
-- The rebuild duration (ie the number of step during which rebuild demand is not zero) ``indicator['rebuild_durations']``.
-
-- If there was a shortage (``indicator['shortage_b']``), its start and end dates ``indicator['shortage_date_start']`` and ``indicator['shortage_date_end']``.
-
-- The top five `(region,sectors)` tuples where there was the biggest absolute change of production compared to a no shock scenario.
-
-It also produce dataframes indicators :
-
-- The production change by region over the simulation (``indic.prod_chg_region``) giving for each region the total gain or loss in production during the simulation.
-
-- The final consumption not met by region over the simulation (``indic.df_loss_region``) giving for each region the total loss in consumption during the simulation.
-
-Finally calling ``indic.write_indicators(storage_path="/path/of/your/choosing")`` will write the ``indic.indicators`` dictionary to :file:`indicators/indicators.json`, as well as :file:`indicators/prod_chg.json` and :file:`indicators/fd_loss.json`. The parent folder defaults to the ``results_storage`` argument given when instantiating the ``Indicators`` object and is overridden if ``storage_path`` is specified. Note that if neither was given, an error is raised.
-
-.. _`parquets`: https://parquet.apache.org/
 .. _github repository: https://github.com/spjuhel/BoARIO
 .. _here: https://zenodo.org/record/5589597

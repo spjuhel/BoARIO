@@ -1,9 +1,11 @@
 Welcome to BoARIO's documentation!
-==================================
+##################################
+
+Navigation
+**********
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
 
    user-guide
    boario-api-reference
@@ -11,8 +13,8 @@ Welcome to BoARIO's documentation!
    release-note
    boario-references
 
-Indices and tables
-==================
+Indexes
+*******
 
 * :ref:`genindex`
 * :ref:`modindex`

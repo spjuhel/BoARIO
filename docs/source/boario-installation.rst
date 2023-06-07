@@ -35,7 +35,7 @@ Note that you can directly install BoARIO from a branch of its github repository
 Requirements
 ===============
 
-BoARIO is currently developed using python ``3.8``. It might work with older python versions, but no check were made regarding this.
+BoARIO is currently developed using python ``3.9``. It might work with older python versions, but no check were made regarding this.
 
 Installing via pip should install all the required dependencies.
 

@@ -37,9 +37,16 @@ You can find most academic literature using ARIO or related models :ref:`here <r
 What is ARIO ?
 ===============
 
-ARIO stands for Adaptive Regional Input-Output. It is an hybrid input-output / agent-based economic model, designed to compute indirect costs from economic shocks. Its first version dates back to 2008 and has originally been developed to assess the indirect costs of natural disasters (Hallegatte 2008).
+ARIO stands for Adaptive Regional Input-Output. It is an hybrid input-output / agent-based economic model,
+designed to compute indirect costs from economic shocks. Its first version dates back to 2008 and has originally
+been developed to assess the indirect costs of natural disasters (Hallegatte 2008).
 
-In ARIO, the economy is modelled as a set of economic sectors and a set of regions. Each economic sector produces its generic product and draws inputs from an inventory. Each sector answers to a total demand consisting of a final demand (household consumption, public spending and private investments) of all regions (local demand and exports) and intermediate demand (through inputs inventory resupply). An initial equilibrium state of the economy is built based on multi-regional input-output tables (MRIO tables).
+In ARIO, the economy is modelled as a set of economic sectors and a set of regions.
+Each economic sector produces its generic product and draws inputs from an inventory.
+Each sector answers to a total demand consisting of a final demand (household consumption,
+public spending and private investments) of all regions (local demand and exports) and
+intermediate demand (through inputs inventory resupply). An initial equilibrium state of
+the economy is built based on multi-regional input-output tables (MRIO tables).
 
 
 Where to get BoARIO ?
@@ -107,4 +114,5 @@ All :ref:`contributions<contributions>` to the project are welcome !
 Acknowledgements
 ------------------
 
-I would like to thank Vincent Viguie, Fabio D'Andrea my PhD supervisors as well as Célian Colon and Alessio Ciulo for their inputs during the model implementation.
+I would like to thank Vincent Viguie, Fabio D'Andrea my PhD supervisors as well as Célian Colon, Alessio Ciulo and Adrien Delahais
+for their inputs during the model implementation.
