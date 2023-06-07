@@ -253,10 +253,12 @@ class ARIOBaseModel:
             r"""numpy.ndarray of int: Array :math:`\mathbf{s}` of size :math:`n` (sectors), setting for each input the initial number of ``n_temporal_units_by_step`` of stock for the input. (see :ref:`boario-math`)."""
 
         else:
-            inv = inventory_dict
+            infinite_inventories_sect = (
+                [] if infinite_inventories_sect is None else infinite_inventories_sect
+            )
             self.inventories = [
-                np.inf if inv[k] in ["inf", "Inf", "Infinity", "infinity"] else inv[k]
-                for k in sorted(inv.keys())
+                np.inf if inventory_dict[k] in ["inf", "Inf", "Infinity", "infinity"] or k in infinite_inventories_sect else inventory_dict[k]
+                for k in sorted(inventory_dict.keys())
             ]
 
         logger.debug(f"inventories: {self.inventories}")
