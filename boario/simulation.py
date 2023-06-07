@@ -170,11 +170,6 @@ class Simulation:
         results_dir_name : str, default 'results'
             The name of the folder where simulation results will be stored.
 
-        Examples
-        --------
-
-        See #add link to example page.
-
         """
         self.output_dir = pathlib.Path(boario_output_dir)
         """pathlib.Path, optional: Optional path to the directory where output are stored."""

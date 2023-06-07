@@ -125,7 +125,7 @@ class ARIOPsiModel(ARIOBaseModel):
                 f"Invalid inventory_restoration_tau: expected dict or int got {type(inventory_restoration_tau)}"
             )
         self.restoration_tau = np.array(restoration_tau)
-        """numpy.ndarray of int: Array of size :math:`n` setting for each inputs its characteristic restoration time :math:`\tau_{\textrm{INV}}` in ``n_temporal_units_by_step``. (see :ref:`boario-math`)."""
+        r"""numpy.ndarray of int: Array of size :math:`n` setting for each inputs its characteristic restoration time :math:`\tau_{\textrm{INV}}` in ``n_temporal_units_by_step``. (see :ref:`boario-math`)."""
         #################################################################
 
     @property
@@ -141,50 +141,6 @@ class ARIOPsiModel(ARIOBaseModel):
     def calc_production(self, current_temporal_unit: int) -> np.ndarray:
         r"""Computes and updates actual production. The difference with :class:`ARIOBaseModel` is in the way
         inventory constraints are computed. See :ref:`boario-math-prod`.
-
-        1. Computes ``production_opt`` and ``inventory_constraints`` as :
-
-        .. math::
-           :nowrap:
-
-                \begin{alignat*}{4}
-                      \iox^{\textrm{Opt}}(t) &= (x^{\textrm{Opt}}_{f}(t))_{f \in \firmsset} &&= \left ( \min \left ( d^{\textrm{Tot}}_{f}(t), x^{\textrm{Cap}}_{f}(t) \right ) \right )_{f \in \firmsset} && \text{Optimal production}\\
-                      \ioinv^{\textrm{Cons}}(t) &= (\omega^{\textrm{Cons},f}_p(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} &&=
-                           \begin{bmatrix}
-                             s^{1}_1 & \hdots & s^{p}_1 \\
-                             \vdots & \ddots & \vdots\\
-                             s^1_n & \hdots & s^{p}_n
-                           \end{bmatrix}
-                  \odot \begin{bmatrix} \iox^{\textrm{Opt}}(t)\\
-                  \vdots\\
-                  \iox^{\textrm{Opt}}(t) \end{bmatrix} \odot \ioa^{\sectorsset} && \text{Inventory constraints} \\
-                  &&&= \begin{bmatrix}
-                  s^{1}_1 x^{\textrm{Opt}}_{1}(t) a_{11} & \hdots & s^{p}_1 x^{\textrm{Opt}}_{p}(t) a_{1p}\\
-                  \vdots & \ddots & \vdots\\
-                  s^1_n x^{\textrm{Opt}}_{1}(t) a_{n1} & \hdots & s^{p}_n x^{\textrm{Opt}}_{p}(t) a_{np}
-                  \end{bmatrix}
-                  \cdot \psi &&  \\
-                   &&&= \begin{bmatrix}
-                        \tau^{1}_1 x^{\textrm{Opt}}_{1}(t) a_{11} & \hdots & \tau^{p}_1 x^{\textrm{Opt}}_{p}(t) a_{1p}\\
-                        \vdots & \ddots & \vdots\\
-                        \tau^1_n x^{\textrm{Opt}}_{1}(t) a_{n1} & \hdots & \tau^{p}_n x^{\textrm{Opt}}_{p}(t) a_{np}
-                    \end{bmatrix} && \\
-                \end{alignat*}
-
-        2. If stocks do not meet ``inventory_constraints`` for any inputs, then decrease production accordingly :
-
-        .. math::
-           :nowrap:
-
-                \begin{alignat*}{4}
-                    \iox^{a}(t) &= (x^{a}_{f}(t))_{f \in \firmsset} &&= \left \{ \begin{aligned}
-                                                           & x^{\textrm{Opt}}_{f}(t) & \text{if $\omega_{p}^f(t) \geq \omega^{\textrm{Cons},f}_p(t)$}\\
-                                                           & x^{\textrm{Opt}}_{f}(t) \cdot \min_{p \in \sectorsset} \left ( \frac{\omega^s_{p}(t)}{\omega^{\textrm{Cons,f}}_p(t)} \right ) & \text{if $\omega_{p}^f(t) < \omega^{\textrm{Cons},f}_p(t)$}
-                                                           \end{aligned} \right. \quad &&
-                \end{alignat*}
-
-        Also warns in logs if such shortages happen.
-
 
         Parameters
         ----------

@@ -151,7 +151,7 @@ Finally for convenience you can give a name for the event.
           )
 
 
-Create a :class:`~boario.event.EventKapitalRebuilding`
+Create a :class:`~boario.event.EventKapitalRebuild`
 ------------------------------------------------------
 
 When creating this type of event, you need to specify the rebuilding characteristic time ``"rebuild_tau"``

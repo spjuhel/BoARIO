@@ -1,4 +1,10 @@
 Release notes
 ================
 
-Placeholder
+0.5.0 (06/2023)
+---------------
+
+Features
+*********
+
+* WIP

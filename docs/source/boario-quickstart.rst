@@ -19,7 +19,10 @@ on the repository, or `contact the developer`_.
 Quickstart example
 ___________________
 
-See here `link <notebooks/boario-quickstart.ipynb>`_
+.. toctree::
+   :maxdepth: 2
+
+   notebooks/boario-quickstart
 
 ARIO vs :class:`~boario.model_base.ARIOBaseModel` vs :class:`~boario.extended_models.ARIOPsiModel`
 _____________________________________________________________________________________________________________

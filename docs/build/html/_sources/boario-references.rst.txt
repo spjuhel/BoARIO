@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 .. _references:
 
 ARIO Academic work
@@ -36,10 +35,3 @@ References
 :cite:empty:`2022:huang`
 
 .. bibliography::
-||||||| 66c6efed
-=======
-References
-=============
-
-.. bibliography::
->>>>>>> master
