@@ -79,7 +79,7 @@ class Indicators(object):
         "overproduction",
         "rebuild_demand",
         "rebuild_prod",
-        "kapital_to_recover",
+        "productive_capital_to_recover",
     ]
 
     params_list = ["simulated_params", "simulated_events"]
@@ -91,7 +91,7 @@ class Indicators(object):
         params,
         regions,
         sectors,
-        kapital,
+        productive_capital,
         prod,
         prodmax,
         overprod,
@@ -123,7 +123,9 @@ class Indicators(object):
         self.n_rows = n_temporal_units_to_sim
         self.n_temporal_units_by_step = n_temporal_units_by_step
 
-        self.kapital_to_recover_df = create_df(kapital, regions, sectors)
+        self.productive_capital_to_recover_df = create_df(
+            productive_capital, regions, sectors
+        )
         self.production_realised_df = create_df(prod, regions, sectors)
         self.production_capacity_df = create_df(prodmax, regions, sectors)
         self.overproduction_df = create_df(overprod, regions, sectors)
@@ -187,15 +189,16 @@ class Indicators(object):
             .reset_index()
         )
 
-        self.limiting_inputs_df = pd.DataFrame(
-            limiting_stocks.reshape(n_temporal_units_to_sim * len(sectors), -1),
-            index=pd.MultiIndex.from_product(
-                [steps, sectors], names=["step", "stock of"]
-            ),
-            columns=pd.MultiIndex.from_product(
-                [regions, sectors], names=["region", "sector"]
-            ),
-        )
+        self.limiting_inputs_df = limiting_stocks
+        # pd.DataFrame(
+        #     limiting_stocks.reshape(n_temporal_units_to_sim * len(sectors), -1),
+        #     index=pd.MultiIndex.from_product(
+        #         [steps, sectors], names=["step", "stock of"]
+        #     ),
+        #     columns=pd.MultiIndex.from_product(
+        #         [regions, sectors], names=["region", "sector"]
+        #     ),
+        # )
         self.aff_regions = []
         self.aff_sectors = []
         for e in events:
@@ -259,9 +262,9 @@ class Indicators(object):
     def from_simulation(
         cls,
         sim: Simulation,
+        results_storage: Optional[str | pathlib.Path] = None,
         stocks_treatment: bool = False,
         include_crash: bool = False,
-        results_storage: Optional[str | pathlib.Path] = None,
     ) -> Indicators:
         if isinstance(sim.model, ARIOPsiModel):
             psi = sim.model.psi
@@ -270,27 +273,27 @@ class Indicators(object):
             psi = None
             inventory_restoration_tau = None
 
-        prod = getattr(sim, "production_evolution")
-        kapital = getattr(sim, "regional_sectoral_kapital_destroyed_evolution")
-        prodmax = getattr(sim, "production_cap_evolution")
-        overprod = getattr(sim, "overproduction_evolution")
-        final_demand = getattr(sim, "final_demand_evolution")
-        io_demand = getattr(sim, "io_demand_evolution")
-        r_demand = getattr(sim, "rebuild_demand_evolution")
-        r_prod = getattr(sim, "rebuild_production_evolution")
-        fd_unmet = getattr(sim, "final_demand_unmet_evolution")
+        prod = getattr(sim, "production_realised")
+        productive_capital = getattr(sim, "productive_capital_to_recover")
+        prodmax = getattr(sim, "production_capacity")
+        overprod = getattr(sim, "overproduction")
+        final_demand = getattr(sim, "final_demand")
+        io_demand = getattr(sim, "intermediate_demand")
+        r_demand = getattr(sim, "rebuild_demand")
+        r_prod = getattr(sim, "rebuild_prod")
+        fd_unmet = getattr(sim, "final_demand_unmet")
         if stocks_treatment:
-            stocks = getattr(sim, "inputs_evolution")
+            stocks = getattr(sim, "inputs_stocks")
         else:
             stocks = None
 
-        limiting_stocks = getattr(sim, "limiting_inputs_evolution")
+        limiting_stocks = getattr(sim, "limiting_inputs")
         return cls(
             has_crashed=sim.has_crashed,
             params=sim.params_dict,
             regions=sim.model.regions,
             sectors=sim.model.sectors,
-            kapital=kapital,
+            productive_capital=productive_capital,
             prod=prod,
             prodmax=prodmax,
             overprod=overprod,
@@ -373,8 +376,8 @@ class Indicators(object):
             dtype="float64",
             shape=(t, indexes["n_industries"]),
         )
-        kapital = np.memmap(
-            records_path / "kapital_to_recover",
+        productive_capital = np.memmap(
+            records_path / "productive_capital_to_recover",
             mode="r+",
             dtype="float64",
             shape=(t, indexes["n_industries"]),
@@ -450,7 +453,7 @@ class Indicators(object):
             params=params,
             regions=regions,
             sectors=sectors,
-            kapital=kapital,
+            productive_capital=productive_capital,
             prod=prod,
             prodmax=prodmax,
             overprod=overprod,
@@ -706,8 +709,8 @@ class Indicators(object):
         self.production_realised_df.to_parquet(
             self.parquets_path / "production_realised_df.parquet"
         )
-        self.kapital_to_recover_df.to_parquet(
-            self.parquets_path / "kapital_to_recover_df.parquet"
+        self.productive_capital_to_recover_df.to_parquet(
+            self.parquets_path / "productive_capital_to_recover_df.parquet"
         )
         self.production_capacity_df.to_parquet(
             self.parquets_path / "production_capacity_df.parquet"

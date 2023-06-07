@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 
 
@@ -7,9 +6,9 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Detailed model description &#8212; BoARIO  documentation</title>
+    <title>Model description &#8212; BoARIO  documentation</title>
   
   
   
@@ -19,12 +18,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -35,15 +34,16 @@
     <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>
-    <script>window.MathJax = {"chtml": {"displayAlign": "left", "displayIndent": "2em"}, "loader": {"load": ["[tex]/color"]}, "tex": {"packages": {"[+]": ["color"]}, "macros": {"colvec": ["\\begin{bmatrix}#1 \\\\ \\vdots\\\\ #2 \\end{bmatrix}", 2], "rfirmsset": ["\\mathbf{F}^{#1}", 1], "mdefentryval": ["(#1_{#3#5}( #2 )^{#7#8})_{\\substack{#3 \\in #4 \\\\ #5 \\in #6}}", 8], "mdefentry": ["(#1_{#3#5}^{#7#8})_{\\substack{#3 \\in #4 \\\\ #5 \\in #6}}", 8], "irowsum": "\\begin{bmatrix} 1 \\\\ \\vdots \\\\ 1 \\end{bmatrix}", "isum": "\\underset{s \\times p}{\\begin{bmatrix} 1 & \\cdots & 0 & & 1 & \\cdots & 0\\\\ \\vdots & \\ddots & \\vdots & \\cdots &\\vdots & \\ddots & \\vdots\\\\ 0 & \\cdots & 1 & & 0 & \\cdots & 1 \\end{bmatrix}}", "ioorders": "\\mathbf{O}", "sectorsset": "\\mathbb{S}", "sectorssetsize": "n", "regionsset": "\\mathbb{R}", "regionssetsize": "m", "firmsset": "\\mathbb{F}", "firmssetsize": "p", "catfdset": "\\mathbb{C}^{\\textrm{fd}}", "catfdsetsize": "r", "catvaset": "\\mathbb{C}^{\\textrm{va}}", "catvasetsize": "q", "ioz": "\\mathbf{Z}", "ioy": "\\mathbf{Y}", "iov": "\\mathbf{V}", "iox": "\\mathbf{x}", "ioa": "\\mathbf{A}", "iok": "\\mathbf{K}", "ioava": "\\mathbf{A}_{\\textrm{va}}", "ioinv": "\\mathbf{\\Omega}", "Damage": "\\mathbf{\\Gamma}", "damage": "\\gamma"}}}</script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"chtml": {"displayAlign": "left", "displayIndent": "2em"}, "loader": {"load": ["[tex]/color"]}, "tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "packages": {"[+]": ["color"]}, "macros": {"colvec": ["\\begin{bmatrix}#1 \\\\ \\vdots\\\\ #2 \\end{bmatrix}", 2], "rfirmsset": ["\\mathbf{F}^{#1}", 1], "mdefentryval": ["(#1_{#3#5}( #2 )^{#7#8})_{\\substack{#3 \\in #4 \\\\ #5 \\in #6}}", 8], "mdefentry": ["(#1_{#3#5}^{#7#8})_{\\substack{#3 \\in #4 \\\\ #5 \\in #6}}", 8], "irowsum": "\\begin{bmatrix} 1 \\\\ \\vdots \\\\ 1 \\end{bmatrix}", "isum": "\\underset{s \\times p}{\\begin{bmatrix} 1 & \\cdots & 0 & & 1 & \\cdots & 0\\\\ \\vdots & \\ddots & \\vdots & \\cdots &\\vdots & \\ddots & \\vdots\\\\ 0 & \\cdots & 1 & & 0 & \\cdots & 1 \\end{bmatrix}}", "ioorders": "\\mathbf{O}", "sectorsset": "\\mathbb{S}", "sectorssetsize": "n", "regionsset": "\\mathbb{R}", "regionssetsize": "m", "firmsset": "\\mathbb{F}", "firmssetsize": "p", "catfdset": "\\mathbb{C}^{\\textrm{fd}}", "catfdsetsize": "r", "catvaset": "\\mathbb{C}^{\\textrm{va}}", "catvasetsize": "q", "ioz": "\\mathbf{Z}", "ioy": "\\mathbf{Y}", "iov": "\\mathbf{V}", "iox": "\\mathbf{x}", "ioa": "\\mathbf{A}", "iok": "\\mathbf{K}", "ioava": "\\mathbf{A}_{\\textrm{va}}", "ioinv": "\\mathbf{\\Omega}", "Damage": "\\mathbf{\\Gamma}", "damage": "\\gamma"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'boario-math';</script>
     <script src="_static/js/custom.js"></script>
@@ -162,7 +162,7 @@
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -187,7 +187,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Jun 07, 2023.
   <br/>
 </p></div>
       
@@ -278,7 +278,7 @@ document.write(`
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -292,7 +292,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Jun 07, 2023.
   <br/>
 </p></div>
         
@@ -315,14 +315,13 @@ document.write(`
         <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current nav bd-sidenav">
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="boario-what-is.html">BoARIO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-terminology.html">Terminology</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-quickstart.html">Quickstart and examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-events.html">How to define Events</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Detailed model description</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Model description</a></li>
 </ul>
 </div>
 </nav></div>
@@ -363,7 +362,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="user-guide.html" class="nav-link">User guide</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">Detailed model description</li>
+    <li class="breadcrumb-item active" aria-current="page">Model description</li>
   </ul>
 </nav>
 </div>
@@ -380,9 +379,50 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="detailed-model-description">
-<span id="boario-math"></span><h1>Detailed model description<a class="headerlink" href="#detailed-model-description" title="Permalink to this heading">#</a></h1>
-<p>This page details the mathematical background of the ARIO model.</p>
+  <section id="model-description">
+<span id="boario-math"></span><h1>Model description<a class="headerlink" href="#model-description" title="Permalink to this heading">#</a></h1>
+<section id="background-and-overview">
+<h2>Background and overview<a class="headerlink" href="#background-and-overview" title="Permalink to this heading">#</a></h2>
+<p>Adaptive Regional Input-Output (ARIO) is an I-O model, designed to compute indirect
+costs from exogenous shocks. Its first version dates back to 2008 and has originally
+been developed to assess the indirect costs of natural disasters (Hallegatte 2008).
+In this paper we present BoARIO, a generic python implementation, similar to the one
+described in (Hallegatte 2014) with some additions (e.g. inspired by Guan et al. 2020).</p>
+<p>The economy is modelled as a set of economic sectors and a set of regions.
+In the following, we call an industry a specific (sector, region) couple.
+Each economic sector produces its generic product and draws inputs from an inventory.
+Each industry answers to a total demand consisting of a final demand
+(household consumption, public spending and private investments) coming from all
+regions (i.e. both local demand and exports), intermediate demand (inventory resupply).
+An initial equilibrium state of the economy is built based on multi-regional
+input-output tables (MRIO tables). Apart from parameters specific to the MRIOT
+region-sector typology, BoARIO supposedly handles any MRIOT in the same manner.</p>
+<p>Multiple kinds of shocks can be implemented:</p>
+<ul class="simple">
+<li><p>On the production capacity directly (one or multiple industries are arbitrarily
+forced to produce less)</p></li>
+<li><p>On the productive capital (one or multiple industries arbitrarily
+lose some part of their factors of production and are thus forced to both
+produce less and to build back their capital stock).</p></li>
+<li><p>On the households (households of affected regions lose some part of their goods and
+seek to get them back).</p></li>
+</ul>
+<p>The model then describes how exogenous shocks propagates across the economy at each
+time step (a day in this study): the imbalance between production and demand is
+resolved by a proportional rationing scheme, which then leads some industries and
+households to not receive the totality of their orders. Industries can buffer
+these unfilled orders with their “inventories” of input and increase or shift
+their resupply demand. Currently, households simply register the loss as
+final consumption not met and do not postpone their demand. During the simulation,
+industries adjust their production and orders based on both demand and their inventories.</p>
+<p>Direct economic impact consists in the valuation of the initial exogenous shock,
+while total economic impact includes also indirect costs consequent to the propagation.</p>
+<p>Total economic impact can be measured in two ways:</p>
+<ul class="simple">
+<li><p>Final demand not met, i.e. goods that households couldn’t buy due to rationing.</p></li>
+<li><p>Relative production change, i.e. diminished or increased production of industries relative to their initial production.</p></li>
+</ul>
+</section>
 <section id="notations">
 <span id="boario-math-notations"></span><h2>Notations<a class="headerlink" href="#notations" title="Permalink to this heading">#</a></h2>
 <table class="table" id="id7">
@@ -549,15 +589,13 @@ to designate the sum of all flows from industry <span class="math notranslate no
 <p>Additionally, we use <span class="math notranslate nohighlight">\(A = B \odot C\)</span>, the Hadamard product (element wise product) (i.e. <span class="math notranslate nohighlight">\(a_{ij} = b_{ij} \cdot c_{ij}\)</span>)</p>
 </div>
 </section>
-<section id="model-s-details">
-<h2>Model(s) details<a class="headerlink" href="#model-s-details" title="Permalink to this heading">#</a></h2>
+<section id="mathematical-formalism">
+<h2>Mathematical formalism<a class="headerlink" href="#mathematical-formalism" title="Permalink to this heading">#</a></h2>
 <section id="initial-state">
 <span id="boario-math-init"></span><h3>Initial state<a class="headerlink" href="#initial-state" title="Permalink to this heading">#</a></h3>
 <p>The initial state refers to an economic equilibrium before any exogenous shocks. Initial values for intermediate orders <span class="math notranslate nohighlight">\(\ioorders\)</span>, final consumption <span class="math notranslate nohighlight">\(\ioy\)</span>, and production <span class="math notranslate nohighlight">\(\iox\)</span> are derived from MRIO tables. Inventories <span class="math notranslate nohighlight">\(\ioinv\)</span> are stocks of inputs an industry can draw into and <span class="math notranslate nohighlight">\(\ioinv(t=0)\)</span> is initialized using the initial intermediate orders <span class="math notranslate nohighlight">\(\ioorders(0) = \ioz\)</span> : by default, it is assumed that every industry has <span class="math notranslate nohighlight">\(\mathbf{s}\)</span> days of inputs ahead in their stocks.</p>
-<p>In the rest of this section, we describe this initialisation in more details.</p>
-<p>We build <span class="math notranslate nohighlight">\(\ioz\)</span>, <span class="math notranslate nohighlight">\(\ioy\)</span> and <span class="math notranslate nohighlight">\(\iov\)</span> using input output tables.
-We compute initial production <span class="math notranslate nohighlight">\(\iox_0\)</span>, technical matrix <span class="math notranslate nohighlight">\(\ioa\)</span> and
-value added technical matrix <span class="math notranslate nohighlight">\(\ioava\)</span> as follows (consistent with Leontief I-O theory):</p>
+<p>Initial production <span class="math notranslate nohighlight">\(\iox_0\)</span>, technical matrix <span class="math notranslate nohighlight">\(\ioa\)</span> and
+value added technical matrix <span class="math notranslate nohighlight">\(\ioava\)</span> are consistent with Leontief I-O theory:</p>
 <div class="math notranslate nohighlight">
  \begin{gather*}
  \iox_0 = \ioz \cdot \mathbf{i} + \ioy \cdot \mathbf{i}\\
@@ -570,9 +608,10 @@ value added technical matrix <span class="math notranslate nohighlight">\(\ioava
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Note that we divide these yearly values by the <code class="docutils literal notranslate"><span class="pre">iotable_year_to_temporal_unit_factor</span></code> <a class="reference internal" href="boario-quickstart.html#year-to-temporal-unit-factor"><span class="std std-ref">parameter</span></a> in order to obtain an approximation of the productions and demands per <a class="reference internal" href="boario-quickstart.html#temporal"><span class="std std-ref">temporal unit</span></a> (most often days).</p>
+<p>We divide these yearly values by the <code class="docutils literal notranslate"><span class="pre">iotable_year_to_temporal_unit_factor</span></code> <a class="reference internal" href="boario-quickstart.html#year-to-temporal-unit-factor"><span class="std std-ref">parameter</span></a> in order to obtain an approximation of the productions and demands per <a class="reference internal" href="boario-quickstart.html#temporal"><span class="std std-ref">temporal unit</span></a> (most often days).</p>
 </div>
-<p>We also compute the following :</p>
+<p>We also require technology and transactions information at the sector level,
+regardless of the region of provenance, so we compute the following :</p>
 <div class="math notranslate nohighlight" id="boario-math-z-agg">
 \begin{gather*}
  \ioa^{\sectorsset} = \mathbf{I_{\textrm{sum}}} \cdot  \ioa\\
@@ -596,7 +635,7 @@ value added technical matrix <span class="math notranslate nohighlight">\(\ioava
 <p><span class="math notranslate nohighlight">\(\otimes\)</span> is the Kronecker product which repeats each row of <span class="math notranslate nohighlight">\(\ioz^{\sectorsset}\)</span> <span class="math notranslate nohighlight">\(m\)</span> times.</p>
 <p><span class="math notranslate nohighlight">\(\oslash\)</span> is the matrix element-wise division, defined such that dividing by zero gives zero. (If initial order to an industry was null, the share ordered is also null)</p>
 </div>
-<p>Hence, <span class="math notranslate nohighlight">\(\ioa^{\sectorsset}\)</span> and <span class="math notranslate nohighlight">\(\ioz^{\sectorsset}\)</span> are respectfully the technical matrix and the intermediate demand matrix, that are aggregated by sector. They indicate technology and transactions on the sector level, regardless of the region of provenance.</p>
+<p>Hence, <span class="math notranslate nohighlight">\(\ioa^{\sectorsset}\)</span> and <span class="math notranslate nohighlight">\(\ioz^{\sectorsset}\)</span> are respectfully the technical matrix and the intermediate demand matrix, that are aggregated by sector.</p>
 <p><span class="math notranslate nohighlight">\(\ioz^{\textrm{Share}}\)</span> represents for each firm and for each of their input, the share of the total ordered to a supplier, initially (i.e. <span class="math notranslate nohighlight">\(\ioz\)</span> normalized for each input). Or alternatively, the initial “market shares”.</p>
 <p id="boario-math-initial-inv">As stated previously, the initial inventory matrix <span class="math notranslate nohighlight">\(\ioinv\)</span> is initialized as follows :</p>
 <div class="math notranslate nohighlight">
@@ -614,10 +653,10 @@ value added technical matrix <span class="math notranslate nohighlight">\(\ioava
  \end{equation*}</div><p>Such that <span class="math notranslate nohighlight">\(\omega_{if}(0) = s_i \cdot x_{f}(0) \cdot a_{if}\)</span> is the
 exact amount of product <span class="math notranslate nohighlight">\(i\)</span> required by industry <span class="math notranslate nohighlight">\(f\)</span> to produce
 <span class="math notranslate nohighlight">\(x_{f}(0)\)</span> (i.e. the initial equilibrium production of <span class="math notranslate nohighlight">\(f\)</span>) during <span class="math notranslate nohighlight">\(s_i\)</span> temporal units. Or, alternatively, that <span class="math notranslate nohighlight">\(f\)</span> could (technically) produce during <span class="math notranslate nohighlight">\(s_i\)</span> temporal units without receiving input from any industry producing <span class="math notranslate nohighlight">\(i\)</span>.</p>
-<p>Hence, all industries start with a stock of each of their intermediate inputs equal to the amount required for <span class="math notranslate nohighlight">\(s_i\)</span> temporal units of production at initial production capacity.</p>
+<p>As such, all industries start with a stock of each of their intermediate inputs equal to the amount required for <span class="math notranslate nohighlight">\(s_i\)</span> temporal units of production at initial production capacity.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><span class="math notranslate nohighlight">\(s_i\)</span> does not differ on a per-industry basis, only on a per-product basis, (although this could be implemented easily).</p>
+<p>At the moment <span class="math notranslate nohighlight">\(s_i\)</span> does not differ on a per-industry basis, only on a per-product basis.</p>
 </div>
 <p>The order matrix <span class="math notranslate nohighlight">\(\ioorders\)</span> is initialized to be equal to <span class="math notranslate nohighlight">\(\ioz\)</span> :</p>
 <div class="math notranslate nohighlight">
@@ -653,7 +692,7 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
           \end{bmatrix}
  \odot \begin{bmatrix} \iox^{\textrm{Opt}}(t)\\
  \vdots\\
- \iox^{\textrm{Opt}}(t) \end{bmatrix} \odot \ioa^{\sectorsset} &amp;&amp; \\
+ \iox^{\textrm{Opt}}(t) \end{bmatrix} \odot \ioa^{\sectorsset} \cdot \psi &amp;&amp; \\
  &amp;&amp;&amp;= \begin{bmatrix}
  s^{1}_1 x^{\textrm{Opt}}_{1}(t) a_{11} &amp; \cdots &amp; s^{p}_1 x^{\textrm{Opt}}_{p}(t) a_{1p}\\
  \vdots &amp; \ddots &amp; \vdots\\
@@ -665,28 +704,39 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
                                                                        &amp; x^{\textrm{Opt}}_{f}(t) &amp; \text{if $\omega_{p}^f(t) \geq \omega^{\textrm{Cons},f}_p(t)$} \forall p\\
                                                                        &amp; x^{\textrm{Opt}}_{f}(t) \cdot \min_{p \in \sectorsset} \left ( \frac{\omega^s_{p}(t)}{\omega^{\textrm{Cons,f}}_p(t)} \right ) &amp; \text{if $\omega_{p}^f(t) &lt; \omega^{\textrm{Cons},f}_p(t)$}
                                                                     \end{aligned} \right. \quad &amp;&amp; \text{Actual production at $t$}
- \end{alignat*}</div><p>First we compute the total demand directed towards each industry with eq. <span class="math notranslate nohighlight">\(\text{Total demand matrix}\)</span>. Then we compute optimal production without inventory constraints for each industry as the minimum between production capacity (possibly reduced by damages) and total demand, assuming an industry will not produce more than its clients demand (eq. <span class="math notranslate nohighlight">\(\text{Optimal production}\)</span>).</p>
-<p>We define inventory constraints <span class="math notranslate nohighlight">\(\ioinv^{\textrm{Cons}}\)</span> for each input, as a share <span class="math notranslate nohighlight">\(\psi\)</span> of the amount of stocks required to produce <span class="math notranslate nohighlight">\(s_p^f\)</span> temporal units of production at the level of production of the previous step (eq. <span class="math notranslate nohighlight">\(\text{Inventory constraints}\)</span>).</p>
+ \end{alignat*}</div><p>First we compute the total demand directed towards each industry with <strong>Eq.</strong> <span class="math notranslate nohighlight">\(\text{Total demand matrix}\)</span>.
+Then we compute optimal production without inventory constraints for each industry as the minimum between
+production capacity (possibly reduced by damages) and total demand, assuming an industry will not produce more
+than its clients demand (<strong>Eq.</strong> <span class="math notranslate nohighlight">\(\text{Optimal production}\)</span>).</p>
+<p>We define inventory constraints <span class="math notranslate nohighlight">\(\ioinv^{\textrm{Cons}}\)</span> for each input, as a share <span class="math notranslate nohighlight">\(\psi\)</span> of the amount
+of stocks required to produce <span class="math notranslate nohighlight">\(s_p^f\)</span> temporal units of production at the level of production of the previous
+step (<strong>Eq.</strong> <span class="math notranslate nohighlight">\(\text{Inventory constraints}\)</span>).</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p>You can take a look at the documentation of the method here: <a class="reference internal" href="autoapi/boario.extended_models.html#boario.extended_models.ARIOPsiModel.calc_production" title="boario.extended_models.ARIOPsiModel.calc_production"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calc_production()</span></code></a> (as well as the source code, via the <code class="docutils literal notranslate"><span class="pre">source</span></code> button)</p>
+<p>You can take a look at the documentation of the method
+here: <a class="reference internal" href="autoapi/boario.extended_models.html#boario.extended_models.ARIOPsiModel.calc_production" title="boario.extended_models.ARIOPsiModel.calc_production"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calc_production()</span></code></a>
+(as well as the source code, via the <code class="docutils literal notranslate"><span class="pre">source</span></code> button)</p>
 </div>
 <div class="admonition hint">
 <p class="admonition-title">Hint</p>
 <p><code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOBaseModel</span></code> offers a simplified version of the model where <span class="math notranslate nohighlight">\(\psi = 1\)</span> (among other simplifications).</p>
 </div>
-<p>If the inventory of product <span class="math notranslate nohighlight">\(p \in \sectorsset\)</span> of an industry <span class="math notranslate nohighlight">\(f\)</span> is lower than its required level, then <span class="math notranslate nohighlight">\(f\)</span>’s production is reduced. An inventory shortage of <span class="math notranslate nohighlight">\(x\)</span> % (w.r.t. its constraint) leads to a <span class="math notranslate nohighlight">\(x\)</span> % reduction of production.</p>
+<p>If the inventory of product <span class="math notranslate nohighlight">\(p \in \sectorsset\)</span> of an industry <span class="math notranslate nohighlight">\(f\)</span> is lower than its required level,
+then <span class="math notranslate nohighlight">\(f\)</span>’s production is reduced. An inventory shortage of <span class="math notranslate nohighlight">\(x\)</span> % (w.r.t. its constraint) leads to
+a <span class="math notranslate nohighlight">\(x\)</span> % reduction of production.</p>
 </section>
 <section id="distribution-and-inventory-module">
 <span id="boario-math-distrib"></span><h4>Distribution and inventory module<a class="headerlink" href="#distribution-and-inventory-module" title="Permalink to this heading">#</a></h4>
 <p>The distribution module defines how actual production is allocated towards the various demands:</p>
-<p>If <span class="math notranslate nohighlight">\(d_f^{\textrm{Tot}}(t) = x_f(t)\)</span>, each client receive their order. If <span class="math notranslate nohighlight">\(d_f^{\textrm{Tot}}(t) &gt; x_f(t)\)</span>, each client receive a share of their order as per a proportional rationing scheme:</p>
+<p>If <span class="math notranslate nohighlight">\(d_f^{\textrm{Tot}}(t) = x_f(t)\)</span>, each client receive their order. If <span class="math notranslate nohighlight">\(d_f^{\textrm{Tot}}(t) &gt; x_f(t)\)</span>,
+each client receive a share of their order as per a proportional rationing scheme:</p>
 <div class="math notranslate nohighlight">
  \begin{alignat*}{4}
    &amp;\ioorders^{\textrm{Received}}(t) &amp;&amp;= \left (\frac{o_{ff'}(t)}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f,f'\in \firmsset}\\
    &amp;\ioy^{\textrm{Received}}(t) &amp;&amp;= \left ( \frac{y_{f}}{d^{\textrm{Tot}}_f(t)}\cdot x^a_f(t) \right )_{f\in \firmsset}\\
    &amp;\Damage^{\textrm{Repaired}}(t) &amp;&amp;= \left ( \frac{\gamma_{f} \cdot \tau_{\textrm{REBUILD}}}{d^{\textrm{Tot}}_f(t)} \cdot x^a_f(t) \right )_{f\in \firmsset}\\
- \end{alignat*}</div><p>Where <span class="math notranslate nohighlight">\(\damage_f\)</span> is the total rebuilding demand towards industry <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(\tau_{\textrm{REBUILD}}\)</span> is the rebuilding characteristic time.</p>
+ \end{alignat*}</div><p>Where <span class="math notranslate nohighlight">\(\damage_f\)</span> is the total rebuilding demand towards industry <span class="math notranslate nohighlight">\(f\)</span> and
+<span class="math notranslate nohighlight">\(\tau_{\textrm{REBUILD}}\)</span> is the rebuilding characteristic time.</p>
 <section id="inventory-resupply">
 <h5>Inventory resupply<a class="headerlink" href="#inventory-resupply" title="Permalink to this heading">#</a></h5>
 <p>From the received orders (or answered intermediate demand), the model can infer the changes in inputs inventories:</p>
@@ -707,15 +757,20 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
 </section>
 <section id="order-module">
 <span id="boario-math-orders"></span><h4>Order module<a class="headerlink" href="#order-module" title="Permalink to this heading">#</a></h4>
-<p>After distribution, the model can compute the orders made by each industries towards their suppliers in order to resupply their inventories of inputs.</p>
-<p>Industries seek to restore the inventory of each of their input to their goal level, that is the initial level w.r.t. its current optimal production level (see <a class="reference internal" href="#boario-math-prod"><span class="std std-ref">Production module</span></a>).</p>
+<p>After distribution, the model can compute the orders made by each industries towards their suppliers in order
+to resupply their inventories of inputs.</p>
+<p>Industries seek to restore the inventory of each of their input to their goal level, that is the initial
+level w.r.t. its current optimal production level (see <a class="reference internal" href="#boario-math-prod"><span class="std std-ref">Production module</span></a>).</p>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>As such, this goal can vary during simulation as it depends on <span class="math notranslate nohighlight">\(\iox^{\textrm{Opt}}_t\)</span> (and not <span class="math notranslate nohighlight">\(\iox_0\)</span>).</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In <code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOBaseModel</span></code>, the total order matrix is simply the difference between <span class="math notranslate nohighlight">\(\ioinv^{*}(t)\)</span> and <span class="math notranslate nohighlight">\(\ioinv(t)\)</span>, whereas in <code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOPsiModel</span></code>, only a fraction of missing inventories are ordered, but in addition, the totality of inputs used for production during this step is also ordered. This difference is highlighted in red in the next equations (the red part is added in the <code class="docutils literal notranslate"><span class="pre">ARIOPsiModel</span></code> case)</p>
+<p>In <code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOBaseModel</span></code>, the total order matrix is simply the difference between <span class="math notranslate nohighlight">\(\ioinv^{*}(t)\)</span> and
+<span class="math notranslate nohighlight">\(\ioinv(t)\)</span>, whereas in <code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOPsiModel</span></code>, only a fraction of missing inventories are ordered,
+but in addition, the totality of inputs used for production during this step is also ordered.
+This difference is highlighted in red in the next equations (the red part is added in the <code class="docutils literal notranslate"><span class="pre">ARIOPsiModel</span></code> case)</p>
 </div>
 <div class="math notranslate nohighlight">
  \begin{alignat*}{4}
@@ -724,10 +779,10 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
     &amp;\ioorders^{\sectorsset}(t) &amp;&amp;= {\color{red}{\frac{1}{\tau_{\textrm{Inv}}}}} \cdot \ioinv^{\textrm{Gap}}(t) {\color{red}{ + \begin{bmatrix} \iox^a(t)\\ \vdots\\ \iox^a(t) \end{bmatrix} \odot  \ioa^{\sectorsset}}} &amp;&amp;\quad &amp;&amp; \text{Intermediate demand total orders}\\
     &amp;\ioorders(t) &amp;&amp;= \left ( \ioorders^{\sectorsset}(t) \otimes \underbrace{\begin{bmatrix} 1 \\ \vdots\\ 1 \end{bmatrix}}_{\text{m-sized}} \right ) \odot  {\color{green}{\ioz^{\textrm{*}}}} &amp;&amp;\quad &amp;&amp; \text{Intermediate demand orders}
  \end{alignat*}</div><ol class="arabic simple">
-<li><p>In eq. <span class="math notranslate nohighlight">\(\text{Inventory goals}\)</span> we compute inventory goals based on optimal production. (Note that, in the version with <code class="docutils literal notranslate"><span class="pre">psi</span></code>, <span class="math notranslate nohighlight">\(\Omega^* = \frac{\Omega^{\textrm{Cons}}}{\psi}\)</span>)</p></li>
-<li><p>In eq. <span class="math notranslate nohighlight">\(\text{Inventory gaps}\)</span> we compute the inventory gaps. <span class="math notranslate nohighlight">\((\mathbf{A} - \mathbf{B})_{\geq 0}\)</span> denotes the resulting matrix of <span class="math notranslate nohighlight">\(\mathbf{A} - \mathbf{B}\)</span> where negative values are replaced by 0.</p></li>
-<li><p>In eq. <span class="math notranslate nohighlight">\(\text{Intermediate total demand orders}\)</span> we compute aggregate orders for intermediate demand.</p></li>
-<li><p>In eq. <span class="math notranslate nohighlight">\(\text{Intermediate demand orders}\)</span> we compute the actual order matrix, by distributing total orders along the different suppliers. The model has two variants based on the value of <span class="math notranslate nohighlight">\(\color{green}{\ioz^{\textrm{*}}}\)</span> which are described bellow.</p></li>
+<li><p>In <strong>Eq.</strong> <span class="math notranslate nohighlight">\(\text{Inventory goals}\)</span> we compute inventory goals based on optimal production. (Note that, in the version with <code class="docutils literal notranslate"><span class="pre">psi</span></code>, <span class="math notranslate nohighlight">\(\Omega^* = \frac{\Omega^{\textrm{Cons}}}{\psi}\)</span>)</p></li>
+<li><p>In <strong>Eq.</strong> <span class="math notranslate nohighlight">\(\text{Inventory gaps}\)</span> we compute the inventory gaps. <span class="math notranslate nohighlight">\((\mathbf{A} - \mathbf{B})_{\geq 0}\)</span> denotes the resulting matrix of <span class="math notranslate nohighlight">\(\mathbf{A} - \mathbf{B}\)</span> where negative values are replaced by 0.</p></li>
+<li><p>In <strong>Eq.</strong> <span class="math notranslate nohighlight">\(\text{Intermediate total demand orders}\)</span> we compute aggregate orders for intermediate demand.</p></li>
+<li><p>In <strong>Eq.</strong> <span class="math notranslate nohighlight">\(\text{Intermediate demand orders}\)</span> we compute the actual order matrix, by distributing total orders along the different suppliers. The model has two variants based on the value of <span class="math notranslate nohighlight">\(\color{green}{\ioz^{\textrm{*}}}\)</span>, which are described bellow.</p></li>
 </ol>
 <section id="orders-shares-variants">
 <span id="alt-orders"></span><h5>Orders shares variants<a class="headerlink" href="#orders-shares-variants" title="Permalink to this heading">#</a></h5>
@@ -737,14 +792,14 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
 <div class="math notranslate nohighlight">
 \[\begin{split}\ioz^{\textrm{Share}} =  \ioz \oslash \left ( \left ( \mathbf{I_{\textrm{sum}}} \right ) \cdot  \ioz \otimes \underbrace{\begin{bmatrix} 1 \\ \vdots\\ 1 \end{bmatrix}}_{\text{m-sized}} \right )\end{split}\]</div>
 <ol class="upperalpha simple" start="2">
-<li><p>The model uses the initial transaction share, but weighted by suppliers current production level, relative to their initial production, ie we replace both occurrence of <span class="math notranslate nohighlight">\(\ioz\)</span> in the previous equation by the following:</p></li>
+<li><p>The model uses the initial transaction share, but now weighted by suppliers current production level relative to their initial production, this is done by replacing both occurrences of <span class="math notranslate nohighlight">\(\ioz\)</span> in the previous equation by the following:</p></li>
 </ol>
 <div class="math notranslate nohighlight">
 \[\begin{split}\ioz \odot \begin{bmatrix} \frac{x_{1}(t)}{x_{1}(0)} &amp; \cdots &amp; \frac{x_{p}(t)}{x_{p}(0)} \\ \vdots &amp; \ddots &amp; \vdots \\ \frac{x_{1}(t)}{x_{1}(0)} &amp; \cdots &amp; \frac{x_{p}(t)}{x_{p}(0)} \end{bmatrix}\end{split}\]</div>
-<p>The first variant corresponds to the order module of <span id="id1">[<a class="reference internal" href="boario-references.html#id2" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span> while the other one corresponds to the one defined in <span id="id2">[<a class="reference internal" href="boario-references.html#id4" title="Dabo Guan, Daoping Wang, Stephane Hallegatte, Steven J. Davis, Jingwen Huo, Shuping Li, Yangchun Bai, Tianyang Lei, Qianyu Xue, D'Maris Coffman, Danyang Cheng, Peipei Chen, Xi Liang, Bing Xu, Xiaosheng Lu, Shouyang Wang, Klaus Hubacek, and Peng Gong. Global supply-chain effects of covid-19 control measures. Nature Human Behaviour, 4(6):577-587, 2020. URL: http://dx.doi.org/10.1038/s41562-020-0896-8, doi:10.1038/s41562-020-0896-8.">GWH+20</a>]</span> (See <a class="reference internal" href="boario-quickstart.html#model-parameters"><span class="std std-ref">order module parameter</span></a> for how to choose implementation).</p>
+<p>The first variant corresponds to the order module of <span id="id1">[<a class="reference internal" href="boario-references.html#id24" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span> while the other one corresponds to the one defined in <span id="id2">[<a class="reference internal" href="boario-references.html#id26" title="Dabo Guan, Daoping Wang, Stephane Hallegatte, Steven J. Davis, Jingwen Huo, Shuping Li, Yangchun Bai, Tianyang Lei, Qianyu Xue, D'Maris Coffman, Danyang Cheng, Peipei Chen, Xi Liang, Bing Xu, Xiaosheng Lu, Shouyang Wang, Klaus Hubacek, and Peng Gong. Global supply-chain effects of covid-19 control measures. Nature Human Behaviour, 4(6):577-587, 2020. URL: http://dx.doi.org/10.1038/s41562-020-0896-8, doi:10.1038/s41562-020-0896-8.">GWH+20</a>]</span> (See <a class="reference internal" href="boario-quickstart.html#model-parameters"><span class="std std-ref">order module parameter</span></a> for how to choose implementation).</p>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
-<p>Currently, final demand is constant throughout simulations, as such, the macro effect described in <span id="id3">[<a class="reference internal" href="boario-references.html#id3" title="Stéphane Hallegatte. An adaptive regional input-output model and its application to the assessment of the economic cost of katrina. Risk Analysis, 28(3):779-799, 2008. URL: https://doi.org/10.1111/j.1539-6924.2008.01046.x, doi:10.1111/j.1539-6924.2008.01046.x.">Hal08</a>]</span> is not implemented. The main reason being that this mechanism renders the model highly unstable when on the multi-regional scale. Eventually, a similar mechanism will be implemented in a future version (suggestions or contributions are most welcomed !)</p>
+<p>Currently, final demand is constant throughout simulations, as such, the macro effect described in <span id="id3">[<a class="reference internal" href="boario-references.html#id25" title="Stéphane Hallegatte. An adaptive regional input-output model and its application to the assessment of the economic cost of katrina. Risk Analysis, 28(3):779-799, 2008. URL: https://doi.org/10.1111/j.1539-6924.2008.01046.x, doi:10.1111/j.1539-6924.2008.01046.x.">Hal08</a>]</span> is not implemented. The main reason being that this mechanism renders the model highly unstable when on the multi-regional scale. Eventually, a similar mechanism will be implemented in a future version (suggestions or contributions are most welcomed !)</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -758,7 +813,7 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
 </section>
 <section id="overproduction-module">
 <span id="boario-math-overprod"></span><h4>Overproduction module<a class="headerlink" href="#overproduction-module" title="Permalink to this heading">#</a></h4>
-<p>In ARIO, industries can temporarily increase their production capacity via an overproduction mechanism: if demand is higher than production, industries start to adapt their production level. We use the same definition as in <span id="id4">[<a class="reference internal" href="boario-references.html#id2" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span>, which uses a scarcity index <span class="math notranslate nohighlight">\(\zeta(t)\)</span>:</p>
+<p>In ARIO, industries can temporarily increase their production capacity via an overproduction mechanism: if demand is higher than production, industries start to adapt their production level. We use the same definition as in <span id="id4">[<a class="reference internal" href="boario-references.html#id24" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span>, which uses a scarcity index <span class="math notranslate nohighlight">\(\zeta(t)\)</span>:</p>
 <div class="math notranslate nohighlight">
  \begin{alignat*}{3}
    &amp; \zeta(t) &amp;&amp;= \frac{d_{f}^{\textrm{Tot}}(t) - x^{a}_f(t)}{d_{f}^{\textrm{Tot}}(t)}\\
@@ -770,10 +825,11 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
 </section>
 <section id="event-impact">
 <span id="boario-math-events"></span><h3>Event impact<a class="headerlink" href="#event-impact" title="Permalink to this heading">#</a></h3>
-<p>Currently, the model allows representing the impact of the event via two effects :</p>
+<p>Currently, the model allows representing the impact of an event via three effects :</p>
 <ol class="arabic simple">
-<li><p>A decrease of the production capacity of the impacted industries.</p></li>
+<li><p>A decrease of the production capacity of the impacted industries consequent to the destruction of productive capital.</p></li>
 <li><p>An additional final demand corresponding to the capital destroyed and addressed towards the rebuilding sectors.</p></li>
+<li><p>An arbitrary reduction of the production capacity for a given period.</p></li>
 </ol>
 <p>See <a class="reference internal" href="boario-events.html#boario-events"><span class="std std-ref">How to define Events</span></a>.</p>
 <section id="production-capacity-decrease">
@@ -789,8 +845,8 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
                      }
  \end{equation*}</div><div class="admonition hint">
 <p class="admonition-title">Hint</p>
-<p>In <span id="id5">[<a class="reference internal" href="boario-references.html#id2" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span>, estimate of the capital stock <span class="math notranslate nohighlight">\(k_f\)</span> of an industry <span class="math notranslate nohighlight">\(f\)</span> is computed by multiplying its value added by its so called <cite>capital to value added ratio</cite>.</p>
-<p>In BoARIO, the default behavior is the same as in <span id="id6">[<a class="reference internal" href="boario-references.html#id3" title="Stéphane Hallegatte. An adaptive regional input-output model and its application to the assessment of the economic cost of katrina. Risk Analysis, 28(3):779-799, 2008. URL: https://doi.org/10.1111/j.1539-6924.2008.01046.x, doi:10.1111/j.1539-6924.2008.01046.x.">Hal08</a>]</span>, i.e. capital is four times higher than value added: <span class="math notranslate nohighlight">\(k_f = 4 \times v_f\)</span>. You can also pass a per sector <cite>capital to value added ratio</cite> as a dictionary, or directly pass your own capital vector (see <a class="reference internal" href="boario-quickstart.html#model-parameters"><span class="std std-ref">Changing the model parameters</span></a>)</p>
+<p>In <span id="id5">[<a class="reference internal" href="boario-references.html#id24" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span>, estimate of the capital stock <span class="math notranslate nohighlight">\(k_f\)</span> of an industry <span class="math notranslate nohighlight">\(f\)</span> is computed by multiplying its value added by its so called <cite>capital to value added ratio</cite>.</p>
+<p>In BoARIO, the default behavior is the same as in <span id="id6">[<a class="reference internal" href="boario-references.html#id25" title="Stéphane Hallegatte. An adaptive regional input-output model and its application to the assessment of the economic cost of katrina. Risk Analysis, 28(3):779-799, 2008. URL: https://doi.org/10.1111/j.1539-6924.2008.01046.x, doi:10.1111/j.1539-6924.2008.01046.x.">Hal08</a>]</span>, i.e. capital is four times higher than value added: <span class="math notranslate nohighlight">\(k_f = 4 \times v_f\)</span>. You can also pass a per sector <cite>capital to value added ratio</cite> as a dictionary, or directly pass your own capital vector (see <a class="reference internal" href="boario-quickstart.html#model-parameters"><span class="std std-ref">Changing the model parameters</span></a>)</p>
 </div>
 <p>We update <span class="math notranslate nohighlight">\(\Delta_f\)</span> during every step according to how much damages remain :</p>
 <div class="math notranslate nohighlight">
@@ -811,7 +867,10 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
               
               
                 <footer class="bd-footer-article">
-                  <!-- Previous / next buttons -->
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
        href="boario-events.html"
@@ -831,7 +890,10 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
+</div></div>
+  
 </div>
+
                 </footer>
               
             </div>
@@ -846,8 +908,9 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#background-and-overview">Background and overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notations">Notations</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-s-details">Model(s) details</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematical-formalism">Mathematical formalism</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-state">Initial state</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-dynamics">Model dynamics</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#production-module">Production module</a></li>
@@ -901,7 +964,7 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
             
           </div>
           <footer class="bd-footer-content">
-            <div class="bd-footer-content__inner"></div>
+            
           </footer>
         
       </main>
@@ -909,8 +972,8 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+  <script src="_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -928,7 +991,7 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://sphinx-doc.org/">Sphinx</a> 6.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
     <br/>
   </p>
 </div>
@@ -939,7 +1002,7 @@ Production capacity of industry <span class="math notranslate nohighlight">\(f\)
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
 </p></div>
       
     </div>

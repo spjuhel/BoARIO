@@ -88,25 +88,25 @@ Variables
 
    .. code-block:: text
 
-      typing.Union[int, float, list, dict, numpy.ndarray, pandas.core.frame.DataFrame, pandas.core.series.Series]
+      typing.Union[int, float, list, dict, numpy.ndarray[typing.Any, numpy.dtype[+ScalarType]], pandas.core.frame.DataFrame, pandas.core.series.Series]
 
 .. autodata:: IndustriesList
    :annotation:
 
    .. code-block:: text
 
-      typing.Union[typing.List[typing.Tuple[str, str]], pandas.core.indexes.multi.MultiIndex, numpy.ndarray]
+      typing.Union[typing.List[typing.Tuple[str, str]], pandas.core.indexes.multi.MultiIndex, numpy.ndarray[typing.Any, numpy.dtype[+ScalarType]]]
 
 .. autodata:: SectorsList
    :annotation:
 
    .. code-block:: text
 
-      typing.Union[typing.List[str], pandas.core.indexes.base.Index, numpy.ndarray]
+      typing.Union[typing.List[str], pandas.core.indexes.base.Index, numpy.ndarray[typing.Any, numpy.dtype[+ScalarType]]]
 
 .. autodata:: RegionsList
    :annotation:
 
    .. code-block:: text
 
-      typing.Union[typing.List[str], pandas.core.indexes.base.Index, numpy.ndarray]
+      typing.Union[typing.List[str], pandas.core.indexes.base.Index, numpy.ndarray[typing.Any, numpy.dtype[+ScalarType]]]

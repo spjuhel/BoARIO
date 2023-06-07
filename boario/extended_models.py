@@ -15,8 +15,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
-from typing import Dict
+from typing import Dict, Optional
 import numpy as np
+import pandas as pd
 from boario import logger
 from boario.model_base import *
 from boario.event import *
@@ -37,9 +38,16 @@ class ARIOPsiModel(ARIOBaseModel):
         rebuild_tau=60,
         main_inv_dur=90,
         monetary_factor=10**6,
-        psi_param=0.90,
+        temporal_units_by_step: int = 1,
+        iotable_year_to_temporal_unit_factor: int = 365,
+        infinite_inventories_sect: Optional[list] = None,
+        inventory_dict: Optional[dict] = None,
+        productive_capital_vector: Optional[
+            pd.Series | np.ndarray | pd.DataFrame
+        ] = None,
+        productive_capital_to_VA_dict: Optional[dict] = None,
+        psi_param=0.80,
         inventory_restoration_tau: int | Dict[str, int] = 60,
-        **kwargs,
     ) -> None:
         """An ARIO3 model with some additional features
 
@@ -55,7 +63,12 @@ class ARIOPsiModel(ARIOBaseModel):
             rebuild_tau=rebuild_tau,
             main_inv_dur=main_inv_dur,
             monetary_factor=monetary_factor,
-            **kwargs,
+            temporal_units_by_step=temporal_units_by_step,
+            iotable_year_to_temporal_unit_factor=iotable_year_to_temporal_unit_factor,
+            infinite_inventories_sect=infinite_inventories_sect,
+            inventory_dict=inventory_dict,
+            productive_capital_vector=productive_capital_vector,
+            productive_capital_to_VA_dict=productive_capital_to_VA_dict,
         )
 
         logger.debug("Model is an ARIOPsiModel")
@@ -66,10 +79,14 @@ class ARIOPsiModel(ARIOBaseModel):
 
         elif isinstance(psi_param, float):
             self.psi = psi_param
+        elif isinstance(psi_param, int):
+            self.psi = float(psi_param)
         else:
             raise ValueError(
                 "'psi_param' parameter is neither a str rep of a float or a float"
             )
+        if self.psi > 1.0:
+            raise ValueError("'psi_param' parameter must be less or equal than 1.")
 
         if isinstance(inventory_restoration_tau, int):
             restoration_tau = [
@@ -85,11 +102,19 @@ class ARIOPsiModel(ARIOBaseModel):
                 )
 
             for _, value in inventory_restoration_tau.items():
-                if not isinstance(value, int):
+                if isinstance(value, float):
+                    if not value.is_integer():
+                        raise ValueError(
+                            f"Invalid value: {value} ({type(value)}) in inventory_restoration_tau, values should be integer: {inventory_restoration_tau}"
+                        )
+                elif not isinstance(value, int):
                     raise ValueError(
-                        "Invalid value in inventory_restoration_tau, values should be integer."
+                        f"Invalid value: {value} ({type(value)}) in inventory_restoration_tau, values should be integer: {inventory_restoration_tau}"
                     )
 
+            inventory_restoration_tau = {
+                key: int(val) for key, val in inventory_restoration_tau.items()
+            }
             inventory_restoration_tau = dict(sorted(inventory_restoration_tau.items()))
             restoration_tau = [
                 (self.n_temporal_units_by_step / v) if v >= INV_THRESHOLD else v
@@ -100,7 +125,7 @@ class ARIOPsiModel(ARIOBaseModel):
                 f"Invalid inventory_restoration_tau: expected dict or int got {type(inventory_restoration_tau)}"
             )
         self.restoration_tau = np.array(restoration_tau)
-        """numpy.ndarray of int: Array of size :math:`n` setting for each inputs its characteristic restoration time :math:`\tau_{\textrm{INV}}` in ``n_temporal_units_by_step``. (see :ref:`boario-math`)."""
+        r"""numpy.ndarray of int: Array of size :math:`n` setting for each inputs its characteristic restoration time :math:`\tau_{\textrm{INV}}` in ``n_temporal_units_by_step``. (see :ref:`boario-math`)."""
         #################################################################
 
     @property
@@ -116,50 +141,6 @@ class ARIOPsiModel(ARIOBaseModel):
     def calc_production(self, current_temporal_unit: int) -> np.ndarray:
         r"""Computes and updates actual production. The difference with :class:`ARIOBaseModel` is in the way
         inventory constraints are computed. See :ref:`boario-math-prod`.
-
-        1. Computes ``production_opt`` and ``inventory_constraints`` as :
-
-        .. math::
-           :nowrap:
-
-                \begin{alignat*}{4}
-                      \iox^{\textrm{Opt}}(t) &= (x^{\textrm{Opt}}_{f}(t))_{f \in \firmsset} &&= \left ( \min \left ( d^{\textrm{Tot}}_{f}(t), x^{\textrm{Cap}}_{f}(t) \right ) \right )_{f \in \firmsset} && \text{Optimal production}\\
-                      \ioinv^{\textrm{Cons}}(t) &= (\omega^{\textrm{Cons},f}_p(t))_{\substack{p \in \sectorsset\\f \in \firmsset}} &&=
-                           \begin{bmatrix}
-                             s^{1}_1 & \hdots & s^{p}_1 \\
-                             \vdots & \ddots & \vdots\\
-                             s^1_n & \hdots & s^{p}_n
-                           \end{bmatrix}
-                  \odot \begin{bmatrix} \iox^{\textrm{Opt}}(t)\\
-                  \vdots\\
-                  \iox^{\textrm{Opt}}(t) \end{bmatrix} \odot \ioa^{\sectorsset} && \text{Inventory constraints} \\
-                  &&&= \begin{bmatrix}
-                  s^{1}_1 x^{\textrm{Opt}}_{1}(t) a_{11} & \hdots & s^{p}_1 x^{\textrm{Opt}}_{p}(t) a_{1p}\\
-                  \vdots & \ddots & \vdots\\
-                  s^1_n x^{\textrm{Opt}}_{1}(t) a_{n1} & \hdots & s^{p}_n x^{\textrm{Opt}}_{p}(t) a_{np}
-                  \end{bmatrix}
-                  \cdot \psi &&  \\
-                   &&&= \begin{bmatrix}
-                        \tau^{1}_1 x^{\textrm{Opt}}_{1}(t) a_{11} & \hdots & \tau^{p}_1 x^{\textrm{Opt}}_{p}(t) a_{1p}\\
-                        \vdots & \ddots & \vdots\\
-                        \tau^1_n x^{\textrm{Opt}}_{1}(t) a_{n1} & \hdots & \tau^{p}_n x^{\textrm{Opt}}_{p}(t) a_{np}
-                    \end{bmatrix} && \\
-                \end{alignat*}
-
-        2. If stocks do not meet ``inventory_constraints`` for any inputs, then decrease production accordingly :
-
-        .. math::
-           :nowrap:
-
-                \begin{alignat*}{4}
-                    \iox^{a}(t) &= (x^{a}_{f}(t))_{f \in \firmsset} &&= \left \{ \begin{aligned}
-                                                           & x^{\textrm{Opt}}_{f}(t) & \text{if $\omega_{p}^f(t) \geq \omega^{\textrm{Cons},f}_p(t)$}\\
-                                                           & x^{\textrm{Opt}}_{f}(t) \cdot \min_{p \in \sectorsset} \left ( \frac{\omega^s_{p}(t)}{\omega^{\textrm{Cons,f}}_p(t)} \right ) & \text{if $\omega_{p}^f(t) < \omega^{\textrm{Cons},f}_p(t)$}
-                                                           \end{aligned} \right. \quad &&
-                \end{alignat*}
-
-        Also warns in logs if such shortages happen.
-
 
         Parameters
         ----------

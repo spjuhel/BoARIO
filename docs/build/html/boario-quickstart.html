@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 
 
@@ -7,7 +6,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Quickstart and examples &#8212; BoARIO  documentation</title>
   
@@ -19,12 +18,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -35,21 +34,22 @@
     <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>
-    <script>window.MathJax = {"chtml": {"displayAlign": "left", "displayIndent": "2em"}, "loader": {"load": ["[tex]/color"]}, "tex": {"packages": {"[+]": ["color"]}, "macros": {"colvec": ["\\begin{bmatrix}#1 \\\\ \\vdots\\\\ #2 \\end{bmatrix}", 2], "rfirmsset": ["\\mathbf{F}^{#1}", 1], "mdefentryval": ["(#1_{#3#5}( #2 )^{#7#8})_{\\substack{#3 \\in #4 \\\\ #5 \\in #6}}", 8], "mdefentry": ["(#1_{#3#5}^{#7#8})_{\\substack{#3 \\in #4 \\\\ #5 \\in #6}}", 8], "irowsum": "\\begin{bmatrix} 1 \\\\ \\vdots \\\\ 1 \\end{bmatrix}", "isum": "\\underset{s \\times p}{\\begin{bmatrix} 1 & \\cdots & 0 & & 1 & \\cdots & 0\\\\ \\vdots & \\ddots & \\vdots & \\cdots &\\vdots & \\ddots & \\vdots\\\\ 0 & \\cdots & 1 & & 0 & \\cdots & 1 \\end{bmatrix}}", "ioorders": "\\mathbf{O}", "sectorsset": "\\mathbb{S}", "sectorssetsize": "n", "regionsset": "\\mathbb{R}", "regionssetsize": "m", "firmsset": "\\mathbb{F}", "firmssetsize": "p", "catfdset": "\\mathbb{C}^{\\textrm{fd}}", "catfdsetsize": "r", "catvaset": "\\mathbb{C}^{\\textrm{va}}", "catvasetsize": "q", "ioz": "\\mathbf{Z}", "ioy": "\\mathbf{Y}", "iov": "\\mathbf{V}", "iox": "\\mathbf{x}", "ioa": "\\mathbf{A}", "iok": "\\mathbf{K}", "ioava": "\\mathbf{A}_{\\textrm{va}}", "ioinv": "\\mathbf{\\Omega}", "Damage": "\\mathbf{\\Gamma}", "damage": "\\gamma"}}}</script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"chtml": {"displayAlign": "left", "displayIndent": "2em"}, "loader": {"load": ["[tex]/color"]}, "tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "packages": {"[+]": ["color"]}, "macros": {"colvec": ["\\begin{bmatrix}#1 \\\\ \\vdots\\\\ #2 \\end{bmatrix}", 2], "rfirmsset": ["\\mathbf{F}^{#1}", 1], "mdefentryval": ["(#1_{#3#5}( #2 )^{#7#8})_{\\substack{#3 \\in #4 \\\\ #5 \\in #6}}", 8], "mdefentry": ["(#1_{#3#5}^{#7#8})_{\\substack{#3 \\in #4 \\\\ #5 \\in #6}}", 8], "irowsum": "\\begin{bmatrix} 1 \\\\ \\vdots \\\\ 1 \\end{bmatrix}", "isum": "\\underset{s \\times p}{\\begin{bmatrix} 1 & \\cdots & 0 & & 1 & \\cdots & 0\\\\ \\vdots & \\ddots & \\vdots & \\cdots &\\vdots & \\ddots & \\vdots\\\\ 0 & \\cdots & 1 & & 0 & \\cdots & 1 \\end{bmatrix}}", "ioorders": "\\mathbf{O}", "sectorsset": "\\mathbb{S}", "sectorssetsize": "n", "regionsset": "\\mathbb{R}", "regionssetsize": "m", "firmsset": "\\mathbb{F}", "firmssetsize": "p", "catfdset": "\\mathbb{C}^{\\textrm{fd}}", "catfdsetsize": "r", "catvaset": "\\mathbb{C}^{\\textrm{va}}", "catvasetsize": "q", "ioz": "\\mathbf{Z}", "ioy": "\\mathbf{Y}", "iov": "\\mathbf{V}", "iox": "\\mathbf{x}", "ioa": "\\mathbf{A}", "iok": "\\mathbf{K}", "ioava": "\\mathbf{A}_{\\textrm{va}}", "ioinv": "\\mathbf{\\Omega}", "Damage": "\\mathbf{\\Gamma}", "damage": "\\gamma"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'boario-quickstart';</script>
     <script src="_static/js/custom.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="How to define Events" href="boario-events.html" />
+    <link rel="next" title="Quickstart example" href="notebooks/boario-quickstart.html" />
     <link rel="prev" title="Terminology" href="boario-terminology.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -162,7 +162,7 @@
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -187,7 +187,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Jun 07, 2023.
   <br/>
 </p></div>
       
@@ -278,7 +278,7 @@ document.write(`
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -292,7 +292,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Jun 07, 2023.
   <br/>
 </p></div>
         
@@ -315,14 +315,16 @@ document.write(`
         <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current nav bd-sidenav">
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="boario-what-is.html">BoARIO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-terminology.html">Terminology</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Quickstart and examples</a></li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Quickstart and examples</a><input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/boario-quickstart.html">Quickstart example</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="boario-events.html">How to define Events</a></li>
-<li class="toctree-l1"><a class="reference internal" href="boario-math.html">Detailed model description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boario-math.html">Model description</a></li>
 </ul>
 </div>
 </nav></div>
@@ -385,68 +387,22 @@ document.write(`
 <p>For the following examples, we assume you have followed installation instructions.</p>
 <p>If you encounter any problems with one of the examples bellow, please <a class="reference external" href="https://github.com/spjuhel/BoARIO/issues/new">raise an issue</a>
 on the repository, or <a class="reference external" href="mailto:pro&#37;&#52;&#48;sjuhel&#46;org">contact the developer</a>.</p>
-<section id="minimal-working-full-example">
-<h2>Minimal working full example<a class="headerlink" href="#minimal-working-full-example" title="Permalink to this heading">#</a></h2>
-<p>In the following example, we use the “test” MRIO of the pymrio module,
-which doesn’t require to load additional data and has a low number of sectors and
-regions, allowing fast computation.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># import pymrio for the test MRIO</span>
-<span class="kn">import</span> <span class="nn">pymrio</span>
-
-<span class="c1"># import pandas for the plot</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-
-<span class="c1"># import the different classes</span>
-<span class="kn">from</span> <span class="nn">boario.simulation</span> <span class="kn">import</span> <span class="n">Simulation</span>  <span class="c1"># Simulation wraps the model</span>
-<span class="kn">from</span> <span class="nn">boario.extended_models</span> <span class="kn">import</span> <span class="n">ARIOPsiModel</span>  <span class="c1"># The core of the model</span>
-
-<span class="c1"># A class computing and storing indicators based on a simulation</span>
-<span class="kn">from</span> <span class="nn">boario.indicators</span> <span class="kn">import</span> <span class="n">Indicators</span>
-<span class="kn">from</span> <span class="nn">boario.event</span> <span class="kn">import</span> <span class="n">EventKapitalRecover</span>  <span class="c1"># A class defining a shock on capital</span>
-
-<span class="c1"># Load the IOSystem from pymrio</span>
-<span class="n">mrio</span> <span class="o">=</span> <span class="n">pymrio</span><span class="o">.</span><span class="n">load_test</span><span class="p">()</span><span class="o">.</span><span class="n">calc_all</span><span class="p">()</span>
-
-<span class="c1"># Instantiate the model and the simulation</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">ARIOPsiModel</span><span class="p">(</span><span class="n">mrio</span><span class="p">)</span>
-<span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-
-<span class="c1"># Instantiate an event.</span>
-<span class="n">ev</span> <span class="o">=</span> <span class="n">EventKapitalRebuild</span><span class="p">(</span>
-    <span class="n">impact</span><span class="o">=</span><span class="mi">10000000</span><span class="p">,</span>
-    <span class="n">aff_regions</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;reg1&quot;</span><span class="p">],</span>
-    <span class="n">aff_sectors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;manufactoring&quot;</span><span class="p">,</span> <span class="s2">&quot;mining&quot;</span><span class="p">],</span>
-    <span class="n">rebuilding_sectors</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;construction&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
-    <span class="n">rebuilding_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="c1"># Add the event to the simulation</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
-
-<span class="c1"># Launch the simulation</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">loop</span><span class="p">()</span>
-
-<span class="c1"># You should be able to generate a dataframe of</span>
-<span class="c1"># the production with the following line</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">production_evolution</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">)</span>
-
-<span class="c1"># This allows to normalize production at its initial level</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">(</span><span class="s2">&quot;reg1&quot;</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">))]</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
-</pre></div>
+<section id="quickstart-example">
+<h2>Quickstart example<a class="headerlink" href="#quickstart-example" title="Permalink to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/boario-quickstart.html">Quickstart example</a></li>
+</ul>
 </div>
-<p>You should get a plot looking like this one:</p>
-<a class="reference internal image-reference" href="_images/boario-minimal-example-1-plot.png"><img alt="Example of results plot" src="_images/boario-minimal-example-1-plot.png" style="width: 600px;" /></a>
 </section>
 <section id="ario-vs-ariobasemodel-vs-ariopsimodel">
 <h2>ARIO vs <a class="reference internal" href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel" title="boario.model_base.ARIOBaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOBaseModel</span></code></a> vs <a class="reference internal" href="autoapi/boario.extended_models.html#boario.extended_models.ARIOPsiModel" title="boario.extended_models.ARIOPsiModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOPsiModel</span></code></a><a class="headerlink" href="#ario-vs-ariobasemodel-vs-ariopsimodel" title="Permalink to this heading">#</a></h2>
 <p>Currently, two model classes are implemented, <a class="reference internal" href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel" title="boario.model_base.ARIOBaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOBaseModel</span></code></a> and <a class="reference internal" href="autoapi/boario.extended_models.html#boario.extended_models.ARIOPsiModel" title="boario.extended_models.ARIOPsiModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOPsiModel</span></code></a>.
 <a class="reference internal" href="autoapi/boario.model_base.html#boario.model_base.ARIOBaseModel" title="boario.model_base.ARIOBaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOBaseModel</span></code></a> is essentially a theoretical implementation used to test a “simplistic and essential” version of the model, and should not
 be used directly other than for developing new variants.</p>
-<p><a class="reference internal" href="autoapi/boario.extended_models.html#boario.extended_models.ARIOPsiModel" title="boario.extended_models.ARIOPsiModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOPsiModel</span></code></a> mostly implements the version presented in <span id="id1">[<a class="reference internal" href="boario-references.html#id2" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span> for the multi-regional case,
-as well as (optionally) the intermediate order mechanism presented in <span id="id2">[<a class="reference internal" href="boario-references.html#id4" title="Dabo Guan, Daoping Wang, Stephane Hallegatte, Steven J. Davis, Jingwen Huo, Shuping Li, Yangchun Bai, Tianyang Lei, Qianyu Xue, D'Maris Coffman, Danyang Cheng, Peipei Chen, Xi Liang, Bing Xu, Xiaosheng Lu, Shouyang Wang, Klaus Hubacek, and Peng Gong. Global supply-chain effects of covid-19 control measures. Nature Human Behaviour, 4(6):577-587, 2020. URL: http://dx.doi.org/10.1038/s41562-020-0896-8, doi:10.1038/s41562-020-0896-8.">GWH+20</a>]</span>.</p>
-<p>One mechanism currently not implemented is the <cite>macro effect</cite> on final demand described in <span id="id3">[<a class="reference internal" href="boario-references.html#id3" title="Stéphane Hallegatte. An adaptive regional input-output model and its application to the assessment of the economic cost of katrina. Risk Analysis, 28(3):779-799, 2008. URL: https://doi.org/10.1111/j.1539-6924.2008.01046.x, doi:10.1111/j.1539-6924.2008.01046.x.">Hal08</a>]</span>. This mechanism should be implemented in a future update.</p>
+<p><a class="reference internal" href="autoapi/boario.extended_models.html#boario.extended_models.ARIOPsiModel" title="boario.extended_models.ARIOPsiModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOPsiModel</span></code></a> mostly implements the version presented in <span id="id1">[<a class="reference internal" href="boario-references.html#id24" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span> for the multi-regional case,
+as well as (optionally) the intermediate order mechanism presented in <span id="id2">[<a class="reference internal" href="boario-references.html#id26" title="Dabo Guan, Daoping Wang, Stephane Hallegatte, Steven J. Davis, Jingwen Huo, Shuping Li, Yangchun Bai, Tianyang Lei, Qianyu Xue, D'Maris Coffman, Danyang Cheng, Peipei Chen, Xi Liang, Bing Xu, Xiaosheng Lu, Shouyang Wang, Klaus Hubacek, and Peng Gong. Global supply-chain effects of covid-19 control measures. Nature Human Behaviour, 4(6):577-587, 2020. URL: http://dx.doi.org/10.1038/s41562-020-0896-8, doi:10.1038/s41562-020-0896-8.">GWH+20</a>]</span>.</p>
+<p>One mechanism currently not implemented is the <cite>macro effect</cite> on final demand described in <span id="id3">[<a class="reference internal" href="boario-references.html#id25" title="Stéphane Hallegatte. An adaptive regional input-output model and its application to the assessment of the economic cost of katrina. Risk Analysis, 28(3):779-799, 2008. URL: https://doi.org/10.1111/j.1539-6924.2008.01046.x, doi:10.1111/j.1539-6924.2008.01046.x.">Hal08</a>]</span>. This mechanism should be implemented in a future update.</p>
 </section>
 <section id="iosystem-input">
 <h2><code class="xref py py-class docutils literal notranslate"><span class="pre">IOSystem</span></code> input<a class="headerlink" href="#iosystem-input" title="Permalink to this heading">#</a></h2>
@@ -483,8 +439,8 @@ with various parameters. One objective of BoARIO is to offer an extensive,
 modular and adaptable implementation of these versions, in order to allow easy
 access to version comparison, parameters values exploration and modeling
 improvement.</p>
-<p>If you are not familiar with the model, it is strongly advised to read the <a class="reference internal" href="boario-math.html#boario-math"><span class="std std-ref">Detailed model description</span></a> page of this documentation,
-as well as <span id="id4">[<a class="reference internal" href="boario-references.html#id2" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span>.</p>
+<p>If you are not familiar with the model, it is strongly advised to read the <a class="reference internal" href="boario-math.html#boario-math"><span class="std std-ref">Model description</span></a> page of this documentation,
+as well as <span id="id4">[<a class="reference internal" href="boario-references.html#id24" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span>.</p>
 <p>Parameters are set when instantiating the model. The following block shows all currently available parameters as well as their default value.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">ARIOPsiModel</span><span class="p">(</span>
     <span class="n">pym_mrio</span><span class="o">=</span><span class="n">mrio</span><span class="p">,</span>
@@ -499,14 +455,16 @@ as well as <span id="id4">[<a class="reference internal" href="boario-references
     <span class="n">iotable_year_to_temporal_unit_factor</span><span class="o">=</span><span class="mi">365</span><span class="p">,</span>
     <span class="n">infinite_inventories_sect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">inventory_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">kapital_vector</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stock_exp</span><span class="p">,</span>
-    <span class="n">kapital_to_VA_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">productive_capital_vector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">productive_capital_to_VA_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">psi_param</span> <span class="o">=</span> <span class="mf">0.80</span><span class="p">,</span>
+    <span class="n">inventory_restoration_tau</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>Here a quick description of each parameters. Please refer to both <a class="reference internal" href="boario-math.html#boario-math"><span class="std std-ref">the mathematical description</span></a> and the <a class="reference internal" href="boario-api-reference.html#api-ref"><span class="std std-ref">API Reference</span></a> for further details.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">order_type</span></code> : Setting it to <code class="docutils literal notranslate"><span class="pre">&quot;alt&quot;</span></code> makes the model use the intermediate order mechanism described in <span id="id5">[<a class="reference internal" href="boario-references.html#id4" title="Dabo Guan, Daoping Wang, Stephane Hallegatte, Steven J. Davis, Jingwen Huo, Shuping Li, Yangchun Bai, Tianyang Lei, Qianyu Xue, D'Maris Coffman, Danyang Cheng, Peipei Chen, Xi Liang, Bing Xu, Xiaosheng Lu, Shouyang Wang, Klaus Hubacek, and Peng Gong. Global supply-chain effects of covid-19 control measures. Nature Human Behaviour, 4(6):577-587, 2020. URL: http://dx.doi.org/10.1038/s41562-020-0896-8, doi:10.1038/s41562-020-0896-8.">GWH+20</a>]</span>. Any other value makes the model use the <cite>classic</cite> order mechanism used in <span id="id6">[<a class="reference internal" href="boario-references.html#id2" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span> (see <a class="reference internal" href="boario-math.html#alt-orders"><span class="std std-ref">Orders shares variants</span></a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">order_type</span></code> : Setting it to <code class="docutils literal notranslate"><span class="pre">&quot;alt&quot;</span></code> makes the model use the intermediate order mechanism described in <span id="id5">[<a class="reference internal" href="boario-references.html#id26" title="Dabo Guan, Daoping Wang, Stephane Hallegatte, Steven J. Davis, Jingwen Huo, Shuping Li, Yangchun Bai, Tianyang Lei, Qianyu Xue, D'Maris Coffman, Danyang Cheng, Peipei Chen, Xi Liang, Bing Xu, Xiaosheng Lu, Shouyang Wang, Klaus Hubacek, and Peng Gong. Global supply-chain effects of covid-19 control measures. Nature Human Behaviour, 4(6):577-587, 2020. URL: http://dx.doi.org/10.1038/s41562-020-0896-8, doi:10.1038/s41562-020-0896-8.">GWH+20</a>]</span>. Any other value makes the model use the <cite>classic</cite> order mechanism used in <span id="id6">[<a class="reference internal" href="boario-references.html#id24" title="Stéphane Hallegatte. Modeling the role of inventories and heterogeneity in the assessment of the economic costs of natural disasters. Risk Analysis, 34(1):152-167, 2013. URL: https://doi.org/10.1111/risa.12090, doi:10.1111/risa.12090.">Hal13</a>]</span> (see <a class="reference internal" href="boario-math.html#alt-orders"><span class="std std-ref">Orders shares variants</span></a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">alpha_base</span></code>, <code class="docutils literal notranslate"><span class="pre">alpha_max</span></code>, <code class="docutils literal notranslate"><span class="pre">alpha_tau</span></code> respectively set the base overproduction, the maximum overproduction, and its characteristic time (in <cite>temporal unit</cite>).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rebuild_tau</span></code> sets the default rebuilding or recovering characteristic time for events (this value is overridden if specified directly in the Event object)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">inventory_dict</span></code> should be a dictionary of <code class="docutils literal notranslate"><span class="pre">sector:duration</span></code> format, where all sector are present and <code class="docutils literal notranslate"><span class="pre">duration</span></code> is both the initial and goal duration for this input stock.</p></li>
@@ -517,8 +475,9 @@ as well as <span id="id4">[<a class="reference internal" href="boario-references
 </ul>
 <ul class="simple" id="year-to-temporal-unit-factor">
 <li><p><code class="docutils literal notranslate"><span class="pre">iotable_year_to_temporal_unit_factor</span></code> defines the <cite>temporal unit</cite> assuming the MRIO contains yearly values. Note that this has not been extensively tested and should be used with care.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">kapital_to_VA_dict</span></code> should be a dictionary of <code class="docutils literal notranslate"><span class="pre">sector:ratio</span></code> format, where ratio is an estimate of Capital Stock over Value Added ratio. This is used to estimate the capital stock of each sector. By default the ratio is 4/1 for all sectors.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">kapital_vector</span></code> can directly set the capital stock for all industries (ie regions*sectors sized). This overrides <code class="docutils literal notranslate"><span class="pre">kapital_to_VA_dict</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">productive_capital_to_VA_dict</span></code> should be a dictionary of <code class="docutils literal notranslate"><span class="pre">sector:ratio</span></code> format, where ratio is an estimate of Capital Stock over Value Added ratio. This is used to estimate the capital stock of each sector. By default the ratio is 4/1 for all sectors.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">productive_capital_vector</span></code> can directly set the capital stock for all industries (ie regions*sectors sized). This overrides <code class="docutils literal notranslate"><span class="pre">kapital_to_VA_dict</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">psi_param</span></code> and <code class="docutils literal notranslate"><span class="pre">inventory_restoration_tau</span></code> : see <a class="reference internal" href="boario-math.html#boario-math-dyn"><span class="std std-ref">Model dynamics</span></a></p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -531,59 +490,53 @@ as well as <span id="id4">[<a class="reference internal" href="boario-references
 <section id="monitoring-the-model-variables">
 <span id="variables-evolution"></span><h3>Monitoring the model variables<a class="headerlink" href="#monitoring-the-model-variables" title="Permalink to this heading">#</a></h3>
 <p>By default, simulations record the evolution of variables in temporary files, and the arrays
-are accessible directly as attributes as long as the <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> object exists.
-For convenience all such attributes ends with <code class="docutils literal notranslate"><span class="pre">_evolution</span></code>.
-The arrays contains the variables values for each regions for each sector for each temporal unit.
+are accessible directly as attributes as long as the <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> object exists.</p>
+<p>Their available as DataFrame and contain the variables values for each regions for each sector for each temporal unit.
 Each row represent a temporal unit. The columns are all the possible (region,sector) tuples, ie industries,
 ordered in lexicographic order.</p>
 <p>Here is a commented list of these attributes:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The realised production</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">production_evolution</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">production_realised</span>
 
 <span class="c1"># The production capacity</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">production_cap_evolution</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">production_capacity</span>
 
 <span class="c1"># The share of realised production distributed to rebuilding</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">rebuild_production_evolution</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">rebuild_prod</span>
 
 <span class="c1"># The overproduction factor</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">overproduction_evolution</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">overproduction</span>
 
 <span class="c1"># The (total) intermediate demand (ie how much intermediate demand was addressed to sector i in region j)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">io_demand_evolution</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">intermediate_demand</span>
 
-<span class="c1"># The (total) final demand (note the final demand is currently fix in the model)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">final_demand_evolution</span>
+<span class="c1"># The (total) final demand (note that the final demand is currently fix in the model)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">final_demand</span>
 
 <span class="c1"># The (total) rebuild demand</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">rebuild_demand_evolution</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">rebuild_demand</span>
 
 <span class="c1"># The amount of final demand that couldn&#39;t be satisfied</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">final_demand_unmet_evolution</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">final_demand_unmet</span>
 
 <span class="c1"># The remaining amount of destroyed (ie not recovered/rebuilt) capital</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">regional_sectoral_kapital_destroyed_evolution</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">productive_capital_to_recover</span>
 
 <span class="c1"># Note that the following array have one more dimension,</span>
 <span class="c1"># their shape is (temporal units, sectors, regions*sectors)</span>
 <span class="c1"># This one states for each temporal unit, for each input, for each (region,sector)</span>
 <span class="c1"># if the input was limiting production. For efficiency, information is stored as a</span>
 <span class="c1"># byte, -1 for False, 1 for True</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">limiting_inputs_evolution</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">limiting_inputs</span>
 </pre></div>
 </div>
 <p>It is also possible to record the inputs stocks, but this is disabled by defaults as its shape is the same as
-<code class="docutils literal notranslate"><span class="pre">limiting_inputs_evolution</span></code>, but its <code class="docutils literal notranslate"><span class="pre">dtype</span></code> is <code class="docutils literal notranslate"><span class="pre">float64</span></code>, which can very rapidly lead to huge files.</p>
+<code class="docutils literal notranslate"><span class="pre">limiting_inputs</span></code>, but its <code class="docutils literal notranslate"><span class="pre">dtype</span></code> is <code class="docutils literal notranslate"><span class="pre">float64</span></code>, which can very rapidly lead to huge files.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup the recording of stocks</span>
 <span class="n">sim</span> <span class="o">=</span> <span class="n">simulation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">register_stocks</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Access the array</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">inputs_evolution</span>
-</pre></div>
-</div>
-<p>These files are raw numpy arrays (for efficiency purpose) but you can easily transform them to pandas DataFrame as <code class="docutils literal notranslate"><span class="pre">model.industries</span></code> stores
-the relevant MultiIndex.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">production_evolution</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">industries</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">inputs_stocks</span>
 </pre></div>
 </div>
 </section>
@@ -593,14 +546,14 @@ the relevant MultiIndex.</p>
 the following arguments can be used when instantiating a
 <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> object:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;save_index&quot;</span></code> : <code class="docutils literal notranslate"><span class="pre">True|False</span></code>, if <code class="docutils literal notranslate"><span class="pre">True</span></code>, save a file <code class="file docutils literal notranslate"><span class="pre">boario_output_dir/results/jsons/indexes.json</span></code>, where the indexes (regions, sectors, final demand categories, etc.) are stored.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;save_params&quot;</span></code> : <code class="docutils literal notranslate"><span class="pre">True|False</span></code>, if <code class="docutils literal notranslate"><span class="pre">True</span></code>, save a file <code class="file docutils literal notranslate"><span class="pre">boario_output_dir/results/jsons/simulated_params.json</span></code>, where the simulation parameters are stored.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;save_events&quot;</span></code> : <code class="docutils literal notranslate"><span class="pre">True|False</span></code>, if <code class="docutils literal notranslate"><span class="pre">True</span></code>, save a file <code class="file docutils literal notranslate"><span class="pre">boario_output_dir/results/jsons/simulated_events.json</span></code>, where the indexes (regions, sectors, final demand categories, etc.) are stored.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;save_index&quot;</span></code> : <code class="docutils literal notranslate"><span class="pre">True|False</span></code>, if <code class="docutils literal notranslate"><span class="pre">True</span></code>, saves a file <code class="file docutils literal notranslate"><span class="pre">boario_output_dir/results/jsons/indexes.json</span></code>, where the indexes (regions, sectors, final demand categories, etc.) are stored.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;save_params&quot;</span></code> : <code class="docutils literal notranslate"><span class="pre">True|False</span></code>, if <code class="docutils literal notranslate"><span class="pre">True</span></code>, saves a file <code class="file docutils literal notranslate"><span class="pre">boario_output_dir/results/jsons/simulated_params.json</span></code>, where the simulation parameters are stored.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;save_events&quot;</span></code> : <code class="docutils literal notranslate"><span class="pre">True|False</span></code>, if <code class="docutils literal notranslate"><span class="pre">True</span></code>, saves a file <code class="file docutils literal notranslate"><span class="pre">boario_output_dir/results/jsons/simulated_events.json</span></code>, where the indexes (regions, sectors, final demand categories, etc.) are stored.</p></li>
 </ul>
 </section>
 <section id="record-files">
 <span id="recording"></span><h3>Record files<a class="headerlink" href="#record-files" title="Permalink to this heading">#</a></h3>
-<p>By defaults the arrays recording the evolution of variables are temporary files (<a class="reference internal" href="#variables-evolution"><span class="std std-ref">Monitoring the model variables</span></a>),
+<p>By defaults the arrays recording the evolution of variables are temporary files,
 which are deleted when the <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> object is destroyed.</p>
 <p>It is however possible to ask the <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> object to save any selection of these raw arrays,
 by giving a list and an output directory when instantiating. Here is the complete list of variables than can be saved:</p>
@@ -619,7 +572,7 @@ in the specified folder (or to a temporary directory prefixed by <code class="do
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Files saved like this can then be read with:</p>
+<p>Files saved like this are raw numpy arrays and can then be read with:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="c1"># For all records except limiting_inputs and inputs_stocks</span>
@@ -648,32 +601,6 @@ in the specified folder (or to a temporary directory prefixed by <code class="do
 </pre></div>
 </div>
 </section>
-<section id="indicators-and-parquet-files">
-<h3>Indicators and parquet files<a class="headerlink" href="#indicators-and-parquet-files" title="Permalink to this heading">#</a></h3>
-<p>You may also pass the <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> object to <code class="docutils literal notranslate"><span class="pre">indic</span> <span class="pre">=</span> <span class="pre">Indicators.from_sim()</span></code> to create an <a class="reference internal" href="autoapi/boario.indicators.html#boario.indicators.Indicators" title="boario.indicators.Indicators"><code class="xref py py-class docutils literal notranslate"><span class="pre">Indicators</span></code></a> object,
-which will among other things, generate all the pandas dataframe. These dataframes can then be accessed by <code class="docutils literal notranslate"><span class="pre">ind.production_realised_df</span></code> for example.</p>
-<p>If you also specify a <code class="docutils literal notranslate"><span class="pre">results_storage</span></code> argument, instantiating will also produce a <code class="docutils literal notranslate"><span class="pre">parquets</span></code> folder at the path given
-, inside which all dataframes will be stored as <a class="reference external" href="https://parquet.apache.org/">parquets</a> files (which can then be read easily using <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.read_parquet.html#pandas.read_parquet" title="(in pandas v1.5.3)"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_parquet()</span></code></a>).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">boario.indicators</span> <span class="kn">import</span> <span class="n">Indicators</span>
-
-<span class="n">indic</span> <span class="o">=</span> <span class="n">Indicators</span><span class="o">.</span><span class="n">from_sim</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">results_storage</span><span class="o">=</span><span class="s2">&quot;path/to/save/results&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Calling <code class="docutils literal notranslate"><span class="pre">indic.update_indicators()</span></code> fills the <code class="docutils literal notranslate"><span class="pre">indic.indicators</span></code> dictionary with the following indicators:</p>
-<ul class="simple">
-<li><p>The total (whole world, all sectors) final consumption not met during the simulation <code class="docutils literal notranslate"><span class="pre">indicator['tot_fd_unmet']</span></code>.</p></li>
-<li><p>The final consumption not met in the region(s) affected by the shock <code class="docutils literal notranslate"><span class="pre">indicator['aff_fd_unmet']</span></code>.</p></li>
-<li><p>The rebuild duration (ie the number of step during which rebuild demand is not zero) <code class="docutils literal notranslate"><span class="pre">indicator['rebuild_durations']</span></code>.</p></li>
-<li><p>If there was a shortage (<code class="docutils literal notranslate"><span class="pre">indicator['shortage_b']</span></code>), its start and end dates <code class="docutils literal notranslate"><span class="pre">indicator['shortage_date_start']</span></code> and <code class="docutils literal notranslate"><span class="pre">indicator['shortage_date_end']</span></code>.</p></li>
-<li><p>The top five <cite>(region,sectors)</cite> tuples where there was the biggest absolute change of production compared to a no shock scenario.</p></li>
-</ul>
-<p>It also produce dataframes indicators :</p>
-<ul class="simple">
-<li><p>The production change by region over the simulation (<code class="docutils literal notranslate"><span class="pre">indic.prod_chg_region</span></code>) giving for each region the total gain or loss in production during the simulation.</p></li>
-<li><p>The final consumption not met by region over the simulation (<code class="docutils literal notranslate"><span class="pre">indic.df_loss_region</span></code>) giving for each region the total loss in consumption during the simulation.</p></li>
-</ul>
-<p>Finally calling <code class="docutils literal notranslate"><span class="pre">indic.write_indicators(storage_path=&quot;/path/of/your/choosing&quot;)</span></code> will write the <code class="docutils literal notranslate"><span class="pre">indic.indicators</span></code> dictionary to <code class="file docutils literal notranslate"><span class="pre">indicators/indicators.json</span></code>, as well as <code class="file docutils literal notranslate"><span class="pre">indicators/prod_chg.json</span></code> and <code class="file docutils literal notranslate"><span class="pre">indicators/fd_loss.json</span></code>. The parent folder defaults to the <code class="docutils literal notranslate"><span class="pre">results_storage</span></code> argument given when instantiating the <code class="docutils literal notranslate"><span class="pre">Indicators</span></code> object and is overridden if <code class="docutils literal notranslate"><span class="pre">storage_path</span></code> is specified. Note that if neither was given, an error is raised.</p>
-</section>
 </section>
 </section>
 
@@ -683,7 +610,10 @@ which will among other things, generate all the pandas dataframe. These datafram
               
               
                 <footer class="bd-footer-article">
-                  <!-- Previous / next buttons -->
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
        href="boario-terminology.html"
@@ -695,15 +625,18 @@ which will among other things, generate all the pandas dataframe. These datafram
       </div>
     </a>
     <a class="right-next"
-       href="boario-events.html"
+       href="notebooks/boario-quickstart.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">How to define Events</p>
+        <p class="prev-next-title">Quickstart example</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
+</div></div>
+  
 </div>
+
                 </footer>
               
             </div>
@@ -718,7 +651,7 @@ which will among other things, generate all the pandas dataframe. These datafram
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#minimal-working-full-example">Minimal working full example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quickstart-example">Quickstart example</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ario-vs-ariobasemodel-vs-ariopsimodel">ARIO vs <code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOBaseModel</span></code> vs <code class="xref py py-class docutils literal notranslate"><span class="pre">ARIOPsiModel</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#iosystem-input"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOSystem</span></code> input</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#temporal-dimension">Temporal dimension</a></li>
@@ -727,7 +660,6 @@ which will among other things, generate all the pandas dataframe. These datafram
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#monitoring-the-model-variables">Monitoring the model variables</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-indexes-parameters-and-events-simulated">Saving indexes, parameters and events simulated</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#record-files">Record files</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#indicators-and-parquet-files">Indicators and parquet files</a></li>
 </ul>
 </li>
 </ul>
@@ -761,7 +693,7 @@ which will among other things, generate all the pandas dataframe. These datafram
             
           </div>
           <footer class="bd-footer-content">
-            <div class="bd-footer-content__inner"></div>
+            
           </footer>
         
       </main>
@@ -769,8 +701,8 @@ which will among other things, generate all the pandas dataframe. These datafram
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+  <script src="_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -788,7 +720,7 @@ which will among other things, generate all the pandas dataframe. These datafram
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://sphinx-doc.org/">Sphinx</a> 6.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
     <br/>
   </p>
 </div>
@@ -799,7 +731,7 @@ which will among other things, generate all the pandas dataframe. These datafram
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
 </p></div>
       
     </div>

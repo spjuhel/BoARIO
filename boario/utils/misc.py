@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from collections.abc import Iterable
+import textwrap
 import pymrio
 import numpy
 import json
@@ -118,3 +119,42 @@ def lexico_reindex(mrio: pymrio.IOSystem) -> pymrio.IOSystem:
     mrio.A = mrio.A.reindex(sorted(mrio.A.columns), axis=1)
 
     return mrio
+
+
+def sizeof_fmt(num, suffix="B"):
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.1f}Yi{suffix}"
+
+
+def print_summary(my_list):
+    if my_list:
+        current_element = None
+        current_count = 0
+        summary = []
+        for element in my_list:
+            if element != current_element:
+                if current_element is not None:
+                    if current_count == 1:
+                        summary.append(str(current_element))
+                    else:
+                        summary.append(f"{current_element} (x {current_count})")
+                current_element = element
+                current_count = 1
+            else:
+                current_count += 1
+        if current_element is not None:
+            if current_count == 1:
+                summary.append(str(current_element))
+            else:
+                summary.append(f"{current_element} (x {current_count})")
+        total_length = len(my_list)
+        total_sum = sum(my_list)
+        summary_string = (
+            "[" + ", ".join(summary) + f"] (len: {total_length}, sum: {total_sum})"
+        )
+        return textwrap.wrap(summary_string, width=80)
+    else:
+        return ""

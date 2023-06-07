@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 
 
@@ -7,7 +6,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>BoARIO &#8212; BoARIO  documentation</title>
   
@@ -19,12 +18,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -35,14 +34,15 @@
     <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'boario-what-is';</script>
     <script src="_static/js/custom.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -160,7 +160,7 @@
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -185,7 +185,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Jun 07, 2023.
   <br/>
 </p></div>
       
@@ -276,7 +276,7 @@ document.write(`
 
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="boario-references.html">
-                        References
+                        ARIO Academic work
                       </a>
                     </li>
                 
@@ -290,7 +290,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Mar 13, 2023.
+  Last updated on Jun 07, 2023.
   <br/>
 </p></div>
         
@@ -313,14 +313,13 @@ document.write(`
         <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current nav bd-sidenav">
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">BoARIO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-terminology.html">Terminology</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-quickstart.html">Quickstart and examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-events.html">How to define Events</a></li>
-<li class="toctree-l1"><a class="reference internal" href="boario-math.html">Detailed model description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boario-math.html">Model description</a></li>
 </ul>
 </div>
 </nav></div>
@@ -381,6 +380,11 @@ document.write(`
   <section id="boario">
 <h1>BoARIO<a class="headerlink" href="#boario" title="Permalink to this heading">#</a></h1>
 <p>BoARIO : The Adaptative Regional Input Output model in python.</p>
+<section id="disclaimer">
+<h2>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this heading">#</a></h2>
+<p>This work is in progress. The code has not been extensively tested. Any results produced with the model should be interpreted with great care.
+Do not hesitate to contact the author when using the model !</p>
+</section>
 <section id="what-is-boario">
 <h2>What is BoARIO ?<a class="headerlink" href="#what-is-boario" title="Permalink to this heading">#</a></h2>
 <p>BoARIO, is a python implementation project of the Adaptative Regional Input Output (ARIO) model [<a class="reference external" href="https://doi.org/10.1111/j.1539-6924.2008.01046.x">Hallegatte 2013</a>].</p>
@@ -388,13 +392,19 @@ document.write(`
 evaluate the effects of many parameters of the model.</p>
 <p>This implementation would not have been possible without the <a class="reference external" href="https://pymrio.readthedocs.io/en/latest/intro.html">Pymrio</a> module and amazing work of [<a class="reference external" href="https://openresearchsoftware.metajnl.com/articles/10.5334/jors.251/">Stadler 2021</a>] !</p>
 <p>It is still an ongoing project (in parallel of a PhD project).</p>
-<p>Here is a non-exhaustive chronology of academic works with or about the ARIO model :</p>
-<a class="reference internal image-reference" href="https://raw.githubusercontent.com/spjuhel/BoARIO/master/imgs/chronology.svg?sanitize=true"><img alt="ARIO academic work chronology" src="https://raw.githubusercontent.com/spjuhel/BoARIO/master/imgs/chronology.svg?sanitize=true" style="width: 900px;" /></a>
+<p>You can find most academic literature using ARIO or related models <a class="reference internal" href="boario-references.html#references"><span class="std std-ref">here</span></a></p>
 </section>
 <section id="what-is-ario">
 <h2>What is ARIO ?<a class="headerlink" href="#what-is-ario" title="Permalink to this heading">#</a></h2>
-<p>ARIO stands for Adaptive Regional Input-Output. It is an hybrid input-output / agent-based economic model, designed to compute indirect costs from economic shocks. Its first version dates back to 2008 and has originally been developed to assess the indirect costs of natural disasters (Hallegatte 2008).</p>
-<p>In ARIO, the economy is modelled as a set of economic sectors and a set of regions. Each economic sector produces its generic product and draws inputs from an inventory. Each sector answers to a total demand consisting of a final demand (household consumption, public spending and private investments) of all regions (local demand and exports) and intermediate demand (through inputs inventory resupply). An initial equilibrium state of the economy is built based on multi-regional input-output tables (MRIO tables).</p>
+<p>ARIO stands for Adaptive Regional Input-Output. It is an hybrid input-output / agent-based economic model,
+designed to compute indirect costs from economic shocks. Its first version dates back to 2008 and has originally
+been developed to assess the indirect costs of natural disasters (Hallegatte 2008).</p>
+<p>In ARIO, the economy is modelled as a set of economic sectors and a set of regions.
+Each economic sector produces its generic product and draws inputs from an inventory.
+Each sector answers to a total demand consisting of a final demand (household consumption,
+public spending and private investments) of all regions (local demand and exports) and
+intermediate demand (through inputs inventory resupply). An initial equilibrium state of
+the economy is built based on multi-regional input-output tables (MRIO tables).</p>
 </section>
 <section id="where-to-get-boario">
 <h2>Where to get BoARIO ?<a class="headerlink" href="#where-to-get-boario" title="Permalink to this heading">#</a></h2>
@@ -435,7 +445,7 @@ This work was supported by the French Environment and Energy Management Agency
 <section id="development">
 <h3>Development<a class="headerlink" href="#development" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
-<li><p>Samuel Juhel</p></li>
+<li><p>Samuel Juhel (<a class="reference external" href="mailto:pro&#37;&#52;&#48;sjuhel&#46;org">pro<span>&#64;</span>sjuhel<span>&#46;</span>org</a>)</p></li>
 </ul>
 </section>
 <section id="contributions">
@@ -444,7 +454,8 @@ This work was supported by the French Environment and Energy Management Agency
 </section>
 <section id="acknowledgements">
 <h3>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this heading">#</a></h3>
-<p>I would like to thank Vincent Viguie, Fabio D’Andrea my PhD supervisors as well as Célian Colon and Alessio Ciulo for their inputs during the model implementation.</p>
+<p>I would like to thank Vincent Viguie, Fabio D’Andrea my PhD supervisors as well as Célian Colon, Alessio Ciulo and Adrien Delahais
+for their inputs during the model implementation.</p>
 </section>
 </section>
 </section>
@@ -455,7 +466,10 @@ This work was supported by the French Environment and Energy Management Agency
               
               
                 <footer class="bd-footer-article">
-                  <!-- Previous / next buttons -->
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
        href="user-guide.html"
@@ -475,7 +489,10 @@ This work was supported by the French Environment and Energy Management Agency
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
+</div></div>
+  
 </div>
+
                 </footer>
               
             </div>
@@ -490,6 +507,7 @@ This work was supported by the French Environment and Energy Management Agency
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#disclaimer">Disclaimer</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-boario">What is BoARIO ?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-ario">What is ARIO ?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-to-get-boario">Where to get BoARIO ?</a></li>
@@ -533,7 +551,7 @@ This work was supported by the French Environment and Energy Management Agency
             
           </div>
           <footer class="bd-footer-content">
-            <div class="bd-footer-content__inner"></div>
+            
           </footer>
         
       </main>
@@ -541,8 +559,8 @@ This work was supported by the French Environment and Energy Management Agency
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+  <script src="_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -560,7 +578,7 @@ This work was supported by the French Environment and Energy Management Agency
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://sphinx-doc.org/">Sphinx</a> 6.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
     <br/>
   </p>
 </div>
@@ -571,7 +589,7 @@ This work was supported by the French Environment and Energy Management Agency
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
 </p></div>
       
     </div>
