@@ -86,7 +86,7 @@ class Event(ABC):
     sectors_idx: npt.NDArray = np.array([])
     r"""lexicographic sector indexes"""
 
-    model_monetary_factor: int = 0
+    model_monetary_factor: int = 1
     r"""Amount of unitary currency used in the MRIO (e.g. 1000000 if in € millions)"""
 
     gva_df: pd.DataFrame = pd.DataFrame()
