@@ -47,11 +47,10 @@ INFOFORMATTER = logging.Formatter(
 
 try:
     import pygit2
-
     try:
         __git_branch__ = pygit2.Repository(__file__).head.name
         logger.info("You are using boario from branch %s", __git_branch__)
-    except GitError:
+    except pygit2.GitError:
         logger.info(
             f"Could not find git branch, this is normal if you installed boario from pip."
         )
