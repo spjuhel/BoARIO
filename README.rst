@@ -31,7 +31,7 @@ It is still an ongoing project (in parallel of a PhD project).
 .. _`Hallegatte 2013`: https://doi.org/10.1111/j.1539-6924.2008.01046.x
 .. _`Pymrio`: https://pymrio.readthedocs.io/en/latest/intro.html
 
-You can find most academic literature using ARIO or related models :ref:`here <references>`
+You can find most academic literature using ARIO or related models `here <https://spjuhel.github.io/BoARIO/boario-references.html>`_
 
 
 What is ARIO ?
@@ -61,14 +61,14 @@ You can install BoARIO from ``pip`` with:
 
 The full source code is also available on Github at: https://github.com/spjuhel/BoARIO
 
-More info in the :ref:`installation page<installation>` of the documentation.
+More info in the `installation <https://spjuhel.github.io/BoARIO/boario-installation.html>`_ page of the documentation.
 
 How does BoARIO work?
 =========================
 
 In a nutshell, BoARIO takes the following inputs :
 
-- an IO table (such as EXIOBASE3 or EORA26) in the form of an :class:`pymrio.IOSystem` object, using the `Pymrio`_ python package.
+- an IO table (such as EXIOBASE3 or EORA26) in the form of an ``pymrio.IOSystem`` object, using the `Pymrio`_ python package.
 
 - multiple parameters which govern the simulation,
 
@@ -83,7 +83,7 @@ And produce the following outputs:
 Example of use
 =================
 
-See :ref:`Boario quickstart<boario-quickstart>`.
+See `Boario quickstart <https://spjuhel.github.io/BoARIO/boario-quickstart.html>`_.
 
 Credits
 ========
@@ -109,7 +109,7 @@ Development
 Contributions
 ---------------
 
-All :ref:`contributions<contributions>` to the project are welcome !
+All `contributions <https://spjuhel.github.io/BoARIO/development.html>`_ to the project are welcome !
 
 Acknowledgements
 ------------------

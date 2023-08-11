@@ -48,6 +48,7 @@ keywords = [
     "modeling",
     "mrio",
 ]
+name = "boario"
 
 classifiers = [
     "Development Status :: 3 - Alpha",
