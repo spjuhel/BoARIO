@@ -21,10 +21,11 @@ else:
     _has_coloredlogs = True
 
 import pathlib
+import importlib.metadata
 import logging
 from functools import lru_cache
 
-__version__ = "v0.5.0a"
+__version__ = importlib.metadata.version('boario')
 __author__ = "sjuhel <pro@sjuhel.org>"
 
 # __minimum_python_version__ = "3.8"

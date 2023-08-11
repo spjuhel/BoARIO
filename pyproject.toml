@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "boario"
-version = "0.5.0a"
+version = "0.5.0"
 description = "BoARIO : The Adaptative Regional Input Output model in python."
 authors = ["Samuel Juhel <pro@sjuhel.org>"]
 license = "GNU General Public License v3 or later (GPLv3+)"
