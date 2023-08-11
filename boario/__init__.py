@@ -25,7 +25,7 @@ import importlib.metadata
 import logging
 from functools import lru_cache
 
-__version__ = importlib.metadata.version('boario')
+__version__ = importlib.metadata.version("boario")
 __author__ = "sjuhel <pro@sjuhel.org>"
 
 # __minimum_python_version__ = "3.8"
@@ -47,11 +47,14 @@ INFOFORMATTER = logging.Formatter(
 
 try:
     import pygit2
+
     try:
         __git_branch__ = pygit2.Repository(__file__).head.name
         logger.info("You are using boario from branch %s", __git_branch__)
     except GitError:
-        logger.info(f"Could not find git branch, this is normal if you installed boario from pip.")
+        logger.info(
+            f"Could not find git branch, this is normal if you installed boario from pip."
+        )
 except ModuleNotFoundError:
     logger.info("Unable to tell git branch as pygit2 was not found.")
 
