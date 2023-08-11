@@ -47,6 +47,7 @@ INFOFORMATTER = logging.Formatter(
 
 try:
     import pygit2
+
     try:
         __git_branch__ = pygit2.Repository(__file__).head.name
         logger.info("You are using boario from branch %s", __git_branch__)
