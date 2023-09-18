@@ -97,8 +97,12 @@ class ARIOPsiModel(ARIOBaseModel):
             ]  # for sector with no inventory TODO: reflect on that.
         elif isinstance(inventory_restoration_tau, dict):
             if not set(self.sectors).issubset(inventory_restoration_tau.keys()):
+                sect_set = set(self.sectors)
+                keys_sect = set(inventory_restoration_tau.keys())
                 raise NotImplementedError(
-                    "The given dict for Inventory restoration tau does not contains all sectors as keys. Current implementation only allows dict with ALL sectors or just one integer value"
+                    f"""The given dict for inventory restoration tau does not contains all sectors as keys. Current implementation only allows dict with ALL sectors or just one integer value:
+                    Sectors not in keys: {sect_set - keys_sect}
+                    """
                 )
 
             for _, value in inventory_restoration_tau.items():
