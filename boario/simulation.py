@@ -199,7 +199,7 @@ class Simulation:
         # Pre-init record variables
         self._production_evolution = np.array([])
         self._production_cap_evolution = np.array([])
-        self._final_demand_evolution = np.array([])
+        self.__demand_evolution = np.array([])
         self._io_demand_evolution = np.array([])
         self._rebuild_demand_evolution = np.array([])
         self._overproduction_evolution = np.array([])
@@ -489,7 +489,7 @@ class Simulation:
                 self._write_overproduction()
             if "_rebuild_demand_evolution" in self._files_to_record:
                 self._write_rebuild_demand()
-            if "_final_evolution" in self._files_to_record:
+            if "_final_demand_evolution" in self._files_to_record:
                 self._write_final_demand()
             if "_io_demand_evolution" in self._files_to_record:
                 self._write_io_demand()
