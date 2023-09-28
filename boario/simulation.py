@@ -199,7 +199,7 @@ class Simulation:
         # Pre-init record variables
         self._production_evolution = np.array([])
         self._production_cap_evolution = np.array([])
-        self.__demand_evolution = np.array([])
+        self._final_demand_evolution = np.array([])
         self._io_demand_evolution = np.array([])
         self._rebuild_demand_evolution = np.array([])
         self._overproduction_evolution = np.array([])
