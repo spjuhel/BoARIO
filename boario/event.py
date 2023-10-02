@@ -980,7 +980,7 @@ class EventKapitalDestroyed(Event, ABC):
                         self.aff_regions, rebuilding_demand_idx
                     ] = (
                         households_impact * self.impact_regional_distrib
-                    )  # type: ignore
+                    ).to_numpy()  # type: ignore
             self.households_impact_df *= (
                 self.event_monetary_factor / self.model_monetary_factor
             )
