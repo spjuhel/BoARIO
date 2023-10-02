@@ -977,7 +977,7 @@ class EventKapitalDestroyed(Event, ABC):
                     )
                     logger.debug(f"{rebuilding_demand_idx}")
                     self.households_impact_df.loc[
-                        self.aff_regions, rebuilding_demand_idx
+                        :, rebuilding_demand_idx
                     ] = (
                         households_impact * self.impact_regional_distrib
                     ).to_numpy()  # type: ignore
