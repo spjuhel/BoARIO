@@ -1,0 +1,6 @@
+<map id="inheritancee0d7c8eea7" name="inheritancee0d7c8eea7">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="5,31,77,56"/>
+<area shape="rect" id="node2" href="#boario.event.Event" target="_top" title="Event" alt="" coords="125,5,197,31"/>
+<area shape="rect" id="node3" href="#boario.event.EventKapitalDestroyed" target="_top" title="EventKapitalDestroyed" alt="" coords="245,31,417,56"/>
+<area shape="rect" id="node4" href="#boario.event.EventKapitalRebuild" target="_top" title="EventKapitalRebuild" alt="" coords="465,31,620,56"/>
+</map>
