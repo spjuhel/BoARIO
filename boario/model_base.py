@@ -1329,12 +1329,30 @@ class ARIOBaseModel:
             )
 
         elif h_reb:
-            house_shares = np.ones(house_reb_dem_tot_per_event.shape)
+            tot_reb_dem_divider = np.tile(
+                tot_rebuilding_demand_summed[:, np.newaxis],
+                (1, indus_reb_dem_tot_per_event.shape[1]),
+            )
+            house_shares = np.divide(
+                house_reb_dem_tot_per_event,
+                tot_reb_dem_divider,
+                out=np.zeros_like(house_reb_dem_tot_per_event),
+                where=tot_reb_dem_divider != 0,
+            )
             indus_shares = np.zeros(indus_reb_dem_tot_per_event.shape)
         elif ind_reb:
+            tot_reb_dem_divider = np.tile(
+                tot_rebuilding_demand_summed[:, np.newaxis],
+                (1, indus_reb_dem_tot_per_event.shape[1]),
+            )
+            indus_shares = np.divide(
+                indus_reb_dem_tot_per_event,
+                tot_reb_dem_divider,
+                out=np.zeros_like(indus_reb_dem_tot_per_event),
+                where=tot_reb_dem_divider != 0,
+            )
             house_shares = np.zeros(house_reb_dem_tot_per_event.shape)
-            indus_shares = np.ones(indus_reb_dem_tot_per_event.shape)
-            # logger.debug("indus_shares: {}".format(indus_shares.shape))
+
         else:
             return []
 
