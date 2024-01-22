@@ -100,8 +100,14 @@ description is available), offers an accessible interface for researchers with
 limited programming knowledge. It also aims to be modular and extensible to
 include additional economic mechanisms in future versions. Finally, its API aims
 at making it inter-operable with other modeling software (such as the `CLIMADA`
-platform [@gabriela-aznar-siguan-2023-8383171] to which `BoARIO` is being
-integrated).
+platform [@gabriela-aznar-siguan-2023-8383171] to which `BoARIO` is in the process of being integrated).
+
+`BoARIO` is at the core of its author's PhD thesis, notably the in
+[@juhel-2023-robus], submitted to Risk Analysis. Other notable ongoing projects,
+are an evaluation of the indirect costs of future floods at the global scope and
+comparing its to similar studies using the Acclimate and MRIA models
+[@willner-2018-global-econom; @koks-2019-macroec-impac] and a study on the
+compounding effect of indirect impacts from multiple events.
 
 # Status
 
