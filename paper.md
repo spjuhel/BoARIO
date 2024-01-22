@@ -76,23 +76,34 @@ simple steps:
 
 The ARIO model relies on Multi-Regional Input-Output Tables (MRIOTs) to define
 the initial state of the economy. `BoARIO` was designed to be entirely agnostic
-of the MRIOT used, thanks to the `pymrio` ([@stadler2021_Pymrio]) package. This
+of the MRIOT used, thanks to the `pymrio` package [@stadler2021_Pymrio]. This
 aspect notably allows to fully benefit from the increasing number of such tables
 are becoming available [@stadler18-exiob; @oecd-2021-oecd-inter;
 @thissen-euregio-2018; @lenzen-2012-mappin-struc].
 
-Various types of shocking events can be defined (shock on demand, shock on
-production, shock on both, shock involving reconstruction or not, etc...), to
-allow for the study of a wide range of scenarios.
+The package allow different shocking events to be defined (shock on demand,
+shock on production, shock on both, shock involving reconstruction or not, etc).
+As such, different types of case-study can be conducted (at different scope, for
+multiple or singular events). Users benefit from a precise control on aspect
+such as the distribution of the impact towards the different sectors and
+regions, the recovery of from the impact, etc. but also from the default
+modeling choices common in the corresponding literature. The rationale is to
+allow for, but not require, in depth configuration of the model.
 
 Simulations register the evolution of each variable of interest (production,
-production capacity, intermediate demand, reconstruction demand, etc.) at each step
-and for each industry, enabling in depth description and understanding of the economic response.
+production capacity, intermediate demand, reconstruction demand, etc.) at each
+step and for each industry, in `pandas DataFrames` objects, allowing in depth
+descriptions and understanding of the economic responses. The package can be
+used "live", e.g. in a Jupyter Notebook, as well as in large simulation
+pipelines (for instance using `Snakemake` @koester-2012-snakem-scalab)[^1].
 
-As such, `BoARIO` is designed to be used by economist researchers and analyst,
-and possibly students, either as a theoretical tool to better understand the
-dynamics associated with the propagation of economic impacts, for more applied
-oriented research, or simply to discover the indirect impact modeling field.
+[^1]: Both these uses have already been extensively employed in ongoing studies.
+
+As such, `BoARIO` is designed to be used by researchers in economy and risk
+analysis and analysts, and possibly students, either as a theoretical tool to
+better understand the dynamics associated with the propagation of economic
+impacts, for more applied-oriented case studies in risk management, or simply as
+a pedagogical tool to introduce the indirect impact modeling field.
 
 The python implementation, accompanied by the extensive [online
 documentation](https://spjuhel.github.io/BoARIO/) (where a more in depth
@@ -100,14 +111,17 @@ description is available), offers an accessible interface for researchers with
 limited programming knowledge. It also aims to be modular and extensible to
 include additional economic mechanisms in future versions. Finally, its API aims
 at making it inter-operable with other modeling software (such as the `CLIMADA`
-platform [@gabriela-aznar-siguan-2023-8383171] to which `BoARIO` is in the process of being integrated).
+platform [@gabriela-aznar-siguan-2023-8383171] to which `BoARIO` is in the
+process of being integrated).
 
-`BoARIO` is at the core of its author's PhD thesis, notably the in
-[@juhel-2023-robus], submitted to Risk Analysis. Other notable ongoing projects,
-are an evaluation of the indirect costs of future floods at the global scope and
+`BoARIO` is at the core of its author's PhD thesis, and was notably used in
+[@juhel-2023-robus], recently submitted to Risk Analysis. Other notable ongoing projects,
+are:
+- an evaluation of the indirect costs of future floods at the global scope and
 comparing its to similar studies using the Acclimate and MRIA models
-[@willner-2018-global-econom; @koks-2019-macroec-impac] and a study on the
-compounding effect of indirect impacts from multiple events.
+[@willner-2018-global-econom; @koks-2019-macroec-impac]
+- a study on the compounding effect of indirect impacts from multiple events.
+- a technical paper on the coupling with the `CLIMADA` platform.
 
 # Status
 

@@ -5,15 +5,16 @@
 BoARIO
 #######
 
-BoARIO : The Adaptative Regional Input Output model in python.
+`BoARIO` : The Adaptative Regional Input Output model in python.
 
 .. _`Documentation Website`: https://spjuhel.github.io/BoARIO/boario-what-is.html
 
 Disclaimer
 ===========
 
-This work is in progress. The code has not been extensively tested. Any results produced with the model should be interpreted with great care.
-Do not hesitate to contact the author when using the model !
+Indirect impact modeling is tied to a lot of uncertainties and complex dynamics.
+Any results produced with `BoARIO` should be interpreted with great care. Do not
+hesitate to contact the author when using the model !
 
 What is BoARIO ?
 =================
