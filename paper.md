@@ -18,42 +18,38 @@ affiliations:
 date: 13 August 2017
 bibliography: paper.bib
 
-# Optional fields if submitting to a AAS journal too, see this blog post:
-# https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
-aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-aas-journal: Astrophysical Journal <- The name of the AAS journal.
 ---
 
 # Summary
 
 The impacts of economic shocks (caused by natural or technological disasters for
-instance) often extend far beyond the cost of replacing their local, direct
+instance) often extend far beyond the cost of their local, direct
 consequences, as the economic perturbations they cause propagates along supply
 chains. Understanding the additional impacts and costs stemming from this
-propagation is key to design efficient risk management policies. The interest
-for the evaluation of theses "indirect risks" is raising in the context of
-climate change (raising in average the risk of weather extremes
+propagation is key to design efficient risk management policies. The interest is raising
+for the evaluation of theses "indirect risks" in the context of
+climate change (which leads to an increase in the average risk of weather extremes
 [@lange-2020-projec-expos]) and globalized-just-in-time production processes.
 Such evaluations rely on dynamic economic models that represent the interactions
 between multiples regions and sectors. Recent research in the field argues in
 favor of using more Agent-Based oriented model, associated with an increase in
 the complexity of the mechanisms represented [@coronese-2022-econom-impac].
-However, the assumptions and hypotheses underlying these economic mechanisms can
+However, the assumptions and hypotheses underlying these economic mechanisms
 vary a lot, and sometime lack transparency, making it difficult to properly
 interpret and compare results across models, even more so when the code used is
-not published.
+not published or undocumented.
 
 The Adaptive Regional Input-Output model (or ARIO) is an hybrid input-output /
-agent-based economic model, designed to compute such indirect costs from
+agent-based economic model, designed to compute indirect costs consequent to
 economic shocks. Its first version dates back to 2008 and has originally been
 developed to assess the indirect costs of natural disasters
-[@hallegatte-2008-adapt-region]. ARIO is a well-established and pivotal model in
-the field of indirect impacts evaluation [@wu-2011-region-indir;
-@ranger-2010-asses-poten; @henriet-2012-firm-networ;
-@hallegatte-2013-model-role; @hallegatte-2010-asses-climat;
-@hallegatte-2008-adapt-region; @guan-2020-global-suppl;
-@jenkins-2013-indir-econom; @koks-2015-integ-direc; @wang-2020-econom-footp;
-@wang-2018-quant-spatial].
+[@hallegatte-2008-adapt-region]. ARIO is now a well-established and pivotal
+model in its field, has been used in multiple studies, and has seen several
+extensions or adaptations [@wu-2011-region-indir; @ranger-2010-asses-poten;
+@henriet-2012-firm-networ; @hallegatte-2013-model-role;
+@hallegatte-2010-asses-climat; @hallegatte-2008-adapt-region;
+@guan-2020-global-suppl; @jenkins-2013-indir-econom; @koks-2015-integ-direc;
+@wang-2020-econom-footp; @wang-2018-quant-spatial].
 
 In ARIO, the economy is modelled as a set of economic sectors and regions, and
 we call a specific (region,sector) couple an *industry*. Each industry produces
