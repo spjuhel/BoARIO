@@ -24,14 +24,14 @@ bibliography: paper.bib
 
 The impacts of economic shocks (caused by natural or technological disasters for
 instance) often extend far beyond the cost of their local, direct
-consequences, as the economic perturbations they cause propagates along supply
+consequences, as the economic perturbations they cause propagate along supply
 chains. Understanding the additional impacts and costs stemming from this
-propagation is key to design efficient risk management policies. The interest is raising
-for the evaluation of theses "indirect risks" in the context of
+propagation is key to design efficient risk management policies. The interest is rising
+for the evaluation of these "indirect risks" in the context of
 climate change (which leads to an increase in the average risk of weather extremes
 [@lange-2020-projec-expos]) and globalized-just-in-time production processes.
 Such evaluations rely on dynamic economic models that represent the interactions
-between multiples regions and sectors. Recent research in the field argues in
+between multiple regions and sectors. Recent research in the field argues in
 favor of using more Agent-Based oriented model, associated with an increase in
 the complexity of the mechanisms represented [@coronese-2022-econom-impac].
 However, the assumptions and hypotheses underlying these economic mechanisms
@@ -41,8 +41,7 @@ not published or undocumented.
 
 The Adaptive Regional Input-Output model (or ARIO) is an hybrid input-output /
 agent-based economic model, designed to compute indirect costs consequent to
-economic shocks. Its first version dates back to 2008 and has originally been
-developed to assess the indirect costs of natural disasters
+economic shocks. Its first version dates back to 2008 and was originally developed to assess the indirect costs of natural disasters
 [@hallegatte-2008-adapt-region]. ARIO is now a well-established and pivotal
 model in its field, has been used in multiple studies, and has seen several
 extensions or adaptations [@wu-2011-region-indir; @ranger-2010-asses-poten;
@@ -62,7 +61,7 @@ built based on a multi-regional input-output table. The model can then describe
 how the economic, as depicted, responds to a shock (or multiple ones).
 
 `BoARIO` is an open-source Python package implementing the ARIO model. Its core
-purpose it to help support better accessibility, transparency, replicability and
+purpose is to help support better accessibility, transparency, replicability and
 comparability in the field of indirect economic impacts modeling.
 
 # Statement of need
@@ -81,16 +80,15 @@ aspect notably allows to fully benefit from the increasing number of such tables
 are becoming available [@stadler18-exiob; @oecd-2021-oecd-inter;
 @thissen-euregio-2018; @lenzen-2012-mappin-struc].
 
-The package allow different shocking events to be defined (shock on demand,
+The package allows for different shocking events to be defined (shock on demand,
 shock on production, shock on both, shock involving reconstruction or not, etc).
 As such, different types of case-study can be conducted (at different scope, for
-multiple or singular events). Users benefit from a precise control on aspect
+multiple or singular events). Users benefit from a precise control on aspects
 such as the distribution of the impact towards the different sectors and
 regions, the recovery of from the impact, etc. but also from the default
-modeling choices common in the corresponding literature. The rationale is to
-allow for, but not require, in depth configuration of the model.
+modeling choices common in the corresponding literature. The rationale for detailled configuration of the model is "allowing for, but not require".
 
-Simulations register the evolution of each variable of interest (production,
+Simulations log the evolution of each variable of interest (production,
 production capacity, intermediate demand, reconstruction demand, etc.) at each
 step and for each industry, in `pandas DataFrames` objects, allowing in depth
 descriptions and understanding of the economic responses. The package can be
@@ -99,13 +97,13 @@ pipelines (for instance using `Snakemake` @koester-2012-snakem-scalab)[^1].
 
 [^1]: Both these uses have already been extensively employed in ongoing studies.
 
-As such, `BoARIO` is designed to be used by researchers in economy and risk
+As such, `BoARIO` is designed to be used by researchers in economics and risk
 analysis and analysts, and possibly students, either as a theoretical tool to
 better understand the dynamics associated with the propagation of economic
 impacts, for more applied-oriented case studies in risk management, or simply as
 a pedagogical tool to introduce the indirect impact modeling field.
 
-The python implementation, accompanied by the extensive [online
+The Python implementation, accompanied by the extensive [online
 documentation](https://spjuhel.github.io/BoARIO/) (where a more in depth
 description is available), offers an accessible interface for researchers with
 limited programming knowledge. It also aims to be modular and extensible to
@@ -121,7 +119,7 @@ are:
 comparing its to similar studies using the Acclimate and MRIA models
 [@willner-2018-global-econom; @koks-2019-macroec-impac]
 - a study on the compounding effect of indirect impacts from multiple events.
-- a technical paper on the coupling with the `CLIMADA` platform.
+- a technical paper on the coupling of `BoARIO` with the `CLIMADA` platform.
 
 # Status
 
@@ -145,7 +143,7 @@ ones are already planned.
 I wish to acknowledge Vincent Viguié and Fabio D'Andrea for their support in the
 development of `BoARIO` during his PhD, as well as Adrien Delahais for his
 feedbacks on the model use. I also want to thank David N. Bresch for indirectly
-inspiring me to develop a package for more that just my personal use, and
+inspiring me to develop a package for more than just my personal use, and
 Alessio Ciullo, for its interest in the package, its valuable suggestions and
 the work done to integrate `BoARIO` to `CLIMADA`.
 
