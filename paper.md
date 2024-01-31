@@ -78,7 +78,7 @@ the initial state of the economy. `BoARIO` was designed to be entirely agnostic
 of the MRIOT used, thanks to the `pymrio` package [@stadler2021_Pymrio]. This
 aspect notably allows to fully benefit from the increasing number of such tables
 are becoming available [@stadler18-exiob; @oecd-2021-oecd-inter;
-@thissen-euregio-2018; @lenzen-2012-mappin-struc].
+@thissen-2018-eureg; @lenzen-2012-mappin-struc].
 
 The package allows for different shocking events to be defined (shock on demand,
 shock on production, shock on both, shock involving reconstruction or not, etc).
