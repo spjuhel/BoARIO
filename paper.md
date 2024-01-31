@@ -28,8 +28,8 @@ consequences, as the economic perturbations they cause propagate along supply
 chains. Understanding the additional impacts and costs stemming from this
 propagation is key to design efficient risk management policies. The interest is rising
 for the evaluation of these "indirect risks" in the context of
-climate change (which leads to an increase in the average risk of weather extremes
-[@lange-2020-projec-expos]) and globalized-just-in-time production processes.
+climate change--which leads to an increase in the average risk of weather extremes
+[@lange-2020-projec-expos], and globalized-just-in-time production processes.
 Such evaluations rely on dynamic economic models that represent the interactions
 between multiple regions and sectors. Recent research in the field argues in
 favor of using more Agent-Based oriented model, associated with an increase in
@@ -93,7 +93,7 @@ production capacity, intermediate demand, reconstruction demand, etc.) at each
 step and for each industry, in `pandas DataFrames` objects, allowing in depth
 descriptions and understanding of the economic responses. The package can be
 used "live", e.g. in a Jupyter Notebook, as well as in large simulation
-pipelines (for instance using `Snakemake` @koester-2012-snakem-scalab)[^1].
+pipelines, for instance using the `Snakemake` package from @koester-2012-snakem-scalab[^1].
 
 [^1]: Both these uses have already been extensively employed in ongoing studies.
 
@@ -108,9 +108,9 @@ documentation](https://spjuhel.github.io/BoARIO/) (where a more in depth
 description is available), offers an accessible interface for researchers with
 limited programming knowledge. It also aims to be modular and extensible to
 include additional economic mechanisms in future versions. Finally, its API aims
-at making it inter-operable with other modeling software (such as the `CLIMADA`
+at making it inter-operable with other modeling software: for instance the `CLIMADA`
 platform [@gabriela-aznar-siguan-2023-8383171] to which `BoARIO` is in the
-process of being integrated).
+process of being integrated.
 
 `BoARIO` is at the core of its author's PhD thesis, and was notably used in
 [@juhel-2023-robus], recently submitted to Risk Analysis. Other notable ongoing projects,
