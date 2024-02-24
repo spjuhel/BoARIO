@@ -287,22 +287,26 @@ class Simulation:
 
         self.params_dict = {
             "n_temporal_units_to_sim": self.n_temporal_units_to_sim,
-            "output_dir": str(self.output_dir)
-            if hasattr(self, "output_dir")
-            else "none",
-            "results_storage": self.results_storage.stem
-            if hasattr(self, "results_storage")
-            else "none",
+            "output_dir": (
+                str(self.output_dir) if hasattr(self, "output_dir") else "none"
+            ),
+            "results_storage": (
+                self.results_storage.stem
+                if hasattr(self, "results_storage")
+                else "none"
+            ),
             "model_type": self.model.__class__.__name__,
-            "psi_param": self.model.psi
-            if isinstance(self.model, ARIOPsiModel)
-            else None,
+            "psi_param": (
+                self.model.psi if isinstance(self.model, ARIOPsiModel) else None
+            ),
             "order_type": self.model.order_type,
             "n_temporal_units_by_step": self.model.n_temporal_units_by_step,
             "year_to_temporal_unit_factor": self.model.iotable_year_to_temporal_unit_factor,
-            "inventory_restoration_tau": list(self.model.restoration_tau)
-            if isinstance(self.model, ARIOPsiModel)
-            else None,
+            "inventory_restoration_tau": (
+                list(self.model.restoration_tau)
+                if isinstance(self.model, ARIOPsiModel)
+                else None
+            ),
             "alpha_base": self.model.overprod_base,
             "alpha_max": self.model.overprod_max,
             "alpha_tau": self.model.overprod_tau,
@@ -597,9 +601,9 @@ class Simulation:
         ):
             self.equi[(n_checks, self.current_temporal_unit, "rebuilding")] = "finished"
         else:
-            self.equi[
-                (n_checks, self.current_temporal_unit, "rebuilding")
-            ] = "not finished"
+            self.equi[(n_checks, self.current_temporal_unit, "rebuilding")] = (
+                "not finished"
+            )
 
     def add_events(self, events: list[Event]):
         """Add a list of events to the simulation.
@@ -704,9 +708,9 @@ class Simulation:
         logger.debug(
             f"self._rebuild_production_evolution shape : {self._rebuild_production_evolution.shape}, self.model.rebuild_prod shape : {self.model.rebuild_prod.shape}"
         )
-        self._rebuild_production_evolution[
-            self.current_temporal_unit
-        ] = self.model.rebuild_prod
+        self._rebuild_production_evolution[self.current_temporal_unit] = (
+            self.model.rebuild_prod
+        )
 
     def _write_productive_capital_lost(self) -> None:
         """Saves the current remaining productive_capital to rebuild vector to the memmap."""
@@ -716,21 +720,21 @@ class Simulation:
 
     def _write_production_max(self) -> None:
         """Saves the current production capacity vector to the memmap."""
-        self._production_cap_evolution[
-            self.current_temporal_unit
-        ] = self.model.production_cap
+        self._production_cap_evolution[self.current_temporal_unit] = (
+            self.model.production_cap
+        )
 
     def _write_io_demand(self) -> None:
         """Saves the current (total per industry) intermediate demand vector to the memmap."""
-        self._io_demand_evolution[
-            self.current_temporal_unit
-        ] = self.model.matrix_orders.sum(axis=1)
+        self._io_demand_evolution[self.current_temporal_unit] = (
+            self.model.matrix_orders.sum(axis=1)
+        )
 
     def _write_final_demand(self) -> None:
         """Saves the current (total per industry) final demand vector to the memmap."""
-        self._final_demand_evolution[
-            self.current_temporal_unit
-        ] = self.model.final_demand.sum(axis=1)
+        self._final_demand_evolution[self.current_temporal_unit] = (
+            self.model.final_demand.sum(axis=1)
+        )
 
     def _write_rebuild_demand(self) -> None:
         """Saves the current (total per industry) rebuilding demand vector to the memmap."""
@@ -746,9 +750,9 @@ class Simulation:
 
     def _write_final_demand_unmet(self) -> None:
         """Saves the unmet final demand (for this step) vector to the memmap."""
-        self._final_demand_unmet_evolution[
-            self.current_temporal_unit
-        ] = self.model.final_demand_not_met
+        self._final_demand_unmet_evolution[self.current_temporal_unit] = (
+            self.model.final_demand_not_met
+        )
 
     def _write_stocks(self) -> None:
         """Saves the current inputs stock matrix to the memmap."""

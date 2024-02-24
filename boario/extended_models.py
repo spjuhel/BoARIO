@@ -90,9 +90,11 @@ class ARIOPsiModel(ARIOBaseModel):
 
         if isinstance(inventory_restoration_tau, int):
             restoration_tau = [
-                (self.n_temporal_units_by_step / inventory_restoration_tau)
-                if v >= INV_THRESHOLD
-                else v
+                (
+                    (self.n_temporal_units_by_step / inventory_restoration_tau)
+                    if v >= INV_THRESHOLD
+                    else v
+                )
                 for v in self.inventories
             ]  # for sector with no inventory TODO: reflect on that.
         elif isinstance(inventory_restoration_tau, dict):
