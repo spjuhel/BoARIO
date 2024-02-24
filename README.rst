@@ -1,5 +1,3 @@
-![example workflow]()
-
 .. image:: https://github.com/spjuhel/BoARIO/actions/workflows/CI.yml/badge.svg
     :target: https://github.com/spjuhel/BoARIO/actions
     :alt: CI/CD status
@@ -16,10 +14,12 @@
     :target: https://www.gnu.org/licenses/gpl-3.0
     :alt: Licence - GPLv3
 
-.. image:: https://img.shields.io/pypi/v/boario?link=https%3A%2F%2Fpypi.org%2Fproject%2Fboario%2F
+.. image:: https://img.shields.io/pypi/v/boario
+   :target: https://pypi.org/project/boario/
    :alt: PyPI - Version
 
 .. image:: https://img.shields.io/pypi/pyversions/boario
+   :target: https://pypi.org/project/boario/
    :alt: PyPI - Python Version
 
 .. role:: pythoncode(code)
