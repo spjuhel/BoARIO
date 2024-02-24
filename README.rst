@@ -1,3 +1,27 @@
+![example workflow]()
+
+.. image:: https://github.com/spjuhel/BoARIO/actions/workflows/CI.yml/badge.svg
+    :target: https://github.com/spjuhel/BoARIO/actions
+    :alt: CI/CD status
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+    :alt: Code Style - Black
+
+.. image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
+    :target: https://github.com/spjuhel/BoARIO/issues
+    :alt: Contribution - Welcome
+
+.. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
+    :target: https://www.gnu.org/licenses/gpl-3.0
+    :alt: Licence - GPLv3
+
+.. image:: https://img.shields.io/pypi/v/boario?link=https%3A%2F%2Fpypi.org%2Fproject%2Fboario%2F
+   :alt: PyPI - Version
+
+.. image:: https://img.shields.io/pypi/pyversions/boario
+   :alt: PyPI - Python Version
+
 .. role:: pythoncode(code)
    :language: python
 
