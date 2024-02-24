@@ -343,7 +343,7 @@ class ARIOBaseModel:
             )
 
         value_added[value_added < 0] = 0.0
-        self.gdp_df = value_added.groupby("region", axis=1).sum()
+        self.gdp_df = value_added.T.groupby("region").sum().T
         r"""pandas.DataFrame: Dataframe of the total GDP of each region of the model"""
 
         self.VA_0 = value_added.to_numpy().flatten()
