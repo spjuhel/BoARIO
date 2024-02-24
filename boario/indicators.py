@@ -19,7 +19,6 @@ from typing import Optional, Union
 
 from boario.extended_models import ARIOPsiModel
 from boario.simulation import Simulation
-import numpyencoder
 import json
 import pathlib
 import numpy as np
@@ -650,7 +649,7 @@ class Indicators(object):
                 storage_path / "fd_loss.json", indent=4, orient="split"
             )
         with (storage_path / "indicators.json").open("w") as f:
-            json.dump(self.indicators, f, cls=numpyencoder.NumpyEncoder, indent=4)
+            json.dump(self.indicators, f, cls=misc.CustomNumpyEncoder, indent=4)
 
     def calc_fd_loss_region(self):
         fd_loss = self.final_demand_unmet_df.copy().round(6)
