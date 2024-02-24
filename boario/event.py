@@ -687,7 +687,7 @@ class Event(ABC):
     def impact_industries_distrib(self, value: pd.Series):
         self._impact_industries_distrib = value
         self._impact_regional_distrib = self._impact_industries_distrib.groupby(
-            "region"
+            "region", observed=False,
         ).sum()
 
     def __repr__(self):
