@@ -1,8 +1,8 @@
-.. image:: https://github.com/spjuhel/BoARIO/actions/workflows/CI.yml/badge.svg
+.. image:: https://github.com/spjuhel/BoARIO/actions/workflows/CI.yml/badge
    :target: https://github.com/spjuhel/BoARIO/actions
    :alt: CI/CD status
 
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+.. image:: https://img.shields.io/badge/code%20style-black-000000
    :target: https://github.com/psf/black
    :alt: Code Style - Black
 
@@ -10,7 +10,7 @@
    :target: https://github.com/spjuhel/BoARIO/issues
    :alt: Contribution - Welcome
 
-.. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
+.. image:: https://img.shields.io/badge/License-GPLv3-blue
    :target: https://www.gnu.org/licenses/gpl-3.0
    :alt: Licence - GPLv3
 
