@@ -1,18 +1,18 @@
 .. image:: https://github.com/spjuhel/BoARIO/actions/workflows/CI.yml/badge.svg
-    :target: https://github.com/spjuhel/BoARIO/actions
-    :alt: CI/CD status
+   :target: https://github.com/spjuhel/BoARIO/actions
+   :alt: CI/CD status
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
-    :alt: Code Style - Black
+   :target: https://github.com/psf/black
+   :alt: Code Style - Black
 
 .. image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
-    :target: https://github.com/spjuhel/BoARIO/issues
-    :alt: Contribution - Welcome
+   :target: https://github.com/spjuhel/BoARIO/issues
+   :alt: Contribution - Welcome
 
 .. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
-    :target: https://www.gnu.org/licenses/gpl-3.0
-    :alt: Licence - GPLv3
+   :target: https://www.gnu.org/licenses/gpl-3.0
+   :alt: Licence - GPLv3
 
 .. image:: https://img.shields.io/pypi/v/boario
    :target: https://pypi.org/project/boario/
