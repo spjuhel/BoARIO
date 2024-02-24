@@ -448,15 +448,15 @@ class Event(ABC):
         elif not isinstance(impact_regional_distrib, pd.Series):
             impact_regional_distrib = pd.Series(impact_regional_distrib, index=_regions)
             regional_distrib = pd.Series(0.0, index=_regions)
-            regional_distrib.loc[impact_regional_distrib.index] = (
-                impact_regional_distrib
-            )
+            regional_distrib.loc[
+                impact_regional_distrib.index
+            ] = impact_regional_distrib
         else:
             regional_distrib = pd.Series(0.0, index=_regions)
             try:
-                regional_distrib.loc[impact_regional_distrib.index] = (
-                    impact_regional_distrib
-                )
+                regional_distrib.loc[
+                    impact_regional_distrib.index
+                ] = impact_regional_distrib
             except KeyError:
                 regional_distrib.loc[_regions] = impact_regional_distrib.values
 
@@ -472,15 +472,15 @@ class Event(ABC):
         elif not isinstance(impact_sectoral_distrib, pd.Series):
             impact_sectoral_distrib = pd.Series(impact_sectoral_distrib, index=_sectors)
             sectoral_distrib = pd.Series(0.0, index=_sectors)
-            sectoral_distrib.loc[impact_sectoral_distrib.index] = (
-                impact_sectoral_distrib
-            )
+            sectoral_distrib.loc[
+                impact_sectoral_distrib.index
+            ] = impact_sectoral_distrib
         else:
             sectoral_distrib = pd.Series(0.0, index=_sectors)
             try:
-                sectoral_distrib.loc[impact_sectoral_distrib.index] = (
-                    impact_sectoral_distrib
-                )
+                sectoral_distrib.loc[
+                    impact_sectoral_distrib.index
+                ] = impact_sectoral_distrib
             except KeyError:
                 sectoral_distrib.loc[_sectors] = impact_sectoral_distrib.values
 
@@ -1159,11 +1159,11 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             self._rebuilding_sectors_shares[self._rebuilding_industries_idx] = np.tile(
                 np.array(reb_sectors.values), np.size(self.aff_regions)
             )
-            self._rebuilding_sectors_shares[self._rebuilding_industries_RoW_idx] = (
-                np.tile(
-                    np.array(reb_sectors.values),
-                    (np.size(self.possible_regions) - np.size(self.aff_regions)),
-                )
+            self._rebuilding_sectors_shares[
+                self._rebuilding_industries_RoW_idx
+            ] = np.tile(
+                np.array(reb_sectors.values),
+                (np.size(self.possible_regions) - np.size(self.aff_regions)),
             )
 
     @property
