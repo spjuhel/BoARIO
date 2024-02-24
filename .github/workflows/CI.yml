@@ -27,6 +27,6 @@ jobs:
       - name: Install the project dependencies
         run: poetry install
       - name: Run black
-        run: peotry run black --check --verbose ./boario
+        run: poetry run black --check --verbose ./boario
       - name: Run the automated tests (for example)
         run: poetry run pytest -v
