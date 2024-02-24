@@ -1,6 +1,5 @@
-.. image:: https://github.com/spjuhel/BoARIO/actions/workflows/CI.yml/badge
-   :target: https://github.com/spjuhel/BoARIO/actions
-   :alt: CI/CD status
+.. image:: https://img.shields.io/github/actions/workflow/status/spjuhel/boario/CI.yml
+   :alt: GitHub Actions Workflow Status
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000
    :target: https://github.com/psf/black
