@@ -1,4 +1,4 @@
-from pathlib import PosixPath
+from pathlib import Path
 import pytest
 
 # import pymrio for the test MRIO
@@ -84,7 +84,7 @@ def test_initialize_simulation_with_valid_model_and_default_parameters(test_mode
         "_limiting_inputs_evolution",
         "_regional_sectoral_productive_capital_destroyed_evolution",
     ]
-    assert isinstance(sim.output_dir, PosixPath)
+    assert isinstance(sim.output_dir, Path)
 
     assert isinstance(sim._production_evolution, np.ndarray)
     assert isinstance(sim._production_cap_evolution, np.ndarray)
