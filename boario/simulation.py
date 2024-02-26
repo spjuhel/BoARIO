@@ -35,8 +35,7 @@ import numpy as np
 import pandas as pd
 import progressbar
 
-from boario import DEBUGFORMATTER
-from boario import logger
+from boario import DEBUGFORMATTER, logger
 from boario.event import (
     Event,
     EventArbitraryProd,
@@ -46,7 +45,7 @@ from boario.event import (
 )
 from boario.extended_models import ARIOPsiModel
 from boario.model_base import ARIOBaseModel
-from boario.utils.misc import CustomNumpyEncoder, TempMemmap, sizeof_fmt, print_summary
+from boario.utils.misc import CustomNumpyEncoder, TempMemmap, print_summary, sizeof_fmt
 
 __all__ = ["Simulation"]
 
@@ -287,22 +286,26 @@ class Simulation:
 
         self.params_dict = {
             "n_temporal_units_to_sim": self.n_temporal_units_to_sim,
-            "output_dir": str(self.output_dir)
-            if hasattr(self, "output_dir")
-            else "none",
-            "results_storage": self.results_storage.stem
-            if hasattr(self, "results_storage")
-            else "none",
+            "output_dir": (
+                str(self.output_dir) if hasattr(self, "output_dir") else "none"
+            ),
+            "results_storage": (
+                self.results_storage.stem
+                if hasattr(self, "results_storage")
+                else "none"
+            ),
             "model_type": self.model.__class__.__name__,
-            "psi_param": self.model.psi
-            if isinstance(self.model, ARIOPsiModel)
-            else None,
+            "psi_param": (
+                self.model.psi if isinstance(self.model, ARIOPsiModel) else None
+            ),
             "order_type": self.model.order_type,
             "n_temporal_units_by_step": self.model.n_temporal_units_by_step,
             "year_to_temporal_unit_factor": self.model.iotable_year_to_temporal_unit_factor,
-            "inventory_restoration_tau": list(self.model.restoration_tau)
-            if isinstance(self.model, ARIOPsiModel)
-            else None,
+            "inventory_restoration_tau": (
+                list(self.model.restoration_tau)
+                if isinstance(self.model, ARIOPsiModel)
+                else None
+            ),
             "alpha_base": self.model.overprod_base,
             "alpha_max": self.model.overprod_max,
             "alpha_tau": self.model.overprod_tau,
@@ -557,7 +560,7 @@ class Simulation:
             self.current_temporal_unit += self.model.n_temporal_units_by_step
             return 0
         except Exception:
-            logger.exception(f"The following exception happened:")
+            logger.exception("The following exception happened:")
             return 1
 
     def check_equilibrium(self, n_checks: int):

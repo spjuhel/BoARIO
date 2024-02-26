@@ -15,13 +15,16 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
+
 from typing import Dict, Optional
+
 import numpy as np
 import pandas as pd
-from boario import logger
-from boario.model_base import *
-from boario.event import *
 from pymrio.core.mriosystem import IOSystem
+
+from boario import logger
+
+from boario.model_base import ARIOBaseModel, INV_THRESHOLD
 
 __all__ = ["ARIOPsiModel"]
 
@@ -90,9 +93,11 @@ class ARIOPsiModel(ARIOBaseModel):
 
         if isinstance(inventory_restoration_tau, int):
             restoration_tau = [
-                (self.n_temporal_units_by_step / inventory_restoration_tau)
-                if v >= INV_THRESHOLD
-                else v
+                (
+                    (self.n_temporal_units_by_step / inventory_restoration_tau)
+                    if v >= INV_THRESHOLD
+                    else v
+                )
                 for v in self.inventories
             ]  # for sector with no inventory TODO: reflect on that.
         elif isinstance(inventory_restoration_tau, dict):

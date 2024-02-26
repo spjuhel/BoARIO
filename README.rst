@@ -5,6 +5,32 @@
 BoARIO
 #######
 
+
+.. image:: https://img.shields.io/github/actions/workflow/status/spjuhel/boario/CI.yml
+   :target: https://github.com/spjuhel/BoARIO/actions/workflows/CI.yml
+   :alt: GitHub Actions Workflow Status
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000
+   :target: https://github.com/psf/black
+   :alt: Code Style - Black
+
+.. image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
+   :target: https://github.com/spjuhel/BoARIO/issues
+   :alt: Contribution - Welcome
+
+.. image:: https://img.shields.io/badge/License-GPLv3-blue
+   :target: https://www.gnu.org/licenses/gpl-3.0
+   :alt: Licence - GPLv3
+
+.. image:: https://img.shields.io/pypi/v/boario
+   :target: https://pypi.org/project/boario/
+   :alt: PyPI - Version
+
+.. image:: https://img.shields.io/pypi/pyversions/boario
+   :target: https://pypi.org/project/boario/
+   :alt: PyPI - Python Version
+
+
 `BoARIO` : The Adaptative Regional Input Output model in python.
 
 .. _`Documentation Website`: https://spjuhel.github.io/BoARIO/boario-what-is.html

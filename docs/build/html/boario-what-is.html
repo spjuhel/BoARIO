@@ -28,23 +28,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=5bd8f7bc" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/clipboard.min.js"></script>
-    <script src="_static/copybutton.js"></script>
+    <script src="_static/documentation_options.js?v=8a448e45"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=d3ce34c2"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'boario-what-is';</script>
-    <script src="_static/js/custom.js"></script>
+    <script src="_static/js/custom.js?v=e7f469e6"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="boario-installation.html" />
@@ -185,7 +185,7 @@ document.write(`
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Jun 07, 2023.
+  Last updated on Feb 26, 2024.
   <br/>
 </p></div>
       
@@ -290,7 +290,7 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Jun 07, 2023.
+  Last updated on Feb 26, 2024.
   <br/>
 </p></div>
         
@@ -317,7 +317,10 @@ document.write(`
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">BoARIO</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-terminology.html">Terminology</a></li>
-<li class="toctree-l1"><a class="reference internal" href="boario-quickstart.html">Quickstart and examples</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="boario-quickstart.html">Quickstart and examples</a><input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/boario-quickstart.html">Quickstart example</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="boario-events.html">How to define Events</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boario-math.html">Model description</a></li>
 </ul>
@@ -378,24 +381,31 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="boario">
-<h1>BoARIO<a class="headerlink" href="#boario" title="Permalink to this heading">#</a></h1>
-<p>BoARIO : The Adaptative Regional Input Output model in python.</p>
+<h1>BoARIO<a class="headerlink" href="#boario" title="Link to this heading">#</a></h1>
+<a class="reference external image-reference" href="https://github.com/spjuhel/BoARIO/actions/workflows/CI.yml"><img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/spjuhel/boario/CI.yml" /></a>
+<a class="reference external image-reference" href="https://github.com/psf/black"><img alt="Code Style - Black" src="https://img.shields.io/badge/code%20style-black-000000" /></a>
+<a class="reference external image-reference" href="https://github.com/spjuhel/BoARIO/issues"><img alt="Contribution - Welcome" src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" /></a>
+<a class="reference external image-reference" href="https://www.gnu.org/licenses/gpl-3.0"><img alt="Licence - GPLv3" src="https://img.shields.io/badge/License-GPLv3-blue" /></a>
+<a class="reference external image-reference" href="https://pypi.org/project/boario/"><img alt="PyPI - Version" src="https://img.shields.io/pypi/v/boario" /></a>
+<a class="reference external image-reference" href="https://pypi.org/project/boario/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/boario" /></a>
+<p><cite>BoARIO</cite> : The Adaptative Regional Input Output model in python.</p>
 <section id="disclaimer">
-<h2>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this heading">#</a></h2>
-<p>This work is in progress. The code has not been extensively tested. Any results produced with the model should be interpreted with great care.
-Do not hesitate to contact the author when using the model !</p>
+<h2>Disclaimer<a class="headerlink" href="#disclaimer" title="Link to this heading">#</a></h2>
+<p>Indirect impact modeling is tied to a lot of uncertainties and complex dynamics.
+Any results produced with <cite>BoARIO</cite> should be interpreted with great care. Do not
+hesitate to contact the author when using the model !</p>
 </section>
 <section id="what-is-boario">
-<h2>What is BoARIO ?<a class="headerlink" href="#what-is-boario" title="Permalink to this heading">#</a></h2>
+<h2>What is BoARIO ?<a class="headerlink" href="#what-is-boario" title="Link to this heading">#</a></h2>
 <p>BoARIO, is a python implementation project of the Adaptative Regional Input Output (ARIO) model [<a class="reference external" href="https://doi.org/10.1111/j.1539-6924.2008.01046.x">Hallegatte 2013</a>].</p>
 <p>Its objectives are to give an accessible and inter-operable implementation of ARIO, as well as tools to visualize and analyze simulation outputs and to
 evaluate the effects of many parameters of the model.</p>
 <p>This implementation would not have been possible without the <a class="reference external" href="https://pymrio.readthedocs.io/en/latest/intro.html">Pymrio</a> module and amazing work of [<a class="reference external" href="https://openresearchsoftware.metajnl.com/articles/10.5334/jors.251/">Stadler 2021</a>] !</p>
 <p>It is still an ongoing project (in parallel of a PhD project).</p>
-<p>You can find most academic literature using ARIO or related models <a class="reference internal" href="boario-references.html#references"><span class="std std-ref">here</span></a></p>
+<p>You can find most academic literature using ARIO or related models <a class="reference external" href="https://spjuhel.github.io/BoARIO/boario-references.html">here</a></p>
 </section>
 <section id="what-is-ario">
-<h2>What is ARIO ?<a class="headerlink" href="#what-is-ario" title="Permalink to this heading">#</a></h2>
+<h2>What is ARIO ?<a class="headerlink" href="#what-is-ario" title="Link to this heading">#</a></h2>
 <p>ARIO stands for Adaptive Regional Input-Output. It is an hybrid input-output / agent-based economic model,
 designed to compute indirect costs from economic shocks. Its first version dates back to 2008 and has originally
 been developed to assess the indirect costs of natural disasters (Hallegatte 2008).</p>
@@ -407,19 +417,19 @@ intermediate demand (through inputs inventory resupply). An initial equilibrium 
 the economy is built based on multi-regional input-output tables (MRIO tables).</p>
 </section>
 <section id="where-to-get-boario">
-<h2>Where to get BoARIO ?<a class="headerlink" href="#where-to-get-boario" title="Permalink to this heading">#</a></h2>
+<h2>Where to get BoARIO ?<a class="headerlink" href="#where-to-get-boario" title="Link to this heading">#</a></h2>
 <p>You can install BoARIO from <code class="docutils literal notranslate"><span class="pre">pip</span></code> with:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install boario</span>
 </pre></div>
 </div>
 <p>The full source code is also available on Github at: <a class="github reference external" href="https://github.com/spjuhel/BoARIO">spjuhel/BoARIO</a></p>
-<p>More info in the <a class="reference internal" href="boario-installation.html#id1"><span class="std std-ref">installation page</span></a> of the documentation.</p>
+<p>More info in the <a class="reference external" href="https://spjuhel.github.io/BoARIO/boario-installation.html">installation</a> page of the documentation.</p>
 </section>
 <section id="how-does-boario-work">
-<h2>How does BoARIO work?<a class="headerlink" href="#how-does-boario-work" title="Permalink to this heading">#</a></h2>
+<h2>How does BoARIO work?<a class="headerlink" href="#how-does-boario-work" title="Link to this heading">#</a></h2>
 <p>In a nutshell, BoARIO takes the following inputs :</p>
 <ul class="simple">
-<li><p>an IO table (such as EXIOBASE3 or EORA26) in the form of an <code class="xref py py-class docutils literal notranslate"><span class="pre">pymrio.IOSystem</span></code> object, using the <a class="reference external" href="https://pymrio.readthedocs.io/en/latest/intro.html">Pymrio</a> python package.</p></li>
+<li><p>an IO table (such as EXIOBASE3 or EORA26) in the form of an <code class="docutils literal notranslate"><span class="pre">pymrio.IOSystem</span></code> object, using the <a class="reference external" href="https://pymrio.readthedocs.io/en/latest/intro.html">Pymrio</a> python package.</p></li>
 <li><p>multiple parameters which govern the simulation,</p></li>
 <li><p>event(s) description(s), which are used as the perturbation to analyse during the simulation</p></li>
 </ul>
@@ -430,30 +440,30 @@ the economy is built based on multi-regional input-output tables (MRIO tables).<
 </ul>
 </section>
 <section id="example-of-use">
-<h2>Example of use<a class="headerlink" href="#example-of-use" title="Permalink to this heading">#</a></h2>
-<p>See <a class="reference internal" href="boario-quickstart.html#boario-quickstart"><span class="std std-ref">Boario quickstart</span></a>.</p>
+<h2>Example of use<a class="headerlink" href="#example-of-use" title="Link to this heading">#</a></h2>
+<p>See <a class="reference external" href="https://spjuhel.github.io/BoARIO/boario-quickstart.html">Boario quickstart</a>.</p>
 </section>
 <section id="credits">
-<h2>Credits<a class="headerlink" href="#credits" title="Permalink to this heading">#</a></h2>
+<h2>Credits<a class="headerlink" href="#credits" title="Link to this heading">#</a></h2>
 <section id="associated-phd-project">
-<h3>Associated PhD project<a class="headerlink" href="#associated-phd-project" title="Permalink to this heading">#</a></h3>
+<h3>Associated PhD project<a class="headerlink" href="#associated-phd-project" title="Link to this heading">#</a></h3>
 <p>This model is part of my PhD on the indirect impact of extreme events.
 This work was supported by the French Environment and Energy Management Agency
 (<a class="reference external" href="https://www.ademe.fr/">ADEME</a>).</p>
 <a class="reference internal image-reference" href="https://raw.githubusercontent.com/spjuhel/BoARIO/master/imgs/Logo_ADEME.svg?sanitize=true"><img alt="ADEME Logo" src="https://raw.githubusercontent.com/spjuhel/BoARIO/master/imgs/Logo_ADEME.svg?sanitize=true" style="width: 400px;" /></a>
 </section>
 <section id="development">
-<h3>Development<a class="headerlink" href="#development" title="Permalink to this heading">#</a></h3>
+<h3>Development<a class="headerlink" href="#development" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Samuel Juhel (<a class="reference external" href="mailto:pro&#37;&#52;&#48;sjuhel&#46;org">pro<span>&#64;</span>sjuhel<span>&#46;</span>org</a>)</p></li>
 </ul>
 </section>
 <section id="contributions">
-<h3>Contributions<a class="headerlink" href="#contributions" title="Permalink to this heading">#</a></h3>
-<p>All <a class="reference internal" href="development.html#contributions"><span class="std std-ref">contributions</span></a> to the project are welcome !</p>
+<h3>Contributions<a class="headerlink" href="#contributions" title="Link to this heading">#</a></h3>
+<p>All <a class="reference external" href="https://spjuhel.github.io/BoARIO/development.html">contributions</a> to the project are welcome !</p>
 </section>
 <section id="acknowledgements">
-<h3>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this heading">#</a></h3>
+<h3>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading">#</a></h3>
 <p>I would like to thank Vincent Viguie, Fabio D’Andrea my PhD supervisors as well as Célian Colon, Alessio Ciulo and Adrien Delahais
 for their inputs during the model implementation.</p>
 </section>
@@ -578,7 +588,7 @@ for their inputs during the model implementation.</p>
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

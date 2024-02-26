@@ -1,5 +1,0 @@
-<map id="inheritancee0d7c8eea7" name="inheritancee0d7c8eea7">
-<area shape="rect" id="node1" href="#boario.event.Event" target="_top" title="Event" alt="" coords="5,5,77,31"/>
-<area shape="rect" id="node2" href="#boario.event.EventKapitalDestroyed" target="_top" title="EventKapitalDestroyed" alt="" coords="125,5,297,31"/>
-<area shape="rect" id="node3" href="#boario.event.EventKapitalRebuild" target="_top" title="EventKapitalRebuild" alt="" coords="345,5,500,31"/>
-</map>

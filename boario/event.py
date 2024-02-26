@@ -14,22 +14,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import Callable, Optional, Union, List, Tuple, get_origin, get_args
-import numpy.typing as npt
-import numpy as np
-import pandas as pd
-import math
+
 import inspect
-from functools import partial
+import math
 import warnings
+from abc import ABC, abstractmethod
+from functools import partial
+from typing import Callable, List, Optional, Tuple, Union
+
+import numpy as np
+import numpy.typing as npt
+import pandas as pd
 
 from boario import logger
 from boario.utils.recovery_functions import (
     concave_recovery,
     convexe_recovery,
-    linear_recovery,
     convexe_recovery_scaled,
+    linear_recovery,
 )
 
 __all__ = [
@@ -334,10 +336,10 @@ class Event(ABC):
             Event: An Event object or one of its subclass.
         """
         if impact <= 0:
-            raise ValueError(f"Impact is null")
+            raise ValueError("Impact is null")
 
         if len(industries) < 1:
-            raise ValueError(f"Null sized affected industries ?")
+            raise ValueError("Null sized affected industries ?")
 
         if isinstance(industries, list):
             industries = pd.MultiIndex.from_tuples(
@@ -403,7 +405,7 @@ class Event(ABC):
             Event: An Event object or one of its subclass
         """
         if impact <= 0:
-            raise ValueError(f"Impact is null")
+            raise ValueError("Impact is null")
 
         if isinstance(regions, str):
             regions = [regions]
@@ -415,10 +417,10 @@ class Event(ABC):
         _sectors = pd.Index(sectors, name="sector")
 
         if len(_regions) < 1:
-            raise ValueError(f"Null sized affected regions ?")
+            raise ValueError("Null sized affected regions ?")
 
         if len(_sectors) < 1:
-            raise ValueError(f"Null sized affected sectors ?")
+            raise ValueError("Null sized affected sectors ?")
 
         if _sectors.duplicated().any():
             warnings.warn(
@@ -687,7 +689,8 @@ class Event(ABC):
     def impact_industries_distrib(self, value: pd.Series):
         self._impact_industries_distrib = value
         self._impact_regional_distrib = self._impact_industries_distrib.groupby(
-            "region"
+            "region",
+            observed=False,
         ).sum()
 
     def __repr__(self):
