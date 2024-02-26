@@ -13,9 +13,6 @@ import boario
 from boario.model_base import ARIOBaseModel
 from boario.simulation import Simulation  # Simulation wraps the model
 from boario.extended_models import ARIOPsiModel  # The core of the model
-from boario.indicators import (
-    Indicators,
-)  # A class computing and storing indicators based on a simulation
 from boario.event import (
     Event,
     EventKapitalRebuild,
@@ -297,7 +294,7 @@ def test_minor_reb_event(test_sim):
     assert (
         min_values.drop(["mining","manufactoring"]) > (1.0 - 1 / test_sim.model.monetary_factor)
     ).all()
-    
+
 def test_shortage_reb_event(test_sim):
     ev = EventKapitalRebuild.from_scalar_regions_sectors(
         impact=10000000,
@@ -318,7 +315,7 @@ def test_shortage_reb_event(test_sim):
         min_values < (1.0 - 1 / test_sim.model.monetary_factor)
     ).all()
     assert test_sim.model.had_shortage
-    
+
 def test_crashing_reb_event(test_sim):
     ev = EventKapitalRebuild.from_scalar_regions_sectors(
         impact=10000000000,
