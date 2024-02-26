@@ -1,3 +1,11 @@
+.. role:: pythoncode(code)
+   :language: python
+
+#######
+BoARIO
+#######
+
+
 .. image:: https://img.shields.io/github/actions/workflow/status/spjuhel/boario/CI.yml
    :target: https://github.com/spjuhel/BoARIO/actions/workflows/CI.yml
    :alt: GitHub Actions Workflow Status
@@ -22,12 +30,6 @@
    :target: https://pypi.org/project/boario/
    :alt: PyPI - Python Version
 
-.. role:: pythoncode(code)
-   :language: python
-
-#######
-BoARIO
-#######
 
 `BoARIO` : The Adaptative Regional Input Output model in python.
 
