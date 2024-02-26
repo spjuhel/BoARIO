@@ -15,13 +15,16 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
+
 from typing import Dict, Optional
+
 import numpy as np
 import pandas as pd
-from boario import logger
-from boario.model_base import *
-from boario.event import *
 from pymrio.core.mriosystem import IOSystem
+
+from boario import logger
+
+from boario.model_base import ARIOBaseModel, INV_THRESHOLD
 
 __all__ = ["ARIOPsiModel"]
 

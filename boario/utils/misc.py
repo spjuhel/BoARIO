@@ -14,12 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from collections.abc import Iterable
-import textwrap
-import pymrio
-import numpy
 import json
 import tempfile
+import textwrap
+from collections.abc import Iterable
+
+import numpy
+import pymrio
 
 
 class TempMemmap(numpy.memmap):
@@ -76,8 +77,8 @@ class CustomNumpyEncoder(json.JSONEncoder):
             return super(CustomNumpyEncoder, self).default(obj)
 
 
-def flatten(l):
-    for el in l:
+def flatten(lst):
+    for el in lst:
         if isinstance(el, Iterable) and not isinstance(el, (str, bytes)):
             yield from flatten(el)
         else:

@@ -35,8 +35,7 @@ import numpy as np
 import pandas as pd
 import progressbar
 
-from boario import DEBUGFORMATTER
-from boario import logger
+from boario import DEBUGFORMATTER, logger
 from boario.event import (
     Event,
     EventArbitraryProd,
@@ -46,7 +45,7 @@ from boario.event import (
 )
 from boario.extended_models import ARIOPsiModel
 from boario.model_base import ARIOBaseModel
-from boario.utils.misc import CustomNumpyEncoder, TempMemmap, sizeof_fmt, print_summary
+from boario.utils.misc import CustomNumpyEncoder, TempMemmap, print_summary, sizeof_fmt
 
 __all__ = ["Simulation"]
 
@@ -561,7 +560,7 @@ class Simulation:
             self.current_temporal_unit += self.model.n_temporal_units_by_step
             return 0
         except Exception:
-            logger.exception(f"The following exception happened:")
+            logger.exception("The following exception happened:")
             return 1
 
     def check_equilibrium(self, n_checks: int):

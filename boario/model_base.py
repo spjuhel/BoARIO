@@ -15,10 +15,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
+
 import json
 import pathlib
 import typing
 from typing import Optional
+
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
@@ -27,12 +29,11 @@ from pymrio.core.mriosystem import IOSystem
 from boario import logger, warn_once
 from boario.event import (
     Event,
+    EventArbitraryProd,
     EventKapitalDestroyed,
     EventKapitalRebuild,
-    EventArbitraryProd,
 )
 from boario.utils.misc import lexico_reindex
-
 
 __all__ = [
     "ARIOBaseModel",
@@ -157,7 +158,7 @@ class ARIOBaseModel:
 
         logger.debug("Initiating new ARIOBaseModel instance")
         super().__init__()
-        ################ Parameters variables #######################
+        # ############### Parameters variables #######################
         try:
             logger.info(
                 "IO system metadata :\n{}\n{}\n{}\n{}".format(
@@ -284,7 +285,7 @@ class ARIOBaseModel:
             self.inv_duration[self.inv_duration <= 1] = 2
         #################################################################
 
-        ######## INITIAL MRIO STATE (in step temporality) ###############
+        # ####### INITIAL MRIO STATE (in step temporality) ###############
         if pym_mrio.Z is None:
             raise ValueError(
                 "Z attribute of given MRIO doesn't exist, this is a problem"
@@ -361,7 +362,7 @@ class ARIOBaseModel:
             if isinstance(self.k_stock, pd.DataFrame):
                 self.k_stock = self.k_stock.squeeze().sort_index().to_numpy()
         elif productive_capital_to_VA_dict is None:
-            logger.warning(f"No capital to VA dictionary given, considering 4/1 ratio")
+            logger.warning("No capital to VA dictionary given, considering 4/1 ratio")
             self.kstock_ratio_to_VA = 4
             self.k_stock = self.VA_0 * self.kstock_ratio_to_VA
         else:
@@ -387,7 +388,7 @@ class ARIOBaseModel:
         r"""numpy.ndarray of float: 2-dim square matrix array of size :math:`(n , n \times m)` representing the threshold under which an input is not considered being an input (0.00001)."""
         #################################################################
 
-        ####### SIMULATION VARIABLES ####################################
+        # ###### SIMULATION VARIABLES ####################################
         self.overprod = np.full(
             (self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64
         )
@@ -416,7 +417,7 @@ class ARIOBaseModel:
         self.order_type = order_type
         #################################################################
 
-        ################## SIMULATION TRACKING VARIABLES ################
+        # ################# SIMULATION TRACKING VARIABLES ################
         self.in_shortage = False
         r"""Boolean stating if at least one industry is in shortage (i.e.) if at least one of its inputs inventory is low enough to reduce production."""
 
@@ -431,11 +432,11 @@ class ARIOBaseModel:
 
         #################################################################
 
-        ### Internals
+        # ## Internals
         self._prod_delta_type = None
 
-        #### POST INIT ####
-        ### Event Class Attribute setting
+        # ### POST INIT ####
+        # ## Event Class Attribute setting
         logger.debug(
             f"Setting possible regions (currently: {Event.possible_regions}) to: {self.regions}"
         )
@@ -489,7 +490,7 @@ class ARIOBaseModel:
         self._prod_cap_delta_arbitrary: npt.NDArray = np.zeros(len(self.industries))
         self._prod_cap_delta_tot: npt.NDArray = np.zeros(len(self.industries))
 
-    ## Properties
+    # # Properties
 
     @property
     def tot_rebuild_demand(self) -> npt.NDArray:
@@ -1132,7 +1133,7 @@ class ARIOBaseModel:
             raise ValueError(f"Scheme {scheme} is currently not implemented")
 
         # list_of_demands = [self.matrix_orders, self.final_demand]
-        ## 1. Calc demand from rebuilding requirements (with characteristic time rebuild_tau)
+        # # 1. Calc demand from rebuilding requirements (with characteristic time rebuild_tau)
         house_reb_dem_per_event = (
             house_reb_dem_tot_per_event
         ) = indus_reb_dem_per_event = indus_reb_dem_tot_per_event = None
@@ -1186,7 +1187,7 @@ class ARIOBaseModel:
             h_reb = False
             ind_reb = False
 
-        ## 2. Concat to have total demand matrix (Intermediate + Final + Rebuild)
+        # # 2. Concat to have total demand matrix (Intermediate + Final + Rebuild)
         tot_demand = np.concatenate(
             [
                 self.matrix_orders,
@@ -1195,7 +1196,7 @@ class ARIOBaseModel:
             ],
             axis=1,
         )
-        ## 3. Does production meet total demand
+        # # 3. Does production meet total demand
         logger.debug(f"tot demand shape : {tot_demand.shape}")
         rationing_required = (self.production - tot_demand.sum(axis=1)) < (
             -1 / self.monetary_factor

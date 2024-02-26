@@ -14,13 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 try:
-    import coloredlogs as coloredlogs
+    import coloredlogs as coloredlogs  # noqa: F401
 except ImportError:
     _has_coloredlogs = False
 else:
     _has_coloredlogs = True
 
-import pathlib
 import importlib.metadata
 import logging
 from functools import lru_cache
@@ -53,7 +52,7 @@ try:
         logger.info("You are using boario from branch %s", __git_branch__)
     except pygit2.GitError:
         logger.info(
-            f"Could not find git branch, this is normal if you installed boario from pip."
+            "Could not find git branch, this is normal if you installed boario from pip."
         )
 except ModuleNotFoundError:
     logger.info("Unable to tell git branch as pygit2 was not found.")
