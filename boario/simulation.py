@@ -806,11 +806,7 @@ class Simulation:
                     )
                     self._files_to_record.append(attr_name)
                 else:
-                    memmap_array = np.ndarray(
-                        shape=shape,
-                        dtype=dtype,
-                        order=order
-                    )
+                    memmap_array = np.ndarray(shape=shape, dtype=dtype, order=order)
                 memmap_array.fill(fillv)
                 setattr(self, attr_name, memmap_array)
 
