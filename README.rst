@@ -30,7 +30,7 @@ BoARIO
    :target: https://pypi.org/project/boario/
    :alt: PyPI - Python Version
 
-.. image:: https://joss.theoj.org/papers/71386aa01a292ecff8bafe273b077701/status
+.. image:: https://joss.theoj.org/papers/71386aa01a292ecff8bafe273b077701/status.svg
    :target: https://joss.theoj.org/papers/71386aa01a292ecff8bafe273b077701
    :alt: Joss Status
 
