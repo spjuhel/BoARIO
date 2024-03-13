@@ -17,6 +17,8 @@ pandas = ">=1.5"
 progressbar2 = "^4.2.0"
 pyarrow = ">=11"
 pymrio = ">=0.4"
+importmagic = "^0.1.7"
+epc = "^0.0.5"
 
 
 [tool.poetry.group.dev.dependencies]
