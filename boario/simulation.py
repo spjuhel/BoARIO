@@ -796,15 +796,22 @@ class Simulation:
                     )
                 else:
                     raise RuntimeError(f"shapev {shapev} unrecognised")
-                memmap_array = TempMemmap(
-                    filename=(self.records_storage / filename),
-                    dtype=dtype,
-                    mode="w+",
-                    shape=shape,
-                    save=save,
-                )
+                if save:
+                    memmap_array = TempMemmap(
+                        filename=(self.records_storage / filename),
+                        dtype=dtype,
+                        mode="w+",
+                        shape=shape,
+                        save=save,
+                    )
+                    self._files_to_record.append(attr_name)
+                else:
+                    memmap_array = np.ndarray(
+                        shape=shape,
+                        dtype=dtype,
+                        order=order
+                    )
                 memmap_array.fill(fillv)
-                self._files_to_record.append(attr_name)
                 setattr(self, attr_name, memmap_array)
 
     def _reset_records(
