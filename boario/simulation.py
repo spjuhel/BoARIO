@@ -257,6 +257,7 @@ class Simulation:
         self.records_storage: pathlib.Path = self.results_storage / "records"
         """pathlib.Path: Place where records are stored if stored"""
 
+        self._vars_to_record = []
         self._files_to_record = []
 
         if save_records != []:
@@ -481,34 +482,53 @@ class Simulation:
             # and updates the internal model production_cap decrease and rebuild_demand
             self._check_happening_events()
 
-            if "_inputs_evolution" in self._files_to_record:
+            if ("_inputs_evolution" in self._files_to_record) or (
+                "_inputs_evolution" in self._vars_to_record
+            ):
                 self._write_stocks()
 
             # 0)
             if self.current_temporal_unit > 1:
                 self.model.calc_overproduction()
 
-            if "_overproduction_evolution" in self._files_to_record:
+            if ("_overproduction_evolution" in self._files_to_record) or (
+                "_overproduction_evolution" in self._files_to_record
+            ):
                 self._write_overproduction()
-            if "_rebuild_demand_evolution" in self._files_to_record:
+            if ("_rebuild_demand_evolution" in self._files_to_record) or (
+                "_rebuild_demand_evolution" in self._vars_to_record
+            ):
                 self._write_rebuild_demand()
-            if "_final_demand_evolution" in self._files_to_record:
+            if ("_final_demand_evolution" in self._files_to_record) or (
+                "_final_demand_evolution" in self._vars_to_record
+            ):
                 self._write_final_demand()
-            if "_io_demand_evolution" in self._files_to_record:
+            if ("_io_demand_evolution" in self._files_to_record) or (
+                "_io_demand_evolution" in self._vars_to_record
+            ):
                 self._write_io_demand()
 
             # 1)
             constraints = self.model.calc_production(self.current_temporal_unit)
 
-            if "_limiting_inputs_evolution" in self._files_to_record:
+            if ("_limiting_inputs_evolution" in self._files_to_record) or (
+                "_limiting_inputs_evolution" in self._vars_to_record
+            ):
                 self._write_limiting_stocks(constraints)
-            if "_production_evolution" in self._files_to_record:
+            if ("_production_evolution" in self._files_to_record) or (
+                "_production_evolution" in self._vars_to_record
+            ):
                 self._write_production()
-            if "_production_cap_evolution" in self._files_to_record:
+            if ("_production_cap_evolution" in self._files_to_record) or (
+                "_production_cap_evolution" in self._vars_to_record
+            ):
                 self._write_production_max()
             if (
                 "_regional_sectoral_productive_capital_destroyed_evolution"
                 in self._files_to_record
+            ) or (
+                "_regional_sectoral_productive_capital_destroyed_evolution"
+                in self._vars_to_record
             ):
                 self._write_productive_capital_lost()
 
@@ -522,9 +542,13 @@ class Simulation:
                 events_to_remove = self.model.distribute_production(
                     rebuildable_events, self.scheme
                 )
-                if "_final_demand_unmet_evolution" in self._files_to_record:
+                if ("_final_demand_unmet_evolution" in self._files_to_record) or (
+                    "_final_demand_unmet_evolution" in self._vars_to_record
+                ):
                     self._write_final_demand_unmet()
-                if "_rebuild_production_evolution" in self._files_to_record:
+                if ("_rebuild_production_evolution" in self._files_to_record) or (
+                    "_rebuild_production_evolution" in self._vars_to_record
+                ):
                     self._write_rebuild_prod()
             except RuntimeError:
                 logger.exception("An exception happened:")
@@ -807,6 +831,7 @@ class Simulation:
                     self._files_to_record.append(attr_name)
                 else:
                     memmap_array = np.ndarray(shape=shape, dtype=dtype, order="C")
+                    self._vars_to_record.append(attr_name)
                 memmap_array.fill(fillv)
                 setattr(self, attr_name, memmap_array)
 
