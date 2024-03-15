@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "boario"
-version = "0.5.6"
+version = "0.5.7"
 description = "BoARIO : The Adaptative Regional Input Output model in python."
 authors = ["Samuel Juhel <pro@sjuhel.org>"]
 license = "GNU General Public License v3 or later (GPLv3+)"
@@ -17,8 +17,6 @@ pandas = ">=1.5"
 progressbar2 = "^4.2.0"
 pyarrow = ">=11"
 pymrio = ">=0.4"
-importmagic = "^0.1.7"
-epc = "^0.0.5"
 
 
 [tool.poetry.group.dev.dependencies]
