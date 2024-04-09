@@ -4,33 +4,27 @@
 #######
 BoARIO
 #######
+|build-status| |black| |contribute| |licence| |pypi| |pythonv| |joss|
 
-
-.. image:: https://img.shields.io/github/actions/workflow/status/spjuhel/boario/CI.yml
+.. |build-status| image:: https://img.shields.io/github/actions/workflow/status/spjuhel/boario/CI.yml
    :target: https://github.com/spjuhel/BoARIO/actions/workflows/CI.yml
    :alt: GitHub Actions Workflow Status
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000
    :target: https://github.com/psf/black
    :alt: Code Style - Black
-
-.. image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
+.. |contribute| image:: https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat
    :target: https://github.com/spjuhel/BoARIO/issues
    :alt: Contribution - Welcome
-
-.. image:: https://img.shields.io/badge/License-GPLv3-blue
+.. |licence| image:: https://img.shields.io/badge/License-GPLv3-blue
    :target: https://www.gnu.org/licenses/gpl-3.0
    :alt: Licence - GPLv3
-
-.. image:: https://img.shields.io/pypi/v/boario
+.. |pypi| image:: https://img.shields.io/pypi/v/boario
    :target: https://pypi.org/project/boario/
    :alt: PyPI - Version
-
-.. image:: https://img.shields.io/pypi/pyversions/boario
+.. |pythonv| image:: https://img.shields.io/pypi/pyversions/boario
    :target: https://pypi.org/project/boario/
    :alt: PyPI - Python Version
-
-.. image:: https://joss.theoj.org/papers/71386aa01a292ecff8bafe273b077701/status.svg
+.. |joss| image:: https://joss.theoj.org/papers/71386aa01a292ecff8bafe273b077701/status.svg
    :target: https://joss.theoj.org/papers/71386aa01a292ecff8bafe273b077701
    :alt: Joss Status
 
