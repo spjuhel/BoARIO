@@ -2071,13 +2071,13 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "progressbar2"
-version = "4.4.1"
+version = "4.4.2"
 description = "A Python Progressbar library to provide visual (yet text based) progress to long running operations."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "progressbar2-4.4.1-py3-none-any.whl", hash = "sha256:714995e7725fb13e10a720eccf8ce8ff775d9f26247798c71f71447a15cfbe10"},
-    {file = "progressbar2-4.4.1.tar.gz", hash = "sha256:97d323ba03ad3d017a4d047fd0b2d3e733c5a360c07f87d269f96641c3de729f"},
+    {file = "progressbar2-4.4.2-py3-none-any.whl", hash = "sha256:ec157391635b008b8a422326fb05c27045ffbb2dc8dab5e4d90d4d412c4ffd39"},
+    {file = "progressbar2-4.4.2.tar.gz", hash = "sha256:3fda2e0c60693600a6585a784c9d3bc4e1dac57e99e133f8c0f5c8cf3df374a2"},
 ]
 
 [package.dependencies]
