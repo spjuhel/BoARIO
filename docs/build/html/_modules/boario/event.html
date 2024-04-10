@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-theme="light">
+<html lang="en" data-content_root="../../" data-theme="light">
 
   <head>
     <meta charset="utf-8" />
@@ -17,26 +17,27 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+  <link href="../../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=eafc0fe6" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=eafc0fe6" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=5bd8f7bc" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -48,6 +49,7 @@
     <link rel="search" title="Search" href="../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+    <meta name="docbuild:last-update" content="Apr 10, 2024"/>
   </head>
   
   
@@ -55,7 +57,15 @@
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -90,18 +100,21 @@
 </form></div>
   </div>
   
-    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
 <div class="bd-header__inner bd-page-width">
   <label class="sidebar-toggle primary-toggle" for="__primary">
     <span class="fa-solid fa-bars"></span>
   </label>
   
-  <div class="navbar-header-items__start">
+  
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
+
   
 
 <a class="navbar-brand logo" href="../../index.html">
+  
   
   
   
@@ -113,18 +126,12 @@
     
   </div>
   
-  
   <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
       
-        <div class="navbar-item"><nav class="navbar-nav">
-  <p class="sidebar-header-items__title"
-     role="heading"
-     aria-level="1"
-     aria-label="Site Navigation">
-    Site Navigation
-  </p>
+        <div class="navbar-item">
+<nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
@@ -171,28 +178,32 @@
       
         <div class="navbar-item navbar-persistent--container">
           
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
         <div class="navbar-item"><p class="last-updated">
-  Last updated on Feb 26, 2024.
+  Last updated on Apr 10, 2024.
   <br/>
 </p></div>
       
         <div class="navbar-item">
+
 <script>
 document.write(`
-  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
   </button>
 `);
 </script></div>
@@ -203,23 +214,31 @@ document.write(`
   
   
     <div class="navbar-persistent--mobile">
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
   
 </div>
 
-    </nav>
+    </header>
   
+
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
       
       <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
@@ -230,13 +249,8 @@ document.write(`
     
       <div class="sidebar-header-items__center">
         
-          <div class="navbar-item"><nav class="navbar-nav">
-  <p class="sidebar-header-items__title"
-     role="heading"
-     aria-level="1"
-     aria-label="Site Navigation">
-    Site Navigation
-  </p>
+          <div class="navbar-item">
+<nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
@@ -283,17 +297,18 @@ document.write(`
       <div class="sidebar-header-items__end">
         
           <div class="navbar-item"><p class="last-updated">
-  Last updated on Feb 26, 2024.
+  Last updated on Apr 10, 2024.
   <br/>
 </p></div>
         
           <div class="navbar-item">
+
 <script>
 document.write(`
-  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
   </button>
 `);
 </script></div>
@@ -326,8 +341,8 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumbs">
-  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../../index.html" class="nav-link" aria-label="Home">
@@ -352,7 +367,7 @@ document.write(`
               
                 
 <div id="searchbox"></div>
-                <article class="bd-article" role="main">
+                <article class="bd-article">
                   
   <h1>Source code for boario.event</h1><div class="highlight"><pre>
 <span></span><span class="c1"># BoARIO : The Adaptative Regional Input Output model in python.</span>
@@ -371,22 +386,24 @@ document.write(`
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">get_origin</span><span class="p">,</span> <span class="n">get_args</span>
-<span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">math</span>
+
 <span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">boario</span> <span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span> <span class="nn">boario.utils.recovery_functions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">concave_recovery</span><span class="p">,</span>
     <span class="n">convexe_recovery</span><span class="p">,</span>
-    <span class="n">linear_recovery</span><span class="p">,</span>
     <span class="n">convexe_recovery_scaled</span><span class="p">,</span>
+    <span class="n">linear_recovery</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
@@ -417,18 +434,18 @@ document.write(`
 
 
 <div class="viewcode-block" id="Event">
-<a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.Event">[docs]</a>
+<a class="viewcode-back" href="../../auto/boario.event.html#boario.event.Event">[docs]</a>
 <span class="k">class</span> <span class="nc">Event</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="c1"># Class Attributes</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base class for events (Abstract)&quot;&quot;&quot;</span>
 
     <span class="n">possible_sectors</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([])</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;List of sectors present in the MRIO used by the model&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;List of sectors present in the MRIOT used by the model&quot;&quot;&quot;</span>
 
     <span class="n">possible_regions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([])</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;List of regions present in the MRIO used by the model&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;List of regions present in the MRIOT used by the model&quot;&quot;&quot;</span>
 
     <span class="n">possible_final_demand_cat</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([])</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;List of final demand categories present in the MRIO used by the model&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;List of final demand categories present in the MRIOT used by the model&quot;&quot;&quot;</span>
 
     <span class="n">temporal_unit_range</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Maximum temporal unit simulated&quot;&quot;&quot;</span>
@@ -449,7 +466,7 @@ document.write(`
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;lexicographic sector indexes&quot;&quot;&quot;</span>
 
     <span class="n">model_monetary_factor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Amount of unitary currency used in the MRIO (e.g. 1000000 if in € millions)&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Amount of unitary currency used in the MRIOT (e.g. 1000000 if in € millions)&quot;&quot;&quot;</span>
 
     <span class="n">gva_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;GVA per (region,sector)&quot;&quot;&quot;</span>
@@ -464,7 +481,7 @@ document.write(`
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalized final consumption matrix&quot;&quot;&quot;</span>
 
     <span class="n">mrio_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;MRIO identification&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;MRIOT identification&quot;&quot;&quot;</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -484,13 +501,8 @@ document.write(`
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-
 <span class="sd">        event : dict</span>
 <span class="sd">            A dictionary holding the necessary information to define an event.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">            FIXME: Add docs.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Initializing new Event&quot;</span><span class="p">)</span>
@@ -554,7 +566,7 @@ document.write(`
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">impact</span><span class="o">=</span><span class="n">impact</span><span class="p">,</span> <span class="n">occurrence</span><span class="o">=</span><span class="n">occurrence</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Event.from_series">
-<a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.Event.from_series">[docs]</a>
+<a class="viewcode-back" href="../../auto/boario.event.html#boario.event.Event.from_series">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_series</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -565,19 +577,49 @@ document.write(`
         <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwarg</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Event</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an event from an impact pd.Series.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an event for an impact given as a pd.Series.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            impact (pd.Series): A vector definition of the impact per (region,sector)</span>
-<span class="sd">            occurrence (int, optional): The ordinal of occurrence of the event (requires to be &gt; 0). Defaults to 1.</span>
-<span class="sd">            duration (int, optional): The duration of the event (entire impact applied during this number of steps). Defaults to 1.</span>
-<span class="sd">            name (Optional[str], optional): A possible name for the event, for convenience. Defaults to None.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        impact : pd.Series</span>
+<span class="sd">            A pd.Series defining the impact per (region, sector)</span>
+<span class="sd">        occurrence : int</span>
+<span class="sd">            The ordinal of occurrence of the event (requires to be &gt; 0). Defaults to 1.</span>
+<span class="sd">        duration : int</span>
+<span class="sd">            The duration of the event (entire impact applied during this number of steps). Defaults to 1.</span>
+<span class="sd">        name : Optional[str]</span>
+<span class="sd">            A possible name for the event, for convenience. Defaults to None.</span>
+<span class="sd">        **kwarg :</span>
+<span class="sd">            Keyword arguments</span>
+<span class="sd">            Other keyword arguments to pass to the instantiate method (depends on the type of event)</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError: Raised if impact is empty or contains negative values.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Event</span>
+<span class="sd">            An Event object or one of its subclass</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            Event: an Event object (or one of its subclass).</span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raised if impact is empty of contains negative values.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; import pymrio as pym</span>
+<span class="sd">        &gt;&gt;&gt; from boario.simulation import Simulation</span>
+<span class="sd">        &gt;&gt;&gt; from boario.extended_model import ARIOPsiModel</span>
+<span class="sd">        &gt;&gt;&gt; from boario.event import EventKapitalRecover</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; mriot = pym.load_test()</span>
+<span class="sd">        &gt;&gt;&gt; mriot.calc_all()</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; impact_series = pd.Series({(&#39;reg1&#39;, &#39;electricity&#39;): 100000.0, (&#39;reg1&#39;, &#39;mining&#39;): 50000.0})</span>
+<span class="sd">        &gt;&gt;&gt; model = ARIOPsiModel(mriot)</span>
+<span class="sd">        &gt;&gt;&gt; sim = Simulation(model)</span>
+<span class="sd">        &gt;&gt;&gt; event = EventKapitalRecover.from_series(impact_series, occurrence=5, duration=10, recovery_time=30, name=&quot;Event 1&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; sim.add_event(event)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">impact</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -597,7 +639,7 @@ document.write(`
 
 
 <div class="viewcode-block" id="Event.from_dataframe">
-<a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.Event.from_dataframe">[docs]</a>
+<a class="viewcode-back" href="../../auto/boario.event.html#boario.event.Event.from_dataframe">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dataframe</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -610,11 +652,29 @@ document.write(`
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Event</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convenience function for DataFrames. See :meth:`~boario.event.Event.from_series`</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError: If impact cannot be squeezed to a Series</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        impact : pd.DataFrame</span>
+<span class="sd">           A pd.DataFrame defining the impact per (region, sector)</span>
+<span class="sd">        occurrence : int</span>
+<span class="sd">            The ordinal of occurrence of the event (requires to be &gt; 0). Defaults to 1.</span>
+<span class="sd">        duration : int</span>
+<span class="sd">            The duration of the event (entire impact applied during this number of steps). Defaults to 1.</span>
+<span class="sd">        name : Optional[str]</span>
+<span class="sd">            A possible name for the event, for convenience. Defaults to None.</span>
+<span class="sd">        **kwarg :</span>
+<span class="sd">            Keyword arguments</span>
+<span class="sd">            Other keyword arguments to pass to the instantiate method (depends on the type of event)</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            Event: an Event object (or one of its subclass).</span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If impact cannot be squeezed to a Series</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Event</span>
+<span class="sd">           An Event object (or one of its subclass).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">impact</span> <span class="o">=</span> <span class="n">impact</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">impact</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
@@ -630,7 +690,7 @@ document.write(`
 
 
 <div class="viewcode-block" id="Event.distribute_impact_by_gva">
-<a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.Event.distribute_impact_by_gva">[docs]</a>
+<a class="viewcode-back" href="../../auto/boario.event.html#boario.event.Event.distribute_impact_by_gva">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">distribute_impact_by_gva</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">impact_vec</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Distribute a vector of impact by the GVA of affected industries.</span>
@@ -638,13 +698,16 @@ document.write(`
 <span class="sd">        Each values of the given impact are mutliplied by the share of the GVA</span>
 <span class="sd">        the industry has over the GVA of all affected industries.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            impact_vec (pd.Series): The impact values to be reweigthed.</span>
-<span class="sd">            Current use-case assumes all values are the total impact.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        impact_vec : pd.Series</span>
+<span class="sd">            The impact values to be reweigthed. Current use-case assumes all values are the total impact.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            pd.Series: The impact where each value was multiplied by the share</span>
-<span class="sd">            of GVA of each affected industry (over total GVA affected).</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.Series</span>
+<span class="sd">            The impact where each value was multiplied by the share of GVA of each affected industry (over total GVA affected).</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gva</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">gva_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">impact_vec</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
         <span class="n">gva</span> <span class="o">=</span> <span class="n">gva</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
@@ -652,7 +715,7 @@ document.write(`
 
 
 <div class="viewcode-block" id="Event.distribute_impact_equally">
-<a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.Event.distribute_impact_equally">[docs]</a>
+<a class="viewcode-back" href="../../auto/boario.event.html#boario.event.Event.distribute_impact_equally">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">distribute_impact_equally</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">impact_vec</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Distribute an impact equally between all affected regions.</span>
@@ -660,18 +723,23 @@ document.write(`
 <span class="sd">        Assume impact is given as a vector with all value being the</span>
 <span class="sd">        total impact to distribute.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            impact_vec (pd.Series): The impact to distribute.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        impact_vec : pd.Series</span>
+<span class="sd">            The impact to distribute.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            pd.Series: The impact vector equally distributed among affected industries.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.Series</span>
+<span class="sd">            The impact vector equally distributed among affected industries.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dfg</span> <span class="o">=</span> <span class="n">impact_vec</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;region&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">dfg</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="n">dfg</span><span class="o">.</span><span class="n">ngroups</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">count</span><span class="p">()))</span></div>
 
 
 <div class="viewcode-block" id="Event.from_scalar_industries">
-<a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.Event.from_scalar_industries">[docs]</a>
+<a class="viewcode-back" href="../../auto/boario.event.html#boario.event.Event.from_scalar_industries">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_scalar_industries</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -679,38 +747,54 @@ document.write(`
         <span class="o">*</span><span class="p">,</span>
         <span class="n">industries</span><span class="p">:</span> <span class="n">IndustriesList</span><span class="p">,</span>
         <span class="n">impact_industries_distrib</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">gva_distrib</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">occurrence</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">gva_distrib</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">occurrence</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwarg</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Event</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates an Event from a scalar and a list of industries affected.</span>
 
-<span class="sd">        The scalar impact is distributed evenly by default. Otherwise it can be distributed proportionnaly to the GVA of</span>
-<span class="sd">        affected industries, or to a custom distribution.</span>
+<span class="sd">        The scalar impact is distributed evenly by default. Otherwise it can be distributed</span>
+<span class="sd">        proportionnaly to the GVA of affected industries, or to a custom distribution.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            impact (ScalarImpact): The scalar impact.</span>
-<span class="sd">            industries (IndustriesList): The list of industries affected by the impact</span>
-<span class="sd">            impact_industries_distrib (Optional[npt.ArrayLike], optional): A vector of equal size to the list of industries, stating the</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        impact : ScalarImpact</span>
+<span class="sd">            The scalar impact.</span>
+<span class="sd">        industries : IndustriesList</span>
+<span class="sd">            The list of industries affected by the impact.</span>
+<span class="sd">        impact_industries_distrib : Optional[npt.ArrayLike]</span>
+<span class="sd">            A vector of equal size to the list of industries, stating the</span>
 <span class="sd">            share of the impact each industry should receive. Defaults to None.</span>
-<span class="sd">            gva_distrib (bool, optional): A boolean stating if the impact should be distributed proportionnaly to GVA. Defaults to False.</span>
-<span class="sd">            occurrence (int, optional): The ordinal of occurrence of the event (requires to be &gt; 0). Defaults to 1.</span>
-<span class="sd">            duration (int, optional): The duration of the event (entire impact applied during this number of steps). Defaults to 1.</span>
-<span class="sd">            name (Optional[str], optional): A possible name for the event, for convenience. Defaults to None.</span>
+<span class="sd">        gva_distrib : Optional[bool]</span>
+<span class="sd">            A boolean stating if the impact should be distributed proportionnaly to GVA. Defaults to False.</span>
+<span class="sd">        occurrence : Optional[int]</span>
+<span class="sd">            The ordinal of occurrence of the event (requires to be &gt; 0). Defaults to 1.</span>
+<span class="sd">        duration : Optional[int]</span>
+<span class="sd">            The duration of the event (entire impact applied during this number of steps). Defaults to 1.</span>
+<span class="sd">        name : Optional[str]</span>
+<span class="sd">            A possible name for the event, for convenience. Defaults to None.</span>
+<span class="sd">        **kwarg :</span>
+<span class="sd">            Keyword arguments</span>
+<span class="sd">            Other keyword arguments to pass to the instantiate method (depends on the type of event)</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError: Raise if Impact is null, if len(industries) &lt; 1 or if the sum of impact_industries_distrib differs from 1.0.</span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raised if Impact is null, if len(industries) &lt; 1 or if the sum of impact_industries_distrib differs from 1.0.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            Event: An Event object or one of its subclass.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Event</span>
+<span class="sd">            An Event object or one of its subclass.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">impact</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Impact is null&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Impact is null&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">industries</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Null sized affected industries ?&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Null sized affected industries ?&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">industries</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">industries</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span>
@@ -741,7 +825,7 @@ document.write(`
 
 
 <div class="viewcode-block" id="Event.from_scalar_regions_sectors">
-<a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.Event.from_scalar_regions_sectors">[docs]</a>
+<a class="viewcode-back" href="../../auto/boario.event.html#boario.event.Event.from_scalar_regions_sectors">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_scalar_regions_sectors</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -758,28 +842,42 @@ document.write(`
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Event</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates an Event from a scalar, a list of regions and a list of sectors affected.</span>
 
-
-
-<span class="sd">        Args:</span>
-<span class="sd">            impact (ScalarImpact): The scalar impact.</span>
-<span class="sd">            regions (RegionsList): The list of regions affected.</span>
-<span class="sd">            sectors (SectorsList): The list of sectors affected in each region.</span>
-<span class="sd">            impact_regional_distrib (Optional[npt.ArrayLike], optional): A vector of equal size to the list of regions affected, stating the</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        impact : ScalarImpact</span>
+<span class="sd">            The scalar impact.</span>
+<span class="sd">        regions : RegionsList</span>
+<span class="sd">            The list of regions affected.</span>
+<span class="sd">        sectors : SectorsList</span>
+<span class="sd">            The list of sectors affected in each region.</span>
+<span class="sd">        impact_regional_distrib : Optional[npt.ArrayLike], optional</span>
+<span class="sd">            A vector of equal size to the list of regions affected, stating the</span>
 <span class="sd">            share of the impact each industry should receive. Defaults to None.</span>
-<span class="sd">            impact_sectoral_distrib (Optional[Union[str, npt.ArrayLike]], optional): A vector of equal size to the list of sectors affected, stating the</span>
+<span class="sd">        impact_sectoral_distrib : Optional[Union[str, npt.ArrayLike]], optional</span>
+<span class="sd">            A vector of equal size to the list of sectors affected, stating the</span>
 <span class="sd">            share of the impact each industry should receive. Defaults to None.</span>
-<span class="sd">            occurrence (int, optional): The ordinal of occurrence of the event (requires to be &gt; 0). Defaults to 1.</span>
-<span class="sd">            duration (int, optional): The duration of the event (entire impact applied during this number of steps). Defaults to 1.</span>
-<span class="sd">            name (Optional[str], optional): A possible name for the event, for convenience. Defaults to None.</span>
+<span class="sd">        occurrence : int, optional</span>
+<span class="sd">            The ordinal of occurrence of the event (requires to be &gt; 0). Defaults to 1.</span>
+<span class="sd">        duration : int, optional</span>
+<span class="sd">            The duration of the event (entire impact applied during this number of steps). Defaults to 1.</span>
+<span class="sd">        name : Optional[str], optional</span>
+<span class="sd">            A possible name for the event, for convenience. Defaults to None.</span>
+<span class="sd">        **kwarg :</span>
+<span class="sd">            Keyword arguments</span>
+<span class="sd">            Other keyword arguments to pass to the instantiate method (depends on the type of event)</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError: Raise if Impact is null, if len(regions) or len(sectors) &lt; 1,</span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raise if Impact is null, if len(regions) or len(sectors) &lt; 1,</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            Event: An Event object or one of its subclass</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Event</span>
+<span class="sd">            An Event object or one of its subclass.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">impact</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Impact is null&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Impact is null&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">regions</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">regions</span> <span class="o">=</span> <span class="p">[</span><span class="n">regions</span><span class="p">]</span>
@@ -791,10 +889,10 @@ document.write(`
         <span class="n">_sectors</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">sectors</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sector&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_regions</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Null sized affected regions ?&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Null sized affected regions ?&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_sectors</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Null sized affected sectors ?&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Null sized affected sectors ?&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">_sectors</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
@@ -908,19 +1006,7 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">aff_industries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;The industries affected by the event.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-
-<span class="sd">        index : pd.MultiIndex</span>
-<span class="sd">             The affected industries as a pandas MultiIndex</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">             A pandas MultiIndex with the regions affected as first level, and sectors affected as second level</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;The industries affected by the event.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aff_industries</span>
 
@@ -1070,7 +1156,7 @@ document.write(`
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># TODO: find ways to represent long lists</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;[WIP]</span>
 <span class="s2">        Event(</span>
 <span class="s2">              name = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,</span>
 <span class="s2">              occur = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">occurrence</span><span class="si">}</span><span class="s2">,</span>
@@ -1083,8 +1169,10 @@ document.write(`
 
 
 <div class="viewcode-block" id="EventArbitraryProd">
-<a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.EventArbitraryProd">[docs]</a>
+<a class="viewcode-back" href="../../auto/boario.event.html#boario.event.EventArbitraryProd">[docs]</a>
 <span class="k">class</span> <span class="nc">EventArbitraryProd</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Subclass for events with arbitrary impact on production capacity&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -1226,7 +1314,23 @@ document.write(`
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_recovery_fun</span> <span class="o">=</span> <span class="n">r_fun_partial</span>
 
+<div class="viewcode-block" id="EventArbitraryProd.recovery">
+<a class="viewcode-back" href="../../auto/boario.event.html#boario.event.EventArbitraryProd.recovery">[docs]</a>
     <span class="k">def</span> <span class="nf">recovery</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_temporal_unit</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the recovery function to the capital destroyed for the current temporal unit.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        current_temporal_unit : int</span>
+<span class="sd">            The current temporal unit</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            Raised if no recovery function has been set.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">elapsed</span> <span class="o">=</span> <span class="n">current_temporal_unit</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occurrence</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Trying to recover before event is over&quot;</span><span class="p">)</span>
@@ -1240,12 +1344,14 @@ document.write(`
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">res</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">over</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prod_cap_delta_arbitrary</span> <span class="o">=</span> <span class="n">res</span></div>
+</div>
 
 
 
 <div class="viewcode-block" id="EventKapitalDestroyed">
-<a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.EventKapitalDestroyed">[docs]</a>
+<a class="viewcode-back" href="../../auto/boario.event.html#boario.event.EventKapitalDestroyed">[docs]</a>
 <span class="k">class</span> <span class="nc">EventKapitalDestroyed</span><span class="p">(</span><span class="n">Event</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base subclass for events with productive capital destruction&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -1392,8 +1498,9 @@ document.write(`
 
 
 <div class="viewcode-block" id="EventKapitalRebuild">
-<a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.EventKapitalRebuild">[docs]</a>
+<a class="viewcode-back" href="../../auto/boario.event.html#boario.event.EventKapitalRebuild">[docs]</a>
 <span class="k">class</span> <span class="nc">EventKapitalRebuild</span><span class="p">(</span><span class="n">EventKapitalDestroyed</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Subclass for events where destroyed capital requires rebuilding (Abstract)&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -1613,8 +1720,10 @@ document.write(`
 
 
 <div class="viewcode-block" id="EventKapitalRecover">
-<a class="viewcode-back" href="../../autoapi/boario.event.html#boario.event.EventKapitalRecover">[docs]</a>
+<a class="viewcode-back" href="../../auto/boario.event.html#boario.event.EventKapitalRecover">[docs]</a>
 <span class="k">class</span> <span class="nc">EventKapitalRecover</span><span class="p">(</span><span class="n">EventKapitalDestroyed</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Subclass for events where destroyed capital is recovered over time (without reconstruction demand)&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -1763,21 +1872,19 @@ document.write(`
               
               
               
-                <footer class="bd-footer-article">
+              
+              
+                <footer class="prev-next-footer">
                   
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"></div>
               
             
           </div>
@@ -1790,8 +1897,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1799,6 +1906,7 @@ document.write(`
     <div class="footer-items__start">
       
         <div class="footer-item">
+
   <p class="copyright">
     
       © Copyright 2022, Samuel Juhel.
@@ -1808,6 +1916,7 @@ document.write(`
 </div>
       
         <div class="footer-item">
+
   <p class="sphinx-version">
     Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
@@ -1817,10 +1926,12 @@ document.write(`
     </div>
   
   
+  
     <div class="footer-items__end">
       
-        <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.2.
 </p></div>
       
     </div>
