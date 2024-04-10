@@ -62,7 +62,7 @@ LOW_DEMAND_THRESH = 10
 
 
 class Event(ABC):
-    # Class Attributes
+    r"""Base class for events (Abstract)"""
 
     possible_sectors: pd.Index = pd.Index([])
     r"""List of sectors present in the MRIOT used by the model"""
@@ -127,13 +127,8 @@ class Event(ABC):
 
         Parameters
         ----------
-
         event : dict
             A dictionary holding the necessary information to define an event.
-
-        Examples
-        --------
-            FIXME: Add docs.
 
         """
         logger.info("Initializing new Event")
@@ -224,11 +219,13 @@ class Event(ABC):
 
         Returns
         -------
-        Event: an Event object or one of its subclass
+        Event
+            An Event object or one of its subclass
 
         Raises
         ------
-        ValueError: Raised if impact is empty of contains negative values.
+        ValueError
+            Raised if impact is empty of contains negative values.
 
         Examples
         --------
@@ -246,6 +243,7 @@ class Event(ABC):
         >>> sim = Simulation(model)
         >>> event = EventKapitalRecover.from_series(impact_series, occurrence=5, duration=10, recovery_time=30, name="Event 1")
         >>> sim.add_event(event)
+
         """
         if impact.size == 0:
             raise ValueError(
@@ -275,13 +273,29 @@ class Event(ABC):
     ) -> Event:
         """Convenience function for DataFrames. See :meth:`~boario.event.Event.from_series`
 
+        Parameters
+        ----------
+        impact : pd.DataFrame
+           A pd.DataFrame defining the impact per (region, sector)
+        occurrence : int
+            The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
+        duration : int
+            The duration of the event (entire impact applied during this number of steps). Defaults to 1.
+        name : Optional[str]
+            A possible name for the event, for convenience. Defaults to None.
+        **kwarg :
+            Keyword arguments
+            Other keyword arguments to pass to the instantiate method (depends on the type of event)
+
         Raises
         ------
-        ValueError: If impact cannot be squeezed to a Series
+        ValueError
+            If impact cannot be squeezed to a Series
 
         Returns
         -------
-        Event: an Event object (or one of its subclass).
+        Event
+           An Event object (or one of its subclass).
         """
         impact = impact.squeeze()
         if not isinstance(impact, pd.Series):
@@ -309,8 +323,9 @@ class Event(ABC):
 
         Returns
         -------
-        pd.Series: The impact where each value was multiplied by the share of GVA of each affected
-        industry (over total GVA affected).
+        pd.Series
+            The impact where each value was multiplied by the share of GVA of each affected industry (over total GVA affected).
+
         """
         gva = cls.gva_df.loc[impact_vec.index]
         gva = gva.transform(lambda x: x / sum(x))
@@ -330,7 +345,9 @@ class Event(ABC):
 
         Returns
         -------
-        pd.Series: The impact vector equally distributed among affected industries.
+        pd.Series
+            The impact vector equally distributed among affected industries.
+
         """
         dfg = impact_vec.groupby("region")
         return dfg.transform(lambda x: x / (dfg.ngroups * x.count()))
@@ -342,9 +359,9 @@ class Event(ABC):
         *,
         industries: IndustriesList,
         impact_industries_distrib: Optional[npt.ArrayLike] = None,
-        gva_distrib: bool = False,
-        occurrence: int = 1,
-        duration: int = 1,
+        gva_distrib: Optional[bool] = False,
+        occurrence: Optional[int] = 1,
+        duration: Optional[int] = 1,
         name: Optional[str] = None,
         **kwarg,
     ) -> Event:
@@ -370,14 +387,20 @@ class Event(ABC):
             The duration of the event (entire impact applied during this number of steps). Defaults to 1.
         name : Optional[str]
             A possible name for the event, for convenience. Defaults to None.
+        **kwarg :
+            Keyword arguments
+            Other keyword arguments to pass to the instantiate method (depends on the type of event)
 
         Raises
         ------
-        ValueError: Raised if Impact is null, if len(industries) < 1 or if the sum of impact_industries_distrib differs from 1.0.
+        ValueError
+            Raised if Impact is null, if len(industries) < 1 or if the sum of impact_industries_distrib differs from 1.0.
 
         Returns
         -------
-        Event: An Event object or one of its subclass.
+        Event
+            An Event object or one of its subclass.
+
         """
         if impact <= 0:
             raise ValueError("Impact is null")
@@ -448,14 +471,19 @@ class Event(ABC):
             The duration of the event (entire impact applied during this number of steps). Defaults to 1.
         name : Optional[str], optional
             A possible name for the event, for convenience. Defaults to None.
+        **kwarg :
+            Keyword arguments
+            Other keyword arguments to pass to the instantiate method (depends on the type of event)
 
         Raises
         ------
-        ValueError: Raise if Impact is null, if len(regions) or len(sectors) < 1,
+        ValueError
+            Raise if Impact is null, if len(regions) or len(sectors) < 1,
 
         Returns
         -------
-        Event: An Event object or one of its subclass.
+        Event
+            An Event object or one of its subclass.
         """
         if impact <= 0:
             raise ValueError("Impact is null")
@@ -586,19 +614,7 @@ class Event(ABC):
 
     @property
     def aff_industries(self) -> pd.MultiIndex:
-        r"""The industries affected by the event.
-
-        Parameters
-        ----------
-
-        index : pd.MultiIndex
-             The affected industries as a pandas MultiIndex.
-
-        Returns
-        -------
-             A pandas MultiIndex with the regions affected as first level, and sectors affected as second level
-
-        """
+        r"""The industries affected by the event."""
 
         return self._aff_industries
 
@@ -760,6 +776,8 @@ class Event(ABC):
 
 
 class EventArbitraryProd(Event):
+    r"""Subclass for events with arbitrary impact on production capacity"""
+
     def __init__(
         self,
         *,
@@ -932,6 +950,7 @@ class EventArbitraryProd(Event):
 
 
 class EventKapitalDestroyed(Event, ABC):
+    r"""Base subclass for events with productive capital destruction (abstract)"""
     def __init__(
         self,
         *,
@@ -1077,6 +1096,8 @@ class EventKapitalDestroyed(Event, ABC):
 
 
 class EventKapitalRebuild(EventKapitalDestroyed):
+    r"""Subclass for events where destroyed capital requires rebuilding (Abstract)"""
+
     def __init__(
         self,
         *,
@@ -1295,6 +1316,8 @@ class EventKapitalRebuild(EventKapitalDestroyed):
 
 
 class EventKapitalRecover(EventKapitalDestroyed):
+    r"""Subclass for events where destroyed capital is recovered over time (without reconstruction demand)"""
+
     def __init__(
         self,
         *,

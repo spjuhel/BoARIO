@@ -88,7 +88,7 @@ def flatten(lst):
 def lexico_reindex(mrio: pymrio.IOSystem) -> pymrio.IOSystem:
     """Reindex IOSystem lexicographicaly
 
-    Sort indexes and columns of the dataframe of a ``pymrio`` `IOSystem <https://pymrio.readthedocs.io/en/latest/intro.html>` by
+    Sort indexes and columns of the dataframe of a ``pymrio.IOSystem`` by
     lexical order.
 
     Parameters
