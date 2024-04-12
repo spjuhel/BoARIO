@@ -1,8 +1,4 @@
-"0.5.7":
-  tag: 'v0.5.7'
-  languages:
-    - "en"
 "develop":
-  tag: ''
+  tag: 'develop'
   languages:
     - "en"
