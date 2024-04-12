@@ -85,7 +85,7 @@ version = boario.__version__
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     "navbar_end": ["navbar-icon-links", "last-updated", "theme-switcher", "version-switcher"],
-    "secondary_sidebar_items": ["page-toc", "edit-this-page", "sourcelink"],
+    "secondary_sidebar_items": ["page-toc", "sourcelink"],
     "use_edit_page_button": True,
     "show_nav_level": 2,
     "switcher": {
