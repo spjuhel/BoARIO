@@ -9,7 +9,7 @@ def build_doc(version, language, tag):
     print(f"Will try to build for {(version, language, tag)}")
     os.environ["current_version"] = version
     os.environ["SOURCEDIR"] = "source"
-    os.environ["BUILDDIR"] = ""
+    os.environ["BUILDDIR"] = "build"
     os.environ["current_language"] = language
     subprocess.run("git checkout " + tag, shell=True)
     subprocess.run("git checkout develop -- ./source/conf.py", shell=True)
@@ -19,6 +19,7 @@ def build_doc(version, language, tag):
 # a move dir method because we run multiple builds and bring the html folders to a
 # location which we then push to github pages
 def move_dir(src, dst):
+  print(f"Moving from {src} to {dst}")
   subprocess.run(["mkdir", "-p", dst])
   subprocess.run("mv "+src+'* ' + dst, shell=True)
 
@@ -28,7 +29,7 @@ if __name__ == '__main__':
     os.environ["pages_root"] = "https://spjuhel.github.io/BoARIO"
     # manually the main branch build in the current supported languages
     build_doc("latest", "en", "main")
-    move_dir("./build/html/", "./pages/")
+    move_dir("./build/html/", "./pages/latest/en/")
     #build_doc("latest", "de", "main")
     #move_dir("./_build/html/", "../pages/de/")
 
