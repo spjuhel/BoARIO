@@ -22,10 +22,7 @@ concurrency:
 
 jobs:
   # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
