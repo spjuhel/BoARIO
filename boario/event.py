@@ -62,7 +62,22 @@ LOW_DEMAND_THRESH = 10
 
 
 class Event(ABC):
-    r"""Base class for events (Abstract)"""
+    r"""An Event object stores all information about a unique shock during simulation
+        such as time of occurrence, duration, type of shock, amount of damages.
+        Computation of recovery or initially requested rebuilding demand is also
+        done in this class.
+
+        .. warning::
+           The Event class is abstract and cannot be instantiated directly. Only its non-abstract subclasses can be instantiated.
+
+        .. note::
+           Events should be constructed using :py:meth:`~Event.from_series()`, :py:meth:`~Event.from_dataframe()`, :py:meth:`~Event.from_scalar_industries()` or from :py:meth:`~Event.from_scalar_regions_sectors()`.
+           Depending on the type of event chosen, these constructors require additional keyword arguments, that are documented for each instantiable Event subclass.
+           For instance, :py:class:`EventKapitalRebuild` additionally requires `rebuild_tau` and `rebuilding_sectors`.
+
+        .. seealso::
+           Tutorial :ref:`boario-events`
+    """
 
     possible_sectors: pd.Index = pd.Index([])
     r"""List of sectors present in the MRIOT used by the model"""
@@ -118,19 +133,6 @@ class Event(ABC):
         occurrence: int = 1,
         duration: int = 1,
     ) -> None:
-        r"""Create an event shocking the model from a dictionary.
-
-        An Event object stores all information about a unique shock during simulation such as
-        time of occurrence, duration, type of shock, amount of damages. Computation
-        of recovery or initially requested rebuilding demand is also done in this
-        class.
-
-        Parameters
-        ----------
-        event : dict
-            A dictionary holding the necessary information to define an event.
-
-        """
         logger.info("Initializing new Event")
         logger.debug("Checking required Class attributes are defined")
 
@@ -214,8 +216,8 @@ class Event(ABC):
         name : Optional[str]
             A possible name for the event, for convenience. Defaults to None.
         **kwarg :
-            Keyword arguments
-            Other keyword arguments to pass to the instantiate method (depends on the type of event)
+            Keyword arguments keyword arguments to pass to the instantiating method
+        (depends on the type of event).
 
         Returns
         -------
@@ -271,7 +273,7 @@ class Event(ABC):
         name: Optional[str] = None,
         **kwarg,
     ) -> Event:
-        """Convenience function for DataFrames. See :meth:`~boario.event.Event.from_series`
+        """Convenience function for DataFrames. See :meth:`~boario.event.Event.from_series`. This constructor only apply ``.squeeze()`` to the given DataFrame.
 
         Parameters
         ----------
@@ -367,8 +369,9 @@ class Event(ABC):
     ) -> Event:
         """Creates an Event from a scalar and a list of industries affected.
 
-        The scalar impact is distributed evenly by default. Otherwise it can be distributed
-        proportionnaly to the GVA of affected industries, or to a custom distribution.
+        The scalar impact is distributed evenly by default. Otherwise it can
+        be distributed proportionnaly to the GVA of affected industries, or to
+        a custom distribution.
 
         Parameters
         ----------
@@ -463,8 +466,11 @@ class Event(ABC):
             A vector of equal size to the list of regions affected, stating the
             share of the impact each industry should receive. Defaults to None.
         impact_sectoral_distrib : Optional[Union[str, npt.ArrayLike]], optional
-            A vector of equal size to the list of sectors affected, stating the
-            share of the impact each industry should receive. Defaults to None.
+            Either:
+
+            * ``\"gdp\"``, the impact is then distributed using the gross value added of each sector as a weight.
+            * A vector of equal size to the list of sectors affected, stating the share of the impact each industry should receive. Defaults to None.
+
         occurrence : int, optional
             The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
         duration : int, optional
@@ -776,7 +782,22 @@ class Event(ABC):
 
 
 class EventArbitraryProd(Event):
-    r"""Subclass for events with arbitrary impact on production capacity"""
+    r"""An EventArbitraryProd object holds an event with arbitrary impact on production capacity.
+
+        Such events can be used to represent temporary loss of production capacity in a completely exogenous way (e.g., loss of working hours from a heatwave).
+
+        .. warning::
+           This type of event suffers from a problem with the recovery and does not function properly at the moment.
+
+        .. note::
+           For this type of event, the impact value represent the share of production capacity lost of an industry.
+
+        .. note::
+           In addition to the base arguments of an Event, EventArbitraryProd requires a ``recovery_time`` (1 step by default) and a ``recovery_function`` (linear by default).
+
+        .. seealso::
+           Tutorial :ref:`boario-events`
+    """
 
     def __init__(
         self,
@@ -788,6 +809,9 @@ class EventArbitraryProd(Event):
         occurrence: int = 1,
         duration: int = 1,
     ) -> None:
+        raise NotImplementedError(
+            "This type of Event suffers from a major bug and cannot be used at the moment."
+        )
         if (impact > 1.0).any():
             raise ValueError(
                 "Impact is greater than 100% (1.) for at least an industry."
@@ -950,7 +974,21 @@ class EventArbitraryProd(Event):
 
 
 class EventKapitalDestroyed(Event, ABC):
-    r"""Base subclass for events with productive capital destruction (abstract)"""
+    r"""EventKapitalDestroyed is an abstract class to hold events with where some capital (from industries or households) is destroyed. See :py:class:`EventKapitalRecover` and :py:class:`EventKapitalRebuild` for its instantiable classes.
+
+        .. note::
+           For this type of event, the impact value represent the amount of capital destroyed in monetary terms.
+
+        .. note::
+           We distinguish between impacts on household and industrial (productive) capital. We assume destruction of the former not to reduce production capacity contrary to the latter (but possibly induce reconstruction demand). Impacts on household capital is null by default, but can be set via the ``households_impacts`` argument in the constructor. The amount of production capacity lost is computed as the share of capital lost over total capital of the industry.
+
+        .. note::
+           The user can specify a monetary factor via the ``event_monetary_factor`` argument for the event if it differs from the monetary factor of the MRIOT used. By default the constructor assumes the two factors to be the same (i.e., if the MRIOT is in €M, the so is the impact).
+
+        .. seealso::
+           Tutorial :ref:`boario-events`
+    """
+
     def __init__(
         self,
         *,
@@ -1096,7 +1134,21 @@ class EventKapitalDestroyed(Event, ABC):
 
 
 class EventKapitalRebuild(EventKapitalDestroyed):
-    r"""Subclass for events where destroyed capital requires rebuilding (Abstract)"""
+    r"""EventKapitalRebuild holds a :py:class:`EventKapitalDestroyed` event where the destroyed capital requires to be rebuilt, and creates a reconstruction demand.
+
+        This subclass requires and enables new arguments to pass to the constructor:
+
+        * A characteristic time for reconstruction (``tau_rebuild``)
+        * A set of sectors responsible for the reconstruction (``rebuilding_sectors``)
+        * A ``rebuilding_factor`` in order to modulate the reconstruction demand. By default, this factor is 1, meaning that the entire impact value is translated as an additional demand.
+
+        .. note::
+           The ``tau_rebuild`` of an event takes precedence over the one defined for a model.
+
+        .. seealso::
+           Tutorial :ref:`boario-events`
+
+    """
 
     def __init__(
         self,
@@ -1316,7 +1368,16 @@ class EventKapitalRebuild(EventKapitalDestroyed):
 
 
 class EventKapitalRecover(EventKapitalDestroyed):
-    r"""Subclass for events where destroyed capital is recovered over time (without reconstruction demand)"""
+    r"""EventKapitalRecover holds a :py:class:`EventKapitalDestroyed` event where the destroyed capital does not create a reconstruction demand.
+
+        This subclass requires and enables new arguments to pass to the constructor:
+
+        * A characteristic time for the recovery (``recovery_time``)
+        * Optionally a ``recovery_function`` (linear by default).
+
+        .. seealso::
+           Tutorial :ref:`boario-events`
+    """
 
     def __init__(
         self,

@@ -13,6 +13,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+"""BoARIO : The Adaptative Regional Input Output model in python."""
+
 try:
     import coloredlogs as coloredlogs  # noqa: F401
 except ImportError:
