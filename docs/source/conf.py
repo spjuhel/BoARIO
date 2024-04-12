@@ -13,8 +13,11 @@
 import os
 import sys
 import re
+import yaml
 
 sys.path.insert(0, os.path.abspath("../../"))
+
+import boario
 
 
 # -- Project information -----------------------------------------------------
@@ -41,7 +44,7 @@ extensions = [
     "sphinxcontrib.bibtex",
     "sphinx.ext.inheritance_diagram",
     "nbsphinx",
-    'autoapi.sphinx',
+#    'autoapi.sphinx',
 ]
 
 numpydoc_show_class_members = False
@@ -78,12 +81,17 @@ copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
+version = boario.__version__
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
-    "navbar_end": ["navbar-icon-links", "last-updated", "theme-switcher"],
+    "navbar_end": ["navbar-icon-links", "last-updated", "theme-switcher", "version-switcher"],
     "secondary_sidebar_items": ["page-toc", "edit-this-page", "sourcelink"],
     "use_edit_page_button": True,
     "show_nav_level": 2,
+    "switcher": {
+        "json_url": "https://spjuhel.github.io/BoARIO/latest/_static/switcher.json",
+        "version_match": version,
+    }
 }
 
 html_context = {
@@ -125,7 +133,7 @@ add_module_names = False
 autodoc_member_order = "bysource"
 
 # Keep __init__ method
-autoclass_content = "init"
+autoclass_content = "class"
 
 # autoapi config
 autoapi_modules = {"boario": {"output": "auto", "prune":True, "override":True}}
@@ -173,3 +181,32 @@ mathjax3_config = {
         },
     },
 }
+
+build_all_docs = os.environ.get("build_all_docs")
+pages_root = os.environ.get("pages_root", "")
+
+if build_all_docs is not None:
+  current_language = os.environ.get("current_language")
+  current_version = os.environ.get("current_version")
+
+  html_context = {
+    'current_language' : current_language,
+    'languages' : [],
+    'current_version' : current_version,
+    'versions' : [],
+  }
+
+  if (current_version == 'latest'):
+    html_context['languages'].append(['en', pages_root])
+    #html_context['languages'].append(['de', pages_root+'/de'])
+
+  if (current_language == 'en'):
+    html_context['versions'].append(['latest', pages_root])
+  #if (current_language == 'de'):
+  #  html_context['versions'].append(['latest', pages_root+'/de'])
+
+  with open("versions.yaml", "r") as yaml_file:
+    docs = yaml.safe_load(yaml_file)
+
+  for version, details in docs.items():
+    html_context['versions'].append([version, pages_root+'/'+version+'/'+current_language])

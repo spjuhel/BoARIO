@@ -1,0 +1,8 @@
+[
+    {
+        "name": "latest",
+        "version": "0.5.7",
+        "url": "https://mysite.org/en/0.5.7/",
+	"prefered":True,
+    },
+]
