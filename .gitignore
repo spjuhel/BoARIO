@@ -8,6 +8,7 @@ archive.py
 pyrightconfig.json
 shortlicence
 src/docs/source/_build
+docs/pages
 testing
 
 snakejob.*
@@ -23,7 +24,6 @@ launch.json
 __pycache__/
 *.py[cod]
 *$py.class
-*.ipynb
 
 # C extensions
 *.so
