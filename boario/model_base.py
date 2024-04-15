@@ -1136,9 +1136,9 @@ class ARIOBaseModel:
 
         # list_of_demands = [self.matrix_orders, self.final_demand]
         # # 1. Calc demand from rebuilding requirements (with characteristic time rebuild_tau)
-        house_reb_dem_per_event = (
-            house_reb_dem_tot_per_event
-        ) = indus_reb_dem_per_event = indus_reb_dem_tot_per_event = None
+        house_reb_dem_per_event = house_reb_dem_tot_per_event = (
+            indus_reb_dem_per_event
+        ) = indus_reb_dem_tot_per_event = None
 
         if rebuildable_events:
             logger.debug("There are rebuildable events")
