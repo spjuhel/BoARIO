@@ -182,31 +182,31 @@ mathjax3_config = {
     },
 }
 
-build_all_docs = os.environ.get("build_all_docs")
-pages_root = os.environ.get("pages_root", "")
+# build_all_docs = os.environ.get("build_all_docs")
+# pages_root = os.environ.get("pages_root", "")
 
-if build_all_docs is not None:
-  current_language = os.environ.get("current_language")
-  current_version = os.environ.get("current_version")
+# if build_all_docs is not None:
+#   current_language = os.environ.get("current_language")
+#   current_version = os.environ.get("current_version")
 
-  html_context = {
-    'current_language' : current_language,
-    'languages' : [],
-    'current_version' : current_version,
-    'versions' : [],
-  }
+#   html_context = {
+#     'current_language' : current_language,
+#     'languages' : [],
+#     'current_version' : current_version,
+#     'versions' : [],
+#   }
 
-  if (current_version == 'latest'):
-    html_context['languages'].append(['en', pages_root])
-    #html_context['languages'].append(['de', pages_root+'/de'])
+#   if (current_version == 'latest'):
+#     html_context['languages'].append(['en', pages_root])
+#     #html_context['languages'].append(['de', pages_root+'/de'])
 
-  if (current_language == 'en'):
-    html_context['versions'].append(['latest', pages_root])
-  #if (current_language == 'de'):
-  #  html_context['versions'].append(['latest', pages_root+'/de'])
+#   if (current_language == 'en'):
+#     html_context['versions'].append(['latest', pages_root])
+#   #if (current_language == 'de'):
+#   #  html_context['versions'].append(['latest', pages_root+'/de'])
 
-  with open("versions.yaml", "r") as yaml_file:
-    docs = yaml.safe_load(yaml_file)
+#   with open("versions.yaml", "r") as yaml_file:
+#     docs = yaml.safe_load(yaml_file)
 
-  for version, details in docs.items():
-    html_context['versions'].append([version, pages_root+'/'+version+'/'+current_language])
+#   for version, details in docs.items():
+#     html_context['versions'].append([version, pages_root+'/'+version+'/'+current_language])
