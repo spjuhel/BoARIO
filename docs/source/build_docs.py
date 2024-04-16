@@ -29,7 +29,7 @@ if __name__ == '__main__':
     os.environ["pages_root"] = "https://spjuhel.github.io/BoARIO"
     # manually the main branch build in the current supported languages
     build_doc("latest", "en", "main")
-    move_dir("./build/html/", "./pages/latest/en/")
+    move_dir("./build/html/", "./pages/")
     #build_doc("latest", "de", "main")
     #move_dir("./_build/html/", "../pages/de/")
 
