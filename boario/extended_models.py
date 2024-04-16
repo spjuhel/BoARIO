@@ -52,9 +52,10 @@ class ARIOPsiModel(ARIOBaseModel):
         psi_param=0.80,
         inventory_restoration_tau: int | Dict[str, int] = 60,
     ) -> None:
-        """An ARIO3 model with some additional features
+        """An ARIO model with some additional features.
 
         Added feature are parameter psi of production adjustment inventories constraint threshold, as well as a characteristic time of inventories resupplying.
+        See :ref:`model_type`.
         """
 
         super().__init__(

@@ -82,6 +82,12 @@ You can install BoARIO from ``pip`` with:
 
    pip install boario
 
+Or from ``conda-forge`` using conda (or mamba):
+
+.. code:: console
+
+   conda install -c conda-forge boario
+
 
 The full source code is also available on Github at: https://github.com/spjuhel/BoARIO
 
@@ -107,7 +113,7 @@ And produce the following outputs:
 Example of use
 =================
 
-See `Boario quickstart <https://spjuhel.github.io/BoARIO/boario-quickstart.html>`_.
+See `Boario quickstart <https://spjuhel.github.io/BoARIO/boario-tutorials.html>`_.
 
 Credits
 ========
@@ -128,7 +134,7 @@ This work was supported by the French Environment and Energy Management Agency
 Development
 ------------
 
-* Samuel Juhel (pro@sjuhel.org)
+** Samuel Juhel (pro@sjuhel.org)
 
 Contributions
 ---------------

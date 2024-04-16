@@ -50,13 +50,13 @@ Here a quick description of each parameters. Please refer to both :ref:`the math
 
 * ``infinite_inventories_sect`` should be a list of inputs never constraining production (the stocks for these input will be virtually infinite when considering stock constraints) (overridden by ``inventory_dict``)
 
-* ``monetary_factor`` should be equal to the monetary factor of the MRIO used (most of the time MRIO are in millions €/$, hence the default :math:`10^6`)
+* ``monetary_factor`` should be equal to the monetary factor of the MRIOT used (most of the time MRIOT are in millions €/$, hence the default :math:`10^6`)
 
 * ``temporal_units_by_step`` the number of `temporal units` to simulate every step. Setting it to 5 will divide the computation time by 5, but only one every 5 `temporal units` will actually be simulated. See :ref:`temporal`.
 
 .. _year_to_temporal_unit_factor:
 
-* ``iotable_year_to_temporal_unit_factor`` defines the `temporal unit` assuming the MRIO contains yearly values. Note that this has not been extensively tested and should be used with care.
+* ``iotable_year_to_temporal_unit_factor`` defines the `temporal unit` assuming the MRIOT contains yearly values. Note that this has not been extensively tested and should be used with care.
 
 * ``productive_capital_to_VA_dict`` should be a dictionary of ``sector:ratio`` format, where ratio is an estimate of Capital Stock over Value Added ratio. This is used to estimate the capital stock of each sector. By default the ratio is 4/1 for all sectors.
 
@@ -75,15 +75,21 @@ Here a quick description of each parameters. Please refer to both :ref:`the math
 Focus on the temporal dimension
 ----------------------------------
 
+.. warning::
+   These features have not been extensively tested and should be handled with great care.
+   Feedbacks are welcome!
+
 
 The temporal dimension is an important aspect of dynamically modeling indirect economic impacts.
 Historically, ARIO has been used both using weekly and daily steps, but mostly the latter case.
 BoARIO's implementation of ARIO aims at being independent of the ``temporal unit``
-considered, notably to study how this aspect affect results.
+considered, notably to study how this aspect influences the results.
 
 This means it is virtually possible to run ARIO on any temporal granularity of your choosing.
 
-For efficiency purpose, this implementation allows to simulate only some ``temporal unit`` and interpolate in between.
+Furthermore, for efficiency purpose, this implementation allows to simulate only some ``temporal unit``
+and interpolate state variables in between.
+
 Hence a ``step`` can represent multiple ``temporal units``. Although by default, a ``step`` equals a ``temporal unit`` equals a `day` and
 defaults values of characteristic times and other time related variable are accordingly expressed in number of days, these three terms are conceptually
 different. For this reason we will favor the term ``temporal unit`` to designate the atomic period in the model throughout this documentation.

@@ -1,7 +1,7 @@
 .. _model-type:
 
-Versions of ARIO model
-=======================
+Versions of the ARIO model
+==================================
 
 
 ARIO vs :class:`~boario.model_base.ARIOBaseModel` vs :class:`~boario.extended_models.ARIOPsiModel`
@@ -15,3 +15,10 @@ be used directly other than for developing new variants.
 as well as (optionally) the intermediate order mechanism presented in :cite:`2020:guan`.
 
 One mechanism currently not implemented is the `macro effect` on final demand described in :cite:`2008:hallegatte`. This mechanism should be implemented in a future update.
+
+If you would like to see other variants of the ARIO model, please `raise an issue`_ or `contribute`_!
+
+
+.. _raise an issue: https://github.com/spjuhel/BoARIO/issues/new
+
+.. _contribute: https://spjuhel.github.io/BoARIO/development.html
