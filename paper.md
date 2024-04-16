@@ -69,29 +69,24 @@ comparability in the field of indirect economic impacts modeling.
 Although the ARIO model has been used in multiple studies, and several extensions
 exists, only a few implementation of the model or similar ones are openly available.
 We found the following existing implementations:
-- A python implementation of MRIA is available on the [personal GitHub
-repository of E. Koks](https://github.com/ElcoK/MRIA) (from [@koks-2016-multir-impac]).
-- [C. Colon repository](https://github.com/ccolon/disrupt-supply-chain-model/) holds
-a python implementation of Disrupt Supply Chain in [@colon-2020-critic-analy].
-- A C++ implementation of the Acclimate model from [@otto-2017-model-loss]
-is available [here](https://github.com/acclimate/acclimate).
-- A Matlab implementation of C. Shughrue's model developed in
-[@shughrue-2020-global-spread, @shughrue-2018-system-vulner]
-is available on [his repository](https://github.com/chrisshughrue/GlobalUrbanCycloneImpactSimulation).
-- The ARIO models version used in [@wang-2020-econom-footp, @guan-2020-global-suppl]
-are both available on [D. Wang personal repository](https://github.com/DaopingW/)
 
-None of these implementation offers a comprehensive documentation, and most are
-specific to the case study there were used for. The purpose of `BoARIO` is to fill
-this gap of an "generic, documented, easy to use and extend" indirect impact
-assessment model.
+   - A python implementation of MRIA [@koks-2016-multir-impac], is available on the [personal GitHub repository of E. Koks](https://github.com/ElcoK/MRIA).
+   - [C. Colon repository](https://github.com/ccolon/disrupt-supply-chain-model/) holds a python implementation of Disrupt Supply Chain [@colon-2020-critic-analy].
+   - A C++ implementation of the Acclimate model [@otto-2017-model-loss], is available [here](https://github.com/acclimate/acclimate).
+   - A Matlab implementation of C. Shughrue's model [@shughrue-2020-global-spread], is available on [his repository](https://github.com/chrisshughrue/GlobalUrbanCycloneImpactSimulation).
+   - The ARIO models version used in [@wang-2020-econom-footp, @guan-2020-global-suppl] are both available on [D. Wang personal repository](https://github.com/DaopingW/)
+
+We found that none of these implementation offers a comprehensive documentation, and are generally
+specific to the case study there were used for. The purpose of the `BoARIO` package is to offer
+a generic, documented, easy to use, easy to extend, and replicability-oriented model for indirect impact assessment.
+
 
 The `BoARIO` package allows to easily run simulations with the ARIO model, via
 simple steps:
-- Instantiating a model
-- Defining one or multiple events
-- Creating a simulation instance that will wrap the model and events, allow to
-  run the simulation, and explore the results.
+
+   - Instantiating a model
+   - Defining one or multiple events
+   - Creating a simulation instance that will wrap the model and events, allow to run the simulation, and explore the results.
 
 The ARIO model relies on Multi-Regional Input-Output Tables (MRIOTs) to define
 the initial state of the economy. `BoARIO` was designed to be entirely agnostic
