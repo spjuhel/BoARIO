@@ -8,7 +8,7 @@ How to define Events
 Introduction
 ===============
 
-The BoARIO model is used to study the indirect economic impacts consequent to `local` event [#local]_.
+The BoARIO model is used to study the indirect economic impacts consequent to a `local` event [#local]_.
 At the moment, a shock is represented either by:
 
 * A quantity of damages expressed in monetary value and leading to:
@@ -51,8 +51,8 @@ In the following, we will assume the following code was run initially:
         from boario.simulation import Simulation
         from boario.extended_models import ARIOPsiModel
 
-        mrio = pymrio.load_test().calc_all()
-        model = ARIOPsiModel(mrio)
+        mriot = pymrio.load_test().calc_all()
+        model = ARIOPsiModel(mriot)
         sim = Simulation(model, n_temporal_units_to_sim=365)
 
 Here are the regions and sectors defined in this context:
@@ -76,15 +76,15 @@ Different types of Event objects
 Currently three types of events are implemented and both consider
 a destruction of capital as the impact:
 
-* :class:`~boario.event.EventKapitalRecover` defines events for which the destroyed 
-  capital is recovered (i.e. regained along a specified ``recovery curve`` without an 
+* :class:`~boario.event.EventKapitalRecover` defines events for which the destroyed
+  capital is recovered (i.e. regained along a specified ``recovery curve`` without an
   associated rebuilding demand and rebuilding sectors)
 
 * :class:`~boario.event.EventKapitalRebuild` define events for which the destroyed
   capital is rebuild (i.e. creates a corresponding rebuilding demand addressed toward
   a set of rebuilding sectors)
 
-* :class:`~boario.event.EventArbitraryProd` define events for which production capacity 
+* :class:`~boario.event.EventArbitraryProd` defines events for which production capacity
   is arbitrarily decrease for a set of industries.
 
 ========================================
@@ -117,8 +117,6 @@ Suppose you want to represent an event impacting the "manufactoring" an "mining"
 Create a :class:`~boario.event.EventKapitalRecover`
 ---------------------------------------------------
 
-Here is how you can create an :class:`~boario.event.EventKapitalRecover` from this impact.
-
 For this type of event you need to specify the characteristic time for recovery ``"recovery_time"``:
 let us use 30 days here.
 
@@ -134,7 +132,7 @@ simulate multiple events.
    step to be at equilibrium.
 
 You may as well choose a ``duration`` for the event. The duration is the amount of `temporal units`
-before which recovery starts. It allow the possibility to represent delayed recovery due to the event
+before which recovery starts. It allows the possibility to represent delayed recovery due to the event
 (e.g. for a flood the region inaccessible because of the water)
 
 Finally for convenience you can give a name for the event.
@@ -189,6 +187,10 @@ and where 80% of the demand is answered by the construction sector, and 20% by t
 Create a :class:`~boario.event.EventArbitraryProd`
 ------------------------------------------------------
 
+.. warning::
+   A critical bug was found for this class and this type of Event has been made unavailable
+   until fixed.
+
 When creating this type of event, the impact values should be value between 0 and 1 stating
 the fraction of production capacity unavailable due to the event.
 
@@ -225,12 +227,12 @@ Otherwise, production capacity is restored instantaneously after the duration of
 Defining events from a scalar
 ================================
 
-You can also define an event from a scalar impact 
+You can also define an event from a scalar impact
 (except for :class:`~boario.event.EventArbitraryProd` at the moment).
 This requires to define which industries are affected and
 how the impact is distributed among the industries.
 
-You can take a look at the quickstart example 
+You can take a look at the quickstart example
 `here <notebooks/boario-quickstart.ipynb>`_.
 
 In this section, we go over the different cases first, and then show
@@ -238,32 +240,32 @@ code examples for each case.
 
 In order to define which industries are affected you can:
 
-1. Directly give them as a pandas MultiIndex with affected regions as the first level 
+1. Directly give them as a pandas MultiIndex with affected regions as the first level
    and affected sectors at the second.
 
-2. Give them as a list of regions affected, as well as a list of sectors affected. 
+2. Give them as a list of regions affected, as well as a list of sectors affected.
    The resulting affected industries being the cartesian product of those two lists.
 
 .. warning::
 
   Note that the second option does not allow to have different sectors affected in each region.
 
-By default, the impact will be uniformally distributed among the affected regions and 
+By default, the impact will be uniformally distributed among the affected regions and
 the impact per region is then also uniformally distributed among the affected sector in the region.
 
 Otherwise, there are multiple ways to setup a custom distribution:
 
-1. Directly give a vector (any variable that can be transformed as a numpy array) 
-   of per affected industry share of the impact (although in this case you should 
+1. Directly give a vector (any variable that can be transformed as a numpy array)
+   of per affected industry share of the impact (although in this case you should
    probably directly give the impact vector).
 2. Give a vector of the share per region, and the share per sector.
-3. Give a vector of the share per region, and specify ``"gdp"`` for the per sector 
-   distribution. This will distribute each regional impact toward each affected sector 
-   proportionally to their share of the regional GDP among the affected sectors. 
-   For example: Suppose we look at the impact in region ``"reg2"``, and suppose 
-   ``"manufactoring"`` and ``"mining"`` are both affected. Now suppose 
-   ``"manufactoring"`` account for 40% of ``"reg2"``'s GDP and ``"mining"`` 
-   for 10%. The ``"manufactoring"`` sector will receive :math:`(40 * 100) / (40 + 10) = 80\%` 
+3. Give a vector of the share per region, and specify ``"gdp"`` for the per sector
+   distribution. This will distribute each regional impact toward each affected sector
+   proportionally to their share of the regional GDP among the affected sectors.
+   For example: Suppose we look at the impact in region ``"reg2"``, and suppose
+   ``"manufactoring"`` and ``"mining"`` are both affected. Now suppose
+   ``"manufactoring"`` account for 40% of ``"reg2"``'s GDP and ``"mining"``
+   for 10%. The ``"manufactoring"`` sector will receive :math:`(40 * 100) / (40 + 10) = 80\%`
    of the impact and ``"mining"`` the remaining :math:`(10 * 100) / (40 + 10) = 20\%`.
 
 .. note::

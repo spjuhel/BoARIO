@@ -11,7 +11,7 @@
 {%- if subnodes %}
 
 Submodules
-==========
+=============
 
 .. toctree::
 {% for item in subnodes %}
@@ -22,6 +22,8 @@ Submodules
 {%- endblock -%}
 {##}
 .. currentmodule:: {{ node.name }}
+
+
 {##}
 {%- block functions -%}
 {%- if node.functions %}
@@ -29,16 +31,12 @@ Submodules
 Functions
 =========
 
-{% for item, obj in node.functions.items() -%}
-- :py:func:`{{ item }}`:
-  {{ obj|summary }}
+.. autosummary::
+   :toctree: functions
+   {% for item in node.functions %}
+   {{ item }}
+   {% endfor %}
 
-{% endfor -%}
-
-{% for item in node.functions %}
-.. autofunction:: {{ item }}
-{##}
-{%- endfor -%}
 {%- endif -%}
 {%- endblock -%}
 
@@ -48,23 +46,12 @@ Functions
 Classes
 =======
 
-{% for item, obj in node.classes.items() -%}
-- :py:class:`{{ item }}`:
-  {{ obj|summary }}
-
-{% endfor -%}
-
-{% for item in node.classes %}
-.. autoclass:: {{ item }}
-   :members:
-
-   .. rubric:: Inheritance
-   .. inheritance-diagram:: {{ item }}
-      :parts: 1
-      
-   .. rubric:: Attributes and Methods
-{##}
-{%- endfor -%}
+.. autosummary::
+   :toctree: classes
+   {% for item in node.classes %}
+   {{ item }}
+   {##}
+   {% endfor %}
 {%- endif -%}
 {%- endblock -%}
 
@@ -112,4 +99,3 @@ Variables
 {%- endfor -%}
 {%- endif -%}
 {%- endblock -%}
-

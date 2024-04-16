@@ -7,6 +7,5 @@ User guide
    boario-what-is
    boario-installation
    boario-terminology
-   boario-quickstart
-   boario-events
+   boario-tutorials
    boario-math

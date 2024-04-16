@@ -66,12 +66,27 @@ comparability in the field of indirect economic impacts modeling.
 
 # Statement of need
 
+Although the ARIO model has been used in multiple studies, and several extensions
+exists, only a few implementation of the model or similar ones are openly available.
+We found the following existing implementations:
+
+   - A python implementation of MRIA [@koks-2016-multir-impac], is available on the [personal GitHub repository of E. Koks](https://github.com/ElcoK/MRIA).
+   - [C. Colon repository](https://github.com/ccolon/disrupt-supply-chain-model/) holds a python implementation of Disrupt Supply Chain [@colon-2020-critic-analy].
+   - A C++ implementation of the Acclimate model [@otto-2017-model-loss], is available [here](https://github.com/acclimate/acclimate).
+   - A Matlab implementation of C. Shughrue's model [@shughrue-2020-global-spread], is available on [his repository](https://github.com/chrisshughrue/GlobalUrbanCycloneImpactSimulation).
+   - The ARIO models version used in [@wang-2020-econom-footp, @guan-2020-global-suppl] are both available on [D. Wang personal repository](https://github.com/DaopingW/)
+
+We found that none of these implementation offers a comprehensive documentation, and are generally
+specific to the case study there were used for. The purpose of the `BoARIO` package is to offer
+a generic, documented, easy to use, easy to extend, and replicability-oriented model for indirect impact assessment.
+
+
 The `BoARIO` package allows to easily run simulations with the ARIO model, via
 simple steps:
-- Instantiating a model
-- Defining one or multiple events
-- Creating a simulation instance that will wrap the model and events, allow to
-  run the simulation, and explore the results.
+
+   - Instantiating a model
+   - Defining one or multiple events
+   - Creating a simulation instance that will wrap the model and events, allow to run the simulation, and explore the results.
 
 The ARIO model relies on Multi-Regional Input-Output Tables (MRIOTs) to define
 the initial state of the economy. `BoARIO` was designed to be entirely agnostic
@@ -86,7 +101,8 @@ As such, different types of case-study can be conducted (at different scope, for
 multiple or singular events). Users benefit from a precise control on aspects
 such as the distribution of the impact towards the different sectors and
 regions, the recovery of from the impact, etc. but also from the default
-modeling choices common in the corresponding literature. The rationale for detailled configuration of the model is "allowing for, but not require".
+modeling choices common in the corresponding literature. The rationale for detailed
+configuration of the model is "allowing for, but not require".
 
 Simulations log the evolution of each variable of interest (production,
 production capacity, intermediate demand, reconstruction demand, etc.) at each

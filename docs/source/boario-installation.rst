@@ -13,6 +13,12 @@ There is a pip package available, which you can install with:
 
    pip install boario
 
+There is also a conda recipe on conda-forge, which you can install with:
+
+.. code-block:: console
+
+   conda install -c conda-forge boario
+
 
 Otherwise the source-code is available at the GitHub repo: https://github.com/spjuhel/BoARIO
 
@@ -26,7 +32,7 @@ on the repository, or `contact the developer`_.
 Install from a specific branch
 =================================
 
-Note that you can directly install BoARIO from a branch of its github repository using:
+Note that you can install BoARIO directly from a branch of its GitHub repository using:
 
 .. code-block:: console
 
@@ -35,15 +41,12 @@ Note that you can directly install BoARIO from a branch of its github repository
 Requirements
 ===============
 
-BoARIO is currently developed using python ``3.9``. It might work with older python versions, but no check were made regarding this.
+BoARIO is currently tested against python ``3.9, 3.10, 3.11``, on Linux, Windows and MacOs.
+However be aware the testing suite is still imperfect at this point.
 
-Installing via pip should install all the required dependencies.
+Installing via pip or conda should install all the required dependencies.
 
-You can also check the ``pyproject.toml`` file in the sources to see all current dependencies.
+You can also check the ``pyproject.toml`` file in the source code to see all current dependencies.
 
-If you are experiencing difficulties in setting up a working environment feel free to open an issue on the Github repository or to contact the developer.
-
-Platform
-==========
-
-The code is known to run under both Linux and Windows operating systems.
+If you are experiencing difficulties in setting up a working environment feel
+free to open an issue on the Github repository or to contact the developer.

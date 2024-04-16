@@ -3,7 +3,7 @@ Terminology
 ###########
 
 So far, there is no consistent terminology for MRIO systems and parameters in the scientific community.
-For BoARIO, the following variable names are used (the alias columns are other names and abbreviations often found in the literature):
+For BoARIO, the following terminology is used (the alias columns are other names and abbreviations often found in the literature):
 
 .. list-table::
    :widths: 30 70 30
@@ -42,7 +42,7 @@ For BoARIO, the following variable names are used (the alias columns are other n
    * - Overproduction
      - The capacity of an industry to temporarily increase its production to meet an increased demand.
      - /
-   * - Rebuilding demand
+   * - Rebuilding / Reconstruction demand
      - The possible additional demand resulting from the destruction caused by an event requiring rebuilding.
      - /
    * - Recovering
@@ -51,3 +51,6 @@ For BoARIO, the following variable names are used (the alias columns are other n
    * - Rebuilding
      - The rebuilding of destroyed capital and hence production capacity (ie recovery via a rebuilding demand)
      - /
+   * - Event
+     - Any shock happening to the model
+     - Shock, Impact

@@ -624,9 +624,9 @@ class Simulation:
         ):
             self.equi[(n_checks, self.current_temporal_unit, "rebuilding")] = "finished"
         else:
-            self.equi[
-                (n_checks, self.current_temporal_unit, "rebuilding")
-            ] = "not finished"
+            self.equi[(n_checks, self.current_temporal_unit, "rebuilding")] = (
+                "not finished"
+            )
 
     def add_events(self, events: list[Event]):
         """Add a list of events to the simulation.
@@ -731,9 +731,9 @@ class Simulation:
         logger.debug(
             f"self._rebuild_production_evolution shape : {self._rebuild_production_evolution.shape}, self.model.rebuild_prod shape : {self.model.rebuild_prod.shape}"
         )
-        self._rebuild_production_evolution[
-            self.current_temporal_unit
-        ] = self.model.rebuild_prod
+        self._rebuild_production_evolution[self.current_temporal_unit] = (
+            self.model.rebuild_prod
+        )
 
     def _write_productive_capital_lost(self) -> None:
         """Saves the current remaining productive_capital to rebuild vector to the memmap."""
@@ -743,21 +743,21 @@ class Simulation:
 
     def _write_production_max(self) -> None:
         """Saves the current production capacity vector to the memmap."""
-        self._production_cap_evolution[
-            self.current_temporal_unit
-        ] = self.model.production_cap
+        self._production_cap_evolution[self.current_temporal_unit] = (
+            self.model.production_cap
+        )
 
     def _write_io_demand(self) -> None:
         """Saves the current (total per industry) intermediate demand vector to the memmap."""
-        self._io_demand_evolution[
-            self.current_temporal_unit
-        ] = self.model.matrix_orders.sum(axis=1)
+        self._io_demand_evolution[self.current_temporal_unit] = (
+            self.model.matrix_orders.sum(axis=1)
+        )
 
     def _write_final_demand(self) -> None:
         """Saves the current (total per industry) final demand vector to the memmap."""
-        self._final_demand_evolution[
-            self.current_temporal_unit
-        ] = self.model.final_demand.sum(axis=1)
+        self._final_demand_evolution[self.current_temporal_unit] = (
+            self.model.final_demand.sum(axis=1)
+        )
 
     def _write_rebuild_demand(self) -> None:
         """Saves the current (total per industry) rebuilding demand vector to the memmap."""
@@ -773,9 +773,9 @@ class Simulation:
 
     def _write_final_demand_unmet(self) -> None:
         """Saves the unmet final demand (for this step) vector to the memmap."""
-        self._final_demand_unmet_evolution[
-            self.current_temporal_unit
-        ] = self.model.final_demand_not_met
+        self._final_demand_unmet_evolution[self.current_temporal_unit] = (
+            self.model.final_demand_not_met
+        )
 
     def _write_stocks(self) -> None:
         """Saves the current inputs stock matrix to the memmap."""

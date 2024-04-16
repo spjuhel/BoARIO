@@ -1,0 +1,9 @@
+"latest":
+  tag: '0.5.8'
+  languages:
+    - "en"
+
+"develop":
+  tag: 'develop'
+  languages:
+    - "en"

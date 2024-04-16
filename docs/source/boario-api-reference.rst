@@ -4,11 +4,9 @@
 API Reference
 #############
 
-API references for all modules
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-module-template.rst
+   :recursive:
 
-.. currentmodule:: boario
-
-.. toctree::
-   :maxdepth: 4
-
-   autoapi/boario
+   boario

@@ -62,16 +62,31 @@ LOW_DEMAND_THRESH = 10
 
 
 class Event(ABC):
-    # Class Attributes
+    r"""An Event object stores all information about a unique shock during simulation
+    such as time of occurrence, duration, type of shock, amount of damages.
+    Computation of recovery or initially requested rebuilding demand is also
+    done in this class.
+
+    .. warning::
+       The Event class is abstract and cannot be instantiated directly. Only its non-abstract subclasses can be instantiated.
+
+    .. note::
+       Events should be constructed using :py:meth:`~Event.from_series()`, :py:meth:`~Event.from_dataframe()`, :py:meth:`~Event.from_scalar_industries()` or from :py:meth:`~Event.from_scalar_regions_sectors()`.
+       Depending on the type of event chosen, these constructors require additional keyword arguments, that are documented for each instantiable Event subclass.
+       For instance, :py:class:`EventKapitalRebuild` additionally requires `rebuild_tau` and `rebuilding_sectors`.
+
+    .. seealso::
+       Tutorial :ref:`boario-events`
+    """
 
     possible_sectors: pd.Index = pd.Index([])
-    r"""List of sectors present in the MRIO used by the model"""
+    r"""List of sectors present in the MRIOT used by the model"""
 
     possible_regions: pd.Index = pd.Index([])
-    r"""List of regions present in the MRIO used by the model"""
+    r"""List of regions present in the MRIOT used by the model"""
 
     possible_final_demand_cat: pd.Index = pd.Index([])
-    r"""List of final demand categories present in the MRIO used by the model"""
+    r"""List of final demand categories present in the MRIOT used by the model"""
 
     temporal_unit_range: int = 0
     r"""Maximum temporal unit simulated"""
@@ -92,7 +107,7 @@ class Event(ABC):
     r"""lexicographic sector indexes"""
 
     model_monetary_factor: int = 1
-    r"""Amount of unitary currency used in the MRIO (e.g. 1000000 if in € millions)"""
+    r"""Amount of unitary currency used in the MRIOT (e.g. 1000000 if in € millions)"""
 
     gva_df: pd.Series = pd.Series([], dtype="float64")
     r"""GVA per (region,sector)"""
@@ -107,7 +122,7 @@ class Event(ABC):
     r"""Normalized final consumption matrix"""
 
     mrio_name: str = ""
-    r"""MRIO identification"""
+    r"""MRIOT identification"""
 
     @abstractmethod
     def __init__(
@@ -118,24 +133,6 @@ class Event(ABC):
         occurrence: int = 1,
         duration: int = 1,
     ) -> None:
-        r"""Create an event shocking the model from a dictionary.
-
-        An Event object stores all information about a unique shock during simulation such as
-        time of occurrence, duration, type of shock, amount of damages. Computation
-        of recovery or initially requested rebuilding demand is also done in this
-        class.
-
-        Parameters
-        ----------
-
-        event : dict
-            A dictionary holding the necessary information to define an event.
-
-        Examples
-        --------
-            FIXME: Add docs.
-
-        """
         logger.info("Initializing new Event")
         logger.debug("Checking required Class attributes are defined")
 
@@ -206,19 +203,49 @@ class Event(ABC):
         name: Optional[str] = None,
         **kwarg,
     ) -> Event:
-        """Create an event from an impact pd.Series.
+        """Create an event for an impact given as a pd.Series.
 
-        Args:
-            impact (pd.Series): A vector definition of the impact per (region,sector)
-            occurrence (int, optional): The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
-            duration (int, optional): The duration of the event (entire impact applied during this number of steps). Defaults to 1.
-            name (Optional[str], optional): A possible name for the event, for convenience. Defaults to None.
+        Parameters
+        ----------
+        impact : pd.Series
+            A pd.Series defining the impact per (region, sector)
+        occurrence : int
+            The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
+        duration : int
+            The duration of the event (entire impact applied during this number of steps). Defaults to 1.
+        name : Optional[str]
+            A possible name for the event, for convenience. Defaults to None.
+        **kwarg :
+            Keyword arguments keyword arguments to pass to the instantiating method
+        (depends on the type of event).
 
-        Raises:
-            ValueError: Raised if impact is empty or contains negative values.
+        Returns
+        -------
+        Event
+            An Event object or one of its subclass
 
-        Returns:
-            Event: an Event object (or one of its subclass).
+        Raises
+        ------
+        ValueError
+            Raised if impact is empty of contains negative values.
+
+        Examples
+        --------
+        >>> import pandas as pd
+        >>> import pymrio as pym
+        >>> from boario.simulation import Simulation
+        >>> from boario.extended_model import ARIOPsiModel
+        >>> from boario.event import EventKapitalRecover
+        >>>
+        >>> mriot = pym.load_test()
+        >>> mriot.calc_all()
+        >>>
+        >>> impact_series = pd.Series({('reg1', 'electricity'): 100000.0, ('reg1', 'mining'): 50000.0})
+        >>> model = ARIOPsiModel(mriot)
+        >>> sim = Simulation(model)
+        >>> event = EventKapitalRecover.from_series(impact_series, occurrence=5, duration=10, recovery_time=30, name="Event 1")
+        >>> sim.add_event(event)
+
         """
         if impact.size == 0:
             raise ValueError(
@@ -246,13 +273,31 @@ class Event(ABC):
         name: Optional[str] = None,
         **kwarg,
     ) -> Event:
-        """Convenience function for DataFrames. See :meth:`~boario.event.Event.from_series`
+        """Convenience function for DataFrames. See :meth:`~boario.event.Event.from_series`. This constructor only apply ``.squeeze()`` to the given DataFrame.
 
-        Raises:
-            ValueError: If impact cannot be squeezed to a Series
+        Parameters
+        ----------
+        impact : pd.DataFrame
+           A pd.DataFrame defining the impact per (region, sector)
+        occurrence : int
+            The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
+        duration : int
+            The duration of the event (entire impact applied during this number of steps). Defaults to 1.
+        name : Optional[str]
+            A possible name for the event, for convenience. Defaults to None.
+        **kwarg :
+            Keyword arguments
+            Other keyword arguments to pass to the instantiate method (depends on the type of event)
 
-        Returns:
-            Event: an Event object (or one of its subclass).
+        Raises
+        ------
+        ValueError
+            If impact cannot be squeezed to a Series
+
+        Returns
+        -------
+        Event
+           An Event object (or one of its subclass).
         """
         impact = impact.squeeze()
         if not isinstance(impact, pd.Series):
@@ -273,13 +318,16 @@ class Event(ABC):
         Each values of the given impact are mutliplied by the share of the GVA
         the industry has over the GVA of all affected industries.
 
-        Args:
-            impact_vec (pd.Series): The impact values to be reweigthed.
-            Current use-case assumes all values are the total impact.
+        Parameters
+        ----------
+        impact_vec : pd.Series
+            The impact values to be reweigthed. Current use-case assumes all values are the total impact.
 
-        Returns:
-            pd.Series: The impact where each value was multiplied by the share
-            of GVA of each affected industry (over total GVA affected).
+        Returns
+        -------
+        pd.Series
+            The impact where each value was multiplied by the share of GVA of each affected industry (over total GVA affected).
+
         """
         gva = cls.gva_df.loc[impact_vec.index]
         gva = gva.transform(lambda x: x / sum(x))
@@ -292,11 +340,16 @@ class Event(ABC):
         Assume impact is given as a vector with all value being the
         total impact to distribute.
 
-        Args:
-            impact_vec (pd.Series): The impact to distribute.
+        Parameters
+        ----------
+        impact_vec : pd.Series
+            The impact to distribute.
 
-        Returns:
-            pd.Series: The impact vector equally distributed among affected industries.
+        Returns
+        -------
+        pd.Series
+            The impact vector equally distributed among affected industries.
+
         """
         dfg = impact_vec.groupby("region")
         return dfg.transform(lambda x: x / (dfg.ngroups * x.count()))
@@ -308,32 +361,49 @@ class Event(ABC):
         *,
         industries: IndustriesList,
         impact_industries_distrib: Optional[npt.ArrayLike] = None,
-        gva_distrib: bool = False,
-        occurrence: int = 1,
-        duration: int = 1,
+        gva_distrib: Optional[bool] = False,
+        occurrence: Optional[int] = 1,
+        duration: Optional[int] = 1,
         name: Optional[str] = None,
         **kwarg,
     ) -> Event:
         """Creates an Event from a scalar and a list of industries affected.
 
-        The scalar impact is distributed evenly by default. Otherwise it can be distributed proportionnaly to the GVA of
-        affected industries, or to a custom distribution.
+        The scalar impact is distributed evenly by default. Otherwise it can
+        be distributed proportionnaly to the GVA of affected industries, or to
+        a custom distribution.
 
-        Args:
-            impact (ScalarImpact): The scalar impact.
-            industries (IndustriesList): The list of industries affected by the impact
-            impact_industries_distrib (Optional[npt.ArrayLike], optional): A vector of equal size to the list of industries, stating the
+        Parameters
+        ----------
+        impact : ScalarImpact
+            The scalar impact.
+        industries : IndustriesList
+            The list of industries affected by the impact.
+        impact_industries_distrib : Optional[npt.ArrayLike]
+            A vector of equal size to the list of industries, stating the
             share of the impact each industry should receive. Defaults to None.
-            gva_distrib (bool, optional): A boolean stating if the impact should be distributed proportionnaly to GVA. Defaults to False.
-            occurrence (int, optional): The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
-            duration (int, optional): The duration of the event (entire impact applied during this number of steps). Defaults to 1.
-            name (Optional[str], optional): A possible name for the event, for convenience. Defaults to None.
+        gva_distrib : Optional[bool]
+            A boolean stating if the impact should be distributed proportionnaly to GVA. Defaults to False.
+        occurrence : Optional[int]
+            The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
+        duration : Optional[int]
+            The duration of the event (entire impact applied during this number of steps). Defaults to 1.
+        name : Optional[str]
+            A possible name for the event, for convenience. Defaults to None.
+        **kwarg :
+            Keyword arguments
+            Other keyword arguments to pass to the instantiate method (depends on the type of event)
 
-        Raises:
-            ValueError: Raise if Impact is null, if len(industries) < 1 or if the sum of impact_industries_distrib differs from 1.0.
+        Raises
+        ------
+        ValueError
+            Raised if Impact is null, if len(industries) < 1 or if the sum of impact_industries_distrib differs from 1.0.
 
-        Returns:
-            Event: An Event object or one of its subclass.
+        Returns
+        -------
+        Event
+            An Event object or one of its subclass.
+
         """
         if impact <= 0:
             raise ValueError("Impact is null")
@@ -384,25 +454,42 @@ class Event(ABC):
     ) -> Event:
         """Creates an Event from a scalar, a list of regions and a list of sectors affected.
 
-
-
-        Args:
-            impact (ScalarImpact): The scalar impact.
-            regions (RegionsList): The list of regions affected.
-            sectors (SectorsList): The list of sectors affected in each region.
-            impact_regional_distrib (Optional[npt.ArrayLike], optional): A vector of equal size to the list of regions affected, stating the
+        Parameters
+        ----------
+        impact : ScalarImpact
+            The scalar impact.
+        regions : RegionsList
+            The list of regions affected.
+        sectors : SectorsList
+            The list of sectors affected in each region.
+        impact_regional_distrib : Optional[npt.ArrayLike], optional
+            A vector of equal size to the list of regions affected, stating the
             share of the impact each industry should receive. Defaults to None.
-            impact_sectoral_distrib (Optional[Union[str, npt.ArrayLike]], optional): A vector of equal size to the list of sectors affected, stating the
-            share of the impact each industry should receive. Defaults to None.
-            occurrence (int, optional): The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
-            duration (int, optional): The duration of the event (entire impact applied during this number of steps). Defaults to 1.
-            name (Optional[str], optional): A possible name for the event, for convenience. Defaults to None.
+        impact_sectoral_distrib : Optional[Union[str, npt.ArrayLike]], optional
+            Either:
 
-        Raises:
-            ValueError: Raise if Impact is null, if len(regions) or len(sectors) < 1,
+            * ``\"gdp\"``, the impact is then distributed using the gross value added of each sector as a weight.
+            * A vector of equal size to the list of sectors affected, stating the share of the impact each industry should receive. Defaults to None.
 
-        Returns:
-            Event: An Event object or one of its subclass
+        occurrence : int, optional
+            The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
+        duration : int, optional
+            The duration of the event (entire impact applied during this number of steps). Defaults to 1.
+        name : Optional[str], optional
+            A possible name for the event, for convenience. Defaults to None.
+        **kwarg :
+            Keyword arguments
+            Other keyword arguments to pass to the instantiate method (depends on the type of event)
+
+        Raises
+        ------
+        ValueError
+            Raise if Impact is null, if len(regions) or len(sectors) < 1,
+
+        Returns
+        -------
+        Event
+            An Event object or one of its subclass.
         """
         if impact <= 0:
             raise ValueError("Impact is null")
@@ -450,15 +537,15 @@ class Event(ABC):
         elif not isinstance(impact_regional_distrib, pd.Series):
             impact_regional_distrib = pd.Series(impact_regional_distrib, index=_regions)
             regional_distrib = pd.Series(0.0, index=_regions)
-            regional_distrib.loc[
-                impact_regional_distrib.index
-            ] = impact_regional_distrib
+            regional_distrib.loc[impact_regional_distrib.index] = (
+                impact_regional_distrib
+            )
         else:
             regional_distrib = pd.Series(0.0, index=_regions)
             try:
-                regional_distrib.loc[
-                    impact_regional_distrib.index
-                ] = impact_regional_distrib
+                regional_distrib.loc[impact_regional_distrib.index] = (
+                    impact_regional_distrib
+                )
             except KeyError:
                 regional_distrib.loc[_regions] = impact_regional_distrib.values
 
@@ -474,15 +561,15 @@ class Event(ABC):
         elif not isinstance(impact_sectoral_distrib, pd.Series):
             impact_sectoral_distrib = pd.Series(impact_sectoral_distrib, index=_sectors)
             sectoral_distrib = pd.Series(0.0, index=_sectors)
-            sectoral_distrib.loc[
-                impact_sectoral_distrib.index
-            ] = impact_sectoral_distrib
+            sectoral_distrib.loc[impact_sectoral_distrib.index] = (
+                impact_sectoral_distrib
+            )
         else:
             sectoral_distrib = pd.Series(0.0, index=_sectors)
             try:
-                sectoral_distrib.loc[
-                    impact_sectoral_distrib.index
-                ] = impact_sectoral_distrib
+                sectoral_distrib.loc[impact_sectoral_distrib.index] = (
+                    impact_sectoral_distrib
+                )
             except KeyError:
                 sectoral_distrib.loc[_sectors] = impact_sectoral_distrib.values
 
@@ -533,19 +620,7 @@ class Event(ABC):
 
     @property
     def aff_industries(self) -> pd.MultiIndex:
-        r"""The industries affected by the event.
-
-        Parameters
-        ----------
-
-        index : pd.MultiIndex
-             The affected industries as a pandas MultiIndex
-
-        Returns
-        -------
-             A pandas MultiIndex with the regions affected as first level, and sectors affected as second level
-
-        """
+        r"""The industries affected by the event."""
 
         return self._aff_industries
 
@@ -695,7 +770,7 @@ class Event(ABC):
 
     def __repr__(self):
         # TODO: find ways to represent long lists
-        return f"""
+        return f"""[WIP]
         Event(
               name = {self.name},
               occur = {self.occurrence},
@@ -707,6 +782,23 @@ class Event(ABC):
 
 
 class EventArbitraryProd(Event):
+    r"""An EventArbitraryProd object holds an event with arbitrary impact on production capacity.
+
+    Such events can be used to represent temporary loss of production capacity in a completely exogenous way (e.g., loss of working hours from a heatwave).
+
+    .. warning::
+       This type of event suffers from a problem with the recovery and does not function properly at the moment.
+
+    .. note::
+       For this type of event, the impact value represent the share of production capacity lost of an industry.
+
+    .. note::
+       In addition to the base arguments of an Event, EventArbitraryProd requires a ``recovery_time`` (1 step by default) and a ``recovery_function`` (linear by default).
+
+    .. seealso::
+       Tutorial :ref:`boario-events`
+    """
+
     def __init__(
         self,
         *,
@@ -717,6 +809,9 @@ class EventArbitraryProd(Event):
         occurrence: int = 1,
         duration: int = 1,
     ) -> None:
+        raise NotImplementedError(
+            "This type of Event suffers from a major bug and cannot be used at the moment."
+        )
         if (impact > 1.0).any():
             raise ValueError(
                 "Impact is greater than 100% (1.) for at least an industry."
@@ -849,6 +944,20 @@ class EventArbitraryProd(Event):
         self._recovery_fun = r_fun_partial
 
     def recovery(self, current_temporal_unit: int):
+        """Apply the recovery function to the capital destroyed for the current temporal unit.
+
+        Parameters
+        ----------
+        current_temporal_unit : int
+            The current temporal unit
+
+        Raises
+        ------
+        RuntimeError
+            Raised if no recovery function has been set.
+
+        """
+
         elapsed = current_temporal_unit - (self.occurrence + self.duration)
         if elapsed < 0:
             raise RuntimeError("Trying to recover before event is over")
@@ -865,6 +974,21 @@ class EventArbitraryProd(Event):
 
 
 class EventKapitalDestroyed(Event, ABC):
+    r"""EventKapitalDestroyed is an abstract class to hold events with where some capital (from industries or households) is destroyed. See :py:class:`EventKapitalRecover` and :py:class:`EventKapitalRebuild` for its instantiable classes.
+
+    .. note::
+       For this type of event, the impact value represent the amount of capital destroyed in monetary terms.
+
+    .. note::
+       We distinguish between impacts on household and industrial (productive) capital. We assume destruction of the former not to reduce production capacity contrary to the latter (but possibly induce reconstruction demand). Impacts on household capital is null by default, but can be set via the ``households_impacts`` argument in the constructor. The amount of production capacity lost is computed as the share of capital lost over total capital of the industry.
+
+    .. note::
+       The user can specify a monetary factor via the ``event_monetary_factor`` argument for the event if it differs from the monetary factor of the MRIOT used. By default the constructor assumes the two factors to be the same (i.e., if the MRIOT is in €M, the so is the impact).
+
+    .. seealso::
+       Tutorial :ref:`boario-events`
+    """
+
     def __init__(
         self,
         *,
@@ -1010,6 +1134,22 @@ class EventKapitalDestroyed(Event, ABC):
 
 
 class EventKapitalRebuild(EventKapitalDestroyed):
+    r"""EventKapitalRebuild holds a :py:class:`EventKapitalDestroyed` event where the destroyed capital requires to be rebuilt, and creates a reconstruction demand.
+
+    This subclass requires and enables new arguments to pass to the constructor:
+
+    * A characteristic time for reconstruction (``tau_rebuild``)
+    * A set of sectors responsible for the reconstruction (``rebuilding_sectors``)
+    * A ``rebuilding_factor`` in order to modulate the reconstruction demand. By default, this factor is 1, meaning that the entire impact value is translated as an additional demand.
+
+    .. note::
+       The ``tau_rebuild`` of an event takes precedence over the one defined for a model.
+
+    .. seealso::
+       Tutorial :ref:`boario-events`
+
+    """
+
     def __init__(
         self,
         *,
@@ -1161,11 +1301,11 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             self._rebuilding_sectors_shares[self._rebuilding_industries_idx] = np.tile(
                 np.array(reb_sectors.values), np.size(self.aff_regions)
             )
-            self._rebuilding_sectors_shares[
-                self._rebuilding_industries_RoW_idx
-            ] = np.tile(
-                np.array(reb_sectors.values),
-                (np.size(self.possible_regions) - np.size(self.aff_regions)),
+            self._rebuilding_sectors_shares[self._rebuilding_industries_RoW_idx] = (
+                np.tile(
+                    np.array(reb_sectors.values),
+                    (np.size(self.possible_regions) - np.size(self.aff_regions)),
+                )
             )
 
     @property
@@ -1228,6 +1368,17 @@ class EventKapitalRebuild(EventKapitalDestroyed):
 
 
 class EventKapitalRecover(EventKapitalDestroyed):
+    r"""EventKapitalRecover holds a :py:class:`EventKapitalDestroyed` event where the destroyed capital does not create a reconstruction demand.
+
+    This subclass requires and enables new arguments to pass to the constructor:
+
+    * A characteristic time for the recovery (``recovery_time``)
+    * Optionally a ``recovery_function`` (linear by default).
+
+    .. seealso::
+       Tutorial :ref:`boario-events`
+    """
+
     def __init__(
         self,
         *,

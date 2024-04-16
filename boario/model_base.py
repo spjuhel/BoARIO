@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""This module defines the core mechanisms of the model."""
+
 from __future__ import annotations
 
 import json
@@ -1134,9 +1136,9 @@ class ARIOBaseModel:
 
         # list_of_demands = [self.matrix_orders, self.final_demand]
         # # 1. Calc demand from rebuilding requirements (with characteristic time rebuild_tau)
-        house_reb_dem_per_event = (
-            house_reb_dem_tot_per_event
-        ) = indus_reb_dem_per_event = indus_reb_dem_tot_per_event = None
+        house_reb_dem_per_event = house_reb_dem_tot_per_event = (
+            indus_reb_dem_per_event
+        ) = indus_reb_dem_tot_per_event = None
 
         if rebuildable_events:
             logger.debug("There are rebuildable events")
