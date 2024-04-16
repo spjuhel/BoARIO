@@ -84,7 +84,7 @@ a destruction of capital as the impact:
   capital is rebuild (i.e. creates a corresponding rebuilding demand addressed toward
   a set of rebuilding sectors)
 
-* :class:`~boario.event.EventArbitraryProd` define events for which production capacity
+* :class:`~boario.event.EventArbitraryProd` defines events for which production capacity
   is arbitrarily decrease for a set of industries.
 
 ========================================
