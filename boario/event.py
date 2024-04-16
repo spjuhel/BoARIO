@@ -190,6 +190,7 @@ class Event(ABC):
         occurrence: int = 1,
         duration: int = 1,
         name: Optional[str] = None,
+        **kwargs,
     ):
         return cls(impact=impact, occurrence=occurrence, duration=duration, name=name)
 
@@ -201,7 +202,7 @@ class Event(ABC):
         occurrence: int = 1,
         duration: int = 1,
         name: Optional[str] = None,
-        **kwarg,
+        **kwargs,
     ) -> Event:
         """Create an event for an impact given as a pd.Series.
 
@@ -215,7 +216,7 @@ class Event(ABC):
             The duration of the event (entire impact applied during this number of steps). Defaults to 1.
         name : Optional[str]
             A possible name for the event, for convenience. Defaults to None.
-        **kwarg :
+        **kwargs :
             Keyword arguments keyword arguments to pass to the instantiating method
         (depends on the type of event).
 
@@ -260,7 +261,7 @@ class Event(ABC):
             occurrence=occurrence,
             duration=duration,
             name=name,
-            **kwarg,
+            **kwargs,
         )
 
     @classmethod
@@ -271,7 +272,7 @@ class Event(ABC):
         occurrence: int = 1,
         duration: int = 1,
         name: Optional[str] = None,
-        **kwarg,
+        **kwargs,
     ) -> Event:
         """Convenience function for DataFrames. See :meth:`~boario.event.Event.from_series`. This constructor only apply ``.squeeze()`` to the given DataFrame.
 
@@ -285,7 +286,7 @@ class Event(ABC):
             The duration of the event (entire impact applied during this number of steps). Defaults to 1.
         name : Optional[str]
             A possible name for the event, for convenience. Defaults to None.
-        **kwarg :
+        **kwargs :
             Keyword arguments
             Other keyword arguments to pass to the instantiate method (depends on the type of event)
 
@@ -308,7 +309,7 @@ class Event(ABC):
             occurrence=occurrence,
             duration=duration,
             name=name,
-            **kwarg,
+            **kwargs,
         )
 
     @classmethod
@@ -365,7 +366,7 @@ class Event(ABC):
         occurrence: Optional[int] = 1,
         duration: Optional[int] = 1,
         name: Optional[str] = None,
-        **kwarg,
+        **kwargs,
     ) -> Event:
         """Creates an Event from a scalar and a list of industries affected.
 
@@ -390,7 +391,7 @@ class Event(ABC):
             The duration of the event (entire impact applied during this number of steps). Defaults to 1.
         name : Optional[str]
             A possible name for the event, for convenience. Defaults to None.
-        **kwarg :
+        **kwargs :
             Keyword arguments
             Other keyword arguments to pass to the instantiate method (depends on the type of event)
 
@@ -435,7 +436,7 @@ class Event(ABC):
             occurrence=occurrence,
             duration=duration,
             name=name,
-            **kwarg,
+            **kwargs,
         )
 
     @classmethod
@@ -450,7 +451,7 @@ class Event(ABC):
         occurrence: int = 1,
         duration: int = 1,
         name: Optional[str] = None,
-        **kwarg,
+        **kwargs,
     ) -> Event:
         """Creates an Event from a scalar, a list of regions and a list of sectors affected.
 
@@ -477,7 +478,7 @@ class Event(ABC):
             The duration of the event (entire impact applied during this number of steps). Defaults to 1.
         name : Optional[str], optional
             A possible name for the event, for convenience. Defaults to None.
-        **kwarg :
+        **kwargs :
             Keyword arguments
             Other keyword arguments to pass to the instantiate method (depends on the type of event)
 
@@ -592,7 +593,7 @@ class Event(ABC):
             occurrence=occurrence,
             duration=duration,
             name=name,
-            **kwarg,
+            **kwargs,
         )
 
     @property
@@ -847,6 +848,7 @@ class EventArbitraryProd(Event):
         occurrence: int = 1,
         duration: int = 1,
         name: Optional[str] = None,
+        **kwargs,
     ):
         return cls(
             impact=impact,
@@ -1236,6 +1238,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         rebuild_tau: int,
         rebuilding_sectors: dict[str, float] | pd.Series,
         rebuilding_factor: float = 1.0,
+        **kwargs,
     ):
         return cls(
             impact=impact,
@@ -1415,6 +1418,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
         event_monetary_factor: Optional[int] = None,
         recovery_time: int,
         recovery_function: str = "linear",
+        **kwargs,
     ):
         return cls(
             impact=impact,
