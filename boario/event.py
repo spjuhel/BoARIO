@@ -1253,6 +1253,18 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         )
 
     @property
+    def rebuild_tau(self) -> int:
+        r"""The characteristic time for rebuilding."""
+        return self._rebuild_tau
+
+    @rebuild_tau.setter
+    def rebuild_tau(self, value: int):
+        if not isinstance(value, int) or value < 1:
+            raise ValueError(f"``rebuild_tau`` should be a strictly positive integer. Value given is {value}.")
+        else:
+            self._rebuild_tau = value
+
+    @property
     def rebuilding_sectors(self) -> pd.Index:
         r"""The (optional) array of rebuilding sectors"""
         return self._rebuilding_sectors
