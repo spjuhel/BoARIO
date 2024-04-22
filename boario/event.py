@@ -25,6 +25,8 @@ from typing import Callable, List, Optional, Tuple, Union
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
+
 
 from boario import logger
 from boario.utils.recovery_functions import (
@@ -1285,7 +1287,10 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             reb_sectors = pd.Series(value)
         else:
             reb_sectors = value
-        assert np.isclose(reb_sectors.sum(), 1.0)
+        if not is_numeric_dtype(reb_sectors):
+            raise TypeError("Rebuilding sectors should be given as ``dict[str, float] | pd.Series``.")
+        if not np.isclose(reb_sectors.sum(), 1.0):
+            raise ValueError(f"Reconstruction shares among sectors do not sum up to 1.")
         impossible_sectors = np.setdiff1d(reb_sectors.index, self.possible_sectors)
         if impossible_sectors.size > 0:
             raise ValueError(
