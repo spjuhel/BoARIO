@@ -1182,6 +1182,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
 
         industrial_rebuilding_demand = np.zeros(shape=self.z_shape)
         tmp = np.zeros(self.z_shape, dtype="float")
+
         mask = np.ix_(
             np.union1d(
                 self._rebuilding_industries_RoW_idx, self._rebuilding_industries_idx
@@ -1308,7 +1309,8 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                     np.size(self.possible_sectors) * ri + si
                     for ri in self._aff_regions_idx
                     for si in self._rebuilding_sectors_idx
-                ]
+                ],
+                dtype="int64",
             )
             self._rebuilding_industries_RoW_idx = np.array(
                 [
@@ -1316,17 +1318,19 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                     for ri in range(np.size(self.possible_regions))
                     if ri not in self._aff_regions_idx
                     for si in self._rebuilding_sectors_idx
-                ]
+                ],
+                dtype="int64",
             )
             self._rebuilding_sectors_shares[self._rebuilding_industries_idx] = np.tile(
                 np.array(reb_sectors.values), np.size(self.aff_regions)
             )
-            self._rebuilding_sectors_shares[self._rebuilding_industries_RoW_idx] = (
-                np.tile(
-                    np.array(reb_sectors.values),
-                    (np.size(self.possible_regions) - np.size(self.aff_regions)),
+            if self._rebuilding_industries_RoW_idx.size != 0:
+                self._rebuilding_sectors_shares[self._rebuilding_industries_RoW_idx] = (
+                    np.tile(
+                        np.array(reb_sectors.values),
+                        (np.size(self.possible_regions) - np.size(self.aff_regions)),
+                    )
                 )
-            )
 
     @property
     def rebuilding_demand_house(self) -> npt.NDArray:
