@@ -25,6 +25,8 @@ from typing import Callable, List, Optional, Tuple, Union
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
+
 
 from boario import logger
 from boario.utils.recovery_functions import (
@@ -190,6 +192,7 @@ class Event(ABC):
         occurrence: int = 1,
         duration: int = 1,
         name: Optional[str] = None,
+        **_,
     ):
         return cls(impact=impact, occurrence=occurrence, duration=duration, name=name)
 
@@ -201,7 +204,7 @@ class Event(ABC):
         occurrence: int = 1,
         duration: int = 1,
         name: Optional[str] = None,
-        **kwarg,
+        **kwargs,
     ) -> Event:
         """Create an event for an impact given as a pd.Series.
 
@@ -215,7 +218,7 @@ class Event(ABC):
             The duration of the event (entire impact applied during this number of steps). Defaults to 1.
         name : Optional[str]
             A possible name for the event, for convenience. Defaults to None.
-        **kwarg :
+        **kwargs :
             Keyword arguments keyword arguments to pass to the instantiating method
         (depends on the type of event).
 
@@ -260,7 +263,7 @@ class Event(ABC):
             occurrence=occurrence,
             duration=duration,
             name=name,
-            **kwarg,
+            **kwargs,
         )
 
     @classmethod
@@ -271,7 +274,7 @@ class Event(ABC):
         occurrence: int = 1,
         duration: int = 1,
         name: Optional[str] = None,
-        **kwarg,
+        **kwargs,
     ) -> Event:
         """Convenience function for DataFrames. See :meth:`~boario.event.Event.from_series`. This constructor only apply ``.squeeze()`` to the given DataFrame.
 
@@ -285,7 +288,7 @@ class Event(ABC):
             The duration of the event (entire impact applied during this number of steps). Defaults to 1.
         name : Optional[str]
             A possible name for the event, for convenience. Defaults to None.
-        **kwarg :
+        **kwargs :
             Keyword arguments
             Other keyword arguments to pass to the instantiate method (depends on the type of event)
 
@@ -308,7 +311,7 @@ class Event(ABC):
             occurrence=occurrence,
             duration=duration,
             name=name,
-            **kwarg,
+            **kwargs,
         )
 
     @classmethod
@@ -365,7 +368,7 @@ class Event(ABC):
         occurrence: Optional[int] = 1,
         duration: Optional[int] = 1,
         name: Optional[str] = None,
-        **kwarg,
+        **kwargs,
     ) -> Event:
         """Creates an Event from a scalar and a list of industries affected.
 
@@ -390,7 +393,7 @@ class Event(ABC):
             The duration of the event (entire impact applied during this number of steps). Defaults to 1.
         name : Optional[str]
             A possible name for the event, for convenience. Defaults to None.
-        **kwarg :
+        **kwargs :
             Keyword arguments
             Other keyword arguments to pass to the instantiate method (depends on the type of event)
 
@@ -435,7 +438,7 @@ class Event(ABC):
             occurrence=occurrence,
             duration=duration,
             name=name,
-            **kwarg,
+            **kwargs,
         )
 
     @classmethod
@@ -450,7 +453,7 @@ class Event(ABC):
         occurrence: int = 1,
         duration: int = 1,
         name: Optional[str] = None,
-        **kwarg,
+        **kwargs,
     ) -> Event:
         """Creates an Event from a scalar, a list of regions and a list of sectors affected.
 
@@ -477,7 +480,7 @@ class Event(ABC):
             The duration of the event (entire impact applied during this number of steps). Defaults to 1.
         name : Optional[str], optional
             A possible name for the event, for convenience. Defaults to None.
-        **kwarg :
+        **kwargs :
             Keyword arguments
             Other keyword arguments to pass to the instantiate method (depends on the type of event)
 
@@ -592,7 +595,7 @@ class Event(ABC):
             occurrence=occurrence,
             duration=duration,
             name=name,
-            **kwarg,
+            **kwargs,
         )
 
     @property
@@ -847,6 +850,7 @@ class EventArbitraryProd(Event):
         occurrence: int = 1,
         duration: int = 1,
         name: Optional[str] = None,
+        **_,
     ):
         return cls(
             impact=impact,
@@ -1178,6 +1182,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
 
         industrial_rebuilding_demand = np.zeros(shape=self.z_shape)
         tmp = np.zeros(self.z_shape, dtype="float")
+
         mask = np.ix_(
             np.union1d(
                 self._rebuilding_industries_RoW_idx, self._rebuilding_industries_idx
@@ -1236,6 +1241,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         rebuild_tau: int,
         rebuilding_sectors: dict[str, float] | pd.Series,
         rebuilding_factor: float = 1.0,
+        **_,
     ):
         return cls(
             impact=impact,
@@ -1248,6 +1254,20 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             rebuilding_sectors=rebuilding_sectors,
             rebuilding_factor=rebuilding_factor,
         )
+
+    @property
+    def rebuild_tau(self) -> int:
+        r"""The characteristic time for rebuilding."""
+        return self._rebuild_tau
+
+    @rebuild_tau.setter
+    def rebuild_tau(self, value: int):
+        if not isinstance(value, int) or value < 1:
+            raise ValueError(
+                f"``rebuild_tau`` should be a strictly positive integer. Value given is {value}."
+            )
+        else:
+            self._rebuild_tau = value
 
     @property
     def rebuilding_sectors(self) -> pd.Index:
@@ -1270,7 +1290,12 @@ class EventKapitalRebuild(EventKapitalDestroyed):
             reb_sectors = pd.Series(value)
         else:
             reb_sectors = value
-        assert np.isclose(reb_sectors.sum(), 1.0)
+        if not is_numeric_dtype(reb_sectors):
+            raise TypeError(
+                "Rebuilding sectors should be given as ``dict[str, float] | pd.Series``."
+            )
+        if not np.isclose(reb_sectors.sum(), 1.0):
+            raise ValueError(f"Reconstruction shares among sectors do not sum up to 1.")
         impossible_sectors = np.setdiff1d(reb_sectors.index, self.possible_sectors)
         if impossible_sectors.size > 0:
             raise ValueError(
@@ -1288,7 +1313,8 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                     np.size(self.possible_sectors) * ri + si
                     for ri in self._aff_regions_idx
                     for si in self._rebuilding_sectors_idx
-                ]
+                ],
+                dtype="int64",
             )
             self._rebuilding_industries_RoW_idx = np.array(
                 [
@@ -1296,17 +1322,19 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                     for ri in range(np.size(self.possible_regions))
                     if ri not in self._aff_regions_idx
                     for si in self._rebuilding_sectors_idx
-                ]
+                ],
+                dtype="int64",
             )
             self._rebuilding_sectors_shares[self._rebuilding_industries_idx] = np.tile(
                 np.array(reb_sectors.values), np.size(self.aff_regions)
             )
-            self._rebuilding_sectors_shares[self._rebuilding_industries_RoW_idx] = (
-                np.tile(
-                    np.array(reb_sectors.values),
-                    (np.size(self.possible_regions) - np.size(self.aff_regions)),
+            if self._rebuilding_industries_RoW_idx.size != 0:
+                self._rebuilding_sectors_shares[self._rebuilding_industries_RoW_idx] = (
+                    np.tile(
+                        np.array(reb_sectors.values),
+                        (np.size(self.possible_regions) - np.size(self.aff_regions)),
+                    )
                 )
-            )
 
     @property
     def rebuilding_demand_house(self) -> npt.NDArray:
@@ -1415,6 +1443,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
         event_monetary_factor: Optional[int] = None,
         recovery_time: int,
         recovery_function: str = "linear",
+        **_,
     ):
         return cls(
             impact=impact,
