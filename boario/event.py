@@ -850,7 +850,7 @@ class EventArbitraryProd(Event):
         occurrence: int = 1,
         duration: int = 1,
         name: Optional[str] = None,
-            **_,
+        **_,
     ):
         return cls(
             impact=impact,
@@ -1241,7 +1241,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         rebuild_tau: int,
         rebuilding_sectors: dict[str, float] | pd.Series,
         rebuilding_factor: float = 1.0,
-            **_,
+        **_,
     ):
         return cls(
             impact=impact,
@@ -1263,7 +1263,9 @@ class EventKapitalRebuild(EventKapitalDestroyed):
     @rebuild_tau.setter
     def rebuild_tau(self, value: int):
         if not isinstance(value, int) or value < 1:
-            raise ValueError(f"``rebuild_tau`` should be a strictly positive integer. Value given is {value}.")
+            raise ValueError(
+                f"``rebuild_tau`` should be a strictly positive integer. Value given is {value}."
+            )
         else:
             self._rebuild_tau = value
 
@@ -1289,7 +1291,9 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         else:
             reb_sectors = value
         if not is_numeric_dtype(reb_sectors):
-            raise TypeError("Rebuilding sectors should be given as ``dict[str, float] | pd.Series``.")
+            raise TypeError(
+                "Rebuilding sectors should be given as ``dict[str, float] | pd.Series``."
+            )
         if not np.isclose(reb_sectors.sum(), 1.0):
             raise ValueError(f"Reconstruction shares among sectors do not sum up to 1.")
         impossible_sectors = np.setdiff1d(reb_sectors.index, self.possible_sectors)
@@ -1439,7 +1443,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
         event_monetary_factor: Optional[int] = None,
         recovery_time: int,
         recovery_function: str = "linear",
-            **_,
+        **_,
     ):
         return cls(
             impact=impact,
