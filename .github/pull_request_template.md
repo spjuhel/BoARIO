@@ -12,4 +12,3 @@ This PR fixes #
 - [ ] Source branch up-to-date with target branch
 - [ ] Documentation updated
 - [ ] Tests passing
-- [ ] [Changelog](https://github.com/spjuhel/blob/main/CHANGELOG.rst) updated
