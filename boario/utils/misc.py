@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import copy
 import json
 import tempfile
 import textwrap
@@ -85,7 +86,7 @@ def flatten(lst):
             yield el
 
 
-def lexico_reindex(mrio: pymrio.IOSystem) -> pymrio.IOSystem:
+def lexico_reindex(mriot: pymrio.IOSystem) -> pymrio.IOSystem:
     """Reindex IOSystem lexicographicaly
 
     Sort indexes and columns of the dataframe of a ``pymrio.IOSystem`` by
@@ -103,23 +104,24 @@ def lexico_reindex(mrio: pymrio.IOSystem) -> pymrio.IOSystem:
 
 
     """
-    if mrio.Z is None:
-        raise ValueError("Given mrio has no Z attribute set")
-    mrio.Z = mrio.Z.reindex(sorted(mrio.Z.index), axis=0)
-    mrio.Z = mrio.Z.reindex(sorted(mrio.Z.columns), axis=1)
-    if mrio.Y is None:
-        raise ValueError("Given mrio has no Y attribute set")
-    mrio.Y = mrio.Y.reindex(sorted(mrio.Y.index), axis=0)
-    mrio.Y = mrio.Y.reindex(sorted(mrio.Y.columns), axis=1)
-    if mrio.x is None:
-        raise ValueError("Given mrio has no x attribute set")
-    mrio.x = mrio.x.reindex(sorted(mrio.x.index), axis=0)
-    if mrio.A is None:
-        raise ValueError("Given mrio has no A attribute set")
-    mrio.A = mrio.A.reindex(sorted(mrio.A.index), axis=0)
-    mrio.A = mrio.A.reindex(sorted(mrio.A.columns), axis=1)
+    mriot = copy.deepcopy(mriot)
+    if mriot.Z is None:
+        raise ValueError("Given mriot has no Z attribute set")
+    mriot.Z = mriot.Z.reindex(sorted(mriot.Z.index), axis=0)
+    mriot.Z = mriot.Z.reindex(sorted(mriot.Z.columns), axis=1)
+    if mriot.Y is None:
+        raise ValueError("Given mriot has no Y attribute set")
+    mriot.Y = mriot.Y.reindex(sorted(mriot.Y.index), axis=0)
+    mriot.Y = mriot.Y.reindex(sorted(mriot.Y.columns), axis=1)
+    if mriot.x is None:
+        raise ValueError("Given mriot has no x attribute set")
+    mriot.x = mriot.x.reindex(sorted(mriot.x.index), axis=0) # ignore type (wrong type hinting in pymrio)
+    if mriot.A is None:
+        raise ValueError("Given mriot has no A attribute set")
+    mriot.A = mriot.A.reindex(sorted(mriot.A.index), axis=0)
+    mriot.A = mriot.A.reindex(sorted(mriot.A.columns), axis=1)
 
-    return mrio
+    return mriot
 
 
 def sizeof_fmt(num, suffix="B"):
