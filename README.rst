@@ -47,9 +47,9 @@ BoARIO, is a python implementation project of the Adaptative Regional Input Outp
 Its objectives are to give an accessible and inter-operable implementation of ARIO, as well as tools to visualize and analyze simulation outputs and to
 evaluate the effects of many parameters of the model.
 
-This implementation would not have been possible without the `Pymrio`_ module and amazing work of [`Stadler 2021`_] !
+This implementation would not have been possible without the `Pymrio`_ module and amazing work of [`Stadler 2021`_]. 
 
-It is still an ongoing project (in parallel of a PhD project).
+It is still an ongoing project (in parallel with a PhD project).
 
 .. _`Stadler 2021`: https://openresearchsoftware.metajnl.com/articles/10.5334/jors.251/
 .. _`Hallegatte 2013`: https://doi.org/10.1111/j.1539-6924.2008.01046.x
@@ -98,13 +98,13 @@ How does BoARIO work?
 
 In a nutshell, BoARIO takes the following inputs :
 
-- an IO table (such as EXIOBASE3 or EORA26) in the form of an ``pymrio.IOSystem`` object, using the `Pymrio`_ python package.
+- an Environmentally Extended IO table (such as EXIOBASE3 or EORA26) in the form of an ``pymrio.IOSystem`` object, using the `Pymrio`_ python package. Please reference the `Pymrio documentation <https://github.com/IndEcol/pymrio>`_ for details on methods available to pymrio objects
 
 - multiple parameters which govern the simulation,
 
 - event(s) description(s), which are used as the perturbation to analyse during the simulation
 
-And produce the following outputs:
+And produces the following outputs:
 
 - the step by step, sector by sector, region by region evolution of most of the variables involved in the simulation (`production`, `demand`, `stocks`, ...)
 

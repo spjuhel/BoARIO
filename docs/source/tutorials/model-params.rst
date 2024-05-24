@@ -36,17 +36,17 @@ Parameters are set when instantiating the model. The following block shows all c
           )
 
 
-Here a quick description of each parameters. Please refer to both :ref:`the mathematical description<boario-math>` and the :ref:`api-ref` for further details.
+Here is a quick description of each parameters. Please refer to both :ref:`the mathematical description<boario-math>` and the :ref:`api-ref` for further details.
 
 * ``order_type`` : Setting it to ``"alt"`` makes the model use the intermediate order mechanism described in :cite:`2020:guan`. Any other value makes the model use the `classic` order mechanism used in :cite:`2013:hallegatte` (see :ref:`alt_orders`)
 
-* ``alpha_base``, ``alpha_max``, ``alpha_tau`` respectively set the base overproduction, the maximum overproduction, and its characteristic time (in `temporal unit`).
+* ``alpha_base``, ``alpha_max``, ``alpha_tau`` respectively set the base overproduction, the maximum overproduction, and its characteristic time (in `temporal units`).
 
 * ``rebuild_tau`` sets the default rebuilding or recovering characteristic time for events (this value is overridden if specified directly in the Event object)
 
 * ``inventory_dict`` should be a dictionary of ``sector:duration`` format, where all sector are present and ``duration`` is both the initial and goal duration for this input stock.
 
-* ``main_inv_dur`` sets the default initial/goal inventory duration in `temporal unit` for all sectors if inventory_dict is not given.
+* ``main_inv_dur`` sets the default initial/goal inventory duration in `temporal units` for all sectors if inventory_dict is not given.
 
 * ``infinite_inventories_sect`` should be a list of inputs never constraining production (the stocks for these input will be virtually infinite when considering stock constraints) (overridden by ``inventory_dict``)
 
@@ -77,7 +77,7 @@ Focus on the temporal dimension
 
 .. warning::
    These features have not been extensively tested and should be handled with great care.
-   Feedbacks are welcome!
+   Feedback is welcome!
 
 
 The temporal dimension is an important aspect of dynamically modeling indirect economic impacts.
@@ -85,14 +85,14 @@ Historically, ARIO has been used both using weekly and daily steps, but mostly t
 BoARIO's implementation of ARIO aims at being independent of the ``temporal unit``
 considered, notably to study how this aspect influences the results.
 
-This means it is virtually possible to run ARIO on any temporal granularity of your choosing.
+This means it is possible to run ARIO on virtually any temporal granularity of your choosing.
 
-Furthermore, for efficiency purpose, this implementation allows to simulate only some ``temporal unit``
-and interpolate state variables in between.
+Furthermore, for efficiency purposes, this implementation allows you to simulate only some ``temporal units``
+and interpolate state variables between them.
 
-Hence a ``step`` can represent multiple ``temporal units``. Although by default, a ``step`` equals a ``temporal unit`` equals a `day` and
-defaults values of characteristic times and other time related variable are accordingly expressed in number of days, these three terms are conceptually
-different. For this reason we will favor the term ``temporal unit`` to designate the atomic period in the model throughout this documentation.
+Hence a ``step`` can represent multiple ``temporal units``. By default, a ``step`` equals a ``temporal unit`` equals a `day` and
+defaults values of characteristic times and other time related variable are accordingly expressed in number of days. 
+However, because it is customisable, we favor the term ``temporal unit`` to designate the atomic period in the model throughout this documentation.
 
 The number of ``temporal units`` to simulate can be set when instantiating the ``Simulation`` object like so:
 
