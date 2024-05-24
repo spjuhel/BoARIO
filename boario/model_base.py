@@ -29,7 +29,7 @@ import pandas as pd
 from pymrio.core.mriosystem import IOSystem
 
 from boario import logger
-from boario.utils.misc import lexico_reindex
+from boario.utils.misc import lexico_reindex, _fast_sum, _divide_arrays_ignore
 
 __all__ = [
     "ARIOBaseModel",
@@ -72,50 +72,6 @@ VA_idx = np.array(
     ],
     dtype=object,
 )
-
-
-def _fast_sum(array: np.ndarray, axis: int) -> np.ndarray:
-    """
-    Perform a fast summation over the specified axis of the input array using einsum.
-
-    Parameters:
-        array (numpy.ndarray): Input array.
-        axis (int): Axis along which to perform the summation.
-
-    Returns:
-        numpy.ndarray: Summed array along the specified axis.
-
-    Raises:
-        ValueError: If the specified axis is out of bounds for the input array.
-
-    Example:
-        array = np.array([[1, 2, 3], [4, 5, 6]])
-        result = _fast_sum(array, 0)  # Sum along the first axis
-        print(result)  # Output: [5 7 9]
-    """
-    if axis == 0:
-        if array.ndim == 1:
-            return np.einsum("i->", array)
-        if array.ndim == 2:
-            return np.einsum("ij->j", array)
-        if array.ndim == 3:
-            return np.einsum("ijk->jk", array)
-    elif axis == 1:
-        if array.ndim == 2:
-            return np.einsum("ij->i", array)
-        if array.ndim == 3:
-            return np.einsum("ijk->ik", array)
-    elif axis == 2:
-        return np.einsum("ijk->ij", array)
-    else:
-        raise ValueError("Axis out of bounds for input array.")
-
-
-def _divide_arrays_ignore(a, b):
-    with np.errstate(divide="ignore", invalid="ignore"):
-        ret = np.divide(a, b)
-        np.nan_to_num(ret)
-        return ret
 
 
 class ARIOBaseModel:
@@ -299,13 +255,14 @@ class ARIOBaseModel:
         self.X_0 = np.array(source_mriot.x.T).copy().flatten() * self.steply_factor
         r"""numpy.ndarray of float: Array :math:`\iox(0)` of size :math:`n \times m` representing the initial daily gross production."""
 
-        value_added = source_mriot.x.T - source_mriot.Z.sum(axis=0)
+        value_added: pd.DataFrame = source_mriot.x.T - source_mriot.Z.sum(axis=0)  # type: ignore
         # value_added = value_added.reindex(sorted(value_added.index), axis=0)
         # value_added = value_added.reindex(sorted(value_added.columns), axis=1)
-        if (value_added < 0).any().any():
+        if (value_added < 0).any().any():  # type: ignore
+            tmp = (value_added[value_added < 0].dropna(axis=1)).columns  # type: ignore
             logger.warning(
                 f"""Found negative values in the value added, will set to 0. Note that sectors with null value added are not impacted by capital destruction.
-                industries with negative VA: {(value_added[value_added < 0].dropna(axis=1)).columns}
+                industries with negative VA: {tmp}
                 """
             )
 
@@ -399,7 +356,7 @@ class ARIOBaseModel:
         self.had_shortage = False
         r"""Boolean stating if at least one industry was in shortage at some point."""
 
-        self.rebuild_prod = np.zeros(shape=self.X_0.shape)
+        self.rebuild_prod = None
         r"""numpy.ndarray of float: Array of size :math:`n \times m` representing the remaining stock of rebuilding demand asked of each industry."""
 
         self.final_demand_not_met = np.zeros(self.Y_0.shape)
@@ -815,9 +772,8 @@ class ARIOBaseModel:
     def rebuild_prod_indus(self) -> npt.NDArray | None:
         if self._rebuild_prod is not None:
             return self._rebuild_prod[
-                :, : (
-                    self.n_regions * self.n_sectors * (self._n_rebuilding_events)
-                ),
+                :,
+                : (self.n_regions * self.n_sectors * (self._n_rebuilding_events)),
             ]
         else:
             return None
@@ -834,14 +790,24 @@ class ARIOBaseModel:
     def rebuild_prod_indus_event(self, ev_id) -> npt.NDArray | None:
         indus = self.rebuild_prod_indus
         if indus is not None:
-            return indus[:,(self.n_regions * self.n_sectors)*ev_id:(self.n_regions * self.n_sectors)*(ev_id+1)]
+            return indus[
+                :,
+                (self.n_regions * self.n_sectors)
+                * ev_id : (self.n_regions * self.n_sectors)
+                * (ev_id + 1),
+            ]
         else:
             return None
 
     def rebuild_prod_house_event(self, ev_id) -> npt.NDArray | None:
         house = self.rebuild_prod_house
         if house is not None:
-            return house[:,(self.n_regions * self.n_fd_cat)*ev_id:(self.n_regions * self.n_fd_cat)*(ev_id+1)]
+            return house[
+                :,
+                (self.n_regions * self.n_fd_cat)
+                * ev_id : (self.n_regions * self.n_fd_cat)
+                * (ev_id + 1),
+            ]
         else:
             return None
 

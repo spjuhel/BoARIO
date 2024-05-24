@@ -20,15 +20,63 @@ import tempfile
 import textwrap
 from collections.abc import Iterable
 
-import numpy
+import numpy as np
 import pymrio
 
 
-class TempMemmap(numpy.memmap):
+def _fast_sum(array: np.ndarray, axis: int) -> np.ndarray:
+    """
+    Perform a fast summation over the specified axis of the input array using einsum.
+
+    Parameters:
+        array (np.ndarray): Input array.
+        axis (int): Axis along which to perform the summation.
+
+    Returns:
+        np.ndarray: Summed array along the specified axis.
+
+    Raises:
+        ValueError: If the specified axis is out of bounds for the input array.
+
+    Example:
+        array = np.array([[1, 2, 3], [4, 5, 6]])
+        result = _fast_sum(array, 0)  # Sum along the first axis
+        print(result)  # Output: [5 7 9]
+    """
+    if axis == 0:
+        if array.ndim == 1:
+            return np.einsum("i->", array)
+        if array.ndim == 2:
+            return np.einsum("ij->j", array)
+        if array.ndim == 3:
+            return np.einsum("ijk->jk", array)
+        else:
+            raise NotImplementedError("Too many dimensions.")
+    elif axis == 1:
+        if array.ndim == 2:
+            return np.einsum("ij->i", array)
+        if array.ndim == 3:
+            return np.einsum("ijk->ik", array)
+        else:
+            raise NotImplementedError("Too many dimensions.")
+    elif axis == 2:
+        return np.einsum("ijk->ij", array)
+    else:
+        raise ValueError("Axis out of bounds for input array.")
+
+
+def _divide_arrays_ignore(a, b):
+    with np.errstate(divide="ignore", invalid="ignore"):
+        ret = np.divide(a, b)
+        np.nan_to_num(ret)
+        return ret
+
+
+class TempMemmap(np.memmap):
     def __new__(
         subtype,
         filename,
-        dtype=numpy.float64,
+        dtype=np.float64,
         mode="r+",
         offset=0,
         shape=None,
@@ -36,7 +84,7 @@ class TempMemmap(numpy.memmap):
         save=False,
     ):
         if save:
-            self = numpy.memmap.__new__(
+            self = np.memmap.__new__(
                 subtype,
                 filename=filename,
                 dtype=dtype,
@@ -48,7 +96,7 @@ class TempMemmap(numpy.memmap):
             return self
         else:
             ntf = tempfile.NamedTemporaryFile()
-            self = numpy.memmap.__new__(
+            self = np.memmap.__new__(
                 subtype,
                 ntf,
                 dtype=dtype,
@@ -68,11 +116,11 @@ class TempMemmap(numpy.memmap):
 
 class CustomNumpyEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, numpy.integer):
+        if isinstance(obj, np.integer):
             return int(obj)
-        elif isinstance(obj, numpy.floating):
+        elif isinstance(obj, np.floating):
             return float(obj)
-        elif isinstance(obj, numpy.ndarray):
+        elif isinstance(obj, np.ndarray):
             return obj.tolist()
         else:
             return super(CustomNumpyEncoder, self).default(obj)
@@ -115,7 +163,9 @@ def lexico_reindex(mriot: pymrio.IOSystem) -> pymrio.IOSystem:
     mriot.Y = mriot.Y.reindex(sorted(mriot.Y.columns), axis=1)
     if mriot.x is None:
         raise ValueError("Given mriot has no x attribute set")
-    mriot.x = mriot.x.reindex(sorted(mriot.x.index), axis=0) # ignore type (wrong type hinting in pymrio)
+    mriot.x = mriot.x.reindex(
+        sorted(mriot.x.index), axis=0
+    )  # ignore type (wrong type hinting in pymrio)
     if mriot.A is None:
         raise ValueError("Given mriot has no A attribute set")
     mriot.A = mriot.A.reindex(sorted(mriot.A.index), axis=0)
