@@ -46,7 +46,7 @@ jobs:
           # which you find below to build all documents
           git fetch --tags
           cd docs
-          poetry run ipython kernel install --name "boario"
+          poetry run ipython kernel install --name "boario" --user
           poetry run python ./source/build_docs.py
       - name: Setup Pages
         uses: actions/configure-pages@v5
