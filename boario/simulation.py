@@ -596,7 +596,8 @@ class Simulation:
             self.equi[(n_checks, self.current_temporal_unit, "stocks")] = "not equi"
 
         if (
-            self.model.rebuild_demand_tot is None or self.model.rebuild_demand is None
+            self.model.rebuild_demand_tot is None
+            or self.model.rebuild_demand is None
             or not self.model.rebuild_demand.any()
         ):
             self.equi[(n_checks, self.current_temporal_unit, "rebuilding")] = "finished"
@@ -684,7 +685,7 @@ class Simulation:
         rebuild/recover)
 
         """
-        new_reb_event=False
+        new_reb_event = False
         for event_tracker in self._event_tracking:
             if event_tracker.status == "pending":
                 if (
@@ -701,7 +702,9 @@ class Simulation:
                     event_tracker._status = "happening"
         for event_tracker in self._event_tracking:
             if event_tracker.status == "happening":
-                if self.current_temporal_unit >= (event_tracker.event.occurrence + event_tracker.event.duration):
+                if self.current_temporal_unit >= (
+                    event_tracker.event.occurrence + event_tracker.event.duration
+                ):
                     if isinstance(event_tracker.event, EventKapitalRebuild):
                         new_reb_event = True
                         self.model._n_rebuilding_events += 1
@@ -717,7 +720,9 @@ class Simulation:
                             )
                         )
 
-                    elif isinstance(event_tracker, (EventKapitalRecover, EventArbitraryProd)):
+                    elif isinstance(
+                        event_tracker, (EventKapitalRecover, EventArbitraryProd)
+                    ):
                         event_tracker._status = "recovering"
                         logger.info(
                             "Temporal_Unit : {} ~ Event named {} that occurred at {} in {} for {} damages has started recovering".format(
@@ -750,34 +755,42 @@ class Simulation:
         for event_tracker in self._event_tracking:
             if event_tracker.status == "rebuilding":
                 if event_tracker._rebuild_id is None:
-                    raise RuntimeError("Rebuilding event has no rebuilding id, which should not happen.")
+                    raise RuntimeError(
+                        "Rebuilding event has no rebuilding id, which should not happen."
+                    )
                 assert self.model.rebuild_prod is not None
-                event_tracker.receive_indus_rebuilding(self.model.rebuild_prod_indus_event(event_tracker._rebuild_id))
+                event_tracker.receive_indus_rebuilding(
+                    self.model.rebuild_prod_indus_event(event_tracker._rebuild_id)
+                )
 
                 if event_tracker.rebuild_demand_house is not None:
-                    event_tracker.receive_indus_rebuilding(self.model.rebuild_prod_house_event(event_tracker._rebuild_id))
-                if event_tracker._house_dmg is None and event_tracker._indus_dmg is None:
-                    event_tracker._status="finished"
+                    event_tracker.receive_indus_rebuilding(
+                        self.model.rebuild_prod_house_event(event_tracker._rebuild_id)
+                    )
+                if (
+                    event_tracker._house_dmg is None
+                    and event_tracker._indus_dmg is None
+                ):
+                    event_tracker._status = "finished"
                     events_rebuilt_ids.append(event_tracker._rebuild_id)
                     self._events_to_rebuild -= 1
 
         if len(events_rebuilt_ids) > 0:
             events_rebuilt_ids = sorted(events_rebuilt_ids)
-            non_reb_events = sorted([ev for ev in self._event_tracking if ev._rebuild_id is not None and ev._rebuild_id not in events_rebuilt_ids], key=lambda x:x._rebuild_id) # type: ignore # Because lsp cannot understand rebuild_id is not none here.
+            non_reb_events = sorted([ev for ev in self._event_tracking if ev._rebuild_id is not None and ev._rebuild_id not in events_rebuilt_ids], key=lambda x: x._rebuild_id)  # type: ignore # Because lsp cannot understand rebuild_id is not none here.
             for ev_to_rm in events_rebuilt_ids:
                 for evnt_trck in non_reb_events:
                     if evnt_trck._rebuild_id > ev_to_rm:
                         evnt_trck._rebuild_id -= 1
 
-
     def recover_events(self):
         for event_tracker in self._event_tracking:
             if event_tracker.status == "recovering":
                 if event_tracker.recovery_function is None:
-                    raise RuntimeError("Recovering event has no recovery function, which should not happen.")
+                    raise RuntimeError(
+                        "Recovering event has no recovery function, which should not happen."
+                    )
                 event_tracker.recover()
-
-
 
     def update_rebuild_demand(self):
         r"""Computes and updates total rebuilding demand based on a list of events.
@@ -811,22 +824,21 @@ class Simulation:
             if evnt_trck._rebuild_id is not None:
                 _rebuilding_demand[
                     :,
-                    :(self.model.n_regions * self.model.n_sectors)
-                    * (evnt_trck._rebuild_id+1),
+                    : (self.model.n_regions * self.model.n_sectors)
+                    * (evnt_trck._rebuild_id + 1),
                 ] = evnt_trck.distributed_reb_dem_indus
                 if evnt_trck.households_damages is not None:
                     _rebuilding_demand[
                         :,
-                        (self.model.n_regions * self.model.n_sectors) * self.model._n_rebuilding_events
-                        :(
+                        (self.model.n_regions * self.model.n_sectors)
+                        * self.model._n_rebuilding_events : (
                             self.model.n_regions * self.model.n_sectors
                             + self.model.n_regions * self.model.n_fd_cat
                         )
-                        * (evnt_trck._rebuild_id+1),
+                        * (evnt_trck._rebuild_id + 1),
                     ] = evnt_trck.distributed_reb_dem_house
 
         self.model.rebuild_demand = _rebuilding_demand
-
 
     def update_productive_capital_lost(self):
         r"""Computes current capital lost and update production delta accordingly.
@@ -845,7 +857,11 @@ class Simulation:
         """
 
         logger.debug("Updating productive_capital lost from list of events")
-        source = [ev for ev in self._event_tracking if (ev.status in ["happening", "rebuilding"])]
+        source = [
+            ev
+            for ev in self._event_tracking
+            if (ev.status in ["happening", "rebuilding"])
+        ]
         productive_capital_lost = np.add.reduce(
             np.array([e._indus_dmg for e in source if e is not None])
         )
@@ -868,7 +884,11 @@ class Simulation:
             set, or directly a vector of production capacity loss.
 
         """
-        source = [ev for ev in self._event_tracking if (ev.status in ["happening", "recovering"])]
+        source = [
+            ev
+            for ev in self._event_tracking
+            if (ev.status in ["happening", "recovering"])
+        ]
         event_arb = np.array(
             [
                 ev._prod_delta_from_arb
@@ -896,7 +916,6 @@ class Simulation:
         self.update_productive_capital_lost()
         self.update_prod_cap_delta_arb()
         self.model.update_prod_delta()
-
 
     @property
     def production_realised(self) -> pd.DataFrame:
@@ -1111,7 +1130,9 @@ class Simulation:
         """Saves the current rebuilding production vector to the memmap."""
         to_write = np.full(self.model.n_regions * self.model.n_sectors, 0.0)
         if self.model.rebuild_prod_tot is not None:
-            self._rebuild_production_evolution[self.current_temporal_unit] = self.model.rebuild_prod_tot
+            self._rebuild_production_evolution[self.current_temporal_unit] = (
+                self.model.rebuild_prod_tot
+            )
         else:
             self._rebuild_production_evolution[self.current_temporal_unit] = to_write
 
@@ -1227,15 +1248,20 @@ class Simulation:
                 memmap_array.fill(fillv)
                 setattr(self, attr_name, memmap_array)
 
+
 @overload
 def _thin_to_wide(
     thin: pd.Series, long_index: pd.Index, long_columns: None = None
 ) -> pd.Series: ...
 
+
 @overload
 def _thin_to_wide(
-    thin: pd.DataFrame, long_index: pd.Index, long_columns: pd.Index,
+    thin: pd.DataFrame,
+    long_index: pd.Index,
+    long_columns: pd.Index,
 ) -> pd.DataFrame: ...
+
 
 def _thin_to_wide(
     thin: pd.Series | pd.DataFrame,
@@ -1249,7 +1275,9 @@ def _thin_to_wide(
             raise ValueError(
                 "long_columns argument cannot be None when widening a DataFrame."
             )
-        wide = pd.DataFrame(index=long_index, columns=long_columns, dtype=thin.dtypes.iloc[0])
+        wide = pd.DataFrame(
+            index=long_index, columns=long_columns, dtype=thin.dtypes.iloc[0]
+        )
     wide.fillna(0, inplace=True)
     if isinstance(thin, pd.DataFrame):
         wide.loc[thin.index, thin.columns] = thin.values
@@ -1257,29 +1285,32 @@ def _thin_to_wide(
         wide.loc[thin.index] = thin.values
     return wide
 
-def _equal_distribution( affected: pd.Index | None,
-                         addressed_to: pd.Index
-                         ) -> pd.DataFrame:
-    ret = pd.DataFrame(0., index=addressed_to, columns=affected)
-    ret.loc[affected, addressed_to] = 1/len(addressed_to)
+
+def _equal_distribution(
+    affected: pd.Index | None, addressed_to: pd.Index
+) -> pd.DataFrame:
+    ret = pd.DataFrame(0.0, index=addressed_to, columns=affected)
+    ret.loc[affected, addressed_to] = 1 / len(addressed_to)
     return ret
 
 
-def _normalize_distribution(dist: pd.DataFrame | pd.Series,
-                         affected: pd.Index | None,
-                         addressed_to: pd.Index
-                         ) -> pd.DataFrame:
-    ret = pd.DataFrame(0., index=addressed_to, columns=affected)
+def _normalize_distribution(
+    dist: pd.DataFrame | pd.Series, affected: pd.Index | None, addressed_to: pd.Index
+) -> pd.DataFrame:
+    ret = pd.DataFrame(0.0, index=addressed_to, columns=affected)
     dist_sq = dist.squeeze()
     if isinstance(dist_sq, pd.Series):
-        ret.loc[addressed_to,:] = dist_sq.loc[addressed_to].transform(lambda x:x/sum(x))
+        ret.loc[addressed_to, :] = dist_sq.loc[addressed_to].transform(
+            lambda x: x / sum(x)
+        )
         return ret
     elif isinstance(dist_sq, pd.DataFrame):
-        ret.loc[addressed_to,affected] = dist_sq.loc[addressed_to,affected].transform(lambda x:x/sum(x))
+        ret.loc[addressed_to, affected] = dist_sq.loc[addressed_to, affected].transform(
+            lambda x: x / sum(x)
+        )
         return ret
     else:
         raise ValueError("given distribution should be a Series or a DataFrame.")
-
 
 
 class EventTracker:
@@ -1312,14 +1343,14 @@ class EventTracker:
         self._rebuild_demand_indus_0: pd.DataFrame | None = None
         self._rebuild_demand_house_0: pd.DataFrame | None = None
         self._rebuild_demand_indus: pd.DataFrame | None = None
-        #self._reb_dem_indus_distribution: npt.NDArray | None = None
+        # self._reb_dem_indus_distribution: npt.NDArray | None = None
         self._distributed_reb_dem_indus: pd.DataFrame | None = None
         self._rebuild_demand_house: pd.DataFrame | None = None
-        #self._reb_dem_house_distribution: pd.DataFrame | None = None
+        # self._reb_dem_house_distribution: pd.DataFrame | None = None
         self._distributed_reb_dem_house: pd.DataFrame | None = None
         self._recovery_function: Callable | None = None
-        self._house_dmg_0 : pd.Series | None = None
-        self._house_dmg : pd.Series | None = None
+        self._house_dmg_0: pd.Series | None = None
+        self._house_dmg: pd.Series | None = None
 
         if isinstance(source_event, EventKapitalDestroyed):
             self._indus_dmg_0 = _thin_to_wide(
@@ -1330,8 +1361,15 @@ class EventTracker:
             self._init_distrib("indus", indus_rebuild_distribution, source_event)
             assert self._indus_dmg_0 is not None
 
-            self._rebuild_demand_indus_0 = pd.DataFrame(source_event.rebuilding_sectors.values[:, None] * source_event.impact.values, index=source_event.rebuilding_sectors.index, columns=source_event.impact.index)
-            self._rebuild_demand_indus_0.rename_axis(index="rebuilding sector", inplace=True)
+            self._rebuild_demand_indus_0 = pd.DataFrame(
+                source_event.rebuilding_sectors.values[:, None]
+                * source_event.impact.values,
+                index=source_event.rebuilding_sectors.index,
+                columns=source_event.impact.index,
+            )
+            self._rebuild_demand_indus_0.rename_axis(
+                index="rebuilding sector", inplace=True
+            )
             self._rebuild_demand_indus_0 *= source_event.rebuilding_factor
             self._rebuild_demand_indus = self._rebuild_demand_indus_0.copy()
             self.rebuild_dem_indus_distribution = self._reb_dem_indus_distribution
@@ -1342,8 +1380,15 @@ class EventTracker:
                 )
                 self._house_dmg = self._house_dmg_0.copy()
                 self._init_distrib("house", house_rebuild_distribution, source_event)
-                self._rebuild_demand_house_0 = pd.DataFrame(source_event.rebuilding_sectors.values[:, None] * source_event.impact_households.values, index=source_event.rebuilding_sectors.index, columns=source_event.impact_households.index)
-                self._rebuild_demand_house_0.rename_axis(index="rebuilding sector", inplace=True)
+                self._rebuild_demand_house_0 = pd.DataFrame(
+                    source_event.rebuilding_sectors.values[:, None]
+                    * source_event.impact_households.values,
+                    index=source_event.rebuilding_sectors.index,
+                    columns=source_event.impact_households.index,
+                )
+                self._rebuild_demand_house_0.rename_axis(
+                    index="rebuilding sector", inplace=True
+                )
                 self._rebuild_demand_house_0 *= source_event.rebuilding_factor
                 self._rebuild_demand_house = self._rebuild_demand_house_0.copy()
                 self.rebuild_dem_house_distribution = self._reb_dem_house_distribution
@@ -1359,7 +1404,7 @@ class EventTracker:
                     self.event.recovery_function,
                     init_impact_stock=self._house_dmg_0,
                     recovery_time=self.event.recovery_tau,
-            )
+                )
 
         if isinstance(self.event, EventArbitraryProd):
             self._recovery_function_arb_delta = partial(
@@ -1368,28 +1413,38 @@ class EventTracker:
                 recovery_time=self.event.recovery_tau,
             )
 
-    def _init_distrib(self, dtype: Literal["indus"] | Literal["house"],
-                      distrib: pd.DataFrame | None | Literal["equal"],
-                      source_event: EventKapitalRebuild):
+    def _init_distrib(
+        self,
+        dtype: Literal["indus"] | Literal["house"],
+        distrib: pd.DataFrame | None | Literal["equal"],
+        source_event: EventKapitalRebuild,
+    ):
         if dtype == "indus":
             if distrib is None:
                 self._reb_dem_indus_distribution = _normalize_distribution(
                     self.sim.model.mriot.Z,
                     affected=self.event.aff_industries,
-                    addressed_to=pd.MultiIndex.from_product([self.sim.model.regions,self.event.rebuilding_sectors.index], names=["region","rebuilding sector"])
+                    addressed_to=pd.MultiIndex.from_product(
+                        [self.sim.model.regions, self.event.rebuilding_sectors.index],
+                        names=["region", "rebuilding sector"],
+                    ),
                 )
             elif distrib == "equal":
-                self._reb_dem_indus_distribution = (
-                    _equal_distribution(
-                        affected=self.event.aff_industries,
-                        addressed_to=pd.MultiIndex.from_product([self.sim.model.regions,self.event.rebuilding_sectors.index], names=["region","rebuilding sector"])
-                    )
+                self._reb_dem_indus_distribution = _equal_distribution(
+                    affected=self.event.aff_industries,
+                    addressed_to=pd.MultiIndex.from_product(
+                        [self.sim.model.regions, self.event.rebuilding_sectors.index],
+                        names=["region", "rebuilding sector"],
+                    ),
                 )
             else:
                 self._reb_dem_indus_distribution = _normalize_distribution(
                     distrib,
                     affected=self.event.aff_industries,
-                    addressed_to=pd.MultiIndex.from_product([self.sim.model.regions,self.event.rebuilding_sectors.index], names=["region","rebuilding sector"])
+                    addressed_to=pd.MultiIndex.from_product(
+                        [self.sim.model.regions, self.event.rebuilding_sectors.index],
+                        names=["region", "rebuilding sector"],
+                    ),
                 )
 
         if dtype == "house":
@@ -1397,22 +1452,28 @@ class EventTracker:
                 self._reb_dem_house_distribution = _normalize_distribution(
                     self.sim.model.mriot.Y,
                     affected=self.event.aff_regions,
-                    addressed_to=pd.MultiIndex.from_product([self.sim.model.regions,self.event.rebuilding_sectors.index], names=["region","rebuilding sector"])
+                    addressed_to=pd.MultiIndex.from_product(
+                        [self.sim.model.regions, self.event.rebuilding_sectors.index],
+                        names=["region", "rebuilding sector"],
+                    ),
                 )
             elif distrib == "equal":
-                self._reb_dem_house_distribution = (
-                    _equal_distribution(
-                        affected=self.event.aff_regions,
-                        addressed_to=pd.MultiIndex.from_product([self.sim.model.regions,self.event.rebuilding_sectors.index], names=["region","rebuilding sector"])
-                    )
+                self._reb_dem_house_distribution = _equal_distribution(
+                    affected=self.event.aff_regions,
+                    addressed_to=pd.MultiIndex.from_product(
+                        [self.sim.model.regions, self.event.rebuilding_sectors.index],
+                        names=["region", "rebuilding sector"],
+                    ),
                 )
             else:
                 self._reb_dem_house_distribution = _normalize_distribution(
                     distrib,
                     affected=self.event.aff_regions,
-                    addressed_to=pd.MultiIndex.from_product([self.sim.model.regions,self.event.rebuilding_sectors.index], names=["region","rebuilding sector"])
+                    addressed_to=pd.MultiIndex.from_product(
+                        [self.sim.model.regions, self.event.rebuilding_sectors.index],
+                        names=["region", "rebuilding sector"],
+                    ),
                 )
-
 
     @cached_property
     def impact_vector(self) -> pd.Series:
@@ -1462,8 +1523,13 @@ class EventTracker:
     ):
         return self._status
 
-    def _compute_distributed_demand(self, demand_by_sectors, distribution, rebuilding_industries):
-        multi_index = pd.MultiIndex.from_product([self.sim.model.regions,rebuilding_industries], names=['region', 'rebuilding sector'])
+    def _compute_distributed_demand(
+        self, demand_by_sectors, distribution, rebuilding_industries
+    ):
+        multi_index = pd.MultiIndex.from_product(
+            [self.sim.model.regions, rebuilding_industries],
+            names=["region", "rebuilding sector"],
+        )
         demand_by_sectors = demand_by_sectors.reindex(multi_index, level=1)
         if (distribution.index.sort_values() != multi_index.sort_values()).any():
             distribution = distribution.reindex(multi_index, level=0)
@@ -1477,10 +1543,15 @@ class EventTracker:
     def rebuild_dem_indus_distribution(self, value: pd.DataFrame):
         self._rebuild_dem_indus_distribution = value
         if self.rebuild_demand_indus is not None:
-            self._distributed_reb_dem_indus = _thin_to_wide(self._compute_distributed_demand(self.rebuild_demand_indus, self._rebuild_dem_indus_distribution, self.event.rebuilding_sectors.index),
-                                                            long_index=self.sim.model.industries,
-                                                            long_columns=self.sim.model.industries
-                                                            )
+            self._distributed_reb_dem_indus = _thin_to_wide(
+                self._compute_distributed_demand(
+                    self.rebuild_demand_indus,
+                    self._rebuild_dem_indus_distribution,
+                    self.event.rebuilding_sectors.index,
+                ),
+                long_index=self.sim.model.industries,
+                long_columns=self.sim.model.industries,
+            )
 
     @property
     def distributed_reb_dem_indus(self) -> pd.DataFrame | None:
@@ -1495,16 +1566,18 @@ class EventTracker:
             raise ValueError("The event is not a rebuilding event.")
         self._distributed_reb_dem_indus -= reb_prod
         precision = int(math.log10(self.event.event_monetary_factor)) + 1
-        self._distributed_reb_dem_indus  = self._distributed_reb_dem_indus.round(precision)
-        self._distributed_reb_dem_indus[self._distributed_reb_dem_indus<0] = 0.0
+        self._distributed_reb_dem_indus = self._distributed_reb_dem_indus.round(
+            precision
+        )
+        self._distributed_reb_dem_indus[self._distributed_reb_dem_indus < 0] = 0.0
         if not self._distributed_reb_dem_indus.values.any():
             self._distributed_reb_dem_indus = None
             self._rebuild_demand_indus = None
             self._indus_dmg = None
         else:
-            self._rebuild_demand_indus = (
-                self._distributed_reb_dem_indus.groupby("region").sum()
-            )
+            self._rebuild_demand_indus = self._distributed_reb_dem_indus.groupby(
+                "region"
+            ).sum()
             self._indus_dmg = (
                 self._rebuild_demand_indus.sum(axis=0) / self.event.rebuilding_factor
             )
@@ -1540,38 +1613,50 @@ class EventTracker:
             raise ValueError("The event is not a rebuilding event.")
         self._distributed_reb_dem_house -= reb_prod
         precision = int(math.log10(self.event.event_monetary_factor)) + 1
-        self._distributed_reb_dem_house  = self._distributed_reb_dem_house.round(precision)
-        self._distributed_reb_dem_house[self._distributed_reb_dem_house<0] = 0.0
+        self._distributed_reb_dem_house = self._distributed_reb_dem_house.round(
+            precision
+        )
+        self._distributed_reb_dem_house[self._distributed_reb_dem_house < 0] = 0.0
         if not self._distributed_reb_dem_house.values.any():
             self._distributed_reb_dem_house = None
             self._rebuild_demand_house = None
             self._house_dmg = None
         else:
-            self._rebuild_demand_house = (
-                self._distributed_reb_dem_house.groupby("region").sum()
-            )
+            self._rebuild_demand_house = self._distributed_reb_dem_house.groupby(
+                "region"
+            ).sum()
             self._house_dmg = (
                 self._rebuild_demand_house.sum(axis=0) / self.event.rebuilding_factor
             )
 
     def recover(self):
-        if not isinstance(self.event, (EventKapitalRecover,EventArbitraryProd)):
+        if not isinstance(self.event, (EventKapitalRecover, EventArbitraryProd)):
             raise ValueError("The event is not a recoverable event.")
         if isinstance(self.event, EventKapitalRecover):
             precision = int(math.log10(self.event.event_monetary_factor)) + 1
             if self._indus_dmg is not None:
-                self._indus_dmg = self._recovery_function_indus(self.sim.current_temporal_unit).round(precision)
+                self._indus_dmg = self._recovery_function_indus(
+                    self.sim.current_temporal_unit
+                ).round(precision)
                 if not self._indus_dmg.any():
                     self._indus_dmg = None
             if self._house_dmg is not None:
-                self._house_dmg = self._recovery_function_house(self.sim.current_temporal_unit).round(precision)
+                self._house_dmg = self._recovery_function_house(
+                    self.sim.current_temporal_unit
+                ).round(precision)
                 if not self._house_dmg.any():
                     self._house_dmg = None
         if self._prod_delta_from_arb is not None:
-            self._prod_delta_from_arb = self._recovery_function_arb_delta(self.sim.current_temporal_unit).round(6)
+            self._prod_delta_from_arb = self._recovery_function_arb_delta(
+                self.sim.current_temporal_unit
+            ).round(6)
             if not self._prod_delta_from_arb.any():
                 self._prod_delta_from_arb = None
-        if self._indus_dmg is None and self._house_dmg is None and self._prod_delta_from_arb is None:
+        if (
+            self._indus_dmg is None
+            and self._house_dmg is None
+            and self._prod_delta_from_arb is None
+        ):
             self._status = "finished"
 
     @property

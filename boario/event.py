@@ -59,6 +59,7 @@ REBUILDING_FINALDEMAND_CAT_REGEX = (
 
 LOW_DEMAND_THRESH = 10
 
+
 @overload
 def from_series(
     impact: pd.Series,
@@ -76,6 +77,7 @@ def from_series(
     rebuilding_factor: float | None = 1.0,
 ) -> EventKapitalRecover: ...
 
+
 @overload
 def from_series(
     impact: pd.Series,
@@ -92,6 +94,7 @@ def from_series(
     rebuilding_sectors: dict[str, float] | pd.Series | None = None,
     rebuilding_factor: float | None = 1.0,
 ) -> EventKapitalRebuild: ...
+
 
 def from_series(
     impact: pd.Series,
@@ -490,7 +493,9 @@ class Event(ABC):
     @classmethod
     def _distribute_impact(cls, impact_vec: pd.Series, distrib: pd.Series) -> pd.Series:
         if not isinstance(impact_vec, pd.Series):
-            raise ValueError(f"Impact vector has to be a Series not a {type(impact_vec)}.")
+            raise ValueError(
+                f"Impact vector has to be a Series not a {type(impact_vec)}."
+            )
         if impact_vec.size < 1:
             raise ValueError(f"Impact vector cannot be null sized.")
         if distrib.sum() != 1.0:
@@ -498,7 +503,9 @@ class Event(ABC):
 
         ret = impact_vec * distrib
         if ret.hasnans:
-            raise ValueError("Products of impact vector and distrib lead to NaNs, check index matching and values.")
+            raise ValueError(
+                "Products of impact vector and distrib lead to NaNs, check index matching and values."
+            )
         return ret
 
     @classmethod
@@ -518,8 +525,12 @@ class Event(ABC):
         affected_industries = cls._build_industries_idx(
             affected_regions, affected_sectors
         )
-        regional_distrib = cls._level_distrib(affected_industries.levels[0], impact_regional_distrib)
-        sectoral_distrib = cls._level_distrib(affected_industries.levels[1], impact_sectoral_distrib)
+        regional_distrib = cls._level_distrib(
+            affected_industries.levels[0], impact_regional_distrib
+        )
+        sectoral_distrib = cls._level_distrib(
+            affected_industries.levels[1], impact_sectoral_distrib
+        )
         industries_distrib = pd.Series(
             np.outer(regional_distrib.values, sectoral_distrib.values).flatten(),  # type: ignore
             index=pd.MultiIndex.from_product(
@@ -581,11 +592,13 @@ class Event(ABC):
         affected_idx: List[str] | pd.Index | pd.MultiIndex,
         distrib: Literal["equal"] | pd.Series,
     ):
-        if isinstance(distrib,str) and distrib == "equal":
+        if isinstance(distrib, str) and distrib == "equal":
             return cls._distrib_equi_level(affected_idx)
         else:
             if not isinstance(distrib, pd.Series):
-                raise ValueError("The given impact distribution is incorrect. (Pandas Series required).")
+                raise ValueError(
+                    "The given impact distribution is incorrect. (Pandas Series required)."
+                )
             affected_idx = pd.Index(affected_idx)
             if not affected_idx.isin(distrib.index).all():
                 raise ValueError(
@@ -626,16 +639,16 @@ class Event(ABC):
     @impact.setter
     def impact(self, value: pd.Series):
         self._impact_df = value
-        self._impact_df.rename_axis(index=["region","sector"], inplace=True)
+        self._impact_df.rename_axis(index=["region", "sector"], inplace=True)
         logger.debug("Sorting impact Series")
         self._impact_df.sort_index(inplace=True)
         tmp_idx = self.impact.loc[self.impact > 0].index
         if not isinstance(tmp_idx, pd.MultiIndex):
             raise ValueError("The impact series does not have a MultiIndex index.")
-        self._aff_industries : pd.MultiIndex = tmp_idx
+        self._aff_industries: pd.MultiIndex = tmp_idx
         self._aff_regions = self._aff_industries.get_level_values("region").unique()
         self._aff_sectors = self._aff_industries.get_level_values("sector").unique()
-        tmp = self.impact.transform( lambda x: x / sum(x), axis=0 )
+        tmp = self.impact.transform(lambda x: x / sum(x), axis=0)
         self.impact_industries_distrib = tmp
         self.total_impact = self.impact.sum()
 
@@ -648,9 +661,7 @@ class Event(ABC):
     @occurrence.setter
     def occurrence(self, value: int):
         if not value > 0:
-            raise ValueError(
-                "Occurrence of event cannot be negative or null."
-            )
+            raise ValueError("Occurrence of event cannot be negative or null.")
         else:
             logger.debug(f"Setting occurrence to {value}")
             self._occur = value
@@ -664,9 +675,7 @@ class Event(ABC):
     @duration.setter
     def duration(self, value: int):
         if not value > 0:
-            raise ValueError(
-                "Duration of event cannot be negative or null."
-            )
+            raise ValueError("Duration of event cannot be negative or null.")
         else:
             logger.debug(f"Setting duration to {value}")
             self._duration = value
@@ -767,8 +776,10 @@ class EventKapitalDestroyed(Event, ABC):
             f"Total impact on productive capital is {self.total_productive_capital_destroyed} (with monetary factor: {self.event_monetary_factor})"
         )
         if households_impact is not None:
-            if not isinstance(households_impact,pd.Series):
-                raise ValueError("Households impacts have to be a Series with regions and sectors affected as multiindex.")
+            if not isinstance(households_impact, pd.Series):
+                raise ValueError(
+                    "Households impacts have to be a Series with regions and sectors affected as multiindex."
+                )
             self._check_negligeable_impact(households_impact)
             self.impact_households = households_impact
         if self.impact_households is not None:
@@ -791,11 +802,12 @@ class EventKapitalDestroyed(Event, ABC):
                 "Impact is too small to be considered by the model. Check you units perhaps ?"
             )
         if negligeable := (
-                impact < LOW_DEMAND_THRESH / self.event_monetary_factor
+            impact < LOW_DEMAND_THRESH / self.event_monetary_factor
         ).sum():
             logger.warning(
                 f"Impact for some industries ({negligeable} total), is smaller than {LOW_DEMAND_THRESH / self.event_monetary_factor} and will be considered as 0. by the model."
             )
+
 
 class EventKapitalRebuild(EventKapitalDestroyed):
     r"""EventKapitalRebuild holds a :py:class:`EventKapitalDestroyed` event where the destroyed capital requires to be rebuilt, and creates a reconstruction demand.
@@ -839,8 +851,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         self.rebuilding_sectors = rebuilding_sectors
         self.rebuilding_factor = rebuilding_factor
         self.event_dict["rebuilding_sectors"] = {
-            sec: share
-            for sec, share in self.rebuilding_sectors.items()
+            sec: share for sec, share in self.rebuilding_sectors.items()
         }
 
     @property
@@ -920,11 +931,10 @@ class EventKapitalRecover(EventKapitalDestroyed):
         return self._recovery_tau
 
     @recovery_tau.setter
-    def recovery_tau(self, value:int):
-        if  ( not isinstance(value, int) ) or (value <= 0):
+    def recovery_tau(self, value: int):
+        if (not isinstance(value, int)) or (value <= 0):
             raise ValueError(f"Invalid recovery tau: {value} (positive int required).")
         self._recovery_tau = value
-
 
     @property
     def recovery_function(self) -> Callable:
@@ -974,6 +984,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
             raise ValueError("Given recovery function is not a str or callable")
 
         self._recovery_fun = fun
+
 
 class EventArbitraryProd(Event):
     r"""An EventArbitraryProd object holds an event with arbitrary impact on production capacity.
@@ -1033,11 +1044,10 @@ class EventArbitraryProd(Event):
         return self._recovery_tau
 
     @recovery_tau.setter
-    def recovery_tau(self, value:int):
-        if  ( not isinstance(value, int) ) or (value <= 0):
+    def recovery_tau(self, value: int):
+        if (not isinstance(value, int)) or (value <= 0):
             raise ValueError(f"Invalid recovery tau: {value} (positive int required).")
         self._recovery_tau = value
-
 
     @property
     def prod_cap_delta_arbitrary(self) -> npt.NDArray:
