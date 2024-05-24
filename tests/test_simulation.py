@@ -54,6 +54,25 @@ def test_sim(test_model):
     return sim
 
 
+@pytest.mark.parametrize(
+    "region",
+    [
+        "reg1",
+        "non_exist"
+    ],
+    ids=[
+        "exist",
+        "non_exist",
+    ],
+)
+def test_event_compatibility(test_sim):
+    # error raise on invalid region
+
+    # error raise on invalid sector
+
+    # error raise on invalid occurrence
+
+
 # Tests that a Simulation object can be initialized with a valid model and default parameters.
 def test_initialize_simulation_with_valid_model_and_default_parameters(test_model):
     # Act

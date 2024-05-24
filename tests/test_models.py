@@ -6,13 +6,17 @@ import pytest
 import pymrio
 
 # import pandas for the plot
-import pandas as pd
 import numpy as np
-import numpy.testing as nptest
 
 # import the different classes
 from boario.utils.recovery_functions import *
 
+
+##### UNIT TESTS
+
+
+
+#### INTEGRATION TESTS
 
 @pytest.fixture
 def test_mrio():
@@ -57,7 +61,7 @@ class TestARIOPsiModel:
 
         assert isinstance(model.rebuild_tau, (int, np.integer))
 
-        assert np.allclose(model.Z_0, test_mrio.Z.to_numpy() * 1 / 365)
+        np.testing.assert_allclose(model.Z_0, test_mrio.Z.to_numpy() * 1 / 365)
         assert np.allclose(model.Y_0, test_mrio.Y.to_numpy() * 1 / 365)
         assert np.allclose(model.X_0, test_mrio.x.T.to_numpy().flatten() * 1 / 365)
         assert np.allclose(model.matrix_orders, test_mrio.Z.to_numpy() * 1 / 365)
