@@ -42,17 +42,17 @@ hesitate to contact the author when using the model !
 What is BoARIO ?
 =================
 
-BoARIO, is a python implementation project of the Adaptative Regional Input Output (ARIO) model [`Hallegatte 2013`_].
+BoARIO, is a python implementation project of the Adaptative Regional Input Output (ARIO) model [`Hal13`_].
 
 Its objectives are to give an accessible and inter-operable implementation of ARIO, as well as tools to visualize and analyze simulation outputs and to
 evaluate the effects of many parameters of the model.
 
-This implementation would not have been possible without the `Pymrio`_ module and amazing work of [`Stadler 2021`_]. 
+This implementation would not have been possible without the `Pymrio`_ module and amazing work of [`Sta21`_].
 
 It is still an ongoing project (in parallel with a PhD project).
 
-.. _`Stadler 2021`: https://openresearchsoftware.metajnl.com/articles/10.5334/jors.251/
-.. _`Hallegatte 2013`: https://doi.org/10.1111/j.1539-6924.2008.01046.x
+.. _`Sta21`: https://openresearchsoftware.metajnl.com/articles/10.5334/jors.251/
+.. _`Hal13`: https://doi.org/10.1111/j.1539-6924.2008.01046.x
 .. _`Pymrio`: https://pymrio.readthedocs.io/en/latest/intro.html
 
 You can find most academic literature using ARIO or related models `here <https://spjuhel.github.io/BoARIO/boario-references.html>`_
@@ -63,7 +63,7 @@ What is ARIO ?
 
 ARIO stands for Adaptive Regional Input-Output. It is an hybrid input-output / agent-based economic model,
 designed to compute indirect costs from economic shocks. Its first version dates back to 2008 and has originally
-been developed to assess the indirect costs of natural disasters (Hallegatte 2008).
+been developed to assess the indirect costs of natural disasters [`Hal08`_].
 
 In ARIO, the economy is modelled as a set of economic sectors and a set of regions.
 Each economic sector produces its generic product and draws inputs from an inventory.
