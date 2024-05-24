@@ -95,8 +95,10 @@ aspect notably allows to fully benefit from the increasing number of such tables
 are becoming available [@stadler18-exiob; @oecd-2021-oecd-inter;
 @thissen-2018-eureg; @lenzen-2012-mappin-struc].
 
-The package allows for different shocking events to be defined (shock on demand,
-shock on production, shock on both, shock involving reconstruction or not, etc).
+The package allows for different shocking events to be defined (currently,
+shocks on production or shocks on both production and demand, by including a
+demand stemming from the reconstruction effort, the inclusion of shocks on demand only
+and other types of shock will be added in future versions).
 As such, different types of case-study can be conducted (at different scope, for
 multiple or singular events). Users benefit from a precise control on aspects
 such as the distribution of the impact towards the different sectors and
