@@ -11,8 +11,10 @@ import numpy as np
 import numpy.testing as nptest
 
 # import the different classes
+import boario
 from boario.utils.recovery_functions import *
 
+boario.disable_console_logging()
 
 @pytest.fixture
 def test_mrio():
