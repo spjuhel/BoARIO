@@ -16,6 +16,8 @@ import boario.event as event
 import pandas as pd
 import pytest
 
+import boario
+
 boario.disable_console_logging()
 
 @pytest.fixture
