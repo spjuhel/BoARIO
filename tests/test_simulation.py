@@ -21,6 +21,7 @@ from boario.event import (
 )  # A class defining a shock on capital
 from boario.utils.recovery_functions import *
 
+boario.disable_console_logging()
 
 @pytest.fixture
 def test_mrio():

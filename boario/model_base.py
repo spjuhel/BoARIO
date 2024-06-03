@@ -560,7 +560,7 @@ class ARIOBaseModel:
         production_cap = production_cap * self.overprod
         if (production_cap < 0).any():
             raise ValueError(
-                "Production capacity was found negative for at least on industry"
+                "Production capacity was found negative for at least on industry. It may be caused by an impact being to important for a sector."
             )
         return production_cap
 

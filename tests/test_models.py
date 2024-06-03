@@ -12,6 +12,7 @@ import pandas as pd
 
 from boario.utils.recovery_functions import *
 
+boario.disable_console_logging()
 
 ##### UNIT TESTS
 

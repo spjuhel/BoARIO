@@ -23,12 +23,12 @@ bibliography: paper.bib
 # Summary
 
 The impacts of economic shocks (caused by natural or technological disasters for
-instance) often extend far beyond the cost of their local, direct
-consequences, as the economic perturbations they cause propagate along supply
-chains. Understanding the additional impacts and costs stemming from this
-propagation is key to design efficient risk management policies. The interest is rising
-for the evaluation of these "indirect risks" in the context of
-climate change--which leads to an increase in the average risk of weather extremes
+instance) often extend far beyond the cost of their local, direct consequences.
+Part of these indirect consequences are caused by the propagation of the economic perturbations along supply chains.
+Understanding the additional impacts and costs stemming from this propagation is
+key to design efficient risk management policies. The interest is rising for the
+evaluation of these "indirect risks" in the context of climate change--which
+leads to an increase in the average risk of weather extremes
 [@lange-2020-projec-expos], and globalized-just-in-time production processes.
 Such evaluations rely on dynamic economic models that represent the interactions
 between multiple regions and sectors. Recent research in the field argues in
@@ -41,7 +41,8 @@ not published or undocumented.
 
 The Adaptive Regional Input-Output model (or ARIO) is an hybrid input-output /
 agent-based economic model, designed to compute indirect costs consequent to
-economic shocks. Its first version dates back to 2008 and was originally developed to assess the indirect costs of natural disasters
+economic shocks. Its first version dates back to 2008 and was originally
+developed to assess the indirect costs of natural disasters
 [@hallegatte-2008-adapt-region]. ARIO is now a well-established and pivotal
 model in its field, has been used in multiple studies, and has seen several
 extensions or adaptations [@wu-2011-region-indir; @ranger-2010-asses-poten;
@@ -77,9 +78,8 @@ We found the following existing implementations:
    - The ARIO models version used in [@wang-2020-econom-footp, @guan-2020-global-suppl] are both available on [D. Wang personal repository](https://github.com/DaopingW/)
 
 We found that none of these implementation offers a comprehensive documentation, and are generally
-specific to the case study there were used for. The purpose of the `BoARIO` package is to offer
+specific to the case study they were used for. The purpose of the `BoARIO` package is to offer
 a generic, documented, easy to use, easy to extend, and replicability-oriented model for indirect impact assessment.
-
 
 The `BoARIO` package allows to easily run simulations with the ARIO model, via
 simple steps:
@@ -95,8 +95,10 @@ aspect notably allows to fully benefit from the increasing number of such tables
 are becoming available [@stadler18-exiob; @oecd-2021-oecd-inter;
 @thissen-2018-eureg; @lenzen-2012-mappin-struc].
 
-The package allows for different shocking events to be defined (shock on demand,
-shock on production, shock on both, shock involving reconstruction or not, etc).
+The package allows for different shocking events to be defined (currently,
+shocks on production or shocks on both production and demand, by including a
+demand stemming from the reconstruction effort, the inclusion of shocks on demand only
+and other types of shock will be added in future versions).
 As such, different types of case-study can be conducted (at different scope, for
 multiple or singular events). Users benefit from a precise control on aspects
 such as the distribution of the impact towards the different sectors and
@@ -119,7 +121,7 @@ better understand the dynamics associated with the propagation of economic
 impacts, for more applied-oriented case studies in risk management, or simply as
 a pedagogical tool to introduce the indirect impact modeling field.
 
-The Python implementation, accompanied by the extensive [online
+The Python implementation, accompanied by the [online
 documentation](https://spjuhel.github.io/BoARIO/) (where a more in depth
 description is available), offers an accessible interface for researchers with
 limited programming knowledge. It also aims to be modular and extensible to
@@ -129,13 +131,14 @@ platform [@gabriela-aznar-siguan-2023-8383171] to which `BoARIO` is in the
 process of being integrated.
 
 `BoARIO` is at the core of its author's PhD thesis, and was notably used in
-[@juhel-2023-robus], recently submitted to Risk Analysis. Other notable ongoing projects,
+[@juhel-2023-robus], in review process. Other notable ongoing projects,
 are:
 - an evaluation of the indirect costs of future floods at the global scope and
-comparing its to similar studies using the Acclimate and MRIA models
-[@willner-2018-global-econom; @koks-2019-macroec-impac]
-- a study on the compounding effect of indirect impacts from multiple events.
-- a technical paper on the coupling of `BoARIO` with the `CLIMADA` platform.
+comparing its results to similar studies using the Acclimate and MRIA models
+[@willner-2018-global-econom; @koks-2019-macroec-impac].
+- a study on the compounding effect of indirect impacts from multiple events,
+using time-series of tropical cyclones generated with `CLIMADA`, and comparing
+the effect of considering events as isolated or consecutive.
 
 # Status
 
@@ -144,15 +147,15 @@ developed by Samuel Juhel. The core of its development was made over the course
 of a PhD at CIRED and LMD, under the supervision of Vincent Viguié and Fabio
 D'Andrea, and funded by ADEME (the french agency for transition).
 
-`BoARIO` can be installed from pip using:
+`BoARIO` can be installed from pip or conda using:
 
     pip install boario
 
-Integration tests can be run using `pytest`
+    conda install -c conda-forge boario
 
-Although its current version is fully operational, further improvements, notably
-the implementation of additional economic mechanisms or variations of existing
-ones are already planned.
+Integration tests can be run using `pytest`.
+
+Further improvements, notably the implementation of additional economic mechanisms or variations of existing ones are already planned.
 
 # Acknowledgements
 
@@ -162,6 +165,5 @@ feedbacks on the model use. I also want to thank David N. Bresch for indirectly
 inspiring me to develop a package for more than just my personal use, and
 Alessio Ciullo, for its interest in the package, its valuable suggestions and
 the work done to integrate `BoARIO` to `CLIMADA`.
-
 
 # References

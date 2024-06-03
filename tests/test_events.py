@@ -16,6 +16,7 @@ import boario.event as event
 import pandas as pd
 import pytest
 
+boario.disable_console_logging()
 
 @pytest.fixture
 def sample_series():
