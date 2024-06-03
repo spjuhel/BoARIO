@@ -492,7 +492,7 @@ class ARIOBaseModel:
 
         self._productive_capital_lost = value
         if self._productive_capital_lost is not None:
-            tmp = np.zeros_like(self.productive_capital)
+            tmp = np.zeros_like(self.productive_capital, dtype=float)
             np.divide(
                 self._productive_capital_lost,
                 self.productive_capital,
