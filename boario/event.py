@@ -21,7 +21,6 @@ from abc import ABC, abstractmethod
 from typing import Callable, List, Literal, Optional, Tuple, Union, overload
 
 import numpy as np
-import numpy.typing as npt
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
 
@@ -72,9 +71,6 @@ def from_series(
     recovery_tau: int | None = None,
     recovery_function: str | None = "linear",
     households_impact: Impact | None = None,
-    rebuild_tau: int | None = None,
-    rebuilding_sectors: dict[str, float] | pd.Series | None = None,
-    rebuilding_factor: float | None = 1.0,
 ) -> EventKapitalRecover: ...
 
 
@@ -87,19 +83,28 @@ def from_series(
     duration: int = 1,
     name: Optional[str] = None,
     event_monetary_factor: int | None = None,
-    recovery_tau: int | None = None,
-    recovery_function: str | None = "linear",
     households_impact: Impact | None = None,
     rebuild_tau: int | None = None,
     rebuilding_sectors: dict[str, float] | pd.Series | None = None,
     rebuilding_factor: float | None = 1.0,
 ) -> EventKapitalRebuild: ...
 
+@overload
+def from_series(
+    impact: pd.Series,
+    *,
+    event_type: Literal["arbitrary"],
+    occurrence: int = 1,
+    duration: int = 1,
+    name: Optional[str] = None,
+    recovery_tau: int | None = None,
+    recovery_function: str | None = "linear",
+) -> EventArbitraryProd: ...
 
 def from_series(
     impact: pd.Series,
     *,
-    event_type: Literal["recovery"] | Literal["rebuild"],
+    event_type: Literal["recovery"] | Literal["rebuild"] | Literal["arbitrary"],
     occurrence: int = 1,
     duration: int = 1,
     name: Optional[str] = None,
@@ -1050,12 +1055,12 @@ class EventArbitraryProd(Event):
         self._recovery_tau = value
 
     @property
-    def prod_cap_delta_arbitrary(self) -> npt.NDArray:
+    def prod_cap_delta_arbitrary(self) -> pd.Series:
         r"""The optional array storing arbitrary (as in not related to productive_capital destroyed) production capacity loss"""
         return self._prod_cap_delta_arbitrary
 
     @prod_cap_delta_arbitrary.setter
-    def prod_cap_delta_arbitrary(self, value: npt.NDArray):
+    def prod_cap_delta_arbitrary(self, value: pd.Series):
         self._prod_cap_delta_arbitrary = value
 
     @property
