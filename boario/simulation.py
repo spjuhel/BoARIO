@@ -26,6 +26,7 @@ from __future__ import annotations
 from functools import cached_property, partial
 import json
 import logging
+import warnings
 import math
 import pathlib
 import tempfile
@@ -372,14 +373,14 @@ class Simulation:
                 self.n_temporal_units_simulated = self.current_temporal_unit
                 if step_res == 1:
                     self.has_crashed = True
-                    logger.warning(
+                    warnings.warn(
                         f"""Economy seems to have crashed.
                     - At step : {self.current_temporal_unit}
                     """
                     )
                     break
                 elif self._monotony_checker > 3:
-                    logger.warning(
+                    warnings.warn(
                         f"""Economy seems to have found an equilibrium
                     - At step : {self.current_temporal_unit}
                     """
@@ -391,14 +392,14 @@ class Simulation:
                 self.n_temporal_units_simulated = self.current_temporal_unit
                 if step_res == 1:
                     self.has_crashed = True
-                    logger.warning(
+                    warnings.warn(
                         f"""Economy or model seems to have crashed.
                     - At step : {self.current_temporal_unit}
                     """
                     )
                     break
                 elif self._monotony_checker > 3:
-                    logger.warning(
+                    warnings.warn(
                         f"""Economy seems to have found an equilibrium
                     - At step : {self.current_temporal_unit}
                     """
@@ -667,7 +668,7 @@ class Simulation:
                 )
         if isinstance(ev, EventKapitalDestroyed):
             if ev.event_monetary_factor != self.model.monetary_factor:
-                logger.warning(
+                warnings.warn(
                     f"Event monetary factors ({ev.event_monetary_factor}), differs from model monetary factor ({self.model.monetary_factor}). Will automatically adjust."
                 )
 

@@ -22,6 +22,7 @@ import json
 import pathlib
 import typing
 from typing import Optional
+import warnings
 
 import numpy as np
 import numpy.typing as npt
@@ -165,7 +166,7 @@ class ARIOBaseModel:
                 )
             )
         except AttributeError:
-            logger.warning(
+            warnings.warn(
                 "It seems the MRIOT you loaded doesn't have metadata to print."
             )
 
@@ -174,7 +175,7 @@ class ARIOBaseModel:
         self._set_indexes(source_mriot)
 
         if hasattr(source_mriot, "monetary_factor"):
-            logger.warning(
+            warnings.warn(
                 f"Custom monetary factor found in the mrio pickle file, continuing with this one ({getattr(source_mriot,'monetary_factor')})"
             )
             self.monetary_factor = getattr(source_mriot, "monetary_factor")
@@ -189,7 +190,7 @@ class ARIOBaseModel:
         r"""int, default 365: The (inverse of the) factor by which MRIO data should be multiplied in order to get "per temporal unit value", assuming IO data is yearly."""
 
         if self.iotable_year_to_temporal_unit_factor != 365:
-            logger.warning(
+            warnings.warn(
                 "iotable_to_daily_step_factor is not set to 365 (days). This should probably not be the case if the IO tables you use are on a yearly basis."
             )
 
@@ -260,7 +261,7 @@ class ARIOBaseModel:
         # value_added = value_added.reindex(sorted(value_added.columns), axis=1)
         if (value_added < 0).any().any():  # type: ignore
             tmp = (value_added[value_added < 0].dropna(axis=1)).columns  # type: ignore
-            logger.warning(
+            warnings.warn(
                 f"""Found negative values in the value added, will set to 0. Note that sectors with null value added are not impacted by capital destruction.
                 industries with negative VA: {tmp}
                 """
@@ -285,7 +286,7 @@ class ARIOBaseModel:
                     self.productive_capital.squeeze().sort_index().to_numpy()
                 )
         elif productive_capital_to_VA_dict is None:
-            logger.warning("No capital to VA dictionary given, considering 4/1 ratio")
+            warnings.warn("No capital to VA dictionary given, considering 4/1 ratio")
             self.capital_to_VA_ratio = 4
             self.productive_capital = self.VA_0 * self.capital_to_VA_ratio
         else:
@@ -404,8 +405,9 @@ class ARIOBaseModel:
         logger.debug(f"n_temporal_units_by_step: {self.n_temporal_units_by_step}")
         self.inv_duration = np.array(self.inventories) / self.n_temporal_units_by_step
 
+        # Note that this creates inconsistencies between inventories and inv_duration
         if (self.inv_duration <= 1).any():
-            logger.warning(
+            warnings.warn(
                 f"At least one product has inventory duration lower than the numbers of temporal units in one step ({self.n_temporal_units_by_step}), model will set it to 2 by default, but you should probably check this !"
             )
             self.inv_duration[self.inv_duration <= 1] = 2

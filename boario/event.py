@@ -804,7 +804,7 @@ class EventKapitalDestroyed(Event, ABC):
         if negligeable := (
             impact < LOW_DEMAND_THRESH / self.event_monetary_factor
         ).sum():
-            logger.warning(
+            warning.warn(
                 f"Impact for some industries ({negligeable} total), is smaller than {LOW_DEMAND_THRESH / self.event_monetary_factor} and will be considered as 0. by the model."
             )
 
