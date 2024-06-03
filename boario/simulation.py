@@ -916,7 +916,6 @@ class Simulation:
         logger.debug("Updating total production delta")
         self.update_productive_capital_lost()
         self.update_prod_cap_delta_arb()
-        self.model.update_prod_delta()
 
     @property
     def production_realised(self) -> pd.DataFrame:

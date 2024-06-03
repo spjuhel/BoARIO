@@ -213,23 +213,9 @@ class ARIOBaseModel:
         #################################################################
 
         # ####### INITIAL MRIO STATE (in step temporality) ###############
-        # We could factor this with getattr but then the linter complains
-        if source_mriot.Z is None:
-            raise ValueError(
-                "Z attribute of given MRIOT doesn't exist, this is a problem"
-            )
-        if source_mriot.Y is None:
-            raise ValueError(
-                "Y attribute of given MRIOT doesn't exist, this is a problem"
-            )
-        if source_mriot.x is None:
-            raise ValueError(
-                "x attribute of given MRIOT doesn't exist, this is a problem"
-            )
-
         self._matrix_id = np.eye(self.n_sectors)
         self._matrix_I_sum = np.tile(self._matrix_id, self.n_regions)
-        self.Z_0 = source_mriot.Z.to_numpy()
+        self.Z_0 = source_mriot.Z.to_numpy() # type: ignore
         r"""numpy.ndarray of float: 2-dim square matrix array :math:`\ioz` of size :math:`(n \times m, n \times m)` representing the daily intermediate (transaction) matrix (see :ref:`boario-math-init`)."""
 
         self.Z_C = self._matrix_I_sum @ self.Z_0
@@ -294,17 +280,19 @@ class ARIOBaseModel:
             kratio_ordered = [kratio[k] for k in sorted(kratio.keys())]
             self.capital_to_VA_ratio = np.tile(np.array(kratio_ordered), self.n_regions)
             self.productive_capital = self.VA_0 * self.capital_to_VA_ratio
-        if value_added.ndim > 1:
-            self.regional_production_share = (
-                self.VA_0
-                / value_added.sum(axis=0).groupby("region").transform("sum").to_numpy()
-            )
-        else:
-            self.regional_production_share = (
-                self.VA_0 / value_added.groupby("region").transform("sum").to_numpy()
-            )
-        self.regional_production_share = self.regional_production_share.flatten()
-        r"""numpy.ndarray of float: Array of size :math:`n \times m` representing the estimated share of a sector in its regional economy."""
+
+        # Currently not used, and dubious definition
+        # if value_added.ndim > 1:
+        #     self.regional_production_share = (
+        #         self.VA_0
+        #         / value_added.sum(axis=0).groupby("region").transform("sum").to_numpy()
+        #     )
+        # else:
+        #     self.regional_production_share = (
+        #         self.VA_0 / value_added.groupby("region").transform("sum").to_numpy()
+        #     )
+        # self.regional_production_share = self.regional_production_share.flatten()
+        # r"""numpy.ndarray of float: Array of size :math:`n \times m` representing the estimated share of a sector in its regional economy."""
 
         self.threshold_not_input = (
             self.Z_C > np.tile(self.X_0, (self.n_sectors, 1)) * TECHNOLOGY_THRESHOLD
@@ -342,10 +330,11 @@ class ARIOBaseModel:
         self.final_demand = self.Y_0.copy()
         self.rebuilding_demand = None
         self._rebuild_demand_tot = np.zeros_like(self.X_0)
-        self._prod_cap_delta_arbitrary = np.zeros_like(self.X_0)
-        self._prod_cap_delta_tot = np.zeros_like(self.X_0)
+        self._prod_cap_delta_arbitrary = None # Required to init productive_capital_lost
         self.productive_capital_lost = None
         r"""numpy.ndarray of float: Array of size :math:`n \times m` representing the estimated stock of capital currently destroyed for each industry."""
+        self.prod_cap_delta_arbitrary = None
+        r"""numpy.ndarray of float: Array of size :math:`n \times m` representing an arbitrary reduction of production capacity to each industry."""
 
         self.order_type = order_type
         #################################################################
@@ -437,19 +426,45 @@ class ARIOBaseModel:
         self.n_industries = len(self.industries)
         r"""int : The number :math:`m * n` of industries."""
 
-        try:
-            self.final_demand_cat = np.array(sorted(list(pym_mrio.get_Y_categories())))  # type: ignore
-            r"""numpy.ndarray of str: An array of the final demand categories of the model (``["Final demand"]`` if there is only one)"""
+        #try:
+        self.final_demand_cat = np.array(sorted(list(pym_mrio.get_Y_categories())))  # type: ignore
+        r"""numpy.ndarray of str: An array of the final demand categories of the model (``["Final demand"]`` if there is only one)"""
 
-            self.n_fd_cat = len(pym_mrio.get_Y_categories())  # type: ignore
-            r"""int: The numbers of final demand categories."""
+        self.n_fd_cat = len(pym_mrio.get_Y_categories())  # type: ignore
+        r"""int: The numbers of final demand categories."""
 
-        except KeyError:
-            self.n_fd_cat = 1
-            self.final_demand_cat = np.array(["Final demand"])
-        except IndexError:
-            self.n_fd_cat = 1
-            self.final_demand_cat = np.array(["Final demand"])
+        # Not required anymore?
+        # except (KeyError,IndexError):
+        #     self.n_fd_cat = 1
+        #     self.final_demand_cat = pd.Index(["Final demand"], name="category")
+
+    ##### PRODUCTION CAPACITY CHANGES #####
+    @property
+    def prod_cap_delta_tot(self) -> npt.NDArray:
+        r"""Computes and return total current production delta.
+
+        Returns
+        -------
+        npt.NDArray
+            The total production delta (ie share of production capacity lost)
+            for each industry.
+
+        """
+
+        return self._prod_cap_delta_tot
+
+    def update_prod_delta(self):
+        tmp = []
+        if self.prod_cap_delta_productive_capital is not None:
+            tmp.append(self.prod_cap_delta_productive_capital)
+
+        if self.prod_cap_delta_arbitrary is not None:
+            tmp.append(self.prod_cap_delta_arbitrary)
+
+        if tmp:
+            self._prod_cap_delta_tot = np.amax(np.stack(tmp, axis=-1), axis=1)
+        else:
+            self._prod_cap_delta_tot = np.zeros_like(self.X_0)
 
     @property
     def productive_capital_lost(self) -> npt.NDArray | None:
@@ -477,37 +492,18 @@ class ARIOBaseModel:
 
         self._productive_capital_lost = value
         if self._productive_capital_lost is not None:
+            tmp = np.zeros_like(self.productive_capital)
             np.divide(
                 self._productive_capital_lost,
                 self.productive_capital,
-                out=self._prod_cap_delta_productive_capital,
                 where=self.productive_capital != 0,
+                out=tmp
             )
+            self._prod_cap_delta_productive_capital = tmp
         else:
-            self._prod_cap_delta_productive_capital = np.zeros_like(self.X_0)
+            self._prod_cap_delta_productive_capital = None
 
-    def update_prod_delta(self):
-        tmp = []
-        if self.prod_cap_delta_productive_capital is not None:
-            tmp.append(self.prod_cap_delta_productive_capital)
-
-        if self.prod_cap_delta_arbitrary is not None:
-            tmp.append(self.prod_cap_delta_arbitrary)
-
-        self._prod_cap_delta_tot = np.amax(np.stack(tmp, axis=-1), axis=1)
-
-    @property
-    def prod_cap_delta_arbitrary(self) -> npt.NDArray | None:
-        r"""Return the possible "arbitrary" production capacity lost vector if
-        it was set.
-
-        Returns
-        -------
-        npt.NDArray
-            An array of same shape as math:`\iox`, stating the amount of production
-        capacity lost arbitrarily (ie exogenous).
-        """
-        return self._prod_cap_delta_arbitrary
+        self.update_prod_delta()
 
     @property
     def prod_cap_delta_productive_capital(self) -> npt.NDArray | None:
@@ -524,18 +520,25 @@ class ARIOBaseModel:
         return self._prod_cap_delta_productive_capital
 
     @property
-    def prod_cap_delta_tot(self) -> npt.NDArray:
-        r"""Computes and return total current production delta.
+    def prod_cap_delta_arbitrary(self) -> npt.NDArray | None:
+        r"""Return the possible "arbitrary" production capacity lost vector if
+        it was set.
 
         Returns
         -------
         npt.NDArray
-            The total production delta (ie share of production capacity lost)
-            for each industry.
-
+            An array of same shape as math:`\iox`, stating the amount of production
+        capacity lost arbitrarily (ie exogenous).
         """
+        return self._prod_cap_delta_arbitrary
 
-        return self._prod_cap_delta_tot
+    @prod_cap_delta_arbitrary.setter
+    def prod_cap_delta_arbitrary(self, value: npt.NDArray | None):
+        if value is not None:
+            if value.shape != self.X_0.shape:
+                raise ValueError(f"Incorrect shape: {self.X_0.shape} expected, got {value.shape}")
+        self._prod_cap_delta_arbitrary = value
+        self.update_prod_delta()
 
     @property
     def production_cap(self) -> npt.NDArray:
@@ -659,6 +662,8 @@ class ARIOBaseModel:
 
     @rebuild_demand.setter
     def rebuild_demand(self, value: npt.NDArray):
+        if self._n_rebuilding_events < 1 and value is not None:
+            raise RuntimeError("Cannot set a non-null rebuilding demand if the number of events is 0.")
         try:
             np.copyto(
                 self._entire_demand[
@@ -747,7 +752,9 @@ class ARIOBaseModel:
             :,
             (
                 self.n_regions * self.n_sectors + self.n_regions * self.n_fd_cat
-            ) : (  # After intermediate and final demand  # up to
+            ) : self.n_regions * self.n_sectors + self.n_regions * self.n_fd_cat + # After intermediate and final demand
+                # up to
+            (
                 self.n_regions * self.n_sectors  # indus demand
             )
             * self._n_rebuilding_events,  # times events
@@ -822,6 +829,8 @@ class ARIOBaseModel:
         self._rebuild_prod = value
         if value is not None:
             self._rebuild_prod_tot = _fast_sum(value, axis=1)
+        else:
+            self._rebuild_prod_tot = None
 
     @property
     def production_opt(self) -> npt.NDArray:
@@ -879,16 +888,12 @@ class ARIOBaseModel:
                 where=(self.threshold_not_input * (inventory_constraints != 0)),
             )
             production_ratio_stock[production_ratio_stock > 1] = 1
-            if (production_ratio_stock < 1).any():
-                production_max = (
-                    np.tile(production_opt, (self.n_sectors, 1))
-                    * production_ratio_stock
-                )
-                assert not (np.min(production_max, axis=0) < 0).any()
-                self.production = np.min(production_max, axis=0)
-            else:
-                assert not (production_opt < 0).any()
-                self.production = production_opt
+            production_max = (
+                np.tile(production_opt, (self.n_sectors, 1))
+                * production_ratio_stock
+            )
+            assert not (np.min(production_max, axis=0) < 0).any()
+            self.production = np.min(production_max, axis=0)
         else:
             if self.in_shortage:
                 self.in_shortage = False
