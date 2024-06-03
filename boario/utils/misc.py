@@ -153,20 +153,20 @@ def lexico_reindex(mriot: pymrio.IOSystem) -> pymrio.IOSystem:
 
     """
     mriot = copy.deepcopy(mriot)
-    if mriot.Z is None:
+    if getattr(mriot,"Z",None) is None:
         raise ValueError("Given mriot has no Z attribute set")
     mriot.Z = mriot.Z.reindex(sorted(mriot.Z.index), axis=0)
     mriot.Z = mriot.Z.reindex(sorted(mriot.Z.columns), axis=1)
-    if mriot.Y is None:
+    if getattr(mriot,"Y",None) is None:
         raise ValueError("Given mriot has no Y attribute set")
     mriot.Y = mriot.Y.reindex(sorted(mriot.Y.index), axis=0)
     mriot.Y = mriot.Y.reindex(sorted(mriot.Y.columns), axis=1)
-    if mriot.x is None:
+    if getattr(mriot,"x",None) is None:
         raise ValueError("Given mriot has no x attribute set")
     mriot.x = mriot.x.reindex(
         sorted(mriot.x.index), axis=0
     )  # ignore type (wrong type hinting in pymrio)
-    if mriot.A is None:
+    if getattr(mriot,"A",None) is None:
         raise ValueError("Given mriot has no A attribute set")
     mriot.A = mriot.A.reindex(sorted(mriot.A.index), axis=0)
     mriot.A = mriot.A.reindex(sorted(mriot.A.columns), axis=1)
