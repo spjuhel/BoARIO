@@ -494,7 +494,7 @@ class Event(ABC):
         Event
             An Event object or one of its subclass.
         """
-        if not isinstance(impact, (int,float)):
+        if not isinstance(impact, (int, float)):
             raise ValueError("Impact is not scalar.")
 
         if impact <= 0:
