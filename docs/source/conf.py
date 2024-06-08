@@ -54,6 +54,8 @@ napoleon_google_docstring = False
 napoleon_use_param = False
 napoleon_use_ivar = False
 
+nbsphinx_kernel_name = "boario"
+
 # automatically generate api references
 autosummary_generate = ["boario-api-reference.rst"]
 

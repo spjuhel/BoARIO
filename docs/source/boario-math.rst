@@ -6,12 +6,12 @@ Model description
 
 Background and overview
 =======================
-	 	 	 	
+
 Adaptive Regional Input-Output (ARIO) is an I-O model, designed to compute indirect
 costs from exogenous shocks. Its first version dates back to 2008 and has originally
-been developed to assess the indirect costs of natural disasters (Hallegatte 2008).
+been developed to assess the indirect costs of natural disasters :cite:`2008:hallegatte`.
 In this paper we present BoARIO, a generic python implementation, similar to the one
-described in (Hallegatte 2014) with some additions (e.g. inspired by Guan et al. 2020).
+described in :cite:`2013:hallegatte` with some additions (e.g. inspired by :cite:`2020:guan`).
 
 The economy is modelled as a set of economic sectors and a set of regions.
 In the following, we call an industry a specific (sector, region) couple.
@@ -23,11 +23,11 @@ An initial equilibrium state of the economy is built based on multi-regional
 input-output tables (MRIO tables). Apart from parameters specific to the MRIOT
 region-sector typology, BoARIO supposedly handles any MRIOT in the same manner.
 
-Multiple kinds of shocks can be implemented: 
+Multiple kinds of shocks can be implemented:
 
 * On the production capacity directly (one or multiple industries are arbitrarily
   forced to produce less)
-* On the productive capital (one or multiple industries arbitrarily 
+* On the productive capital (one or multiple industries arbitrarily
   lose some part of their factors of production and are thus forced to both
   produce less and to build back their capital stock).
 * On the households (households of affected regions lose some part of their goods and
@@ -45,7 +45,7 @@ industries adjust their production and orders based on both demand and their inv
 Direct economic impact consists in the valuation of the initial exogenous shock,
 while total economic impact includes also indirect costs consequent to the propagation.
 
-Total economic impact can be measured in two ways: 
+Total economic impact can be measured in two ways:
 
 * Final demand not met, i.e. goods that households couldn’t buy due to rationing.
 * Relative production change, i.e. diminished or increased production of industries relative to their initial production.

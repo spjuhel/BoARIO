@@ -303,13 +303,14 @@ class Simulation:
             "n_temporal_units_by_step": self.model.n_temporal_units_by_step,
             "year_to_temporal_unit_factor": self.model.iotable_year_to_temporal_unit_factor,
             "inventory_restoration_tau": (
-                list(self.model.restoration_tau)
+                list(np.reciprocal(self.model.restoration_tau))
                 if isinstance(self.model, ARIOPsiModel)
                 else None
             ),
             "alpha_base": self.model.overprod_base,
             "alpha_max": self.model.overprod_max,
-            "alpha_tau": self.model.overprod_tau,
+            "alpha_tau": self.model.overprod_tau
+            * self.model.iotable_year_to_temporal_unit_factor,
             "rebuild_tau": self.model.rebuild_tau,
         }
         """dict: A dictionary saving the parameters the simulation was run with."""
@@ -416,7 +417,7 @@ class Simulation:
             self.model.write_index(self.results_storage / "jsons" / "indexes.json")
 
         self.params_dict["n_temporal_units_simulated"] = self.n_temporal_units_simulated
-        self.has_crashed = self.has_crashed
+        self.params_dict["has_crashed"] = self.has_crashed
 
         if self._save_params:
             with (
@@ -432,7 +433,10 @@ class Simulation:
                     indent=4,
                     cls=CustomNumpyEncoder,
                 )
-        logger.info("Loop complete")
+        if self.has_crashed:
+            logger.info("Loop crashed before completion.")
+        else:
+            logger.info("Loop complete")
 
     def next_step(
         self,
@@ -551,7 +555,7 @@ class Simulation:
                 ):
                     self._write_rebuild_prod()
             except RuntimeError:
-                logger.exception("An exception happened:")
+                logger.exception("An exception happened: ")
                 self.model.matrix_stock.dump(
                     self.results_storage / "matrix_stock_dump.pkl"
                 )

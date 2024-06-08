@@ -30,22 +30,58 @@ from functools import lru_cache
 __version__ = importlib.metadata.version("boario")
 __author__ = "sjuhel <pro@sjuhel.org>"
 
-# __minimum_python_version__ = "3.8"
+DEBUGFORMATTER = logging.Formatter(
+    fmt="%(asctime)s - boario - [%(levelname)s] - [%(filename)s > %(funcName)s() > %(lineno)s] - %(message)s",
+    datefmt="%H:%M:%S",
+)
+"""Debug file formatter."""
+
+INFOFORMATTER = logging.Formatter(
+    fmt="%(asctime)s - boario - [%(levelname)s] - %(message)s",
+    datefmt="%H:%M:%S",
+)
+"""Info file formatter."""
+
 
 # Create a logger object.
 logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+logger.setLevel(logging.INFO)
 
-DEBUGFORMATTER = logging.Formatter(
-    fmt="%(asctime)s [%(levelname)s] - [%(filename)s > %(funcName)s() > %(lineno)s] - %(message)s",
-    datefmt="%H:%M:%S",
-)
+# Console logger
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(INFOFORMATTER)
 
-"""Debug file formatter."""
-INFOFORMATTER = logging.Formatter(
-    fmt="%(asctime)s [%(levelname)s] - %(message)s",
-    datefmt="%H:%M:%S",
-)
+# Avoid adding multiple handlers in case of repeated imports
+if not logger.handlers:
+    logger.addHandler(ch)
+
+
+# Functions to activate/deactivate logging
+def deactivate_logging():
+    """Deactivate logging for the package."""
+    logger.disabled = True
+
+
+def activate_logging():
+    """Activate logging for the package."""
+    logger.disabled = False
+
+
+# Functions to disable/enable console logging
+def disable_console_logging():
+    """Disable console logging for the package."""
+    logger.info(
+        "Disabling logging. You can reenable it with `boario.enable_console_logging()`"
+    )
+    logger.removeHandler(ch)
+
+
+def enable_console_logging():
+    """Enable console logging for the package."""
+    if ch not in logger.handlers:
+        logger.addHandler(ch)
+
 
 try:
     import pygit2
@@ -55,10 +91,15 @@ try:
         logger.info("You are using boario from branch %s", __git_branch__)
     except pygit2.GitError:
         logger.info(
-            "Could not find git branch, this is normal if you installed boario from pip."
+            "Could not find git branch, this is normal if you installed boario from pip/conda."
         )
 except ModuleNotFoundError:
     logger.info("Unable to tell git branch as pygit2 was not found.")
+
+
+logger.info(
+    "Loaded boario module. You can disable logging in console with `boario.disable_console_logging()`."
+)
 
 
 @lru_cache(10)

@@ -21,7 +21,7 @@ The length of the simulation can be set by the ``n_temporal_units_to_sim`` argum
 Running multiple simulations
 _______________________________
 
-At the moment we recommend redefining both a model and a simulation object when running multiple simulation. Running multiple simulations with the same model and simulation wrapper, using :py:meth:`Simulation.reset_sim_full()` has not been extensively tested yet, and some unwanted behavior may remain.
+At the moment we recommend redefining both a model and a simulation object when running multiple simulations. Running multiple simulations with the same model and simulation wrapper, using :py:meth:`Simulation.reset_sim_full()` has not been extensively tested yet, and some unwanted behavior may remain.
 
 
 Reading the outputs and saving files
@@ -76,7 +76,7 @@ Here is a commented list of the different variables accessible:
         # byte, -1 for False, 1 for True
         sim.limiting_inputs
 
-It is also possible to record the inputs stocks, but this is disabled by defaults as its shape is the same as
+It is also possible to record the inputs stocks, but this is disabled by default as its shape is the same as
 ``limiting_inputs``, but its ``dtype`` is ``float64``, which can very rapidly lead to huge arrays difficult to have in memory.
 
 .. code:: python
