@@ -1,6 +1,7 @@
 import re
 from boario.extended_models import ARIOPsiModel
 
+from boario.model_base import ARIOBaseModel
 from boario.utils.misc import lexico_reindex
 import pytest
 
@@ -463,4 +464,56 @@ class TestARIOPsiModel:
         np.testing.assert_array_almost_equal(model.production, model.production_opt/2)
 
     def test_calc_inventory_constraints(self, test_mrio):
+        model = ARIOBaseModel(test_mrio)
+        tmp = np.tile(
+            np.nan_to_num(model.inv_duration, posinf=0.0)[:, np.newaxis],
+            (1, model.n_regions * model.n_sectors),
+        )
+        expected = model.Z_C * tmp / 365
+        expected_2 = expected * 2
+        np.testing.assert_array_almost_equal(model.inventory_constraints_opt, expected)
+        np.testing.assert_array_almost_equal(model.inventory_constraints_act, expected)
+        np.testing.assert_array_almost_equal(model.calc_inventory_constraints(model.production * 2), expected_2)
+
         model = ARIOPsiModel(test_mrio)
+        tmp = np.tile(
+            np.nan_to_num(model.inv_duration, posinf=0.0)[:, np.newaxis],
+            (1, model.n_regions * model.n_sectors),
+        )
+        expected = model.Z_C * model.psi * tmp / 365
+        expected_2 = expected * 2
+        np.testing.assert_array_almost_equal(model.inventory_constraints_opt, expected)
+        np.testing.assert_array_almost_equal(model.inventory_constraints_act, expected)
+        np.testing.assert_array_almost_equal(model.calc_inventory_constraints(model.production * 2), expected_2)
+
+    def test_distribute_production(self, test_mrio):
+        model = ARIOBaseModel(test_mrio)
+        with pytest.raises(NotImplementedError):
+            model.distribute_production("scheme_error")
+
+        model.distribute_production()
+
+        with pytest.raises(RuntimeError):
+            model.production *= -1
+            model.distribute_production()
+
+
+        ## add test with rebuild demand
+
+    def test_calc_matrix_stock_gap(self, test_mrio):
+        model = ARIOBaseModel(test_mrio)
+        goal = model.inputs_stock
+        zeros = np.zeros_like(goal)
+        np.testing.assert_array_equal(zeros, model.calc_matrix_stock_gap(goal))
+        np.testing.assert_array_equal(goal, model.calc_matrix_stock_gap(goal*2))
+
+        model = ARIOPsiModel(test_mrio)
+        tau = np.expand_dims(model.restoration_tau, axis=1)
+        goal = model.inputs_stock
+        zeros = np.zeros_like(goal)
+        np.testing.assert_array_equal(zeros, model.calc_matrix_stock_gap(goal))
+        np.testing.assert_array_equal(goal*tau, model.calc_matrix_stock_gap(goal*2))
+
+    def test_calc_orders(self, test_mrio):
+        model = ARIOBaseModel(test_mrio)
+        model.calc_orders()
