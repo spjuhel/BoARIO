@@ -3283,20 +3283,21 @@ testing = ["covdefaults (>=2.3)", "coverage (>=7.4.4)", "defusedxml (>=0.7.1)", 
 
 [[package]]
 name = "sphinx-automodapi"
-version = "0.15.0"
+version = "0.17.0"
 description = "Sphinx extension for auto-generating API documentation for entire modules"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "sphinx-automodapi-0.15.0.tar.gz", hash = "sha256:fd5871e054df7f3e299dde959afffa849f4d01c6eac274c366b06472afcb06aa"},
-    {file = "sphinx_automodapi-0.15.0-py3-none-any.whl", hash = "sha256:06848f261fb127b25d35f27c2c4fddb041e76498733da064504f8077cbd27bec"},
+    {file = "sphinx-automodapi-0.17.0.tar.gz", hash = "sha256:7ccdadad57add4aa9149d9f2bb5cf28c8f8b590280b4735b1156ea8355c423a1"},
+    {file = "sphinx_automodapi-0.17.0-py3-none-any.whl", hash = "sha256:4d029cb79eef29413e94ab01bb0177ebd2d5ba86e9789b73575afe9c06ae1501"},
 ]
 
 [package.dependencies]
-sphinx = ">=2"
+sphinx = ">=4"
 
 [package.extras]
-test = ["codecov", "coverage", "cython", "pytest", "pytest-cov"]
+rtd = ["sphinx (<7)", "sphinx-rtd-theme"]
+test = ["coverage", "cython", "pytest", "pytest-cov", "setuptools"]
 
 [[package]]
 name = "sphinx-copybutton"
@@ -3648,4 +3649,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<4.0"
-content-hash = "a17f960ed8939cacd26cac3b49c86e4facd5f980ba8bf5c7f9cf6c52db1eb10b"
+content-hash = "183c5c2b9d9eaccc899f78910e7574d93852a4f85d18716be134015056800b2e"
