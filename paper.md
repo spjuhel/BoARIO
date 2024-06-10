@@ -133,7 +133,7 @@ process of being integrated.
 `BoARIO` is released under the open-source GPL-3.0 license and is currently
 developed by Samuel Juhel. The core of its development was made over the course
 of a PhD at CIRED and LMD, under the supervision of Vincent Viguié and Fabio
-D'Andrea, and funded by ADEME (the french agency for transition).
+D'Andrea, and funded by ADEME (the French agency for transition).
 
 `BoARIO` can be installed from PyPi or Conda-Forge using:
 
