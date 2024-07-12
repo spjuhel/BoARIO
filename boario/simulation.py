@@ -23,15 +23,18 @@ This module defines the Simulation object, which represent a BoARIO simulation e
 
 from __future__ import annotations
 
+from functools import cached_property, partial
 import json
 import logging
+import warnings
 import math
 import pathlib
 import tempfile
 from pprint import pformat
-from typing import Optional, Union
+from typing import Callable, Literal, Optional, Union, overload
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import progressbar
 
@@ -42,7 +45,10 @@ from boario.event import (
     EventKapitalDestroyed,
     EventKapitalRebuild,
     EventKapitalRecover,
+    RegionsList,
+    SectorsList,
 )
+
 from boario.extended_models import ARIOPsiModel
 from boario.model_base import ARIOBaseModel
 from boario.utils.misc import CustomNumpyEncoder, TempMemmap, print_summary, sizeof_fmt
@@ -132,7 +138,6 @@ class Simulation:
         register_stocks: bool = False,
         n_temporal_units_to_sim: int = 365,
         events_list: Optional[list[Event]] = None,
-        separate_sims: bool = False,
         save_events: bool = False,
         save_params: bool = False,
         save_index: bool = False,
@@ -154,8 +159,6 @@ class Simulation:
             The number of temporal units to simulates.
         events_list : list[Event], optional
             An optional list of events to run the simulation with [WIP].
-        separate_sims : bool, default False
-            Whether to run each event separately or during the same simulation [WIP].
         save_events: bool, default False
             If True, saves a json file of the list of events to simulate when starting the model loop.
         save_params: bool, default False
@@ -219,24 +222,18 @@ class Simulation:
         """Union[ARIOBaseModel, ARIOPsiModel] : The model to run the simulation with.
         See :class:`~boario.model_base.ARIOBaseModel`."""
 
-        self.all_events: list[Event] = events_list
+        self._event_tracking: list[EventTracker] = []
+        self._events_to_rebuild = 0
+
+        self.all_events: list[Event] = []
         """list[Event]: A list containing all events associated with the simulation."""
 
-        self.currently_happening_events: list[Event] = []
-        """list[Event]: A list containing all events that are happening at the current timestep of the simulation."""
+        if events_list is not None:
+            self.add_events(events_list)
 
-        self.events_timings = set()
-        if (
-            not isinstance(n_temporal_units_to_sim, (int, np.integer))
-            or n_temporal_units_to_sim <= 0
-        ):
-            raise ValueError(
-                f"n_temporal_units_to_sim should be a positive integer (got {n_temporal_units_to_sim} of type {type(n_temporal_units_to_sim)})"
-            )
         self.n_temporal_units_to_sim = n_temporal_units_to_sim
         """int: The total number of `temporal_units` to simulate."""
 
-        Event.temporal_unit_range = self.n_temporal_units_to_sim
         self.current_temporal_unit = 0
         """int: Tracks the number of `temporal_units` elapsed since simulation start.
         This may differs from the number of `steps` if the parameter `n_temporal_units_by_step`
@@ -377,14 +374,14 @@ class Simulation:
                 self.n_temporal_units_simulated = self.current_temporal_unit
                 if step_res == 1:
                     self.has_crashed = True
-                    logger.warning(
+                    warnings.warn(
                         f"""Economy seems to have crashed.
                     - At step : {self.current_temporal_unit}
                     """
                     )
                     break
                 elif self._monotony_checker > 3:
-                    logger.warning(
+                    warnings.warn(
                         f"""Economy seems to have found an equilibrium
                     - At step : {self.current_temporal_unit}
                     """
@@ -396,14 +393,14 @@ class Simulation:
                 self.n_temporal_units_simulated = self.current_temporal_unit
                 if step_res == 1:
                     self.has_crashed = True
-                    logger.warning(
+                    warnings.warn(
                         f"""Economy or model seems to have crashed.
                     - At step : {self.current_temporal_unit}
                     """
                     )
                     break
                 elif self._monotony_checker > 3:
-                    logger.warning(
+                    warnings.warn(
                         f"""Economy seems to have found an equilibrium
                     - At step : {self.current_temporal_unit}
                     """
@@ -538,14 +535,7 @@ class Simulation:
 
             # 2)
             try:
-                rebuildable_events = [
-                    ev
-                    for ev in self.currently_happening_events
-                    if isinstance(ev, EventKapitalRebuild) and ev.rebuildable
-                ]
-                events_to_remove = self.model.distribute_production(
-                    rebuildable_events, self.scheme
-                )
+                self.model.distribute_production(self.scheme)
                 if ("_final_demand_unmet_evolution" in self._files_to_record) or (
                     "_final_demand_unmet_evolution" in self._vars_to_record
                 ):
@@ -554,6 +544,9 @@ class Simulation:
                     "_rebuild_production_evolution" in self._vars_to_record
                 ):
                     self._write_rebuild_prod()
+                self.rebuild_events()
+                self.recover_events()
+
             except RuntimeError:
                 logger.exception("An exception happened: ")
                 self.model.matrix_stock.dump(
@@ -563,21 +556,6 @@ class Simulation:
                     f"Negative values in the stocks, matrix has been dumped in the results dir : \n {self.results_storage / 'matrix_stock_dump.pkl'}"
                 )
                 return 1
-            events_to_remove = events_to_remove + [
-                ev for ev in self.currently_happening_events if ev.over
-            ]
-            if events_to_remove:
-                self.currently_happening_events = [
-                    e
-                    for e in self.currently_happening_events
-                    if e not in events_to_remove
-                ]
-                for evnt in events_to_remove:
-                    if isinstance(evnt, EventKapitalDestroyed):
-                        logger.info(
-                            f"""Temporal_Unit : {self.current_temporal_unit} ~ Event named {evnt.name} that occured at {evnt.occurrence} in {evnt.aff_regions.to_list()} for {evnt.total_productive_capital_destroyed} damages is completely rebuilt/recovered"""
-                        )
-
             self.model.calc_orders()
 
             n_checks = self.current_temporal_unit // check_period
@@ -587,9 +565,9 @@ class Simulation:
 
             self.current_temporal_unit += self.model.n_temporal_units_by_step
             return 0
-        except Exception:
+        except Exception as err:
             logger.exception("The following exception happened:")
-            return 1
+            raise RuntimeError("An exception happened:") from err
 
     def check_equilibrium(self, n_checks: int):
         """Checks the status of production, stocks and rebuilding demand.
@@ -615,7 +593,7 @@ class Simulation:
         else:
             self.equi[(n_checks, self.current_temporal_unit, "production")] = "not equi"
 
-        if np.greater_equal(self.model.matrix_stock, self.model.matrix_stock_0).all():
+        if np.greater_equal(self.model.inputs_stock, self.model.inputs_stock_0).all():
             self.equi[(n_checks, self.current_temporal_unit, "stocks")] = "greater"
         elif np.allclose(self.model.production, self.model.X_0, atol=0.01):
             self.equi[(n_checks, self.current_temporal_unit, "stocks")] = "equi"
@@ -623,8 +601,9 @@ class Simulation:
             self.equi[(n_checks, self.current_temporal_unit, "stocks")] = "not equi"
 
         if (
-            self.model.tot_rebuild_demand is None
-            or not self.model.tot_rebuild_demand.any()
+            self.model.rebuild_demand_tot is None
+            or self.model.rebuild_demand is None
+            or not self.model.rebuild_demand.any()
         ):
             self.equi[(n_checks, self.current_temporal_unit, "rebuilding")] = "finished"
         else:
@@ -655,46 +634,53 @@ class Simulation:
         """
         if not isinstance(ev, Event):
             raise ValueError(f"Event expected, {type(ev)} received.")
+        self.event_compatibility(ev)
         self.all_events.append(ev)
-        self.events_timings.add(ev.occurrence)
+        self._event_tracking.append(EventTracker(self, ev))
 
-    def reset_sim_with_same_events(self):
-        """Resets the model to its initial status (without removing the events). [WIP]"""
-        logger.info("Resetting model to initial status (with same events)")
-        self.current_temporal_unit = 0
-        self._monotony_checker = 0
-        self._n_checks = 0
-        self.n_temporal_units_simulated = 0
-        self.has_crashed = False
-        self.equi = {
-            (int(0), int(0), "production"): "equi",
-            (int(0), int(0), "stocks"): "equi",
-            (int(0), int(0), "rebuilding"): "equi",
-        }
-        self._reset_records()
-        self.model.reset_module()
+    def event_compatibility(self, ev: Event):
+        if not 0 < ev.occurrence <= self.n_temporal_units_to_sim:
+            raise ValueError(
+                f"Occurrence of event is not in the range of simulation steps (cannot be 0) : {ev.occurrence} not in ]0-{self.n_temporal_units_to_sim}]"
+            )
+        if not 0 < ev.occurrence + ev.duration <= self.n_temporal_units_to_sim:
+            raise ValueError(
+                f"Occurrence + duration of event is not in the range of simulation steps (cannot be 0) : {ev.occurrence} not in ]0-{self.n_temporal_units_to_sim}]"
+            )
+        if (impossible_regions := self.regions_compatible(ev.aff_regions)).size > 0:
+            raise ValueError(
+                "Some affected sectors of the event are not in the model : {}".format(
+                    impossible_regions
+                )
+            )
+        if (impossible_sectors := self.sectors_compatible(ev.aff_sectors)).size > 0:
+            raise ValueError(
+                "Some affected sectors of the event are not in the model : {}".format(
+                    impossible_sectors
+                )
+            )
+        if isinstance(ev, EventKapitalRebuild):
+            if (
+                impossible_sectors := self.sectors_compatible(
+                    ev.rebuilding_sectors.index
+                )
+            ).size > 0:
+                raise ValueError(
+                    "Some affected sectors of the event are not in the model : {}".format(
+                        impossible_sectors
+                    )
+                )
+        if isinstance(ev, EventKapitalDestroyed):
+            if ev.event_monetary_factor != self.model.monetary_factor:
+                warnings.warn(
+                    f"Event monetary factors ({ev.event_monetary_factor}), differs from model monetary factor ({self.model.monetary_factor}). Will automatically adjust."
+                )
 
-    def reset_sim_full(self):
-        """Resets the model to its initial status and remove all events."""
+    def regions_compatible(self, regions: RegionsList):
+        return np.setdiff1d(regions, self.model.regions)
 
-        self.reset_sim_with_same_events()
-        logger.info("Resetting events")
-        self.all_events = []
-        self.currently_happening_events = []
-        self.events_timings = set()
-
-    def write_index(self, index_file: Union[str, pathlib.Path]):
-        """Write the index of the dataframes used in the model in a json file.
-
-        See :meth:`~boario.model_base.ARIOBaseModel.write_index` for a more detailed documentation.
-
-        Parameters
-        ----------
-        index_file : Union[str, pathlib.Path]
-            name of the file to save the indexes to.
-
-        """
-        self.model.write_index(index_file)
+    def sectors_compatible(self, sectors: SectorsList):
+        return np.setdiff1d(sectors, self.model.sectors)
 
     def _check_happening_events(self) -> None:
         """Updates the status of all events.
@@ -704,152 +690,236 @@ class Simulation:
         rebuild/recover)
 
         """
-        for evnt in self.all_events:
-            if not evnt.happened:
+        new_reb_event = False
+        for event_tracker in self._event_tracking:
+            if event_tracker.status == "pending":
                 if (
                     (self.current_temporal_unit - self.model.n_temporal_units_by_step)
-                    <= evnt.occurrence
+                    <= event_tracker.event.occurrence
                     <= self.current_temporal_unit
                 ):
                     logger.info(
                         f"Temporal_Unit : {self.current_temporal_unit} ~ Shocking model with new event"
                     )
-                    logger.info(f"Affected regions are : {evnt.aff_regions.to_list()}")
-                    evnt.happened = True
-                    self.currently_happening_events.append(evnt)
-        for evnt in self.currently_happening_events:
-            if isinstance(evnt, EventKapitalRebuild):
-                evnt.rebuildable = self.current_temporal_unit
-            if isinstance(evnt, (EventKapitalRecover, EventArbitraryProd)):
-                evnt.recoverable = self.current_temporal_unit
-                if evnt.recoverable:
-                    evnt.recovery(self.current_temporal_unit)
-        self.model.update_system_from_events(self.currently_happening_events)
-
-    def _write_production(self) -> None:
-        """Saves the current production vector to the memmap."""
-        self._production_evolution[self.current_temporal_unit] = self.model.production
-
-    def _write_rebuild_prod(self) -> None:
-        """Saves the current rebuilding production vector to the memmap."""
-        logger.debug(
-            f"self._rebuild_production_evolution shape : {self._rebuild_production_evolution.shape}, self.model.rebuild_prod shape : {self.model.rebuild_prod.shape}"
-        )
-        self._rebuild_production_evolution[self.current_temporal_unit] = (
-            self.model.rebuild_prod
-        )
-
-    def _write_productive_capital_lost(self) -> None:
-        """Saves the current remaining productive_capital to rebuild vector to the memmap."""
-        self._regional_sectoral_productive_capital_destroyed_evolution[
-            self.current_temporal_unit
-        ] = self.model.productive_capital_lost
-
-    def _write_production_max(self) -> None:
-        """Saves the current production capacity vector to the memmap."""
-        self._production_cap_evolution[self.current_temporal_unit] = (
-            self.model.production_cap
-        )
-
-    def _write_io_demand(self) -> None:
-        """Saves the current (total per industry) intermediate demand vector to the memmap."""
-        self._io_demand_evolution[self.current_temporal_unit] = (
-            self.model.matrix_orders.sum(axis=1)
-        )
-
-    def _write_final_demand(self) -> None:
-        """Saves the current (total per industry) final demand vector to the memmap."""
-        self._final_demand_evolution[self.current_temporal_unit] = (
-            self.model.final_demand.sum(axis=1)
-        )
-
-    def _write_rebuild_demand(self) -> None:
-        """Saves the current (total per industry) rebuilding demand vector to the memmap."""
-        to_write = np.full(self.model.n_regions * self.model.n_sectors, 0.0)
-        if len(r_dem := self.model.tot_rebuild_demand) > 0:
-            self._rebuild_demand_evolution[self.current_temporal_unit] = r_dem  # type: ignore
-        else:
-            self._rebuild_demand_evolution[self.current_temporal_unit] = to_write  # type: ignore
-
-    def _write_overproduction(self) -> None:
-        """Saves the current overproduction vector to the memmap."""
-        self._overproduction_evolution[self.current_temporal_unit] = self.model.overprod
-
-    def _write_final_demand_unmet(self) -> None:
-        """Saves the unmet final demand (for this step) vector to the memmap."""
-        self._final_demand_unmet_evolution[self.current_temporal_unit] = (
-            self.model.final_demand_not_met
-        )
-
-    def _write_stocks(self) -> None:
-        """Saves the current inputs stock matrix to the memmap."""
-        self._inputs_evolution[self.current_temporal_unit] = self.model.matrix_stock
-
-    def _write_limiting_stocks(self, limiting_stock: np.ndarray) -> None:
-        """Saves the current limiting inputs matrix to the memmap."""
-        self._limiting_inputs_evolution[self.current_temporal_unit] = limiting_stock  # type: ignore
-
-    def _flush_memmaps(self) -> None:
-        """Saves files to record"""
-        for attr in self._files_to_record:
-            if not hasattr(self, attr):
-                raise RuntimeError(
-                    f"{attr} should be a member yet it isn't. This shouldn't happen."
-                )
-            else:
-                getattr(self, attr).flush()
-
-    def _init_records(self, save_records):
-        for rec in self.__possible_records:
-            if rec == "inputs_stocks" and not self._register_stocks:
-                logger.debug("Will not save inputs stocks")
-            else:
-                if rec == "inputs_stocks":
                     logger.info(
-                        f"Simulation will save inputs stocks. Estimated size is {sizeof_fmt(self.n_temporal_units_to_sim * self.model.n_sectors * self.model.n_sectors * self.model.n_regions * 64)}"
+                        f"Affected regions are : {event_tracker.event.aff_regions.to_list()}"
                     )
-                save = rec in save_records
-                filename = rec
-                dtype, attr_name, shapev, fillv = self.__file_save_array_specs[rec]
-                if shapev == "industries":
-                    shape = (
-                        self.n_temporal_units_to_sim,
-                        self.model.n_sectors * self.model.n_regions,
-                    )
-                elif shapev == "stocks":
-                    shape = (
-                        self.n_temporal_units_to_sim,
-                        self.model.n_sectors,
-                        self.model.n_sectors * self.model.n_regions,
-                    )
-                else:
-                    raise RuntimeError(f"shapev {shapev} unrecognised")
-                if save:
-                    memmap_array = TempMemmap(
-                        filename=(self.records_storage / filename),
-                        dtype=dtype,
-                        mode="w+",
-                        shape=shape,
-                        save=save,
-                    )
-                    self._files_to_record.append(attr_name)
-                else:
-                    memmap_array = np.ndarray(shape=shape, dtype=dtype, order="C")
-                    self._vars_to_record.append(attr_name)
-                memmap_array.fill(fillv)
-                setattr(self, attr_name, memmap_array)
+                    event_tracker._status = "happening"
+        for event_tracker in self._event_tracking:
+            if event_tracker.status == "happening":
+                if self.current_temporal_unit >= (
+                    event_tracker.event.occurrence + event_tracker.event.duration
+                ):
+                    if isinstance(event_tracker.event, EventKapitalRebuild):
+                        new_reb_event = True
+                        self.model._n_rebuilding_events += 1
+                        event_tracker._rebuild_id = self.model._n_rebuilding_events - 1
+                        event_tracker._status = "rebuilding"
+                        logger.info(
+                            "Temporal_Unit : {} ~ Event named {} that occurred at {} in {} for {} damages has started rebuilding".format(
+                                self.current_temporal_unit,
+                                event_tracker.event.name,
+                                event_tracker.event.occurrence,
+                                event_tracker.event.aff_regions.to_list(),
+                                event_tracker.impact_vector.sum(),
+                            )
+                        )
 
-    def _reset_records(
-        self,
-    ):
-        for rec in self.__possible_records:
-            _, attr_name, _, fillv = self.__file_save_array_specs[rec]
-            if rec == "input_stocks" and not self._register_stocks:
-                pass
-            else:
-                memmap_array = getattr(self, attr_name)
-                memmap_array.fill(fillv)
-                setattr(self, attr_name, memmap_array)
+                    elif isinstance(
+                        event_tracker, (EventKapitalRecover, EventArbitraryProd)
+                    ):
+                        event_tracker._status = "recovering"
+                        logger.info(
+                            "Temporal_Unit : {} ~ Event named {} that occurred at {} in {} for {} damages has started recovering".format(
+                                self.current_temporal_unit,
+                                event_tracker.event.name,
+                                event_tracker.event.occurrence,
+                                event_tracker.event.aff_regions.to_list(),
+                                event_tracker.impact_vector.sum(),
+                            )
+                        )
+
+                    else:
+                        event_tracker._status = "finished"
+                        logger.info(
+                            "Temporal_Unit : {} ~ Event named {} that occurred at {} in {} is now considered finished".format(
+                                self.current_temporal_unit,
+                                event_tracker.event.name,
+                                event_tracker.event.occurrence,
+                                event_tracker.event.aff_regions.to_list(),
+                            )
+                        )
+
+        self.update_prod_cap_delta_tot()
+        if new_reb_event:
+            self.model._chg_events_number()
+            self.update_rebuild_demand()
+
+    def rebuild_events(self):
+        events_rebuilt_ids = []
+        for event_tracker in self._event_tracking:
+            if event_tracker.status == "rebuilding":
+                if event_tracker._rebuild_id is None:
+                    raise RuntimeError(
+                        "Rebuilding event has no rebuilding id, which should not happen."
+                    )
+                assert self.model.rebuild_prod is not None
+                event_tracker.receive_indus_rebuilding(
+                    self.model.rebuild_prod_indus_event(event_tracker._rebuild_id)
+                )
+
+                if event_tracker.rebuild_demand_house is not None:
+                    event_tracker.receive_indus_rebuilding(
+                        self.model.rebuild_prod_house_event(event_tracker._rebuild_id)
+                    )
+                if (
+                    event_tracker._house_dmg is None
+                    and event_tracker._indus_dmg is None
+                ):
+                    event_tracker._status = "finished"
+                    events_rebuilt_ids.append(event_tracker._rebuild_id)
+                    self._events_to_rebuild -= 1
+
+        if len(events_rebuilt_ids) > 0:
+            events_rebuilt_ids = sorted(events_rebuilt_ids)
+            non_reb_events = sorted([ev for ev in self._event_tracking if ev._rebuild_id is not None and ev._rebuild_id not in events_rebuilt_ids], key=lambda x: x._rebuild_id)  # type: ignore # Because lsp cannot understand rebuild_id is not none here.
+            for ev_to_rm in events_rebuilt_ids:
+                for evnt_trck in non_reb_events:
+                    if evnt_trck._rebuild_id > ev_to_rm:
+                        evnt_trck._rebuild_id -= 1
+
+    def recover_events(self):
+        for event_tracker in self._event_tracking:
+            if event_tracker.status == "recovering":
+                if event_tracker.recovery_function is None:
+                    raise RuntimeError(
+                        "Recovering event has no recovery function, which should not happen."
+                    )
+                event_tracker.recover()
+
+    def update_rebuild_demand(self):
+        r"""Computes and updates total rebuilding demand based on a list of events.
+
+        Compute and update rebuilding demand for the given list of events. Only events
+        tagged as rebuildable are accounted for. Both `house_rebuild_demand` and
+        `indus_rebuild_demand` are updated.
+
+        Parameters
+        ----------
+        events : 'list[EventKapitalRebuild]'
+            A list of EventKapitalRebuild objects
+        """
+
+        logger.debug(f"Trying to set tot_rebuilding demand from {self._event_tracking}")
+        if not isinstance(self._event_tracking, list):
+            ValueError(
+                f"Setting tot_rebuild_demand can only be done with a list of events self._event_tracking, not a {type(self._event_tracking)}"
+            )
+        _rebuilding_demand = np.zeros(
+            shape=(
+                self.model.n_regions * self.model.n_sectors,
+                (
+                    self.model.n_regions * self.model.n_sectors
+                    + self.model.n_regions * self.model.n_fd_cat
+                )
+                * self.model._n_rebuilding_events,
+            )
+        )
+        for evnt_trck in self._event_tracking:
+            if evnt_trck._rebuild_id is not None:
+                _rebuilding_demand[
+                    :,
+                    : (self.model.n_regions * self.model.n_sectors)
+                    * (evnt_trck._rebuild_id + 1),
+                ] = evnt_trck.distributed_reb_dem_indus
+                if evnt_trck.households_damages is not None:
+                    _rebuilding_demand[
+                        :,
+                        (self.model.n_regions * self.model.n_sectors)
+                        * self.model._n_rebuilding_events : (
+                            self.model.n_regions * self.model.n_sectors
+                            + self.model.n_regions * self.model.n_fd_cat
+                        )
+                        * (evnt_trck._rebuild_id + 1),
+                    ] = evnt_trck.distributed_reb_dem_house
+
+        self.model.rebuild_demand = _rebuilding_demand
+
+    def update_productive_capital_lost(self):
+        r"""Computes current capital lost and update production delta accordingly.
+
+        Computes and sets the current stock of capital lost by each industry of
+        the model due to the given list of events. Also update the production
+        capacity lost accordingly by computing the ratio of capital lost of
+        capital stock.
+
+        Parameters
+        ----------
+        source : list[EventKapitalDestroyed] | npt.NDArray
+            Either a list of events to consider for the destruction
+        of capital or directly a vector of destroyed capital for each industry.
+
+        """
+
+        logger.debug("Updating productive_capital lost from list of events")
+        source = [
+            ev
+            for ev in self._event_tracking
+            if (ev.status in ["happening", "rebuilding"])
+        ]
+        productive_capital_lost = np.add.reduce(
+            np.array([e._indus_dmg for e in source if e is not None])
+        )
+        if productive_capital_lost.size > 0:
+            self.model.productive_capital_lost = productive_capital_lost
+        else:
+            self.model.productive_capital_lost = np.zeros_like(self.model.X_0)
+
+    def update_prod_cap_delta_arb(self):
+        r"""Computes and sets the loss of production capacity from "arbitrary" sources.
+
+        .. warning::
+           If multiple events impact the same industry, only the maximum loss is
+           accounted.
+
+        Parameters
+        ----------
+        source : list[EventTracker] | npt.NDArray
+            Either a list of Event objects with arbitrary production losses
+            set, or directly a vector of production capacity loss.
+
+        """
+        source = [
+            ev
+            for ev in self._event_tracking
+            if (ev.status in ["happening", "recovering"])
+        ]
+        event_arb = np.array(
+            [
+                ev._prod_delta_from_arb
+                for ev in source
+                if ev._prod_delta_from_arb is not None
+            ]
+        )
+        if event_arb.size == 0:
+            self.model._prod_cap_delta_arbitrary = np.zeros_like(self.model.X_0)
+        else:
+            self.model._prod_cap_delta_arbitrary = np.maximum.reduce(event_arb)
+
+    def update_prod_cap_delta_tot(self):
+        r"""Computes and sets the loss of production capacity from both "arbitrary" sources and
+        capital destroyed.
+
+        Parameters
+        ----------
+        source : list[Event]
+            A list of Event objects.
+
+        """
+
+        logger.debug("Updating total production delta")
+        self.update_productive_capital_lost()
+        self.update_prod_cap_delta_arb()
 
     @property
     def production_realised(self) -> pd.DataFrame:
@@ -1017,3 +1087,666 @@ class Simulation:
             columns=self.model.industries,
             copy=True,
         ).rename_axis("step")
+
+    def reset_sim_with_same_events(self):
+        """Resets the model to its initial status (without removing the events). [WIP]"""
+        logger.info("Resetting model to initial status (with same events)")
+        self.current_temporal_unit = 0
+        self._monotony_checker = 0
+        self._n_checks = 0
+        self.n_temporal_units_simulated = 0
+        self.has_crashed = False
+        self.equi = {
+            (int(0), int(0), "production"): "equi",
+            (int(0), int(0), "stocks"): "equi",
+            (int(0), int(0), "rebuilding"): "equi",
+        }
+        self._reset_records()
+        self.model.reset_module()
+
+    def reset_sim_full(self):
+        """Resets the model to its initial status and remove all events."""
+
+        self.reset_sim_with_same_events()
+        logger.info("Resetting events")
+        self.all_events = []
+        self.currently_happening_events = []
+        self.events_timings = set()
+
+    def write_index(self, index_file: Union[str, pathlib.Path]):
+        """Write the index of the dataframes used in the model in a json file.
+
+        See :meth:`~boario.model_base.ARIOBaseModel.write_index` for a more detailed documentation.
+
+        Parameters
+        ----------
+        index_file : Union[str, pathlib.Path]
+            name of the file to save the indexes to.
+
+        """
+        self.model.write_index(index_file)
+
+    def _write_production(self) -> None:
+        """Saves the current production vector to the memmap."""
+        self._production_evolution[self.current_temporal_unit] = self.model.production
+
+    def _write_rebuild_prod(self) -> None:
+        """Saves the current rebuilding production vector to the memmap."""
+        to_write = np.full(self.model.n_regions * self.model.n_sectors, 0.0)
+        if self.model.rebuild_prod_tot is not None:
+            self._rebuild_production_evolution[self.current_temporal_unit] = (
+                self.model.rebuild_prod_tot
+            )
+        else:
+            self._rebuild_production_evolution[self.current_temporal_unit] = to_write
+
+    def _write_productive_capital_lost(self) -> None:
+        """Saves the current remaining productive_capital to rebuild vector to the memmap."""
+        self._regional_sectoral_productive_capital_destroyed_evolution[
+            self.current_temporal_unit
+        ] = self.model.productive_capital_lost
+
+    def _write_production_max(self) -> None:
+        """Saves the current production capacity vector to the memmap."""
+        self._production_cap_evolution[self.current_temporal_unit] = (
+            self.model.production_cap
+        )
+
+    def _write_io_demand(self) -> None:
+        """Saves the current (total per industry) intermediate demand vector to the memmap."""
+        self._io_demand_evolution[self.current_temporal_unit] = (
+            self.model.intermediate_demand_tot
+        )
+
+    def _write_final_demand(self) -> None:
+        """Saves the current (total per industry) final demand vector to the memmap."""
+        self._final_demand_evolution[self.current_temporal_unit] = (
+            self.model.final_demand_tot
+        )
+
+    def _write_rebuild_demand(self) -> None:
+        """Saves the current (total per industry) rebuilding demand vector to the memmap."""
+        to_write = np.full(self.model.n_regions * self.model.n_sectors, 0.0)
+        if len(r_dem := self.model.rebuild_demand_tot) > 0:
+            self._rebuild_demand_evolution[self.current_temporal_unit] = r_dem  # type: ignore
+        else:
+            self._rebuild_demand_evolution[self.current_temporal_unit] = to_write  # type: ignore
+
+    def _write_overproduction(self) -> None:
+        """Saves the current overproduction vector to the memmap."""
+        self._overproduction_evolution[self.current_temporal_unit] = self.model.overprod
+
+    def _write_final_demand_unmet(self) -> None:
+        """Saves the unmet final demand (for this step) vector to the memmap."""
+        self._final_demand_unmet_evolution[self.current_temporal_unit] = (
+            self.model.final_demand_not_met
+        )
+
+    def _write_stocks(self) -> None:
+        """Saves the current inputs stock matrix to the memmap."""
+        self._inputs_evolution[self.current_temporal_unit] = self.model.inputs_stock
+
+    def _write_limiting_stocks(self, limiting_stock: np.ndarray) -> None:
+        """Saves the current limiting inputs matrix to the memmap."""
+        self._limiting_inputs_evolution[self.current_temporal_unit] = limiting_stock  # type: ignore
+
+    def _flush_memmaps(self) -> None:
+        """Saves files to record"""
+        for attr in self._files_to_record:
+            if not hasattr(self, attr):
+                raise RuntimeError(
+                    f"{attr} should be a member yet it isn't. This shouldn't happen."
+                )
+            else:
+                getattr(self, attr).flush()
+
+    def _init_records(self, save_records):
+        for rec in self.__possible_records:
+            if rec == "inputs_stocks" and not self._register_stocks:
+                logger.debug("Will not save inputs stocks")
+            else:
+                if rec == "inputs_stocks":
+                    logger.info(
+                        f"Simulation will save inputs stocks. Estimated size is {sizeof_fmt(self.n_temporal_units_to_sim * self.model.n_sectors * self.model.n_sectors * self.model.n_regions * 64)}"
+                    )
+                save = rec in save_records
+                filename = rec
+                dtype, attr_name, shapev, fillv = self.__file_save_array_specs[rec]
+                if shapev == "industries":
+                    shape = (
+                        self.n_temporal_units_to_sim,
+                        self.model.n_sectors * self.model.n_regions,
+                    )
+                elif shapev == "stocks":
+                    shape = (
+                        self.n_temporal_units_to_sim,
+                        self.model.n_sectors,
+                        self.model.n_sectors * self.model.n_regions,
+                    )
+                else:
+                    raise RuntimeError(f"shapev {shapev} unrecognised")
+                if save:
+                    memmap_array = TempMemmap(
+                        filename=(self.records_storage / filename),
+                        dtype=dtype,
+                        mode="w+",
+                        shape=shape,
+                        save=save,
+                    )
+                    self._files_to_record.append(attr_name)
+                else:
+                    memmap_array = np.ndarray(shape=shape, dtype=dtype, order="C")
+                    self._vars_to_record.append(attr_name)
+                memmap_array.fill(fillv)
+                setattr(self, attr_name, memmap_array)
+
+    def _reset_records(
+        self,
+    ):
+        for rec in self.__possible_records:
+            _, attr_name, _, fillv = self.__file_save_array_specs[rec]
+            if rec == "input_stocks" and not self._register_stocks:
+                pass
+            else:
+                memmap_array = getattr(self, attr_name)
+                memmap_array.fill(fillv)
+                setattr(self, attr_name, memmap_array)
+
+
+@overload
+def _thin_to_wide(
+    thin: pd.Series, long_index: pd.Index, long_columns: None = None
+) -> pd.Series: ...
+
+
+@overload
+def _thin_to_wide(
+    thin: pd.DataFrame,
+    long_index: pd.Index,
+    long_columns: pd.Index,
+) -> pd.DataFrame: ...
+
+
+def _thin_to_wide(
+    thin: pd.Series | pd.DataFrame,
+    long_index: pd.Index,
+    long_columns: pd.Index | None = None,
+) -> pd.Series | pd.DataFrame:
+    if isinstance(thin, pd.Series):
+        wide = pd.Series(index=long_index, dtype=thin.dtype)
+    elif isinstance(thin, pd.DataFrame):
+        if long_columns is None:
+            raise ValueError(
+                "long_columns argument cannot be None when widening a DataFrame."
+            )
+        wide = pd.DataFrame(
+            index=long_index, columns=long_columns, dtype=thin.dtypes.iloc[0]
+        )
+    wide.fillna(0, inplace=True)
+    if isinstance(thin, pd.DataFrame):
+        wide.loc[thin.index, thin.columns] = thin.values
+    else:
+        wide.loc[thin.index] = thin.values
+    return wide
+
+
+def _equal_distribution(
+    affected: pd.Index | None, addressed_to: pd.Index
+) -> pd.DataFrame:
+    ret = pd.DataFrame(0.0, index=addressed_to, columns=affected)
+    ret.loc[affected, addressed_to] = 1 / len(addressed_to)
+    return ret
+
+
+def _normalize_distribution(
+    dist: pd.DataFrame | pd.Series, affected: pd.Index | None, addressed_to: pd.Index
+) -> pd.DataFrame:
+    ret = pd.DataFrame(0.0, index=addressed_to, columns=affected)
+    dist_sq = dist.squeeze()
+    if isinstance(dist_sq, pd.Series):
+        ret.loc[addressed_to, :] = dist_sq.loc[addressed_to].transform(
+            lambda x: x / sum(x)
+        )
+        return ret
+    elif isinstance(dist_sq, pd.DataFrame):
+        ret.loc[addressed_to, affected] = dist_sq.loc[addressed_to, affected].transform(
+            lambda x: x / sum(x)
+        )
+        return ret
+    else:
+        raise ValueError("given distribution should be a Series or a DataFrame.")
+
+
+class EventTracker:
+    """Class used to track the state variables of an event"""
+
+    def __init__(
+        self,
+        sim: Simulation,
+        source_event: Event,
+        indus_rebuild_distribution: pd.DataFrame | None | Literal["equal"] = None,
+        house_rebuild_distribution: pd.DataFrame | None | Literal["equal"] = None,
+    ):
+        self.sim: Simulation = sim
+        self.event = source_event
+        self._status: (
+            Literal["pending"]
+            | Literal["happening"]
+            | Literal["recovering"]
+            | Literal["rebuilding"]
+            | Literal["finished"]
+        ) = "pending"
+
+        self._prod_delta_from_arb_0: pd.Series | None = None
+        self._prod_delta_from_arb: pd.Series | None = None
+        self._indus_dmg_0: pd.Series | None = None
+        self._indus_dmg: pd.Series | None = None
+        self._rebuildable: bool = False
+        self._rebuild_id: int | None = None
+        self._rebuild_shares: pd.Series | None = None
+        self._rebuild_demand_indus_0: pd.DataFrame | None = None
+        self._rebuild_demand_house_0: pd.DataFrame | None = None
+        self._rebuild_demand_indus: pd.DataFrame | None = None
+        # self._reb_dem_indus_distribution: npt.NDArray | None = None
+        self._distributed_reb_dem_indus: pd.DataFrame | None = None
+        self._rebuild_demand_house: pd.DataFrame | None = None
+        # self._reb_dem_house_distribution: pd.DataFrame | None = None
+        self._distributed_reb_dem_house: pd.DataFrame | None = None
+        self._recovery_function: Callable | None = None
+        self._house_dmg_0: pd.Series | None = None
+        self._house_dmg: pd.Series | None = None
+
+        if isinstance(source_event, EventKapitalDestroyed):
+            self._indus_dmg_0 = _thin_to_wide(
+                source_event.impact.copy(), self.sim.model.industries
+            )
+            self._indus_dmg = self._indus_dmg_0.copy()
+        if isinstance(source_event, EventKapitalRebuild):
+            self._init_distrib("indus", indus_rebuild_distribution, source_event)
+            assert self._indus_dmg_0 is not None
+
+            self._rebuild_demand_indus_0 = pd.DataFrame(
+                source_event.rebuilding_sectors.values[:, None]
+                * source_event.impact.values,
+                index=source_event.rebuilding_sectors.index,
+                columns=source_event.impact.index,
+            )
+            self._rebuild_demand_indus_0.rename_axis(
+                index="rebuilding sector", inplace=True
+            )
+            self._rebuild_demand_indus_0 *= source_event.rebuilding_factor
+            self._rebuild_demand_indus = self._rebuild_demand_indus_0.copy()
+            self.rebuild_dem_indus_distribution = self._reb_dem_indus_distribution
+
+            if source_event.impact_households is not None:
+                self._house_dmg_0 = _thin_to_wide(
+                    source_event.impact_households.copy(), self.sim.model.regions
+                )
+                self._house_dmg = self._house_dmg_0.copy()
+                self._init_distrib("house", house_rebuild_distribution, source_event)
+                self._rebuild_demand_house_0 = pd.DataFrame(
+                    source_event.rebuilding_sectors.values[:, None]
+                    * source_event.impact_households.values,
+                    index=source_event.rebuilding_sectors.index,
+                    columns=source_event.impact_households.index,
+                )
+                self._rebuild_demand_house_0.rename_axis(
+                    index="rebuilding sector", inplace=True
+                )
+                self._rebuild_demand_house_0 *= source_event.rebuilding_factor
+                self._rebuild_demand_house = self._rebuild_demand_house_0.copy()
+                self.rebuild_dem_house_distribution = self._reb_dem_house_distribution
+
+        if isinstance(self.event, EventKapitalRecover):
+            self._recovery_function_indus = partial(
+                self.event.recovery_function,
+                init_impact_stock=self._indus_dmg_0,
+                recovery_time=self.event.recovery_tau,
+            )
+            if self._house_dmg_0 is not None:
+                self._recovery_function_house = partial(
+                    self.event.recovery_function,
+                    init_impact_stock=self._house_dmg_0,
+                    recovery_time=self.event.recovery_tau,
+                )
+
+        if isinstance(self.event, EventArbitraryProd):
+            self._recovery_function_arb_delta = partial(
+                self.event.recovery_function,
+                init_impact_stock=self._prod_delta_from_arb_0,
+                recovery_time=self.event.recovery_tau,
+            )
+
+    def _init_distrib(
+        self,
+        dtype: Literal["indus"] | Literal["house"],
+        distrib: pd.DataFrame | None | Literal["equal"],
+        source_event: EventKapitalRebuild,
+    ):
+        if dtype == "indus":
+            if distrib is None:
+                self._reb_dem_indus_distribution = _normalize_distribution(
+                    self.sim.model.mriot.Z,
+                    affected=self.event.aff_industries,
+                    addressed_to=pd.MultiIndex.from_product(
+                        [self.sim.model.regions, self.event.rebuilding_sectors.index],
+                        names=["region", "rebuilding sector"],
+                    ),
+                )
+            elif distrib == "equal":
+                self._reb_dem_indus_distribution = _equal_distribution(
+                    affected=self.event.aff_industries,
+                    addressed_to=pd.MultiIndex.from_product(
+                        [self.sim.model.regions, self.event.rebuilding_sectors.index],
+                        names=["region", "rebuilding sector"],
+                    ),
+                )
+            else:
+                self._reb_dem_indus_distribution = _normalize_distribution(
+                    distrib,
+                    affected=self.event.aff_industries,
+                    addressed_to=pd.MultiIndex.from_product(
+                        [self.sim.model.regions, self.event.rebuilding_sectors.index],
+                        names=["region", "rebuilding sector"],
+                    ),
+                )
+
+        if dtype == "house":
+            if distrib is None:
+                self._reb_dem_house_distribution = _normalize_distribution(
+                    self.sim.model.mriot.Y,
+                    affected=self.event.aff_regions,
+                    addressed_to=pd.MultiIndex.from_product(
+                        [self.sim.model.regions, self.event.rebuilding_sectors.index],
+                        names=["region", "rebuilding sector"],
+                    ),
+                )
+            elif distrib == "equal":
+                self._reb_dem_house_distribution = _equal_distribution(
+                    affected=self.event.aff_regions,
+                    addressed_to=pd.MultiIndex.from_product(
+                        [self.sim.model.regions, self.event.rebuilding_sectors.index],
+                        names=["region", "rebuilding sector"],
+                    ),
+                )
+            else:
+                self._reb_dem_house_distribution = _normalize_distribution(
+                    distrib,
+                    affected=self.event.aff_regions,
+                    addressed_to=pd.MultiIndex.from_product(
+                        [self.sim.model.regions, self.event.rebuilding_sectors.index],
+                        names=["region", "rebuilding sector"],
+                    ),
+                )
+
+    @cached_property
+    def impact_vector(self) -> pd.Series:
+        return _thin_to_wide(self.event.impact, self.sim.model.industries)
+
+    @property
+    def productive_capital_dmg_init(self) -> pd.Series | None:
+        return self._indus_dmg_0
+
+    @property
+    def productive_capital_dmg(self) -> pd.Series | None:
+        return self._indus_dmg
+
+    @property
+    def households_damages_init(self) -> pd.Series | None:
+        return self._house_dmg_0
+
+    @property
+    def households_damages(self) -> pd.Series | None:
+        return self._house_dmg
+
+    @property
+    def rebuild_demand_indus(self) -> pd.DataFrame | None:
+        return self._rebuild_demand_indus
+
+    @property
+    def rebuild_demand_house(self) -> pd.DataFrame | None:
+        return self._rebuild_demand_house
+
+    @property
+    def prod_delta_arbitrary(self) -> pd.Series | None:
+        return self._prod_delta_from_arb
+
+    @prod_delta_arbitrary.setter
+    def prod_delta_arbitrary(self, value: pd.Series | None):
+        self._prod_delta_from_arb = value
+
+    @property
+    def status(
+        self,
+    ) -> (
+        Literal["pending"]
+        | Literal["happening"]
+        | Literal["recovering"]
+        | Literal["rebuilding"]
+        | Literal["finished"]
+    ):
+        return self._status
+
+    def _compute_distributed_demand(
+        self, demand_by_sectors, distribution, rebuilding_industries
+    ):
+        multi_index = pd.MultiIndex.from_product(
+            [self.sim.model.regions, rebuilding_industries],
+            names=["region", "rebuilding sector"],
+        )
+        demand_by_sectors = demand_by_sectors.reindex(multi_index, level=1)
+        if (distribution.index.sort_values() != multi_index.sort_values()).any():
+            distribution = distribution.reindex(multi_index, level=0)
+        return demand_by_sectors.mul(distribution)
+
+    @property
+    def rebuild_dem_indus_distribution(self) -> pd.DataFrame | None:
+        return self._reb_dem_indus_distribution
+
+    @rebuild_dem_indus_distribution.setter
+    def rebuild_dem_indus_distribution(self, value: pd.DataFrame):
+        self._rebuild_dem_indus_distribution = value
+        if self.rebuild_demand_indus is not None:
+            self._distributed_reb_dem_indus = _thin_to_wide(
+                self._compute_distributed_demand(
+                    self.rebuild_demand_indus,
+                    self._rebuild_dem_indus_distribution,
+                    self.event.rebuilding_sectors.index,
+                ),
+                long_index=self.sim.model.industries,
+                long_columns=self.sim.model.industries,
+            )
+
+    @property
+    def distributed_reb_dem_indus(self) -> pd.DataFrame | None:
+        return self._distributed_reb_dem_indus
+
+    def receive_indus_rebuilding(self, reb_prod: pd.DataFrame | npt.ArrayLike | None):
+        if reb_prod is None:
+            raise ValueError("Trying to rebuild with None rebuilding prod.")
+        if self._distributed_reb_dem_indus is None:
+            raise ValueError("The rebuilding demand of this event does not exist.")
+        if not isinstance(self.event, EventKapitalRebuild):
+            raise ValueError("The event is not a rebuilding event.")
+        self._distributed_reb_dem_indus -= reb_prod
+        precision = int(math.log10(self.event.event_monetary_factor)) + 1
+        self._distributed_reb_dem_indus = self._distributed_reb_dem_indus.round(
+            precision
+        )
+        self._distributed_reb_dem_indus[self._distributed_reb_dem_indus < 0] = 0.0
+        if not self._distributed_reb_dem_indus.values.any():
+            self._distributed_reb_dem_indus = None
+            self._rebuild_demand_indus = None
+            self._indus_dmg = None
+        else:
+            self._rebuild_demand_indus = self._distributed_reb_dem_indus.groupby(
+                "region"
+            ).sum()
+            self._indus_dmg = (
+                self._rebuild_demand_indus.sum(axis=0) / self.event.rebuilding_factor
+            )
+
+    @property
+    def rebuild_dem_house_distribution(self) -> pd.DataFrame | None:
+        return self._reb_dem_house_distribution
+
+    @rebuild_dem_house_distribution.setter
+    def rebuild_dem_house_distribution(self, value: pd.DataFrame):
+        self._rebuild_dem_house_distribution = value
+        if self.rebuild_demand_house is not None:
+            self._distributed_reb_dem_house = pd.DataFrame(
+                np.tile(self.rebuild_demand_house.values, (1, self.sim.model.n_regions))
+                * self._rebuild_dem_house_distribution.values,
+                index=self.sim.model.industries,
+                columns=self.sim.model.industries,
+            )
+
+    @property
+    def distributed_reb_dem_house(self) -> pd.DataFrame | None:
+        return self._distributed_reb_dem_house
+
+    def receive_house_rebuilding(self, reb_prod: pd.DataFrame | npt.ArrayLike | None):
+        if reb_prod is None:
+            raise ValueError("Trying to rebuild with None rebuilding prod.")
+
+        if self._distributed_reb_dem_house is None:
+            raise ValueError(
+                "The household rebuilding demand of this event does not exist."
+            )
+        if not isinstance(self.event, EventKapitalRebuild):
+            raise ValueError("The event is not a rebuilding event.")
+        self._distributed_reb_dem_house -= reb_prod
+        precision = int(math.log10(self.event.event_monetary_factor)) + 1
+        self._distributed_reb_dem_house = self._distributed_reb_dem_house.round(
+            precision
+        )
+        self._distributed_reb_dem_house[self._distributed_reb_dem_house < 0] = 0.0
+        if not self._distributed_reb_dem_house.values.any():
+            self._distributed_reb_dem_house = None
+            self._rebuild_demand_house = None
+            self._house_dmg = None
+        else:
+            self._rebuild_demand_house = self._distributed_reb_dem_house.groupby(
+                "region"
+            ).sum()
+            self._house_dmg = (
+                self._rebuild_demand_house.sum(axis=0) / self.event.rebuilding_factor
+            )
+
+    def recover(self):
+        if not isinstance(self.event, (EventKapitalRecover, EventArbitraryProd)):
+            raise ValueError("The event is not a recoverable event.")
+        if isinstance(self.event, EventKapitalRecover):
+            precision = int(math.log10(self.event.event_monetary_factor)) + 1
+            if self._indus_dmg is not None:
+                self._indus_dmg = self._recovery_function_indus(
+                    self.sim.current_temporal_unit
+                ).round(precision)
+                if not self._indus_dmg.any():
+                    self._indus_dmg = None
+            if self._house_dmg is not None:
+                self._house_dmg = self._recovery_function_house(
+                    self.sim.current_temporal_unit
+                ).round(precision)
+                if not self._house_dmg.any():
+                    self._house_dmg = None
+        if self._prod_delta_from_arb is not None:
+            self._prod_delta_from_arb = self._recovery_function_arb_delta(
+                self.sim.current_temporal_unit
+            ).round(6)
+            if not self._prod_delta_from_arb.any():
+                self._prod_delta_from_arb = None
+        if (
+            self._indus_dmg is None
+            and self._house_dmg is None
+            and self._prod_delta_from_arb is None
+        ):
+            self._status = "finished"
+
+    @property
+    def recovery_function(self):
+        return self._recovery_function
+
+    @cached_property
+    def affected_sectors_idx(self) -> npt.NDArray:
+        return np.searchsorted(self.sim.model.sectors, self.event.aff_sectors)
+
+    @cached_property
+    def affected_regions_idx(self) -> npt.NDArray:
+        impossible_regions = np.setdiff1d(
+            self.event.aff_regions, self.sim.model.regions
+        )
+        if impossible_regions.size > 0:
+            raise ValueError(
+                "Some affected regions of the event are not in the model : {}".format(
+                    impossible_regions
+                )
+            )
+        return np.searchsorted(self.sim.model.regions, self.event.aff_regions)
+
+    @cached_property
+    def affected_industries_idx(self) -> npt.NDArray:
+        return np.array(
+            [
+                np.size(self.sim.model.sectors) * ri + si
+                for ri in self.affected_regions_idx
+                for si in self.affected_sectors_idx
+            ]
+        )
+
+    @cached_property
+    def rebuilding_sectors_idx(self) -> npt.NDArray:
+        if not isinstance(self.event, EventKapitalRebuild):
+            raise ValueError(
+                "This event is not a rebuilding event and has no rebuilding sectors."
+            )
+        else:
+            impossible_sectors = np.setdiff1d(
+                self.event.rebuilding_sectors, self.sim.model.sectors
+            )
+        if impossible_sectors.size > 0:
+            raise ValueError(
+                "Some rebuilding sectors of the event are not in the model : {}".format(
+                    impossible_sectors
+                )
+            )
+        return np.searchsorted(self.sim.model.sectors, self.event.rebuilding_sectors)
+
+    @cached_property
+    def rebuilding_industries_idx_impacted(self) -> npt.NDArray:
+        rebuilding_sectors_idx = self.rebuilding_sectors_idx
+        affected_region_idx = self.affected_regions_idx
+        return np.array(
+            [
+                np.size(self.sim.model.sectors) * ri + si
+                for ri in affected_region_idx
+                for si in rebuilding_sectors_idx
+            ],
+            dtype="int64",
+        )
+
+    @cached_property
+    def rebuilding_industries_idx_not_impacted(self) -> npt.NDArray:
+        rebuilding_sectors_idx = self.rebuilding_sectors_idx
+        affected_region_idx = self.affected_regions_idx
+        return np.array(
+            [
+                np.size(self.sim.model.sectors) * ri + si
+                for ri in range(np.size(self.sim.model.regions))
+                if ri not in affected_region_idx
+                for si in rebuilding_sectors_idx
+            ],
+            dtype="int64",
+        )
+
+    @cached_property
+    def rebuilding_industries_idx_all(self) -> npt.NDArray:
+        rebuilding_sectors_idx = self.rebuilding_sectors_idx
+        return np.array(
+            [
+                np.size(self.sim.model.sectors) * ri + si
+                for ri in range(np.size(self.sim.model.regions))
+                for si in rebuilding_sectors_idx
+            ],
+            dtype="int64",
+        )

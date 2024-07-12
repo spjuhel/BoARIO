@@ -39,6 +39,7 @@ pydoclint = "^0.4.1"
 autoapi = "^2.0.1"
 sphinx-autodoc-typehints = "^2.0.0"
 numpydoc = "^1.7.0"
+pandas-stubs = "^2.2.2.240514"
 
 [build-system]
 requires = ["poetry-core"]
@@ -101,3 +102,6 @@ extend-ignore = ['E501','E203']
 
 defineConstant = { DEBUG = true }
 stubPath = "boario/stubs"
+
+[tool.pytest.ini_options]
+addopts = "--cov=boario --cov-report html"
