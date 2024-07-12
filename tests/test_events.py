@@ -10,6 +10,7 @@ from contextlib import nullcontext as does_not_raise
 
 # import pandas for the plot
 import pandas as pd
+
 # import the different classes
 import boario.event as event
 
@@ -19,6 +20,7 @@ import pytest
 import boario
 
 boario.disable_console_logging()
+
 
 @pytest.fixture
 def sample_series():
@@ -615,11 +617,11 @@ class TestEventInitScalar:
         [
             ([], "error"),
             (1, "error"),
+            (pd.Series({("RegionA", "Sector1"): 1000.0}), "error"),
             (
-                pd.Series({("RegionA", "Sector1"): 1000.0}),
-                "error"
+                pd.Series({("RegionA", "Sector1"): 0.5}),
+                pd.Series({("RegionA", "Sector1"): 0.5}),
             ),
-            (pd.Series({("RegionA", "Sector1"): 0.5}), pd.Series({("RegionA", "Sector1"): 0.5})),
         ],
     )
     def test_event_from_series_arbitrary(self, impact, expected):
@@ -636,4 +638,6 @@ class TestEventInitScalar:
                 event_type="arbitrary",
                 recovery_tau=1,
             )
-            pd.testing.assert_series_equal(event_instance.prod_cap_delta_arbitrary, expected)
+            pd.testing.assert_series_equal(
+                event_instance.prod_cap_delta_arbitrary, expected
+            )

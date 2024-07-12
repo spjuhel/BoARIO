@@ -3,33 +3,33 @@
 
 .. automodule:: boario
 
-   
-   
+
+
    .. rubric:: Module Attributes
 
    .. autosummary::
-   
-      DEBUGFORMATTER
-   
-   
 
-   
-   
+      DEBUGFORMATTER
+
+
+
+
+
    .. rubric:: Functions
 
    .. autosummary::
-   
+
       warn_once
-   
-   
 
-   
-   
-   
 
-   
-   
-   
+
+
+
+
+
+
+
+
 
 
 
@@ -44,4 +44,3 @@
    boario.extended_models
    boario.model_base
    boario.simulation
-

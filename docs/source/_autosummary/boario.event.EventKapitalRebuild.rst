@@ -8,13 +8,13 @@ EventKapitalRebuild
    :show-inheritance:
    :inherited-members:
 
-   
 
-   
+
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~EventKapitalRebuild.__init__
       ~EventKapitalRebuild.distribute_impact_by_gva
       ~EventKapitalRebuild.distribute_impact_equally
@@ -22,15 +22,15 @@ EventKapitalRebuild
       ~EventKapitalRebuild.from_scalar_industries
       ~EventKapitalRebuild.from_scalar_regions_sectors
       ~EventKapitalRebuild.from_series
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~EventKapitalRebuild.Y_distrib
       ~EventKapitalRebuild.Z_distrib
       ~EventKapitalRebuild.aff_industries
@@ -69,5 +69,3 @@ EventKapitalRebuild
       ~EventKapitalRebuild.happened
       ~EventKapitalRebuild.over
       ~EventKapitalRebuild.event_dict
-   
-   

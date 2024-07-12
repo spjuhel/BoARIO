@@ -8,13 +8,13 @@ EventKapitalDestroyed
    :show-inheritance:
    :inherited-members:
 
-   
 
-   
+
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~EventKapitalDestroyed.__init__
       ~EventKapitalDestroyed.distribute_impact_by_gva
       ~EventKapitalDestroyed.distribute_impact_equally
@@ -22,15 +22,15 @@ EventKapitalDestroyed
       ~EventKapitalDestroyed.from_scalar_industries
       ~EventKapitalDestroyed.from_scalar_regions_sectors
       ~EventKapitalDestroyed.from_series
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~EventKapitalDestroyed.Y_distrib
       ~EventKapitalDestroyed.Z_distrib
       ~EventKapitalDestroyed.aff_industries
@@ -63,5 +63,3 @@ EventKapitalDestroyed
       ~EventKapitalDestroyed.happened
       ~EventKapitalDestroyed.over
       ~EventKapitalDestroyed.event_dict
-   
-   

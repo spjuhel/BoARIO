@@ -8,13 +8,13 @@ EventKapitalRecover
    :show-inheritance:
    :inherited-members:
 
-   
 
-   
+
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~EventKapitalRecover.__init__
       ~EventKapitalRecover.distribute_impact_by_gva
       ~EventKapitalRecover.distribute_impact_equally
@@ -23,15 +23,15 @@ EventKapitalRecover
       ~EventKapitalRecover.from_scalar_regions_sectors
       ~EventKapitalRecover.from_series
       ~EventKapitalRecover.recovery
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~EventKapitalRecover.Y_distrib
       ~EventKapitalRecover.Z_distrib
       ~EventKapitalRecover.aff_industries
@@ -66,5 +66,3 @@ EventKapitalRecover
       ~EventKapitalRecover.happened
       ~EventKapitalRecover.over
       ~EventKapitalRecover.event_dict
-   
-   

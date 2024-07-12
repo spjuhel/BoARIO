@@ -215,7 +215,7 @@ class ARIOBaseModel:
         # ####### INITIAL MRIO STATE (in step temporality) ###############
         self._matrix_id = np.eye(self.n_sectors)
         self._matrix_I_sum = np.tile(self._matrix_id, self.n_regions)
-        self.Z_0 = source_mriot.Z.to_numpy() # type: ignore
+        self.Z_0 = source_mriot.Z.to_numpy()  # type: ignore
         r"""numpy.ndarray of float: 2-dim square matrix array :math:`\ioz` of size :math:`(n \times m, n \times m)` representing the daily intermediate (transaction) matrix (see :ref:`boario-math-init`)."""
 
         self.Z_C = self._matrix_I_sum @ self.Z_0
@@ -330,7 +330,9 @@ class ARIOBaseModel:
         self.final_demand = self.Y_0.copy()
         self.rebuilding_demand = None
         self._rebuild_demand_tot = np.zeros_like(self.X_0)
-        self._prod_cap_delta_arbitrary = None # Required to init productive_capital_lost
+        self._prod_cap_delta_arbitrary = (
+            None  # Required to init productive_capital_lost
+        )
         self.productive_capital_lost = None
         r"""numpy.ndarray of float: Array of size :math:`n \times m` representing the estimated stock of capital currently destroyed for each industry."""
         self.prod_cap_delta_arbitrary = None
@@ -426,7 +428,7 @@ class ARIOBaseModel:
         self.n_industries = len(self.industries)
         r"""int : The number :math:`m * n` of industries."""
 
-        #try:
+        # try:
         self.final_demand_cat = np.array(sorted(list(pym_mrio.get_Y_categories())))  # type: ignore
         r"""numpy.ndarray of str: An array of the final demand categories of the model (``["Final demand"]`` if there is only one)"""
 
@@ -497,7 +499,7 @@ class ARIOBaseModel:
                 self._productive_capital_lost,
                 self.productive_capital,
                 where=self.productive_capital != 0,
-                out=tmp
+                out=tmp,
             )
             self._prod_cap_delta_productive_capital = tmp
         else:
@@ -536,7 +538,9 @@ class ARIOBaseModel:
     def prod_cap_delta_arbitrary(self, value: npt.NDArray | None):
         if value is not None:
             if value.shape != self.X_0.shape:
-                raise ValueError(f"Incorrect shape: {self.X_0.shape} expected, got {value.shape}")
+                raise ValueError(
+                    f"Incorrect shape: {self.X_0.shape} expected, got {value.shape}"
+                )
         self._prod_cap_delta_arbitrary = value
         self.update_prod_delta()
 
@@ -663,7 +667,9 @@ class ARIOBaseModel:
     @rebuild_demand.setter
     def rebuild_demand(self, value: npt.NDArray):
         if self._n_rebuilding_events < 1 and value is not None:
-            raise RuntimeError("Cannot set a non-null rebuilding demand if the number of events is 0.")
+            raise RuntimeError(
+                "Cannot set a non-null rebuilding demand if the number of events is 0."
+            )
         try:
             np.copyto(
                 self._entire_demand[
@@ -752,11 +758,12 @@ class ARIOBaseModel:
             :,
             (
                 self.n_regions * self.n_sectors + self.n_regions * self.n_fd_cat
-            ) : self.n_regions * self.n_sectors + self.n_regions * self.n_fd_cat + # After intermediate and final demand
-                # up to
-            (
-                self.n_regions * self.n_sectors  # indus demand
-            )
+            ) : self.n_regions
+            * self.n_sectors
+            + self.n_regions * self.n_fd_cat  # After intermediate and final demand
+            +
+            # up to
+            (self.n_regions * self.n_sectors)  # indus demand
             * self._n_rebuilding_events,  # times events
         ]
 
@@ -889,8 +896,7 @@ class ARIOBaseModel:
             )
             production_ratio_stock[production_ratio_stock > 1] = 1
             production_max = (
-                np.tile(production_opt, (self.n_sectors, 1))
-                * production_ratio_stock
+                np.tile(production_opt, (self.n_sectors, 1)) * production_ratio_stock
             )
             assert not (np.min(production_max, axis=0) < 0).any()
             self.production = np.min(production_max, axis=0)

@@ -8,13 +8,13 @@ Event
    :show-inheritance:
    :inherited-members:
 
-   
 
-   
+
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~Event.__init__
       ~Event.distribute_impact_by_gva
       ~Event.distribute_impact_equally
@@ -22,15 +22,15 @@ Event
       ~Event.from_scalar_industries
       ~Event.from_scalar_regions_sectors
       ~Event.from_series
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~Event.Y_distrib
       ~Event.Z_distrib
       ~Event.aff_industries
@@ -60,5 +60,3 @@ Event
       ~Event.happened
       ~Event.over
       ~Event.event_dict
-   
-   

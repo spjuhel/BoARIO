@@ -36,23 +36,42 @@ import logging
 import pickle
 import argparse
 
+
 def dist_is_editable():
-   """Is distribution an editable install?"""
-   for pth in boario.__path__:
-       if "site-packages" in pth:
-           return False
-   return True
+    """Is distribution an editable install?"""
+    for pth in boario.__path__:
+        if "site-packages" in pth:
+            return False
+    return True
+
 
 def get_git_describe() -> str:
-    return subprocess.check_output(['git', 'describe', '--tags']).decode('ascii').strip()
+    return (
+        subprocess.check_output(["git", "describe", "--tags"]).decode("ascii").strip()
+    )
 
-def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, output_dir, flood_gdp_file, event_file, mrio_params, alt_inv_dur=None):
+
+def run(
+    region,
+    params,
+    psi,
+    inv_tau,
+    stype,
+    rtype,
+    flood_dmg,
+    mrios_path,
+    output_dir,
+    flood_gdp_file,
+    event_file,
+    mrio_params,
+    alt_inv_dur=None,
+):
     with open(params) as f:
         scriptLogger.info("Loading simulation params template from {}".format(params))
         params_template = json.load(f)
     params_template["output_dir"] = output_dir
     params_template["mrio_params_file"] = mrio_params
-    #with open(flood_gdp_file) as f:
+    # with open(flood_gdp_file) as f:
     #    flood_gdp_share = json.load(f)
     flood_gdp_df = pd.read_parquet(flood_gdp_file)
 
@@ -67,23 +86,29 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
 
     event = event_template.copy()
     sim_params = params_template.copy()
-    scriptLogger.info("Setting psi parameter to {}".format(float(psi.replace("_","."))))
-    sim_params["psi_param"] = float(psi.replace("_","."))
+    scriptLogger.info(
+        "Setting psi parameter to {}".format(float(psi.replace("_", ".")))
+    )
+    sim_params["psi_param"] = float(psi.replace("_", "."))
     sim_params["inventory_restoration_tau"] = inv_tau
     scriptLogger.info("Setting inventory restoration time to {}".format(inv_tau))
 
-    #TODO remove this ?
-    value_added = (mrio.x.T - mrio.Z.sum(axis=0))
-    value_added = value_added.reindex(sorted(value_added.index), axis=0) #type: ignore
+    # TODO remove this ?
+    value_added = mrio.x.T - mrio.Z.sum(axis=0)
+    value_added = value_added.reindex(sorted(value_added.index), axis=0)  # type: ignore
     value_added = value_added.reindex(sorted(value_added.columns), axis=1)
     value_added[value_added < 0] = 0.0
-    gdp_df = value_added.groupby("region",axis=1).sum().T["indout"]
-    if mrio.unit.unit.unique()[0] != "M.EUR" :
-        scriptLogger.warning("MRIO unit appears to not be 'M.EUR'; but {} instead, which is not yet implemented. Contact the dev !".format(mrio.unit.unit.unique()[0]))
+    gdp_df = value_added.groupby("region", axis=1).sum().T["indout"]
+    if mrio.unit.unit.unique()[0] != "M.EUR":
+        scriptLogger.warning(
+            "MRIO unit appears to not be 'M.EUR'; but {} instead, which is not yet implemented. Contact the dev !".format(
+                mrio.unit.unit.unique()[0]
+            )
+        )
     else:
-        gdp_df = gdp_df*(10**6)
+        gdp_df = gdp_df * (10**6)
 
-    #TODO : Finish this
+    # TODO : Finish this
     # if stype == "Subregions":
     #     scriptLogger.info("Subregions run detected !")
     #     if "sliced" not in str(mrio_path):
@@ -116,14 +141,27 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     #     raise ValueError("Simulation type {} is incorrect".format(stype))
 
     scriptLogger.info("Done !")
-    scriptLogger.info("Main storage dir is : {}".format(pathlib.Path(params_template["output_dir"]).resolve()))
+    scriptLogger.info(
+        "Main storage dir is : {}".format(
+            pathlib.Path(params_template["output_dir"]).resolve()
+        )
+    )
     if rtype == "int":
-        event_row = flood_gdp_df.loc[(flood_gdp_df['class'] == flood_dmg) & (flood_gdp_df['EXIO3_region'] == region)]
+        event_row = flood_gdp_df.loc[
+            (flood_gdp_df["class"] == flood_dmg)
+            & (flood_gdp_df["EXIO3_region"] == region)
+        ]
         if event_row.empty:
-            raise ValueError("This tuple of region / flood class ({},{}) does not have a representative event (it is likely a duplicate of another class that was removed)".format(region,flood_dmg))
-        dmg_as_gdp_share = float(event_row['share of GVA used as ARIO input'])
-        total_direct_dmg = dmg_as_gdp_share * gdp_df[region] #float(event_row['total_dmg'])
-        duration = int(event_row['duration'])
+            raise ValueError(
+                "This tuple of region / flood class ({},{}) does not have a representative event (it is likely a duplicate of another class that was removed)".format(
+                    region, flood_dmg
+                )
+            )
+        dmg_as_gdp_share = float(event_row["share of GVA used as ARIO input"])
+        total_direct_dmg = (
+            dmg_as_gdp_share * gdp_df[region]
+        )  # float(event_row['total_dmg'])
+        duration = int(event_row["duration"])
         scriptLogger.info("Setting flood duration to {}".format(duration))
         event["duration"] = duration
         event["r_dmg"] = dmg_as_gdp_share
@@ -131,7 +169,11 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     elif rtype == "raw":
         dmg = flood_dmg
         event["r_dmg"] = float(flood_dmg) / float(gdp_df[region])
-        scriptLogger.info("Damages represent : {}/{} = {} of the region GDP".format(flood_dmg, gdp_df[region], event['r_dmg']))
+        scriptLogger.info(
+            "Damages represent : {}/{} = {} of the region GDP".format(
+                flood_dmg, gdp_df[region], event["r_dmg"]
+            )
+        )
         event["kapital_damage"] = float(dmg)
     else:
         raise ValueError("Run damage type {} is incorrect".format(rtype))
@@ -140,13 +182,39 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     scriptLogger.info("Setting aff_regions to {}".format(region))
     sim_params["output_dir"] = output_dir
     if alt_inv_dur:
-        sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_tau"])+"_inv_time_"+str(int(alt_inv_dur))
+        sim_params["results_storage"] = (
+            region
+            + "_type_"
+            + stype
+            + "_qdmg_"
+            + rtype
+            + "_"
+            + flood_dmg
+            + "_Psi_"
+            + psi
+            + "_inv_tau_"
+            + str(sim_params["inventory_restoration_tau"])
+            + "_inv_time_"
+            + str(int(alt_inv_dur))
+        )
     else:
-        sim_params["results_storage"] = region+"_type_"+stype+"_qdmg_"+rtype+"_"+flood_dmg+"_Psi_"+psi+"_inv_tau_"+str(sim_params["inventory_restoration_tau"])
+        sim_params["results_storage"] = (
+            region
+            + "_type_"
+            + stype
+            + "_qdmg_"
+            + rtype
+            + "_"
+            + flood_dmg
+            + "_Psi_"
+            + psi
+            + "_inv_tau_"
+            + str(sim_params["inventory_restoration_tau"])
+        )
 
     if event["shock_type"] == "kapital_destroyed_recover":
         event["recovery_time"] = sim_params["rebuild_tau"]
-    sim = Simulation(sim_params, mrio_path, modeltype=sim_params['model_type'])
+    sim = Simulation(sim_params, mrio_path, modeltype=sim_params["model_type"])
     if alt_inv_dur:
         sim.model.change_inv_duration(alt_inv_dur)
 
@@ -158,6 +226,7 @@ def run(region, params, psi, inv_tau, stype, rtype, flood_dmg, mrios_path, outpu
     except Exception:
         scriptLogger.exception("There was a problem:")
 
+
 parser = argparse.ArgumentParser(description="Produce indicators from one run folder")
 parser.add_argument("region", type=str, help="The region to run")
 parser.add_argument("params", type=str, help="The params file")
@@ -168,22 +237,60 @@ parser.add_argument("rtype", type=str, help="The damage type (raw or int)")
 parser.add_argument("flood_dmg", type=str, help="The flood damage/intensity to run")
 parser.add_argument("mrios_path", type=str, help="The mrios path")
 parser.add_argument("output_dir", type=str, help="The output directory")
-parser.add_argument("flood_gdp_file", type=str, help="The share of gdp impacted according to flood distribution file")
+parser.add_argument(
+    "flood_gdp_file",
+    type=str,
+    help="The share of gdp impacted according to flood distribution file",
+)
 parser.add_argument("event_file", type=str, help="The event template file")
 parser.add_argument("mrio_params", type=str, help="The mrio parameters file")
-parser.add_argument("alt_inv_dur", type=str, help="The optional alternative main inventory duration", nargs="?", default=None)
+parser.add_argument(
+    "alt_inv_dur",
+    type=str,
+    help="The optional alternative main inventory duration",
+    nargs="?",
+    default=None,
+)
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s] %(name)s %(message)s", datefmt="%H:%M:%S")
-    scriptLogger = logging.getLogger("generic_run - {}_{}_{}_{}_{}_{}".format(args.region, args.psi, args.inv_tau, args.stype, args.rtype, args.flood_dmg))
+    logFormatter = logging.Formatter(
+        "%(asctime)s [%(levelname)-5.5s] %(name)s %(message)s", datefmt="%H:%M:%S"
+    )
+    scriptLogger = logging.getLogger(
+        "generic_run - {}_{}_{}_{}_{}_{}".format(
+            args.region, args.psi, args.inv_tau, args.stype, args.rtype, args.flood_dmg
+        )
+    )
     consoleHandler = logging.StreamHandler()
     consoleHandler.setFormatter(logFormatter)
     scriptLogger.addHandler(consoleHandler)
     scriptLogger.setLevel(logging.INFO)
     scriptLogger.propagate = False
-    scriptLogger.info("You are running the following version of BoARIO : {}".format(boario.__version__))
-    scriptLogger.info("You are using BoARIO in editable install mode : {}".format(dist_is_editable()))
-    scriptLogger.info("You are using BoARIO in editable install mode : {}".format(boario.__path__))
+    scriptLogger.info(
+        "You are running the following version of BoARIO : {}".format(
+            boario.__version__
+        )
+    )
+    scriptLogger.info(
+        "You are using BoARIO in editable install mode : {}".format(dist_is_editable())
+    )
+    scriptLogger.info(
+        "You are using BoARIO in editable install mode : {}".format(boario.__path__)
+    )
     scriptLogger.info("=============== STARTING RUN ================")
-    run(args.region, args.params, args.psi, int(args.inv_tau), args.stype, args.rtype, args.flood_dmg, args.mrios_path, args.output_dir, args.flood_gdp_file, args.event_file, args.mrio_params, args.alt_inv_dur)
+    run(
+        args.region,
+        args.params,
+        args.psi,
+        int(args.inv_tau),
+        args.stype,
+        args.rtype,
+        args.flood_dmg,
+        args.mrios_path,
+        args.output_dir,
+        args.flood_gdp_file,
+        args.event_file,
+        args.mrio_params,
+        args.alt_inv_dur,
+    )

@@ -40,6 +40,7 @@ autoapi = "^2.0.1"
 sphinx-autodoc-typehints = "^2.0.0"
 numpydoc = "^1.7.0"
 pandas-stubs = "^2.2.2.240514"
+pre-commit = "^3.7.1"
 
 [build-system]
 requires = ["poetry-core"]

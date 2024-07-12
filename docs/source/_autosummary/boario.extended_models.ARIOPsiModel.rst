@@ -8,13 +8,13 @@ ARIOPsiModel
    :show-inheritance:
    :inherited-members:
 
-   
 
-   
+
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~ARIOPsiModel.__init__
       ~ARIOPsiModel.calc_inventory_constraints
       ~ARIOPsiModel.calc_matrix_stock_gap
@@ -26,15 +26,15 @@ ARIOPsiModel
       ~ARIOPsiModel.reset_module
       ~ARIOPsiModel.update_system_from_events
       ~ARIOPsiModel.write_index
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~ARIOPsiModel.house_rebuild_demand
       ~ARIOPsiModel.house_rebuild_demand_tot
       ~ARIOPsiModel.indus_rebuild_demand
@@ -88,5 +88,3 @@ ARIOPsiModel
       ~ARIOPsiModel.had_shortage
       ~ARIOPsiModel.rebuild_prod
       ~ARIOPsiModel.final_demand_not_met
-   
-   

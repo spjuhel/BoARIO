@@ -8,13 +8,13 @@ ARIOBaseModel
    :show-inheritance:
    :inherited-members:
 
-   
 
-   
+
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~ARIOBaseModel.__init__
       ~ARIOBaseModel.calc_inventory_constraints
       ~ARIOBaseModel.calc_matrix_stock_gap
@@ -26,15 +26,15 @@ ARIOBaseModel
       ~ARIOBaseModel.reset_module
       ~ARIOBaseModel.update_system_from_events
       ~ARIOBaseModel.write_index
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~ARIOBaseModel.house_rebuild_demand
       ~ARIOBaseModel.house_rebuild_demand_tot
       ~ARIOBaseModel.indus_rebuild_demand
@@ -86,5 +86,3 @@ ARIOBaseModel
       ~ARIOBaseModel.had_shortage
       ~ARIOBaseModel.rebuild_prod
       ~ARIOBaseModel.final_demand_not_met
-   
-   

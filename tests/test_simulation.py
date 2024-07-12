@@ -23,6 +23,7 @@ from boario.utils.recovery_functions import *
 
 boario.disable_console_logging()
 
+
 @pytest.fixture
 def test_mrio():
     mrio = pymrio.load_test()  # .calc_all()
@@ -57,10 +58,7 @@ def test_sim(test_model):
 
 @pytest.mark.parametrize(
     "region",
-    [
-        "reg1",
-        "non_exist"
-    ],
+    ["reg1", "non_exist"],
     ids=[
         "exist",
         "non_exist",
@@ -72,6 +70,7 @@ def test_event_compatibility(test_sim):
     # error raise on invalid sector
 
     # error raise on invalid occurrence
+    pass
 
 
 # Tests that a Simulation object can be initialized with a valid model and default parameters.
@@ -295,12 +294,13 @@ def test_crashing_rec_event(test_sim):
         min_values.drop("mining") < (1.0 - 1 / test_sim.model.monetary_factor)
     ).all()
 
+
 def test_minor_reb_event(test_sim):
     ev = EventKapitalRebuild.from_scalar_regions_sectors(
         impact=100000,
         regions=["reg1"],
         sectors=["manufactoring"],
-        rebuilding_sectors={"construction":1.0},
+        rebuilding_sectors={"construction": 1.0},
         duration=350,
         rebuild_tau=100,
     )
@@ -312,15 +312,17 @@ def test_minor_reb_event(test_sim):
     ).min()
     assert (min_values < 1.0).all()
     assert (
-        min_values.drop(["mining","manufactoring"]) > (1.0 - 1 / test_sim.model.monetary_factor)
+        min_values.drop(["mining", "manufactoring"])
+        > (1.0 - 1 / test_sim.model.monetary_factor)
     ).all()
+
 
 def test_shortage_reb_event(test_sim):
     ev = EventKapitalRebuild.from_scalar_regions_sectors(
         impact=10000000,
         regions=["reg1"],
         sectors=["manufactoring"],
-        rebuilding_sectors={"construction":1.0},
+        rebuilding_sectors={"construction": 1.0},
         duration=90,
         rebuild_tau=100,
     )
@@ -331,17 +333,16 @@ def test_shortage_reb_event(test_sim):
         / test_sim.production_realised.loc[0, "reg1"]
     ).min()
     assert (min_values < 1.0).all()
-    assert (
-        min_values < (1.0 - 1 / test_sim.model.monetary_factor)
-    ).all()
+    assert (min_values < (1.0 - 1 / test_sim.model.monetary_factor)).all()
     assert test_sim.model.had_shortage
+
 
 def test_crashing_reb_event(test_sim):
     ev = EventKapitalRebuild.from_scalar_regions_sectors(
         impact=10000000000,
         regions=["reg1"],
         sectors=["manufactoring"],
-        rebuilding_sectors={"construction":1.0},
+        rebuilding_sectors={"construction": 1.0},
         duration=90,
         rebuild_tau=100,
     )

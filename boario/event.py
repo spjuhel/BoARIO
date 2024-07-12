@@ -89,6 +89,7 @@ def from_series(
     rebuilding_factor: float | None = 1.0,
 ) -> EventKapitalRebuild: ...
 
+
 @overload
 def from_series(
     impact: pd.Series,
@@ -100,6 +101,7 @@ def from_series(
     recovery_tau: int | None = None,
     recovery_function: str | None = "linear",
 ) -> EventArbitraryProd: ...
+
 
 def from_series(
     impact: pd.Series,
