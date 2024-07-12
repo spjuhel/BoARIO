@@ -187,7 +187,14 @@ def from_series(
             recovery_function=recovery_function,
         )
     elif event_type == "arbitrary":
-        raise NotImplementedError("This type of event is not implemented yet.")
+        return EventArbitraryProd._from_series(
+            impact=impact,
+            occurrence=occurrence,
+            duration=duration,
+            name=name,
+            recovery_tau=recovery_tau,
+            recovery_function=recovery_function,
+        )
 
     else:
         raise ValueError(f"Wrong event type: {event_type}")
@@ -530,7 +537,7 @@ class Event(ABC):
         **kwargs,
     ) -> Event:
         affected_industries = cls._build_industries_idx(
-            affected_regions, affected_sectors
+            regions=affected_regions, sectors=affected_sectors
         )
         regional_distrib = cls._level_distrib(
             affected_industries.levels[0], impact_regional_distrib
@@ -615,6 +622,7 @@ class Event(ABC):
         if impact <= 0:
             raise ValueError("Impact is null.")
 
+    @classmethod
     def _build_industries_idx(cls, regions: RegionsList, sectors: SectorsList):
         # TODO: Move this in utils?
         if isinstance(regions, str):

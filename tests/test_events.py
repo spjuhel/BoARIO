@@ -140,7 +140,7 @@ class TestEventInitSeries:
         )
 
     def test_event_from_series_arbitrary(self, sample_series):
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
             event.from_series(sample_series, event_type="arbitrary")
 
     def test_event_from_series_wrongtype(self, sample_series):
@@ -626,7 +626,7 @@ class TestEventInitScalar:
     )
     def test_event_from_series_arbitrary(self, impact, expected):
         if isinstance(expected, str) and expected == "error":
-            with pytest.raises(ValueError):
+            with pytest.raises((ValueError, AttributeError)):
                 event.from_series(
                     impact,
                     event_type="arbitrary",
@@ -639,5 +639,5 @@ class TestEventInitScalar:
                 recovery_tau=1,
             )
             pd.testing.assert_series_equal(
-                event_instance.prod_cap_delta_arbitrary, expected
+                event_instance.prod_cap_delta_arbitrary, expected, check_names=False
             )

@@ -1361,6 +1361,12 @@ class EventTracker:
                 source_event.impact.copy(), self.sim.model.industries
             )
             self._indus_dmg = self._indus_dmg_0.copy()
+            if source_event.impact_households is not None:
+                self._house_dmg_0 = _thin_to_wide(
+                    source_event.impact_households.copy(), self.sim.model.regions
+                )
+                self._house_dmg = self._house_dmg_0.copy()
+
         if isinstance(source_event, EventKapitalRebuild):
             self._init_distrib("indus", indus_rebuild_distribution, source_event)
             assert self._indus_dmg_0 is not None
@@ -1379,10 +1385,6 @@ class EventTracker:
             self.rebuild_dem_indus_distribution = self._reb_dem_indus_distribution
 
             if source_event.impact_households is not None:
-                self._house_dmg_0 = _thin_to_wide(
-                    source_event.impact_households.copy(), self.sim.model.regions
-                )
-                self._house_dmg = self._house_dmg_0.copy()
                 self._init_distrib("house", house_rebuild_distribution, source_event)
                 self._rebuild_demand_house_0 = pd.DataFrame(
                     source_event.rebuilding_sectors.values[:, None]
@@ -1411,6 +1413,10 @@ class EventTracker:
                 )
 
         if isinstance(self.event, EventArbitraryProd):
+            self._prod_delta_from_arb_0 = _thin_to_wide(
+                source_event.impact.copy(), self.sim.model.industries
+            )
+            self._prod_delta_from_arb = self._prod_delta_from_arb_0.copy()
             self._recovery_function_arb_delta = partial(
                 self.event.recovery_function,
                 init_impact_stock=self._prod_delta_from_arb_0,
