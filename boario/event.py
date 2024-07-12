@@ -555,6 +555,64 @@ class Event(ABC):
         )
 
     @classmethod
+    def from_scalar_regions_sectors(
+        cls,
+        impact: ScalarImpact,
+        *,
+        regions: RegionsList,
+        sectors: SectorsList,
+        impact_regional_distrib: Optional[npt.ArrayLike] = None,
+        impact_sectoral_distrib: Optional[Union[str, npt.ArrayLike]] = None,
+        occurrence: int = 1,
+        duration: int = 1,
+        name: Optional[str] = None,
+        **kwargs,
+    ) -> Event:
+        """Creates an Event from a scalar, a list of regions and a list of sectors affected.
+
+        Parameters
+        ----------
+        impact : ScalarImpact
+            The scalar impact.
+        regions : RegionsList
+            The list of regions affected.
+        sectors : SectorsList
+            The list of sectors affected in each region.
+        impact_regional_distrib : Optional[npt.ArrayLike], optional
+            A vector of equal size to the list of regions affected, stating the
+            share of the impact each industry should receive. Defaults to None.
+        impact_sectoral_distrib : Optional[Union[str, npt.ArrayLike]], optional
+            Either:
+
+            * ``\"gdp\"``, the impact is then distributed using the gross value added of each sector as a weight.
+            * A vector of equal size to the list of sectors affected, stating the share of the impact each industry should receive. Defaults to None.
+
+        occurrence : int, optional
+            The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
+        duration : int, optional
+            The duration of the event (entire impact applied during this number of steps). Defaults to 1.
+        name : Optional[str], optional
+            A possible name for the event, for convenience. Defaults to None.
+        **kwargs :
+            Keyword arguments
+            Other keyword arguments to pass to the instantiate method (depends on the type of event)
+
+        Raises
+        ------
+        ValueError
+            Raise if Impact is null, if len(regions) or len(sectors) < 1,
+
+        Returns
+        -------
+        Event
+            An Event object or one of its subclass.
+        """
+        if not isinstance(impact, (int, float)):
+            raise ValueError("Impact is not scalar.")
+
+        if impact <= 0:
+            raise ValueError("Impact is null.")
+
     def _build_industries_idx(cls, regions: RegionsList, sectors: SectorsList):
         # TODO: Move this in utils?
         if isinstance(regions, str):
