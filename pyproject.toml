@@ -81,7 +81,7 @@ Homepage = "https://github.com/spjuhel/BoARIO"
 Source = "https://github.com/spjuhel/BoARIO/"
 
 [tool.pyright]
-include = ["boario","scripts"]
+include = ["boario"]
 exclude = ["**/node_modules",
     "**/__pycache__",
     "src/",
@@ -106,3 +106,12 @@ stubPath = "boario/stubs"
 
 [tool.pytest.ini_options]
 addopts = "--cov=boario --cov-report html"
+filterwarnings = [
+         "ignore::DeprecationWarning",
+         "ignore::FutureWarning"
+         ]
+
+log_level="DEBUG"
+log_format = "%(asctime)s %(levelname)s %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"
+log_file = "logs/pytest-logs.txt"
