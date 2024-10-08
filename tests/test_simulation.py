@@ -198,7 +198,7 @@ def test_save_simulation_results_to_memmaps_and_retrieve_as_pandas_dataframes(
     test_model,
 ):
     sim = Simulation(test_model, register_stocks=True)
-    sim.loop(progress=False)
+    sim.loop()
     assert isinstance(sim.production_realised, pd.DataFrame)
     assert isinstance(sim.production_capacity, pd.DataFrame)
     assert isinstance(sim.final_demand, pd.DataFrame)
@@ -223,7 +223,7 @@ def test_of_simulation_with_different_combinations_of_parameters(test_model):
         save_index=True,
         save_records=["production_realised"],
     )
-    sim.loop(progress=False)
+    sim.loop()
     assert sim.production_realised.shape == (100, test_model.n_industries)
 
 
