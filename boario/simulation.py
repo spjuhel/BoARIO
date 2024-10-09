@@ -870,7 +870,7 @@ class Simulation:
         productive_capital_lost = np.add.reduce(
             np.array([e._indus_dmg for e in source if e is not None])
         )
-        if productive_capital_lost.size > 0:
+        if not isinstance(productive_capital_lost, np.number):
             self.model.productive_capital_lost = productive_capital_lost
         else:
             self.model.productive_capital_lost = np.zeros_like(self.model.X_0)
