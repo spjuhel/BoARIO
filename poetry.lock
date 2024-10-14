@@ -2678,18 +2678,18 @@ test = ["pytest", "pytest-cov", "pytest-regressions", "sphinx[test]"]
 
 [[package]]
 name = "pydoclint"
-version = "0.4.2"
+version = "0.5.9"
 description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pydoclint-0.4.2-py2.py3-none-any.whl", hash = "sha256:1941ba8d47b021939e47f6b79b77513449ef0565330b836173df9d6cf1606045"},
-    {file = "pydoclint-0.4.2.tar.gz", hash = "sha256:559060dc1a91240ac1e28be570b3563ae66f292c7dd7124f4d4eab1483416a41"},
+    {file = "pydoclint-0.5.9-py2.py3-none-any.whl", hash = "sha256:089327003cef6fe5605cbaa9887859ea5229ce0c9abb52775ffd57513094c1ae"},
+    {file = "pydoclint-0.5.9.tar.gz", hash = "sha256:e200f964a5d9fbbb2ff1078bd7cb5433a0564d2482b6a1ba1be848f66bc4924f"},
 ]
 
 [package.dependencies]
 click = ">=8.1.0"
-docstring-parser-fork = ">=0.0.5"
+docstring-parser-fork = ">=0.0.9"
 tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 
 [package.extras]
@@ -3948,4 +3948,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4.0"
-content-hash = "c7a620068b94d803d503bc7c04693c75e685a61f8e8e14403755243c8d9ca91f"
+content-hash = "f43cb18281596a80fcb55b2a3818039d1dd6609627c8936c340d208f71bf1017"
