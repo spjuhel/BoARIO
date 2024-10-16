@@ -91,7 +91,7 @@ Furthermore, for efficiency purposes, this implementation allows you to simulate
 and interpolate state variables between them.
 
 Hence a ``step`` can represent multiple ``temporal units``. By default, a ``step`` equals a ``temporal unit`` equals a `day` and
-defaults values of characteristic times and other time related variable are accordingly expressed in number of days. 
+defaults values of characteristic times and other time related variable are accordingly expressed in number of days.
 However, because it is customisable, we favor the term ``temporal unit`` to designate the atomic period in the model throughout this documentation.
 
 The number of ``temporal units`` to simulate can be set when instantiating the ``Simulation`` object like so:

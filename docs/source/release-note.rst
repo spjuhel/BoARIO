@@ -1,6 +1,53 @@
 Release notes
 ================
 
+0.6.0 (11/2024)
+----------------
+
+Breaking changes:
+
+* Different event types are now instantiated via module level function to simplify entry point.
+* Dropped support for python 3.9
+* Including support for python 3.12
+
+Changes:
+
+* All demands within the model are now in a single numpy array `_entire_demand` for efficiency (memory notably). The different demands are accessed/set via properties that return the correct part of the `_entire_demand` array. This should greatly alleviate the memory requirements (multiple copies of arrays have been removed) and maybe also decrease computation requirements. Changes should be seamless from user point of view.
+* From that the `distribute_production` method was greatly simplify.
+* Added the `EventTracker` class to handle the tracking of events. Event objects are now mostly static (they contain only the initial shock of the event), tracking of their evolution during the simulation is now handled by the `EventTracker` class. This should also mostly be seamless from user perspective.
+* Warnings are now issued by the warnings modules instead of within the logger.
+* (Supposedly) improved efficiency with faster summing function for matrices.
+* The MRIOT IOSystem is now an attribute of the model.
+
+Renaming:
+
+- Within `ARIOBaseModel`
+    * `gdp_df` renamed to `gva_df` for consistency
+    * `k_stock` renamed to `productive_capital`
+    * `k_stock_to_VA_ratio` renamed to `capital_to_VA_ratio`
+    * `gdp_share_sector` renamed to `regional_production_share`
+    * `matrix_share_thresh` renamed to `matrix_share_thresh`
+    * `matrix_stock` renamed to `inputs_stock`
+    * `matrix_orders` renamed to `intermediate_demand`
+    * `total_demand` renamed to `entire_demand_tot`
+
+Fixes:
+
+* Definitely fix #113 #110 #104 #111
+* Should fix #95
+
+0.5.10 - JOSS v1 (06/2024)
+---------------------------
+
+This release is associated with the JOSS publication of BoARIO.
+
+Changes:
+
+* Small changes to README and documentation for grammar by @potterzot in https://github.com/spjuhel/BoARIO/pull/119
+* JOSS Version 1 by @spjuhel in https://github.com/spjuhel/BoARIO/pull/124
+
+**Full Changelog**: https://github.com/spjuhel/BoARIO/compare/v0.5.9...v0.5.10
+
 0.5.9 (04/2024)
 ----------------
 

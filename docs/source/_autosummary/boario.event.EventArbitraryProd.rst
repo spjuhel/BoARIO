@@ -8,13 +8,13 @@ EventArbitraryProd
    :show-inheritance:
    :inherited-members:
 
-   
 
-   
+
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~EventArbitraryProd.__init__
       ~EventArbitraryProd.distribute_impact_by_gva
       ~EventArbitraryProd.distribute_impact_equally
@@ -23,15 +23,15 @@ EventArbitraryProd
       ~EventArbitraryProd.from_scalar_regions_sectors
       ~EventArbitraryProd.from_series
       ~EventArbitraryProd.recovery
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~EventArbitraryProd.Y_distrib
       ~EventArbitraryProd.Z_distrib
       ~EventArbitraryProd.aff_industries
@@ -65,5 +65,3 @@ EventArbitraryProd
       ~EventArbitraryProd.happened
       ~EventArbitraryProd.over
       ~EventArbitraryProd.event_dict
-   
-   

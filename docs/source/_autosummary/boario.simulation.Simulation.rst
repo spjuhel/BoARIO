@@ -8,13 +8,13 @@ Simulation
    :show-inheritance:
    :inherited-members:
 
-   
 
-   
+
+
    .. rubric:: Methods
 
    .. autosummary::
-   
+
       ~Simulation.__init__
       ~Simulation.add_event
       ~Simulation.add_events
@@ -24,15 +24,15 @@ Simulation
       ~Simulation.reset_sim_full
       ~Simulation.reset_sim_with_same_events
       ~Simulation.write_index
-   
-   
 
-   
-   
+
+
+
+
    .. rubric:: Attributes
 
    .. autosummary::
-   
+
       ~Simulation.final_demand
       ~Simulation.final_demand_unmet
       ~Simulation.inputs_stocks
@@ -53,5 +53,3 @@ Simulation
       ~Simulation.current_temporal_unit
       ~Simulation.records_storage
       ~Simulation.params_dict
-   
-   
