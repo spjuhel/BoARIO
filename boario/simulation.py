@@ -829,7 +829,10 @@ class Simulation:
             if evnt_trck._rebuild_id is not None:
                 _rebuilding_demand[
                     :,
-                    : (self.model.n_regions * self.model.n_sectors)
+                    (self.model.n_regions * self.model.n_sectors)
+                    * (evnt_trck._rebuild_id) : (
+                        self.model.n_regions * self.model.n_sectors
+                    )
                     * (evnt_trck._rebuild_id + 1),
                 ] = evnt_trck.distributed_reb_dem_indus
                 if evnt_trck.households_damages is not None:
