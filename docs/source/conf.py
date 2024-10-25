@@ -102,6 +102,8 @@ html_theme_options = {
     },
 }
 
+html_logo = "_static/logo_boario.svg"
+
 html_context = {
     "default_mode": "light",
     "display_github": True,  # Integrate GitHub
