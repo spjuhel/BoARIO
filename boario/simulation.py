@@ -868,7 +868,7 @@ class Simulation:
         source = [
             ev
             for ev in self._event_tracking
-            if (ev.status in ["happening", "rebuilding"])
+            if (ev.status in ["happening", "rebuilding", "recovering"])
         ]
         productive_capital_lost = np.add.reduce(
             np.array([e._indus_dmg for e in source if e is not None])
