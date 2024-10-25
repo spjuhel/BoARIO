@@ -549,7 +549,7 @@ class Simulation:
 
             except RuntimeError:
                 logger.exception("An exception happened: ")
-                self.model.matrix_stock.dump(
+                self.model.inputs_stock.dump(
                     self.results_storage / "matrix_stock_dump.pkl"
                 )
                 logger.error(
