@@ -10,6 +10,7 @@
    .. autosummary::
 
       DEBUGFORMATTER
+      INFOFORMATTER
 
 
 
@@ -19,6 +20,10 @@
 
    .. autosummary::
 
+      activate_logging
+      deactivate_logging
+      disable_console_logging
+      enable_console_logging
       warn_once
 
 

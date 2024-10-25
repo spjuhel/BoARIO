@@ -19,4 +19,5 @@ simulation
       :toctree:
       :template: custom-class-template.rst
 
+      EventTracker
       Simulation
