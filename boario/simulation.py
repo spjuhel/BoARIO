@@ -1650,18 +1650,21 @@ class EventTracker:
             if self._indus_dmg is not None:
                 self._indus_dmg = self._recovery_function_indus(
                     self.sim.current_temporal_unit
+                    - (self.event.occurrence + self.event.duration)
                 ).round(precision)
                 if not self._indus_dmg.any():
                     self._indus_dmg = None
             if self._house_dmg is not None:
                 self._house_dmg = self._recovery_function_house(
                     self.sim.current_temporal_unit
+                    - (self.event.occurrence + self.event.duration)
                 ).round(precision)
                 if not self._house_dmg.any():
                     self._house_dmg = None
         if self._prod_delta_from_arb is not None:
             self._prod_delta_from_arb = self._recovery_function_arb_delta(
                 self.sim.current_temporal_unit
+                - (self.event.occurrence + self.event.duration)
             ).round(6)
             if not self._prod_delta_from_arb.any():
                 self._prod_delta_from_arb = None
