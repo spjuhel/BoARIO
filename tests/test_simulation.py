@@ -343,6 +343,37 @@ def test_shortage_reb_event(test_sim):
     assert test_sim.model.had_shortage
 
 
+def test_multiple_reb_event(test_sim):
+    ev1 = event.from_scalar_regions_sectors(
+        event_type="rebuild",
+        impact=1000000,
+        affected_regions=["reg1"],
+        affected_sectors=["manufactoring"],
+        rebuilding_sectors={"construction": 1.0},
+        duration=30,
+        rebuild_tau=100,
+    )
+    ev2 = event.from_scalar_regions_sectors(
+        event_type="rebuild",
+        occurrence=7,
+        impact=1000000,
+        affected_regions=["reg2"],
+        affected_sectors=["manufactoring"],
+        rebuilding_sectors={"construction": 1.0},
+        duration=30,
+        rebuild_tau=100,
+    )
+    test_sim.add_events([ev1, ev2])
+    test_sim.loop()
+    min_values = (
+        test_sim.production_realised.loc[:, "reg1"]
+        / test_sim.production_realised.loc[0, "reg1"]
+    ).min()
+    assert (min_values < 1.0).all()
+    # assert (min_values < (1.0 - 1 / test_sim.model.monetary_factor)).all()
+    # assert test_sim.model.had_shortage
+
+
 # def test_crashing_reb_event(test_sim):
 #     ev = event.from_scalar_regions_sectors(
 #         event_type="rebuild",
