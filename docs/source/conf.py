@@ -89,9 +89,7 @@ html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     "navbar_end": [
         "navbar-icon-links",
-        "last-updated",
         "theme-switcher",
-        "version-switcher",
     ],
     "secondary_sidebar_items": ["page-toc", "sourcelink"],
     "use_edit_page_button": True,
@@ -100,12 +98,13 @@ html_theme_options = {
         "json_url": "https://spjuhel.github.io/BoARIO/develop/en/_static/switcher.json",
         "version_match": version,
     },
+    "footer_start": ["version-switcher", "last-updated"],
 }
 
-html_logo = "_static/logo_boario.svg"
+html_logo = "_static/logo_boario_2.svg"
 
 html_context = {
-    "default_mode": "light",
+    "default_mode": "dark",
     "display_github": True,  # Integrate GitHub
     "github_user": "spjuhel",  # Username
     "github_repo": "BoARIO",  # Repo name
