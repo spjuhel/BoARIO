@@ -726,7 +726,7 @@ class Simulation:
                         )
 
                     elif isinstance(
-                        event_tracker, (EventKapitalRecover, EventArbitraryProd)
+                        event_tracker.event, (EventKapitalRecover, EventArbitraryProd)
                     ):
                         event_tracker._status = "recovering"
                         logger.info(
@@ -791,7 +791,7 @@ class Simulation:
     def recover_events(self):
         for event_tracker in self._event_tracking:
             if event_tracker.status == "recovering":
-                if event_tracker.recovery_function is None:
+                if event_tracker.event.recovery_function is None:
                     raise RuntimeError(
                         "Recovering event has no recovery function, which should not happen."
                     )
