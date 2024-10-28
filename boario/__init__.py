@@ -16,13 +16,6 @@
 
 """BoARIO : The Adaptative Regional Input Output model in python."""
 
-try:
-    import coloredlogs as coloredlogs  # noqa: F401
-except ImportError:
-    _has_coloredlogs = False
-else:
-    _has_coloredlogs = True
-
 import importlib.metadata
 import logging
 from functools import lru_cache
@@ -100,11 +93,6 @@ except ModuleNotFoundError:
 logger.info(
     "Loaded boario module. You can disable logging in console with `boario.disable_console_logging()`."
 )
-
-
-@lru_cache(10)
-def warn_once(logger, msg: str):
-    logger.warning(msg)
 
 
 logger.propagate = False
