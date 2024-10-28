@@ -29,7 +29,7 @@ import numpy.typing as npt
 import pandas as pd
 from pymrio.core.mriosystem import IOSystem
 
-from boario import logger
+from boario import DEBUG_TRACE, logger
 from boario.utils.misc import lexico_reindex, _fast_sum, _divide_arrays_ignore
 
 __all__ = [
@@ -981,7 +981,8 @@ class ARIOBaseModel:
 
         # # 2. Concat to have total demand matrix (Intermediate + Final + Rebuild)
         # # 3. Does production meet total demand
-        logger.debug(f"entire_demand_tot shape : {self.entire_demand.shape}")
+        if DEBUG_TRACE:
+            logger.debug(f"entire_demand_tot shape : {self.entire_demand.shape}")
         # rationing_required = (self.production - self.entire_demand_tot) < (
         #     -1 / self.monetary_factor
         # )
@@ -1051,7 +1052,8 @@ class ARIOBaseModel:
         self.final_demand_not_met = final_demand_not_met.copy()
 
         # 7. Compute production delivered to rebuilding
-        logger.debug(f"distributed prod shape : {distributed_production.shape}")
+        if DEBUG_TRACE:
+            logger.debug(f"distributed prod shape : {distributed_production.shape}")
         self.rebuild_prod = distributed_production[
             :, (self.n_sectors * self.n_regions + self.n_fd_cat * self.n_regions) :
         ].copy()
@@ -1081,10 +1083,19 @@ class ARIOBaseModel:
 
         """
         matrix_stock_gap = np.zeros(matrix_stock_goal.shape)
-        # logger.debug("matrix_stock_goal: {}".format(matrix_stock_goal.shape))
-        # logger.debug("matrix_stock: {}".format(self.matrix_stock.shape))
-        # logger.debug("matrix_stock_goal_finite: {}".format(matrix_stock_goal[np.isfinite(matrix_stock_goal)].shape))
-        # logger.debug("matrix_stock_finite: {}".format(self.matrix_stock[np.isfinite(self.matrix_stock)].shape))
+        if DEBUG_TRACE:
+            logger.debug("matrix_stock_goal: {}".format(matrix_stock_goal.shape))
+            logger.debug("matrix_stock: {}".format(self.inputs_stock.shape))
+            logger.debug(
+                "matrix_stock_goal_finite: {}".format(
+                    matrix_stock_goal[np.isfinite(matrix_stock_goal)].shape
+                )
+            )
+            logger.debug(
+                "matrix_stock_finite: {}".format(
+                    self.inputs_stock[np.isfinite(self.inputs_stock)].shape
+                )
+            )
         matrix_stock_gap[np.isfinite(matrix_stock_goal)] = (
             matrix_stock_goal[np.isfinite(matrix_stock_goal)]
             - self.inputs_stock[np.isfinite(self.inputs_stock)]

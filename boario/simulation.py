@@ -38,7 +38,7 @@ import numpy.typing as npt
 import pandas as pd
 import progressbar
 
-from boario import DEBUGFORMATTER, logger
+from boario import DEBUG_TRACE, DEBUGFORMATTER, logger
 from boario.event import (
     Event,
     EventArbitraryProd,
@@ -864,7 +864,8 @@ class Simulation:
 
         """
 
-        logger.debug("Updating productive_capital lost from list of events")
+        if DEBUG_TRACE:
+            logger.debug("Updating productive_capital lost from list of events")
         source = [
             ev
             for ev in self._event_tracking
@@ -920,7 +921,9 @@ class Simulation:
 
         """
 
-        logger.debug("Updating total production delta")
+        if DEBUG_TRACE:
+            logger.debug("Updating total production delta")
+
         self.update_productive_capital_lost()
         self.update_prod_cap_delta_arb()
 

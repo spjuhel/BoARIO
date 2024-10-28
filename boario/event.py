@@ -24,7 +24,7 @@ import numpy as np
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
 
-from boario import logger
+from boario import DEBUG_TRACE, logger
 from boario.utils.recovery_functions import (
     concave_recovery,
     convexe_recovery,
@@ -446,7 +446,10 @@ class Event(ABC):
             )
         impact = impact[impact != 0]
         if np.less_equal(impact, 0).any():
-            logger.debug(f"Impact has negative values:\n{impact}\n{impact[impact<0]}")
+            if DEBUG_TRACE:
+                logger.debug(
+                    f"Impact has negative values:\n{impact}\n{impact[impact<0]}"
+                )
             raise ValueError("Impact has negative values")
         return cls(
             impact=impact,
