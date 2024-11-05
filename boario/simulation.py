@@ -920,7 +920,6 @@ class Simulation:
             A list of Event objects.
 
         """
-
         if DEBUG_TRACE:
             logger.debug("Updating total production delta")
 

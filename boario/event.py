@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import inspect
+import math
 import warnings
 from abc import ABC, abstractmethod
 from typing import Callable, List, Literal, Optional, Tuple, Union, overload
@@ -515,8 +516,10 @@ class Event(ABC):
             )
         if impact_vec.size < 1:
             raise ValueError(f"Impact vector cannot be null sized.")
-        if distrib.sum() != 1.0:
-            raise ValueError("Impact distribution doesn't sum up to 1.0")
+        if not math.isclose(distrib.sum(), 1.0, rel_tol=10e-7):
+            raise ValueError(
+                f"Impact distribution doesn't sum up to 1.0 (but {distrib.sum()})"
+            )
 
         ret = impact_vec * distrib
         if ret.hasnans:
@@ -793,7 +796,7 @@ class Event(ABC):
     def __repr__(self):
         # TODO: find ways to represent long lists
         return f"""[WIP]
-        Event(
+        {self.__class__}(
               name = {self.name},
               occur = {self.occurrence},
               duration = {self.duration}
