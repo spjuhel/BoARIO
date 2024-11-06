@@ -27,6 +27,7 @@ import warnings
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+import pymrio
 from pymrio.core.mriosystem import IOSystem
 
 from boario import DEBUG_TRACE, logger
@@ -158,7 +159,7 @@ class ARIOBaseModel:
         # ############### Parameters variables #######################
         try:
             logger.info(
-                "IO system metadata :\n{}\n{}\n{}\n{}".format(
+                "IO system metadata :\n\t{}\n\t{}\n\t{}\n\t{}".format(
                     str(pym_mriot.meta.description),
                     str(pym_mriot.meta.name),
                     str(pym_mriot.meta.system),
@@ -172,6 +173,7 @@ class ARIOBaseModel:
 
         source_mriot = lexico_reindex(pym_mriot)
         self.mriot = source_mriot
+        self._check_mriot()
         self._set_indexes(source_mriot)
 
         if hasattr(source_mriot, "monetary_factor"):
@@ -359,6 +361,28 @@ class ARIOBaseModel:
         # ## Internals
         self._prod_delta_type = None
         self._n_rebuilding_events = 0
+
+    def _check_mriot(self):
+        # Mapping of attributes to error messages
+        logger.debug("Checking validity of MRIOT")
+        required_attributes = {
+            "x": "Production vector of MRIOT is not set (mriot.x).",
+            "Z": "Intermediate demand of MRIOT is not set (mriot.Z).",
+            "Y": "Final demand of MRIOT is not set (mriot.Y).",
+            "A": "Technical coefficients of MRIOT are not set (mriot.A).",
+        }
+
+        # Check for missing attributes
+        for attr, error_msg in required_attributes.items():
+            if getattr(self.mriot, attr) is None:
+                raise ValueError(error_msg)
+
+        # Consistency check for technical coefficients
+        calculated_A = pymrio.calc_A(self.mriot.Z, self.mriot.x)
+        if not np.allclose(self.mriot.A, calculated_A, atol=1e-8):
+            raise ValueError(
+                "Technical coefficients (mriot.A) are inconsistent with Z and x."
+            )
 
     def _init_input_stocks(
         self,
