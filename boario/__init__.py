@@ -50,8 +50,3 @@ try:
         )
 except ModuleNotFoundError:
     logger.info("Unable to tell git branch as pygit2 was not found.")
-
-
-logger.info(
-    "Loaded boario module. You can disable logging in console with `boario.disable_console_logging()`."
-)
