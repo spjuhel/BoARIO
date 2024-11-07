@@ -769,7 +769,7 @@ class Simulation:
                 )
 
                 if event_tracker.rebuild_demand_house is not None:
-                    event_tracker.receive_indus_rebuilding(
+                    event_tracker.receive_house_rebuilding(
                         self.model.rebuild_prod_house_event(event_tracker._rebuild_id)
                     )
                 if (
