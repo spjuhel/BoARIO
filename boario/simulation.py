@@ -1408,13 +1408,13 @@ class EventTracker:
             self._recovery_function_indus = partial(
                 self.event.recovery_function,
                 init_impact_stock=self._indus_dmg_0,
-                recovery_time=self.event.recovery_tau,
+                recovery_tau=self.event.recovery_tau,
             )
             if self._house_dmg_0 is not None:
                 self._recovery_function_house = partial(
                     self.event.recovery_function,
                     init_impact_stock=self._house_dmg_0,
-                    recovery_time=self.event.recovery_tau,
+                    recovery_tau=self.event.recovery_tau,
                 )
 
         if isinstance(self.event, EventArbitraryProd):
@@ -1425,14 +1425,13 @@ class EventTracker:
             self._recovery_function_arb_delta = partial(
                 self.event.recovery_function,
                 init_impact_stock=self._prod_delta_from_arb_0,
-                recovery_time=self.event.recovery_tau,
+                recovery_tau=self.event.recovery_tau,
             )
 
     def _init_distrib(
         self,
         dtype: Literal["indus"] | Literal["house"],
         distrib: pd.DataFrame | None | Literal["equal"],
-        source_event: EventKapitalRebuild,
     ):
         if dtype == "indus":
             if distrib is None:

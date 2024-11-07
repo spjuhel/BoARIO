@@ -6,11 +6,11 @@ import numpy as np
 def linear_recovery(
     elapsed_temporal_unit: int,
     init_impact_stock: np.ndarray,
-    recovery_time: int,
+    recovery_tau: int,
 ):
     r"""Linear Initial impact recovery function
 
-    Initial impact is entirely recovered when `recovery_time` has passed since event
+    Initial impact is entirely recovered when `recovery_tau` has passed since event
     started recovering
 
     Parameters
@@ -22,22 +22,22 @@ def linear_recovery(
     elapsed_temporal_unit : int
         Elapsed time since event started recovering
 
-    recovery_time : int
+    recovery_tau : int
         Total time it takes the event to fully recover
 
     """
 
-    return init_impact_stock * (1 - (elapsed_temporal_unit / recovery_time))
+    return init_impact_stock * (1 - (elapsed_temporal_unit / recovery_tau))
 
 
 def convexe_recovery(
     elapsed_temporal_unit: int,
     init_impact_stock: np.ndarray,
-    recovery_time: int,
+    recovery_tau: int,
 ):
     r"""Convexe Initial impact recovery function
 
-    Initial impact is recovered with characteristic time `recovery_time`. (This doesn't mean Initial impact is fully recovered after this time !)
+    Initial impact is recovered with characteristic time `recovery_tau`. (This doesn't mean Initial impact is fully recovered after this time !)
     This function models a recovery similar as the one happening in the rebuilding case, for the same characteristic time.
 
     Parameters
@@ -49,23 +49,23 @@ def convexe_recovery(
     elapsed_temporal_unit : int
         Elapsed time since event started recovering
 
-    recovery_time : int
+    recovery_tau : int
         Total time it takes the event to fully recover
 
     """
 
-    return init_impact_stock * (1 - (1 / recovery_time)) ** elapsed_temporal_unit
+    return init_impact_stock * (1 - (1 / recovery_tau)) ** elapsed_temporal_unit
 
 
 def convexe_recovery_scaled(
     elapsed_temporal_unit: int,
     init_impact_stock: np.ndarray,
-    recovery_time: int,
+    recovery_tau: int,
     scaling_factor: float = 4,
 ):
     r"""Convexe Initial impact recovery function (scaled to match other recovery duration)
 
-    Initial impact is mostly recovered (>95% by default for most cases) when `recovery_time` has passed since event
+    Initial impact is mostly recovered (>95% by default for most cases) when `recovery_tau` has passed since event
     started recovering.
 
     Parameters
@@ -77,15 +77,15 @@ def convexe_recovery_scaled(
     elapsed_temporal_unit : int
         Elapsed time since event started recovering
 
-    recovery_time : int
+    recovery_tau : int
         Total time it takes the event to fully recover
 
     scaling_factor: float
-        Used to scale the exponent in the function so that Initial impact is mostly rebuilt after `recovery_time`. A value of 4 insure >95% of Initial impact is recovered for a reasonable range of `recovery_time` values.
+        Used to scale the exponent in the function so that Initial impact is mostly rebuilt after `recovery_tau`. A value of 4 insure >95% of Initial impact is recovered for a reasonable range of `recovery_tau` values.
 
     """
 
-    return init_impact_stock * (1 - (1 / recovery_time)) ** (
+    return init_impact_stock * (1 - (1 / recovery_tau)) ** (
         scaling_factor * elapsed_temporal_unit
     )
 
@@ -93,13 +93,13 @@ def convexe_recovery_scaled(
 def concave_recovery(
     elapsed_temporal_unit: int,
     init_impact_stock: np.ndarray,
-    recovery_time: int,
+    recovery_tau: int,
     steep_factor: float = 0.000001,
     half_recovery_time: Optional[int] = None,
 ):
     r"""Concave (s-shaped) Initial impact recovery function
 
-    Initial impact is mostly (>95% in most cases) recovered when `recovery_time` has passed since event started recovering.
+    Initial impact is mostly (>95% in most cases) recovered when `recovery_tau` has passed since event started recovering.
 
     Parameters
     ----------
@@ -110,11 +110,11 @@ def concave_recovery(
     elapsed_temporal_unit : int
         Elapsed time since event started recovering
 
-    recovery_time : int
+    recovery_tau : int
         Total time it takes the event to fully recover
 
     steep_factor: float
-        This coefficient governs the slope of the central part of the s-shape, smaller values lead to a steeper slope. As such it also affect the percentage of Initial impact rebuilt after `recovery_time` has elapsed. A value of 0.000001 should insure 95% of the initial impact is rebuild for a reasonable range of recovery duration.
+        This coefficient governs the slope of the central part of the s-shape, smaller values lead to a steeper slope. As such it also affect the percentage of Initial impact rebuilt after `recovery_tau` has elapsed. A value of 0.000001 should insure 95% of the initial impact is rebuild for a reasonable range of recovery duration.
 
     half_recovery_time : int
         This can by use to change the time the inflexion point of the s-shape curve is attained. By default it is set to half the recovery duration.
@@ -124,10 +124,10 @@ def concave_recovery(
     if half_recovery_time is None:
         tau_h = 2
     else:
-        tau_h = recovery_time / half_recovery_time
-    exponent = (np.log(recovery_time) - np.log(steep_factor)) / (
-        np.log(recovery_time) - np.log(tau_h)
+        tau_h = recovery_tau / half_recovery_time
+    exponent = (np.log(recovery_tau) - np.log(steep_factor)) / (
+        np.log(recovery_tau) - np.log(tau_h)
     )
-    return (init_impact_stock * recovery_time) / (
-        recovery_time + steep_factor * (elapsed_temporal_unit**exponent)
+    return (init_impact_stock * recovery_tau) / (
+        recovery_tau + steep_factor * (elapsed_temporal_unit**exponent)
     )

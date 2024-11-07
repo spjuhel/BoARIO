@@ -975,7 +975,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
 
     This subclass requires and enables new arguments to pass to the constructor:
 
-    * A characteristic time for the recovery (``recovery_time``)
+    * A characteristic time for the recovery (``recovery_tau``)
     * Optionally a ``recovery_function`` (linear by default).
 
     .. seealso::
@@ -1045,7 +1045,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
                 for args in [
                     "init_impact_stock",
                     "elapsed_temporal_unit",
-                    "recovery_time",
+                    "recovery_tau",
                 ]
             ):
                 raise ValueError(
@@ -1053,7 +1053,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
                         [
                             "init_impact_stock",
                             "elapsed_temporal_unit",
-                            "recovery_time",
+                            "recovery_tau",
                         ]
                     )
                 )
@@ -1171,7 +1171,7 @@ class EventArbitraryProd(Event):
                 for args in [
                     "init_impact_stock",
                     "elapsed_temporal_unit",
-                    "recovery_time",
+                    "recovery_tau",
                 ]
             ):
                 raise ValueError(
@@ -1179,7 +1179,7 @@ class EventArbitraryProd(Event):
                         [
                             "init_impact_stock",
                             "elapsed_temporal_unit",
-                            "recovery_time",
+                            "recovery_tau",
                         ]
                     )
                 )
