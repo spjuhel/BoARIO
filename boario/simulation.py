@@ -639,6 +639,21 @@ class Simulation:
         self._event_tracking.append(EventTracker(self, ev))
 
     def event_compatibility(self, ev: Event):
+        """Checks if an event is compatible with current simulation environment
+
+        Parameters
+        ----------
+        ev : Event
+            The event to checks.
+
+        Raises
+        ------
+
+        ValueError
+            If one attribute of the event is not consistent with the simulation context.
+
+
+        """
         if not 0 < ev.occurrence <= self.n_temporal_units_to_sim:
             raise ValueError(
                 f"Occurrence of event is not in the range of simulation steps (cannot be 0) : {ev.occurrence} not in ]0-{self.n_temporal_units_to_sim}]"
@@ -677,9 +692,37 @@ class Simulation:
                 )
 
     def regions_compatible(self, regions: RegionsList):
+        """Checks if given regions are all present in the simulation context.
+
+        Parameters
+        ----------
+        regions : RegionsList
+            The regions to checks.
+
+        Returns
+        -------
+
+        set
+            The set of regions not present in the model's regions.
+
+        """
         return np.setdiff1d(regions, self.model.regions)
 
     def sectors_compatible(self, sectors: SectorsList):
+        """Checks if given sectors are all present in the simulation context.
+
+        Parameters
+        ----------
+        sectors : SectorsList
+            The sectors to checks.
+
+        Returns
+        -------
+
+        set
+            The set of sectors not present in the model's regions.
+
+        """
         return np.setdiff1d(sectors, self.model.sectors)
 
     def _check_happening_events(self) -> None:
@@ -756,6 +799,19 @@ class Simulation:
             self.update_rebuild_demand()
 
     def rebuild_events(self):
+        """Updates rebuilding events from model's production dedicated to rebuilding.
+
+        This method loops through the event trackers and update the events depending
+        on their allocated rebuilding production. If the received production is sufficient,
+        then the events are flagged as "finished", and removed from the tracker.
+
+        Raises
+        ------
+        RuntimeError
+            Raised if an event tracker has no rebuid_id (should not happen).
+
+        """
+
         events_rebuilt_ids = []
         for event_tracker in self._event_tracking:
             if event_tracker.status == "rebuilding":
@@ -789,6 +845,17 @@ class Simulation:
                         evnt_trck._rebuild_id -= 1
 
     def recover_events(self):
+        """Updates recovering events with their recovery function.
+
+        This method loops through the event trackers and update the events depending
+        on their recovery function.
+
+        Raises
+        ------
+        RuntimeError
+            Raised if an event tracker has no recovery function (should not happen).
+
+        """
         for event_tracker in self._event_tracking:
             if event_tracker.status == "recovering":
                 if event_tracker.event.recovery_function is None:
@@ -800,14 +867,10 @@ class Simulation:
     def update_rebuild_demand(self):
         r"""Computes and updates total rebuilding demand based on a list of events.
 
-        Compute and update rebuilding demand for the given list of events. Only events
+        Computes and updates the model rebuilding demand from the event tracker. Only events
         tagged as rebuildable are accounted for. Both `house_rebuild_demand` and
         `indus_rebuild_demand` are updated.
 
-        Parameters
-        ----------
-        events : 'list[EventKapitalRebuild]'
-            A list of EventKapitalRebuild objects
         """
 
         logger.debug(f"Trying to set tot_rebuilding demand from {self._event_tracking}")
@@ -849,18 +912,12 @@ class Simulation:
         self.model.rebuild_demand = _rebuilding_demand
 
     def update_productive_capital_lost(self):
-        r"""Computes current capital lost and update production delta accordingly.
+        r"""Computes current capital lost and updates production delta accordingly.
 
         Computes and sets the current stock of capital lost by each industry of
-        the model due to the given list of events. Also update the production
-        capacity lost accordingly by computing the ratio of capital lost of
+        the model due to the events. Also update the production
+        capacity lost accordingly, by computing the ratio of capital lost to
         capital stock.
-
-        Parameters
-        ----------
-        source : list[EventKapitalDestroyed] | npt.NDArray
-            Either a list of events to consider for the destruction
-        of capital or directly a vector of destroyed capital for each industry.
 
         """
 
@@ -884,13 +941,7 @@ class Simulation:
 
         .. warning::
            If multiple events impact the same industry, only the maximum loss is
-           accounted.
-
-        Parameters
-        ----------
-        source : list[EventTracker] | npt.NDArray
-            Either a list of Event objects with arbitrary production losses
-            set, or directly a vector of production capacity loss.
+           accounted for.
 
         """
         source = [
@@ -912,12 +963,7 @@ class Simulation:
 
     def update_prod_cap_delta_tot(self):
         r"""Computes and sets the loss of production capacity from both "arbitrary" sources and
-        capital destroyed.
-
-        Parameters
-        ----------
-        source : list[Event]
-            A list of Event objects.
+        capital destroyed sources.
 
         """
         if DEBUG_TRACE:
@@ -928,11 +974,13 @@ class Simulation:
 
     @property
     def production_realised(self) -> pd.DataFrame:
-        """Return the evolution of the production realised by each industry (region,sector)
+        """Returns the evolution of the production realised by each industry (region,sector) as a DataFrame.
 
-        Returns:
+        Returns
+        -------
             pd.DataFrame: A pandas DataFrame where the value is the production realised, the columns are the industries
             and the index is the step considered.
+
         """
         return pd.DataFrame(
             self._production_evolution,
@@ -942,11 +990,13 @@ class Simulation:
 
     @property
     def production_capacity(self) -> pd.DataFrame:
-        """Return the evolution of the production capacity of each industry (region,sector)
+        """Returns the evolution of the production capacity of each industry (region,sector) as a DataFrame.
 
-        Returns:
+        Returns
+        -------
             pd.DataFrame: A pandas DataFrame where the value is the production capacity, the columns are the industries
             and the index is the step considered.
+
         """
         return pd.DataFrame(
             self._production_cap_evolution,
@@ -956,11 +1006,13 @@ class Simulation:
 
     @property
     def final_demand(self) -> pd.DataFrame:
-        """Return the evolution of final demand asked of each industry.
+        """Return the evolution of final demand asked of each industry as a DataFrame.
 
-        Returns:
+        Returns
+        -------
             pd.DataFrame: A pandas DataFrame where the value is the final demand asked, the columns are the industries
             and the index is the step considered.
+
         """
         return pd.DataFrame(
             self._final_demand_evolution,
@@ -970,11 +1022,13 @@ class Simulation:
 
     @property
     def intermediate_demand(self) -> pd.DataFrame:
-        """Return the evolution of intermediate demand asked of each industry (Total orders).
+        """Returns the evolution of intermediate demand asked of each industry (Total orders) as a DataFrame.
 
-        Returns:
+        Returns
+        -------
             pd.DataFrame: A pandas DataFrame where the value is the intermediate demand asked, the columns are the industries
             and the index is the step considered.
+
         """
         return pd.DataFrame(
             self._io_demand_evolution,
@@ -984,11 +1038,13 @@ class Simulation:
 
     @property
     def rebuild_demand(self) -> pd.DataFrame:
-        """Return the evolution of rebuild demand asked of each industry (Total orders).
+        """Returns the evolution of rebuild demand asked of each industry (Total orders) as a DataFrame.
 
-        Returns:
+        Returns
+        -------
             pd.DataFrame: A pandas DataFrame where the value is the rebuild demand asked, the columns are the industries
             and the index is the step considered.
+
         """
         return pd.DataFrame(
             self._rebuild_demand_evolution,
@@ -998,11 +1054,13 @@ class Simulation:
 
     @property
     def overproduction(self) -> pd.DataFrame:
-        """Return the evolution of the overproduction factor of each industry (region,sector)
+        """Returns the evolution of the overproduction factor of each industry (region,sector) as a DataFrame.
 
-        Returns:
+        Returns
+        -------
             pd.DataFrame: A pandas DataFrame where the value is the overproduction factor, the columns are the industries
             and the index is the step considered.
+
         """
         return pd.DataFrame(
             self._overproduction_evolution,
@@ -1012,11 +1070,13 @@ class Simulation:
 
     @property
     def final_demand_unmet(self) -> pd.DataFrame:
-        """Return the evolution of the final demand that could not be answered by industries.
+        """Returns the evolution of the final demand that could not be answered by industries as a DataFrame.
 
-        Returns:
+        Returns
+        -------
             pd.DataFrame: A pandas DataFrame where the value is the final demand not met, the columns are the industries
             and the index is the step considered.
+
         """
         return pd.DataFrame(
             self._final_demand_unmet_evolution,
@@ -1026,11 +1086,13 @@ class Simulation:
 
     @property
     def rebuild_prod(self) -> pd.DataFrame:
-        """Return the production allocated for the rebuilding demand by each industry (region,sector).
+        """Returns the production allocated for the rebuilding demand by each industry (region,sector) as a DataFrame.
 
-        Returns:
+        Returns
+        -------
             pd.DataFrame: A pandas DataFrame where the value is the production allocated, the columns are the industries
             and the index is the step considered.
+
         """
         return pd.DataFrame(
             self._rebuild_production_evolution,
@@ -1040,12 +1102,14 @@ class Simulation:
 
     @property
     def inputs_stocks(self) -> pd.DataFrame:
-        """Return the evolution of the inventory amount of each input for each industry (region,sector). Not this is not available if "record_stocks" is not set to True,
+        """Returns the evolution of the inventory amount of each input for each industry (region,sector) as a DataFrame. Not this is not available if "record_stocks" is not set to True,
         as the DataFrame can be quite large for "classic" MRIOTs.
 
-        Returns:
+        Returns
+        -------
             pd.DataFrame: A pandas DataFrame where the value is the amount in inventory, the columns are the industries
             and the index are the step and input considered (MultiIndex).
+
         """
         return pd.DataFrame(
             self._inputs_evolution.reshape(
@@ -1061,11 +1125,13 @@ class Simulation:
 
     @property
     def limiting_inputs(self) -> pd.DataFrame:
-        """Return the evolution of the inputs lacking for each industry (region,sector)
+        """Returns the evolution of the inputs lacking for each industry (region,sector) as a DataFrame.
 
-        Returns:
+        Returns
+        -------
             pd.DataFrame: A pandas DataFrame where the value is a boolean set to 1 if considered input constrains production, the columns are the industries
             and the index are the step and input considered (MultiIndex).
+
         """
         return pd.DataFrame(
             self._limiting_inputs_evolution.reshape(
@@ -1081,11 +1147,13 @@ class Simulation:
 
     @property
     def productive_capital_to_recover(self) -> pd.DataFrame:
-        """Return the evolution of remaining capital destroyed/to recover for each industry (region,sector) if it exists.
+        """Retursn the evolution of remaining capital destroyed/to recover for each industry (region,sector) if it exists as a DataFrame.
 
-        Returns:
+        Returns
+        -------
             pd.DataFrame: A pandas DataFrame where the value is the amount of capital (still) destroyed, the columns are the industries
             and the index is the step considered.
+
         """
         return pd.DataFrame(
             self._regional_sectoral_productive_capital_destroyed_evolution,
@@ -1095,6 +1163,11 @@ class Simulation:
 
     def reset_sim_with_same_events(self):
         """Resets the model to its initial status (without removing the events). [WIP]"""
+
+        raise NotImplementedError(
+            "This methods has not been reimplemented for the updated version. Simplest way to reset is to recreate the Simulation and Model objects."
+        )
+
         logger.info("Resetting model to initial status (with same events)")
         self.current_temporal_unit = 0
         self._monotony_checker = 0
@@ -1112,6 +1185,10 @@ class Simulation:
     def reset_sim_full(self):
         """Resets the model to its initial status and remove all events."""
 
+        raise NotImplementedError(
+            "This methods has not been reimplemented for the updated version. Simplest way to reset is to recreate the Simulation and Model objects."
+        )
+
         self.reset_sim_with_same_events()
         logger.info("Resetting events")
         self.all_events = []
@@ -1119,7 +1196,7 @@ class Simulation:
         self.events_timings = set()
 
     def write_index(self, index_file: Union[str, pathlib.Path]):
-        """Write the index of the dataframes used in the model in a json file.
+        """Writes the index of the dataframes used in the model in a json file.
 
         See :meth:`~boario.model_base.ARIOBaseModel.write_index` for a more detailed documentation.
 
@@ -1196,7 +1273,7 @@ class Simulation:
         self._limiting_inputs_evolution[self.current_temporal_unit] = limiting_stock  # type: ignore
 
     def _flush_memmaps(self) -> None:
-        """Saves files to record"""
+        """Saves files to records."""
         for attr in self._files_to_record:
             if not hasattr(self, attr):
                 raise RuntimeError(
@@ -1277,6 +1354,54 @@ def _thin_to_wide(
     long_index: pd.Index,
     long_columns: pd.Index | None = None,
 ) -> pd.Series | pd.DataFrame:
+    """
+    Converts a "thin" (sparse) DataFrame or Series into a "wide" (dense) format with a specified index
+    and optional column structure, filling missing values with zeros.
+
+    Parameters
+    ----------
+    thin : pd.Series or pd.DataFrame
+        The sparse data to convert to a wide format. If `thin` is a DataFrame, `long_columns`
+        must be specified.
+    long_index : pd.Index
+        The index to use for the resulting wide-format data. All values in `thin` are
+        realigned to this index.
+    long_columns : pd.Index, optional
+        The columns to use for the resulting wide-format DataFrame. This parameter is
+        required if `thin` is a DataFrame and ignored if `thin` is a Series.
+
+    Returns
+    -------
+    pd.Series or pd.DataFrame
+        The wide-format representation of `thin`, with `long_index` as its index and
+        `long_columns` as its columns (if applicable). Missing values are filled with zeros.
+
+    Raises
+    ------
+    ValueError
+        If `thin` is a DataFrame and `long_columns` is not provided.
+
+    Examples
+    --------
+    >>> thin_series = pd.Series([1, 2], index=[0, 1])
+    >>> long_index = pd.Index([0, 1, 2, 3])
+    >>> _thin_to_wide(thin_series, long_index)
+    0    1.0
+    1    2.0
+    2    0.0
+    3    0.0
+    dtype: float64
+
+    >>> thin_df = pd.DataFrame([[1, 2], [3, 4]], index=[0, 1], columns=['A', 'B'])
+    >>> long_columns = pd.Index(['A', 'B', 'C'])
+    >>> _thin_to_wide(thin_df, long_index, long_columns)
+         A    B    C
+    0  1.0  2.0  0.0
+    1  3.0  4.0  0.0
+    2  0.0  0.0  0.0
+    3  0.0  0.0  0.0
+
+    """
     if isinstance(thin, pd.Series):
         wide = pd.Series(index=long_index, dtype=thin.dtype)
     elif isinstance(thin, pd.DataFrame):
@@ -1298,6 +1423,33 @@ def _thin_to_wide(
 def _equal_distribution(
     affected: pd.Index | None, addressed_to: pd.Index
 ) -> pd.DataFrame:
+    """
+    Creates a DataFrame representing an equal distribution of values across
+    specified indices.
+
+    Parameters
+    ----------
+    affected : pd.Index or None
+        The index for the columns, representing the entities affected by the distribution.
+    addressed_to : pd.Index
+        The index for the rows, representing the entities receiving the distribution.
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame where each element in `addressed_to` receives an equal share
+        of 1 divided by the length of `addressed_to` for each `affected` column.
+
+    Examples
+    --------
+    >>> affected = pd.Index(['A', 'B'])
+    >>> addressed_to = pd.Index(['X', 'Y', 'Z'])
+    >>> _equal_distribution(affected, addressed_to)
+          A         B
+    X  0.333333  0.333333
+    Y  0.333333  0.333333
+    Z  0.333333  0.333333
+    """
     ret = pd.DataFrame(0.0, index=addressed_to, columns=affected)
     ret.loc[affected, addressed_to] = 1 / len(addressed_to)
     return ret
@@ -1306,6 +1458,42 @@ def _equal_distribution(
 def _normalize_distribution(
     dist: pd.DataFrame | pd.Series, affected: pd.Index | None, addressed_to: pd.Index
 ) -> pd.DataFrame:
+    """
+    Normalizes a distribution so that values across specified indices sum to 1 for each
+    entity in `addressed_to`.
+
+    Parameters
+    ----------
+    dist : pd.DataFrame or pd.Series
+        The initial distribution to normalize. If a DataFrame, it should align with both
+        `affected` and `addressed_to`. If a Series, it should align with `addressed_to`.
+    affected : pd.Index or None
+        The index for the columns, representing entities affected by the distribution.
+    addressed_to : pd.Index
+        The index for the rows, representing entities receiving the distribution.
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame where values across `addressed_to` entities are normalized to sum to 1
+        across each `affected` column.
+
+    Raises
+    ------
+    ValueError
+        If `dist` is not a Series or DataFrame.
+
+    Examples
+    --------
+    >>> dist = pd.Series([2, 3, 5], index=['X', 'Y', 'Z'])
+    >>> affected = pd.Index(['A'])
+    >>> addressed_to = pd.Index(['X', 'Y', 'Z'])
+    >>> _normalize_distribution(dist, affected, addressed_to)
+          A
+    X  0.2
+    Y  0.3
+    Z  0.5
+    """
     ret = pd.DataFrame(0.0, index=addressed_to, columns=affected)
     dist_sq = dist.squeeze()
     if isinstance(dist_sq, pd.Series):
@@ -1323,7 +1511,62 @@ def _normalize_distribution(
 
 
 class EventTracker:
-    """Class used to track the state variables of an event"""
+    """
+    Tracks the state and progression of an event within a simulation, including
+    damages, recovery, and rebuilding demands.
+
+    Parameters
+    ----------
+    sim : Simulation
+        The simulation object where the event is tracked.
+    source_event : Event
+        The source event to be tracked.
+    indus_rebuild_distribution : pd.DataFrame, None, or Literal["equal"], optional
+        Specifies the distribution of rebuilding demand across industries, default is None.
+    house_rebuild_distribution : pd.DataFrame, None, or Literal["equal"], optional
+        Specifies the distribution of rebuilding demand across households, default is None.
+
+    Attributes
+    ----------
+    sim : Simulation
+        Reference to the simulation where the event takes place.
+    event : Event
+        The event being tracked.
+    _status : {"pending", "happening", "recovering", "rebuilding", "finished"}
+        Current status of the event.
+    _prod_delta_from_arb_0 : pd.Series or None
+        Initial production delta for arbitrary production events.
+    _prod_delta_from_arb : pd.Series or None
+        Current production delta for arbitrary production events.
+    _indus_dmg_0 : pd.Series or None
+        Initial industrial damages caused by the event.
+    _indus_dmg : pd.Series or None
+        Current industrial damages from the event.
+    _rebuildable : bool
+        Indicates if the event is eligible for rebuilding.
+    _rebuild_id : int or None
+        Unique identifier for rebuilding actions.
+    _rebuild_shares : pd.Series or None
+        Distribution shares for rebuilding demands.
+    _rebuild_demand_indus_0 : pd.DataFrame or None
+        Initial rebuilding demand for industries.
+    _rebuild_demand_house_0 : pd.DataFrame or None
+        Initial rebuilding demand for households.
+    _rebuild_demand_indus : pd.DataFrame or None
+        Current rebuilding demand for industries.
+    _distributed_reb_dem_indus : pd.DataFrame or None
+        Distributed demand for rebuilding industries.
+    _rebuild_demand_house : pd.DataFrame or None
+        Current rebuilding demand for households.
+    _distributed_reb_dem_house : pd.DataFrame or None
+        Distributed demand for rebuilding households.
+    _recovery_function : Callable or None
+        Function to compute recovery over time.
+    _house_dmg_0 : pd.Series or None
+        Initial household damages from the event.
+    _house_dmg : pd.Series or None
+        Current household damages.
+    """
 
     def __init__(
         self,
@@ -1373,7 +1616,7 @@ class EventTracker:
                 self._house_dmg = self._house_dmg_0.copy()
 
         if isinstance(source_event, EventKapitalRebuild):
-            self._init_distrib("indus", indus_rebuild_distribution, source_event)
+            self._init_distrib("indus", indus_rebuild_distribution)
             assert self._indus_dmg_0 is not None
 
             self._rebuild_demand_indus_0 = pd.DataFrame(
@@ -1390,7 +1633,7 @@ class EventTracker:
             self.rebuild_dem_indus_distribution = self._reb_dem_indus_distribution
 
             if source_event.impact_households is not None:
-                self._init_distrib("house", house_rebuild_distribution, source_event)
+                self._init_distrib("house", house_rebuild_distribution)
                 self._rebuild_demand_house_0 = pd.DataFrame(
                     source_event.rebuilding_sectors.values[:, None]
                     * source_event.impact_households.values,
@@ -1433,6 +1676,16 @@ class EventTracker:
         dtype: Literal["indus"] | Literal["house"],
         distrib: pd.DataFrame | None | Literal["equal"],
     ):
+        """
+        Initializes the distribution for rebuilding demand based on type.
+
+        Parameters
+        ----------
+        dtype : {"indus", "house"}
+             Specifies the type of distribution to initialize, either "indus" for industries or "house" for households.
+        distrib : pd.DataFrame, None, or "equal"
+             The distribution data for rebuilding demand. If None, distribution is based on intermediate demand; if "equal," distribution is equal across all sectors.
+        """
         if dtype == "indus":
             if distrib is None:
                 self._reb_dem_indus_distribution = _normalize_distribution(
@@ -1491,34 +1744,98 @@ class EventTracker:
 
     @cached_property
     def impact_vector(self) -> pd.Series:
+        """
+        Returns the impact vector of the event.
+
+        Returns
+        -------
+        pd.Series
+             The event impact, formatted as a series with all industries as index.
+        """
         return _thin_to_wide(self.event.impact, self.sim.model.industries)
 
     @property
     def productive_capital_dmg_init(self) -> pd.Series | None:
+        """
+        Gets the initial productive capital damage from the event.
+
+        Returns
+        -------
+        pd.Series or None
+            Series of initial damages to productive capital; None if not available.
+        """
         return self._indus_dmg_0
 
     @property
     def productive_capital_dmg(self) -> pd.Series | None:
+        """
+        Gets the current productive capital damage.
+
+        Returns
+        -------
+        pd.Series or None
+            Series of current damages to productive capital; None if not available.
+        """
         return self._indus_dmg
 
     @property
     def households_damages_init(self) -> pd.Series | None:
+        """
+        Gets the initial household damage for the event.
+
+        Returns
+        -------
+        pd.Series or None
+            Series of initial damages to households; None if not available.
+        """
         return self._house_dmg_0
 
     @property
     def households_damages(self) -> pd.Series | None:
+        """
+        Gets the current household damage for the event.
+
+        Returns
+        -------
+        pd.Series or None
+            Series of initial damages to households; None if not available.
+        """
         return self._house_dmg
 
     @property
     def rebuild_demand_indus(self) -> pd.DataFrame | None:
+        """
+        Gets the current rebuilding demand for industries.
+
+        Returns
+        -------
+        pd.DataFrame or None
+            DataFrame of rebuilding demands for industries; None if not applicable.
+        """
         return self._rebuild_demand_indus
 
     @property
     def rebuild_demand_house(self) -> pd.DataFrame | None:
+        """
+        Gets the current rebuilding demand for households.
+
+        Returns
+        -------
+        pd.DataFrame or None
+            DataFrame of rebuilding demands for households; None if not applicable.
+        """
         return self._rebuild_demand_house
 
     @property
     def prod_delta_arbitrary(self) -> pd.Series | None:
+        """
+        Gets the current production delta for arbitrary production loss events.
+
+        Returns
+        -------
+        pd.Series or None
+            Series representing production changes; None if not available.
+        """
         return self._prod_delta_from_arb
 
     @prod_delta_arbitrary.setter
@@ -1535,11 +1852,36 @@ class EventTracker:
         | Literal["rebuilding"]
         | Literal["finished"]
     ):
+        """
+        Gets the current status of the event.
+
+        Returns
+        -------
+        {"pending", "happening", "recovering", "rebuilding", "finished"}
+            The status indicating the stage of the event.
+        """
         return self._status
 
     def _compute_distributed_demand(
         self, demand_by_sectors, distribution, rebuilding_industries
     ):
+        """
+        Computes the distributed demand based on sector demand and distribution.
+
+        Parameters
+        ----------
+        demand_by_sectors : pd.DataFrame
+            The demand data for sectors.
+        distribution : pd.DataFrame
+            Distribution weights for sectors.
+        rebuilding_industries : pd.Index
+            Index of rebuilding industries.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame of distributed demand across regions and sectors.
+        """
         multi_index = pd.MultiIndex.from_product(
             [self.sim.model.regions, rebuilding_industries],
             names=["region", "rebuilding sector"],
@@ -1551,6 +1893,14 @@ class EventTracker:
 
     @property
     def rebuild_dem_indus_distribution(self) -> pd.DataFrame | None:
+        """
+        Gets the distribution for rebuilding industry demand.
+
+        Returns
+        -------
+        pd.DataFrame or None
+            Distribution DataFrame for rebuilding industry demand; None if not set.
+        """
         return self._reb_dem_indus_distribution
 
     @rebuild_dem_indus_distribution.setter
@@ -1569,9 +1919,30 @@ class EventTracker:
 
     @property
     def distributed_reb_dem_indus(self) -> pd.DataFrame | None:
+        """
+        Gets the distributed rebuilding demand for industries.
+
+        Returns
+        -------
+        pd.DataFrame or None
+            Distributed DataFrame for rebuilding industry demand; None if not set.
+        """
         return self._distributed_reb_dem_indus
 
     def receive_indus_rebuilding(self, reb_prod: pd.DataFrame | npt.ArrayLike | None):
+        """
+        Processes and updates the industry rebuilding demand based on received production.
+
+        Parameters
+        ----------
+        reb_prod : pd.DataFrame or npt.ArrayLike
+            Rebuilding production to apply to industry demands.
+
+        Raises
+        ------
+        ValueError
+            If reb_prod is None, or if rebuilding demand does not exist or event is not a rebuilding event.
+        """
         if reb_prod is None:
             raise ValueError("Trying to rebuild with None rebuilding prod.")
         if self._distributed_reb_dem_indus is None:
@@ -1598,6 +1969,14 @@ class EventTracker:
 
     @property
     def rebuild_dem_house_distribution(self) -> pd.DataFrame | None:
+        """
+        Gets the distribution for rebuilding household demand.
+
+        Returns
+        -------
+        pd.DataFrame or None
+            Distribution DataFrame for rebuilding household demand; None if not set.
+        """
         return self._reb_dem_house_distribution
 
     @rebuild_dem_house_distribution.setter
@@ -1613,9 +1992,30 @@ class EventTracker:
 
     @property
     def distributed_reb_dem_house(self) -> pd.DataFrame | None:
+        """
+        Gets the distributed rebuilding demand for households.
+
+        Returns
+        -------
+        pd.DataFrame or None
+            Distributed DataFrame for rebuilding household demand; None if not set.
+        """
         return self._distributed_reb_dem_house
 
     def receive_house_rebuilding(self, reb_prod: pd.DataFrame | npt.ArrayLike | None):
+        """
+        Processes and updates the household rebuilding demand based on received production.
+
+        Parameters
+        ----------
+        reb_prod : pd.DataFrame or npt.ArrayLike
+            Rebuilding production to apply to household demands.
+
+        Raises
+        ------
+        ValueError
+            If reb_prod is None, or if household rebuilding demand does not exist or event is not a rebuilding event.
+        """
         if reb_prod is None:
             raise ValueError("Trying to rebuild with None rebuilding prod.")
 
@@ -1644,6 +2044,14 @@ class EventTracker:
             )
 
     def recover(self):
+        """
+        Applies the recovery function to update the damages over time based on the recovery rate of the event.
+
+        Raises
+        ------
+        ValueError
+            If the event is not a recoverable type (i.e., not a capital or production recovery event).
+        """
         if not isinstance(self.event, (EventKapitalRecover, EventArbitraryProd)):
             raise ValueError("The event is not a recoverable event.")
         if isinstance(self.event, EventKapitalRecover):
@@ -1678,14 +2086,43 @@ class EventTracker:
 
     @property
     def recovery_function(self):
+        """
+        Gets the recovery function associated with the event.
+
+        Returns
+        -------
+        Callable or None
+            Function to calculate recovery over time, if applicable.
+        """
         return self._recovery_function
 
     @cached_property
     def affected_sectors_idx(self) -> npt.NDArray:
+        """
+        Gets the index of sectors affected by the event.
+
+        Returns
+        -------
+        npt.NDArray
+            Array of indices representing affected sectors.
+        """
         return np.searchsorted(self.sim.model.sectors, self.event.aff_sectors)
 
     @cached_property
     def affected_regions_idx(self) -> npt.NDArray:
+        """
+        Gets the index of regions affected by the event.
+
+        Returns
+        -------
+        npt.NDArray
+            Array of indices representing affected regions.
+
+        Raises
+        ------
+        ValueError
+            If some affected regions are not found in the model.
+        """
         impossible_regions = np.setdiff1d(
             self.event.aff_regions, self.sim.model.regions
         )
@@ -1699,6 +2136,14 @@ class EventTracker:
 
     @cached_property
     def affected_industries_idx(self) -> npt.NDArray:
+        """
+        Gets the index of industries affected by the event.
+
+        Returns
+        -------
+        npt.NDArray
+            Array of indices representing affected industries.
+        """
         return np.array(
             [
                 np.size(self.sim.model.sectors) * ri + si
@@ -1709,6 +2154,19 @@ class EventTracker:
 
     @cached_property
     def rebuilding_sectors_idx(self) -> npt.NDArray:
+        """
+        Gets the index of sectors involved in rebuilding for the event.
+
+        Returns
+        -------
+        npt.NDArray
+            Array of indices representing rebuilding sectors.
+
+        Raises
+        ------
+        ValueError
+            If the event is not a rebuilding event or if some rebuilding sectors are not found in the model.
+        """
         if not isinstance(self.event, EventKapitalRebuild):
             raise ValueError(
                 "This event is not a rebuilding event and has no rebuilding sectors."
@@ -1727,6 +2185,14 @@ class EventTracker:
 
     @cached_property
     def rebuilding_industries_idx_impacted(self) -> npt.NDArray:
+        """
+        Gets the index of rebuilding industries that were impacted by the event.
+
+        Returns
+        -------
+        npt.NDArray
+            Array of indices representing rebuilding industries impacted by the event.
+        """
         rebuilding_sectors_idx = self.rebuilding_sectors_idx
         affected_region_idx = self.affected_regions_idx
         return np.array(
@@ -1740,6 +2206,14 @@ class EventTracker:
 
     @cached_property
     def rebuilding_industries_idx_not_impacted(self) -> npt.NDArray:
+        """
+        Gets the index of rebuilding industries not impacted by the event.
+
+        Returns
+        -------
+        npt.NDArray
+            Array of indices representing rebuilding industries not impacted by the event.
+        """
         rebuilding_sectors_idx = self.rebuilding_sectors_idx
         affected_region_idx = self.affected_regions_idx
         return np.array(
@@ -1754,6 +2228,14 @@ class EventTracker:
 
     @cached_property
     def rebuilding_industries_idx_all(self) -> npt.NDArray:
+        """
+        Gets the index of all rebuilding industries involved in the event.
+
+        Returns
+        -------
+        npt.NDArray
+            Array of indices representing all rebuilding industries for the event.
+        """
         rebuilding_sectors_idx = self.rebuilding_sectors_idx
         return np.array(
             [

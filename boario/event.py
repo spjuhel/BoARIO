@@ -125,15 +125,16 @@ def from_series(
     ----------
     impact : pd.Series
         A pd.Series defining the impact per (region, sector)
-    occurrence : int
+    event_type: Literal["recovery"] | Literal["rebuild"] | Literal["arbitrary"]
+        The type of events to generate. See :ref:`boario-event`.
+    duration : int, default 1
+        The duration of the event (number of steps before which the recovery starts). Defaults to 1.
+    occurrence : int, default 1
         The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
-    duration : int
-        The duration of the event (entire impact applied during this number of steps). Defaults to 1.
-    name : Optional[str]
+    name : Optional[str], default None
         A possible name for the event, for convenience. Defaults to None.
     **kwargs :
-        Keyword arguments keyword arguments to pass to the instantiating method
-    (depends on the type of event).
+        Keyword arguments to pass to the instantiating method (depending on the type of event).
 
     Returns
     -------
@@ -151,7 +152,7 @@ def from_series(
     >>> import pymrio as pym
     >>> from boario.simulation import Simulation
     >>> from boario.extended_model import ARIOPsiModel
-    >>> from boario.event import EventKapitalRecover
+    >>> import boario.event
     >>>
     >>> mriot = pym.load_test()
     >>> mriot.calc_all()
@@ -159,7 +160,7 @@ def from_series(
     >>> impact_series = pd.Series({('reg1', 'electricity'): 100000.0, ('reg1', 'mining'): 50000.0})
     >>> model = ARIOPsiModel(mriot)
     >>> sim = Simulation(model)
-    >>> event = EventKapitalRecover.from_series(impact_series, occurrence=5, duration=10, recovery_time=30, name="Event 1")
+    >>> event = boario.event.from_series(impact_series, event_type="recovery", occurrence=5, duration=10, recovery_tau=30, name="Event 1")
     >>> sim.add_event(event)
 
     """
@@ -206,7 +207,7 @@ def from_scalar_industries(
     *,
     event_type: str,
     affected_industries: IndustriesList,
-    impact_distrib: Literal["equal"] | pd.Series = "equal",
+    impact_distrib: Literal["equal"] | pd.Series,
     occurrence: int = 1,
     duration: int = 1,
     name: Optional[str] = None,
@@ -228,22 +229,21 @@ def from_scalar_industries(
     ----------
     impact : ScalarImpact
         The scalar impact.
-    industries : IndustriesList
+    event_type: Literal["recovery"] | Literal["rebuild"] | Literal["arbitrary"]
+        The type of events to generate. See :ref:`boario-event`.
+    affected_industries : IndustriesList
         The list of industries affected by the impact.
-    impact_industries_distrib : Optional[npt.ArrayLike]
-        A vector of equal size to the list of industries, stating the
-        share of the impact each industry should receive. Defaults to None.
-    gva_distrib : Optional[bool]
-        A boolean stating if the impact should be distributed proportionnaly to GVA. Defaults to False.
-    occurrence : Optional[int]
+    impact_distrib : pd.Series | Literal["equal"]
+        If "equal", distributes the impact equally between the affected industries.
+        If a pd.Series of industries <> value is given, then the impact is distributed proportionally to that Series.
+    duration : int, default 1
+        The duration of the event (number of steps before which the recovery starts). Defaults to 1.
+    occurrence : int, default 1
         The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
-    duration : Optional[int]
-        The duration of the event (entire impact applied during this number of steps). Defaults to 1.
-    name : Optional[str]
+    name : Optional[str], default None
         A possible name for the event, for convenience. Defaults to None.
     **kwargs :
-        Keyword arguments
-        Other keyword arguments to pass to the instantiate method (depends on the type of event)
+        Keyword arguments to pass to the instantiating method (depending on the type of event).
 
     Raises
     ------
@@ -284,7 +284,7 @@ def from_scalar_industries(
             recovery_function=recovery_function,
         )
     elif event_type == "arbitrary":
-        raise NotImplementedError("This type of event is not implemented yet.")
+        raise NotImplementedError("This method does not yet accept this type of event.")
     else:
         raise ValueError(f"Wrong event type: {event_type}")
 
@@ -295,8 +295,8 @@ def from_scalar_regions_sectors(
     event_type: str,
     affected_regions: RegionsList,
     affected_sectors: SectorsList,
-    impact_regional_distrib: Literal["equal"] | pd.Series = "equal",
-    impact_sectoral_distrib: Literal["equal"] | pd.Series = "equal",
+    impact_regional_distrib: Literal["equal"] | pd.Series,
+    impact_sectoral_distrib: Literal["equal"] | pd.Series,
     occurrence: int = 1,
     duration: int = 1,
     name: Optional[str] = None,
@@ -314,19 +314,26 @@ def from_scalar_regions_sectors(
     ----------
     impact : ScalarImpact
         The scalar impact.
-    regions : RegionsList
-        The list of regions affected.
-    sectors : SectorsList
-        The list of sectors affected in each region.
-    impact_regional_distrib : Optional[npt.ArrayLike], optional
-        A vector of equal size to the list of regions affected, stating the
-        share of the impact each industry should receive. Defaults to None.
-    impact_sectoral_distrib : Optional[Union[str, npt.ArrayLike]], optional
-        Either:
-
-        * ``\"gdp\"``, the impact is then distributed using the gross value added of each sector as a weight.
-        * A vector of equal size to the list of sectors affected, stating the share of the impact each industry should receive. Defaults to None.
-
+    event_type: Literal["recovery"] | Literal["rebuild"] | Literal["arbitrary"]
+        The type of events to generate. See :ref:`boario-event`.
+    affected_regions : RegionsList
+        The list of regions affected by the impact.
+    affected_sectors : SectorsList
+        The list of regions affected by the impact.
+    impact_regional_distrib : Literal["equal"] | pd.Series,
+        If "equal", distributes the impact equally between the affected regions.
+        If a pd.Series of regions : value is given, then the total impact is distributed proportionally to that Series.
+    impact_sectoral_distrib : Literal["equal"] | pd.Series,
+        If "equal", distributes the regional impact equally between the affected sectors.
+        If a pd.Series of sector : value is given, then the regional impact is distributed proportionally to that Series.
+    duration : int, default 1
+        The duration of the event (number of steps before which the recovery starts). Defaults to 1.
+    occurrence : int, default 1
+        The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
+    name : Optional[str], default None
+        A possible name for the event, for convenience. Defaults to None.
+    **kwargs :
+        Keyword arguments to pass to the instantiating method (depending on the type of event).
     occurrence : int, optional
         The ordinal of occurrence of the event (requires to be > 0). Defaults to 1.
     duration : int, optional
@@ -394,7 +401,7 @@ class Event(ABC):
        The Event class is abstract and cannot be instantiated directly. Only its non-abstract subclasses can be instantiated.
 
     .. note::
-       Events should be constructed using :py:meth:`~Event.from_series()`, :func:`~event.from_dataframe()`, :func:`~event.from_scalar_industries()` or from :func:`~event.from_scalar_regions_sectors()`.
+       Events should be constructed using :func:`~event.from_series()`, :func:`~event.from_dataframe()`, :func:`~event.from_scalar_industries()` or from :func:`~event.from_scalar_regions_sectors()`.
        Depending on the type of event chosen, these constructors require additional keyword arguments, that are documented for each instantiable Event subclass.
        For instance, :py:class:`EventKapitalRebuild` additionally requires `rebuild_tau` and `rebuilding_sectors`.
 
@@ -877,14 +884,15 @@ class EventKapitalDestroyed(Event, ABC):
 
     def _check_negligeable_impact(self, impact: pd.Series):
         if (impact < LOW_DEMAND_THRESH / self.event_monetary_factor).all():
-            raise ValueError(
-                "Impact is too small to be considered by the model. Check you units perhaps ?"
+            warnings.warn(
+                "Impact is too small to be considered by the model and will be ignored. Check you units perhaps ?"
             )
         if negligeable := (
             impact < LOW_DEMAND_THRESH / self.event_monetary_factor
-        ).sum():
+        ).any():
             warnings.warn(
-                f"Impact for some industries ({negligeable} total), is smaller than {LOW_DEMAND_THRESH / self.event_monetary_factor} and will be considered as 0. by the model."
+                f"Impact for some industries ({negligeable} total), is smaller than {LOW_DEMAND_THRESH / self.event_monetary_factor} and will be considered as 0. by the model.",
+                stacklevel=2,
             )
 
 
@@ -1077,7 +1085,7 @@ class EventArbitraryProd(Event):
        For this type of event, the impact value represent the share of production capacity lost of an industry.
 
     .. note::
-       In addition to the base arguments of an Event, EventArbitraryProd requires a ``recovery_time`` (1 step by default) and a ``recovery_function`` (linear by default).
+       In addition to the base arguments of an Event, EventArbitraryProd requires a ``recovery_tau`` (1 step by default) and a ``recovery_function`` (linear by default).
 
     .. seealso::
        Tutorial :ref:`boario-events`
