@@ -796,7 +796,8 @@ class Simulation:
         self.update_prod_cap_delta_tot()
         if new_reb_event:
             self.model._chg_events_number()
-            self.update_rebuild_demand()
+
+        self.update_rebuild_demand()
 
     def rebuild_events(self):
         """Updates rebuilding events from model's production dedicated to rebuilding.
@@ -873,43 +874,45 @@ class Simulation:
 
         """
 
-        logger.debug(f"Trying to set tot_rebuilding demand from {self._event_tracking}")
         if not isinstance(self._event_tracking, list):
             ValueError(
                 f"Setting tot_rebuild_demand can only be done with a list of events self._event_tracking, not a {type(self._event_tracking)}"
             )
-        _rebuilding_demand = np.zeros(
-            shape=(
-                self.model.n_regions * self.model.n_sectors,
-                (
-                    self.model.n_regions * self.model.n_sectors
-                    + self.model.n_regions * self.model.n_fd_cat
-                )
-                * self.model._n_rebuilding_events,
-            )
-        )
-        for evnt_trck in self._event_tracking:
-            if evnt_trck._rebuild_id is not None:
-                _rebuilding_demand[
-                    :,
-                    (self.model.n_regions * self.model.n_sectors)
-                    * (evnt_trck._rebuild_id) : (
+        if "rebuilding" in [
+            event_tracker.status for event_tracker in self._event_tracking
+        ]:
+            _rebuilding_demand = np.zeros(
+                shape=(
+                    self.model.n_regions * self.model.n_sectors,
+                    (
                         self.model.n_regions * self.model.n_sectors
+                        + self.model.n_regions * self.model.n_fd_cat
                     )
-                    * (evnt_trck._rebuild_id + 1),
-                ] = evnt_trck.distributed_reb_dem_indus
-                if evnt_trck.households_damages is not None:
+                    * self.model._n_rebuilding_events,
+                )
+            )
+            for evnt_trck in self._event_tracking:
+                if evnt_trck._rebuild_id is not None:
                     _rebuilding_demand[
                         :,
                         (self.model.n_regions * self.model.n_sectors)
-                        * self.model._n_rebuilding_events : (
+                        * (evnt_trck._rebuild_id) : (
                             self.model.n_regions * self.model.n_sectors
-                            + self.model.n_regions * self.model.n_fd_cat
                         )
                         * (evnt_trck._rebuild_id + 1),
-                    ] = evnt_trck.distributed_reb_dem_house
+                    ] = evnt_trck.distributed_reb_dem_indus_tau
+                    if evnt_trck.households_damages is not None:
+                        _rebuilding_demand[
+                            :,
+                            (self.model.n_regions * self.model.n_sectors)
+                            * self.model._n_rebuilding_events : (
+                                self.model.n_regions * self.model.n_sectors
+                                + self.model.n_regions * self.model.n_fd_cat
+                            )
+                            * (evnt_trck._rebuild_id + 1),
+                        ] = evnt_trck.distributed_reb_dem_house_tau
 
-        self.model.rebuild_demand = _rebuilding_demand
+            self.model.rebuild_demand = _rebuilding_demand
 
     def update_productive_capital_lost(self):
         r"""Computes current capital lost and updates production delta accordingly.
@@ -1921,6 +1924,42 @@ class EventTracker:
                 long_index=self.sim.model.industries,
                 long_columns=self.sim.model.industries,
             )
+
+    @property
+    def distributed_reb_dem_indus_tau(self) -> pd.DataFrame | None:
+        """
+        Gets the current rebuilding demand for industries.
+
+        Returns
+        -------
+        pd.DataFrame or None
+            DataFrame of rebuilding demands for industries; None if not applicable.
+        """
+        if self.event.rebuild_tau:
+            reb_tau = self.event.rebuild_tau
+        else:
+            reb_tau = self.sim.model.rebuild_tau
+        return self._distributed_reb_dem_indus * (
+            self.sim.model.n_temporal_units_by_step / reb_tau
+        )
+
+    @property
+    def distributed_reb_dem_house_tau(self) -> pd.DataFrame | None:
+        """
+        Gets the current rebuilding demand for households.
+
+        Returns
+        -------
+        pd.DataFrame or None
+            DataFrame of rebuilding demands for households; None if not applicable.
+        """
+        if self.event.rebuild_tau:
+            reb_tau = self.event.rebuild_tau
+        else:
+            reb_tau = self.sim.model.rebuild_tau
+        return self._distributed_reb_dem_house * (
+            self.sim.model.n_temporal_units_by_step / reb_tau
+        )
 
     @property
     def distributed_reb_dem_indus(self) -> pd.DataFrame | None:
