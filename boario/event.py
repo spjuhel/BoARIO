@@ -43,6 +43,9 @@ __all__ = [
     "IndustriesList",
     "SectorsList",
     "RegionsList",
+    "from_series",
+    "from_scalar_industries",
+    "from_scalar_regions_sectors",
 ]
 
 VectorImpact = Union[list, dict, np.ndarray, pd.DataFrame, pd.Series]
@@ -126,7 +129,7 @@ def from_series(
     impact : pd.Series
         A pd.Series defining the impact per (region, sector)
     event_type: Literal["recovery"] | Literal["rebuild"] | Literal["arbitrary"]
-        The type of events to generate. See :ref:`boario-event`.
+        The type of events to generate. See :ref:`boario-events`.
     duration : int, default 1
         The duration of the event (number of steps before which the recovery starts). Defaults to 1.
     occurrence : int, default 1
@@ -230,7 +233,7 @@ def from_scalar_industries(
     impact : ScalarImpact
         The scalar impact.
     event_type: Literal["recovery"] | Literal["rebuild"] | Literal["arbitrary"]
-        The type of events to generate. See :ref:`boario-event`.
+        The type of events to generate. See :ref:`boario-events`.
     affected_industries : IndustriesList
         The list of industries affected by the impact.
     impact_distrib : pd.Series | Literal["equal"]
@@ -315,7 +318,7 @@ def from_scalar_regions_sectors(
     impact : ScalarImpact
         The scalar impact.
     event_type: Literal["recovery"] | Literal["rebuild"] | Literal["arbitrary"]
-        The type of events to generate. See :ref:`boario-event`.
+        The type of events to generate. See :ref:`boario-events`.
     affected_regions : RegionsList
         The list of regions affected by the impact.
     affected_sectors : SectorsList
