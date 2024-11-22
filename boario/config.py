@@ -1,4 +1,4 @@
-from configparser import SafeConfigParser
+from configparser import ConfigParser
 import os
 from pathlib import Path
 
@@ -15,7 +15,7 @@ class Config:
         self.settings = self._load_config()
 
     def _load_config(self):
-        config = SafeConfigParser(os.environ)
+        config = ConfigParser(os.environ)
 
         config.read(self.default_conf_path)
 
