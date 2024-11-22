@@ -1,5 +1,13 @@
 .. _references:
 
+
+BoARIO Academic work
+==========================
+
+- BoARIO publication: :cite:`2024a:juhel`
+- Sensitivity analysis and case study of the 2021 floods in Germany: :cite:`2024b:juhel`
+- Climate extreme risk evaluation from a financial viewpoint: :cite:`2024:maximy`
+
 ARIO Academic work
 ==========================
 

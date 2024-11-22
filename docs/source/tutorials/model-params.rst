@@ -17,7 +17,7 @@ Parameters are set when instantiating the model. The following block shows all c
 .. code:: python
 
           model = ARIOPsiModel(
-              pym_mrio=mrio,
+              pym_mriot=mriot,
               order_type="alt",
               alpha_base=1.0,
               alpha_max=1.25,
@@ -60,13 +60,13 @@ Here is a quick description of each parameters. Please refer to both :ref:`the m
 
 * ``productive_capital_to_VA_dict`` should be a dictionary of ``sector:ratio`` format, where ratio is an estimate of Capital Stock over Value Added ratio. This is used to estimate the capital stock of each sector. By default the ratio is 4/1 for all sectors.
 
-* ``productive_capital_vector`` can directly set the capital stock for all industries (ie regions*sectors sized). This overrides ``kapital_to_VA_dict``.
+* ``productive_capital_vector`` can directly set the capital stock for all industries (ie regions*sectors sized). This overrides ``productive_capital_to_VA_dict``.
 
 * ``psi_param`` and ``inventory_restoration_tau`` : see :ref:`boario-math-dyn`
 
 .. note::
 
-   All arguments except the mrio are keyword arguments (`ie` not positional), meaning you always need to specify <parameter = value>.
+   All arguments except the mriot are keyword arguments (`i.e.`, not positional), meaning you always need to specify <parameter = value>.
    (This also means you can put them in any order). The reason for this is to make parameter setting entirely explicit.
 
 

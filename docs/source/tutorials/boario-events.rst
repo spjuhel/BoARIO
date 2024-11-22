@@ -28,46 +28,10 @@ To define such an event, we hence need the following information:
 In addition, it is also possible to define a duration (corresponding to the time before rebuilding can start)
 as well as time of occurrence (when studying interaction between multiple events), and a recovery duration (:ref:`boario-math-recovery`).
 
-During a simulation BoARIO uses :class:`~boario.event.Event` objects.
+To represent these events or shocks, BoARIO uses :class:`~boario.event.Event` objects.
 This page details the different aspect of instantiating such objects.
 
-.. [#local] At the moment events are local to the regional unit of the MRIOT used (e.g. a country/world region in the case of EXIOBASE3 MRIO).
-
-Simulation context
-------------------
-
-Creating events requires a simulation context to exist,
-notably to assess the validity of the event (the affected regions, sectors, the occurrence, ...). Hence,
-trying to instantiate an ``Event`` object without already having a ``Simulation`` (and therefore an ``ARIOPsiModel``)
-will raise an error.
-
-In the following, we will assume the following code was run initially:
-
-.. code:: python
-
-        import pymrio
-        import pandas as pd
-
-        from boario.simulation import Simulation
-        from boario.extended_models import ARIOPsiModel
-
-        mriot = pymrio.load_test().calc_all()
-        model = ARIOPsiModel(mriot)
-        sim = Simulation(model, n_temporal_units_to_sim=365)
-
-Here are the regions and sectors defined in this context:
-
-.. code:: pycon
-
-          >>> model.regions
-
-          array(['reg1', 'reg2', 'reg3', 'reg4', 'reg5', 'reg6'], dtype='<U4')
-
-          >>> model.sectors
-
-          array(['construction', 'electricity', 'food', 'manufactoring', 'mining',
-                 'other', 'trade', 'transport'], dtype='<U13')
-
+.. [#local] At the moment events are local to the regional unit of the MRIOT used (e.g. a country/world region in the case of EXIOBASE3 MRIOT).
 
 =========================================
 Different types of Event objects
@@ -87,6 +51,16 @@ a destruction of capital as the impact:
 * :class:`~boario.event.EventArbitraryProd` defines events for which production capacity
   is arbitrarily decrease for a set of industries.
 
+
+One common entry point
+------------------------
+
+Initially, events of different types had to be instantiated via methods from
+their own class. Since version ``0.6.0`` and the huge refactoring, higher-level
+functions (:func:`~boario.event.from_series`, :func:`~boario.event.from_scalar_industries` and
+:func:`~boario.event.from_scalar_regions_sectors`) are available to instantiate any type of
+events, the desired type being given as an argument.
+
 ========================================
 Defining Event from an impact vector
 ========================================
@@ -94,8 +68,8 @@ Defining Event from an impact vector
 The more direct way to instantiate an event is to use a :class:`pandas.Series` object
 where the index is the set of affected industries and the values are the impact for each.
 
-Suppose you want to represent an event impacting the "manufactoring" an "mining" sectors of region "reg2" for respectively
-5'000'000€ and 3'000'000€ (assuming the MRIO is in €). You can define the following ``Series``:
+Suppose you want to represent an event impacting the ``"manufactoring"`` an ``"mining"`` sectors of region ``"reg2"`` for respectively
+5'000'000€ and 3'000'000€ (assuming the MRIOT is in €). You can define the following ``Series``:
 
 .. code:: pycon
 
@@ -121,7 +95,7 @@ For this type of event you need to specify the characteristic time for recovery 
 let us use 30 days here.
 
 You can also choose a recovery function/curve between ``"linear"`` (by default), ``"concave"``
-and ``"convexe"`` following what is done in :cite:`2019:koks,2016:koks`.
+and ``"convexe"`` following what is done in :cite:t:`2019:koks,2016:koks`.
 
 You may also choose a specific ``occurrence`` (default is 1) which is especially useful if you
 simulate multiple events.
@@ -139,8 +113,11 @@ Finally for convenience you can give a name for the event.
 
 .. code:: python
 
-          ev = EventKapitalRecover.from_series(
+          from boario import event
+
+          ev = event.from_series(
               impact=impact,
+              event_type="recovery",
               recovery_tau=30,
               recovery_function="concave",
               occurrence=5,
@@ -174,8 +151,11 @@ and where 80% of the demand is answered by the construction sector, and 20% by t
 
 .. code:: python
 
-          ev = EventKapitalRebuild.from_series(
+          from boario import event
+
+          ev = event.from_series(
               impact=impact,
+              event_type="rebuild",
               rebuild_tau=60,
               rebuilding_sectors={"construction": 0.8, "manufactoring": 0.2},
               rebuilding_factor=0.9,
@@ -186,10 +166,6 @@ and where 80% of the demand is answered by the construction sector, and 20% by t
 
 Create a :class:`~boario.event.EventArbitraryProd`
 ------------------------------------------------------
-
-.. warning::
-   A critical bug was found for this class and this type of Event has been made unavailable
-   until fixed.
 
 When creating this type of event, the impact values should be value between 0 and 1 stating
 the fraction of production capacity unavailable due to the event.
@@ -215,8 +191,9 @@ Otherwise, production capacity is restored instantaneously after the duration of
 
 .. code:: python
 
-          ev = EventArbitraryProd.from_series(
+          ev = event.from_series(
               impact=impact,
+              event_type="arbitrary",
               occurrence=5,
               duration=7,
               recovery_function="linear",
@@ -228,7 +205,7 @@ Defining events from a scalar
 ================================
 
 You can also define an event from a scalar impact
-(except for :class:`~boario.event.EventArbitraryProd` at the moment).
+(except for :class:`~boario.event.EventArbitraryProd`).
 This requires to define which industries are affected and
 how the impact is distributed among the industries.
 
@@ -244,14 +221,14 @@ In order to define which industries are affected you can:
    and affected sectors at the second.
 
 2. Give them as a list of regions affected, as well as a list of sectors affected.
-   The resulting affected industries being the cartesian product of those two lists.
+   The resulting affected industries being the Cartesian product of those two lists.
 
 .. warning::
 
   Note that the second option does not allow to have different sectors affected in each region.
 
-By default, the impact will be uniformally distributed among the affected regions and
-the impact per region is then also uniformally distributed among the affected sector in the region.
+By default, the impact will be uniformly distributed among the affected regions and
+the impact per region is then also uniformly distributed among the affected sector in the region.
 
 Otherwise, there are multiple ways to setup a custom distribution:
 

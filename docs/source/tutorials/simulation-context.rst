@@ -1,5 +1,5 @@
-Defining a simulation context
-======================================
+Simulation context and state variable saving
+=========================================================
 
 
 :py:class:`Simulation` objects act as wrappers for a model and one or multiple event, and thus sets a context for a simulation. It handles the following aspect:
@@ -21,8 +21,7 @@ The length of the simulation can be set by the ``n_temporal_units_to_sim`` argum
 Running multiple simulations
 _______________________________
 
-At the moment we recommend redefining both a model and a simulation object when running multiple simulations. Running multiple simulations with the same model and simulation wrapper, using :py:meth:`Simulation.reset_sim_full()` has not been extensively tested yet, and some unwanted behavior may remain.
-
+At the moment we recommend redefining both a model and a simulation object when running multiple simulations.
 
 Reading the outputs and saving files
 __________________________________________
