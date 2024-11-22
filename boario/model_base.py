@@ -1201,27 +1201,6 @@ class ARIOBaseModel:
         self.overprod += overprod_chg
         self.overprod[self.overprod < 1.0] = 1.0
 
-    def reset_module(
-        self,
-    ) -> None:
-        """Resets the model to initial state [Deprecated]
-
-        This method has not been checked extensively.
-        """
-
-        self.productive_capital_lost = np.zeros(self.production.shape)
-        self.overprod = np.full(
-            (self.n_regions * self.n_sectors), self.overprod_base, dtype=np.float64
-        )
-        self.inputs_stock = self.inputs_stock_0.copy()
-        self.production = self.X_0.copy()
-        self.intermediate_demand = self.Z_0.copy()
-        self.final_demand = self.Y_0.copy()
-        self.final_demand_not_met = np.zeros(self.Y_0.shape)
-        self.rebuilding_demand = np.array([])
-        self.in_shortage = False
-        self.had_shortage = False
-
     def write_index(self, index_file: str | pathlib.Path) -> None:
         """Write the indexes of the different dataframes of the model in a json file.
 
@@ -1252,21 +1231,3 @@ class ARIOBaseModel:
         index_file.parent.mkdir(parents=True, exist_ok=True)
         with index_file.open("w") as ffile:
             json.dump(indexes, ffile)
-
-    def change_inv_duration(self, new_dur, old_dur=None) -> None:
-        # replace this method by a property !
-        if old_dur is None:
-            old_dur = self.main_inv_dur
-        old_dur = float(old_dur) / self.n_temporal_units_by_step
-        new_dur = float(new_dur) / self.n_temporal_units_by_step
-        logger.info(
-            "Changing (main) inventories duration from {} steps to {} steps (there are {} temporal units by step so duration is {})".format(
-                old_dur,
-                new_dur,
-                self.n_temporal_units_by_step,
-                new_dur * self.n_temporal_units_by_step,
-            )
-        )
-        self.inv_duration = np.where(
-            self.inv_duration == old_dur, new_dur, self.inv_duration
-        )
