@@ -459,6 +459,9 @@ class ARIOBaseModel:
         self.n_fd_cat = len(pym_mrio.get_Y_categories())  # type: ignore
         r"""int: The numbers of final demand categories."""
 
+        self.all_regions_fd = pd.MultiIndex.from_product(
+            [self.regions, self.final_demand_cat], names=["region", "category"]
+        )
         # Not required anymore?
         # except (KeyError,IndexError):
         #     self.n_fd_cat = 1

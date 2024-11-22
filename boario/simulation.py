@@ -1983,11 +1983,14 @@ class EventTracker:
     def rebuild_dem_house_distribution(self, value: pd.DataFrame):
         self._rebuild_dem_house_distribution = value
         if self.rebuild_demand_house is not None:
-            self._distributed_reb_dem_house = pd.DataFrame(
-                np.tile(self.rebuild_demand_house.values, (1, self.sim.model.n_regions))
-                * self._rebuild_dem_house_distribution.values,
-                index=self.sim.model.industries,
-                columns=self.sim.model.industries,
+            self._distributed_reb_dem_house = _thin_to_wide(
+                self._compute_distributed_demand(
+                    self.rebuild_demand_house,
+                    self._rebuild_dem_house_distribution,
+                    self.event.rebuilding_sectors.index,
+                ),
+                long_index=self.sim.model.industries,
+                long_columns=self.sim.model.all_regions_fd,
             )
 
     @property

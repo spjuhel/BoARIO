@@ -864,7 +864,7 @@ class EventKapitalDestroyed(Event, ABC):
         if households_impact is not None:
             if not isinstance(households_impact, pd.Series):
                 raise ValueError(
-                    "Households impacts have to be a Series with regions and sectors affected as multiindex."
+                    "Households impacts have to be a Series with regions (and possibly categories of final demand) affected as multiindex."
                 )
             self._check_negligeable_impact(households_impact)
             self.impact_households = households_impact
@@ -880,7 +880,25 @@ class EventKapitalDestroyed(Event, ABC):
 
     @impact_households.setter
     def impact_households(self, value: pd.Series | None):
-        self._impact_households = value
+        if value is not None:
+            self._impact_households = value
+            self._impact_households.rename_axis(
+                index=["region", "category"], inplace=True
+            )
+            logger.debug("Sorting households impact Series")
+            self._impact_households.sort_index(inplace=True)
+            tmp_idx = self._impact_households.loc[self._impact_households > 0].index
+            if not isinstance(tmp_idx, pd.MultiIndex):
+                raise ValueError("The impact series does not have a MultiIndex index.")
+            self._aff_final_demands = tmp_idx
+            self.total_household_impact = self.impact.sum()
+        else:
+            self._impact_households = None
+
+    @property
+    def aff_final_demands(self) -> pd.Index:
+        r"""The array of regions affected by the event"""
+        return self._aff_final_demands
 
     def _check_negligeable_impact(self, impact: pd.Series):
         if (impact < LOW_DEMAND_THRESH / self.event_monetary_factor).all():
