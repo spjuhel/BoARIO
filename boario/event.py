@@ -1057,12 +1057,13 @@ class EventKapitalRecover(EventKapitalDestroyed):
                 ]
             ):
                 raise ValueError(
-                    "Recovery function has to have at least the following keyword arguments: {}".format(
+                    "Recovery function has to have at least the following keyword arguments: {}\n\nGiven function has: {}".format(
                         [
                             "init_impact_stock",
                             "elapsed_temporal_unit",
                             "recovery_tau",
-                        ]
+                        ],
+                        r_fun_args,
                     )
                 )
             fun = r_fun
