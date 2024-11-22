@@ -1616,7 +1616,7 @@ class EventTracker:
             self._indus_dmg = self._indus_dmg_0.copy()
             if source_event.impact_households is not None:
                 self._house_dmg_0 = _thin_to_wide(
-                    source_event.impact_households.copy(), self.sim.model.regions
+                    source_event.impact_households.copy(), self.sim.model.all_regions_fd
                 )
                 self._house_dmg = self._house_dmg_0.copy()
 
@@ -1723,7 +1723,7 @@ class EventTracker:
             if distrib is None:
                 self._reb_dem_house_distribution = _normalize_distribution(
                     self.sim.model.mriot.Y,
-                    affected=self.event.aff_regions,
+                    affected=self.event._aff_final_demands,
                     addressed_to=pd.MultiIndex.from_product(
                         [self.sim.model.regions, self.event.rebuilding_sectors.index],
                         names=["region", "rebuilding sector"],
@@ -1731,7 +1731,7 @@ class EventTracker:
                 )
             elif distrib == "equal":
                 self._reb_dem_house_distribution = _equal_distribution(
-                    affected=self.event.aff_regions,
+                    affected=self.event._aff_final_demands,
                     addressed_to=pd.MultiIndex.from_product(
                         [self.sim.model.regions, self.event.rebuilding_sectors.index],
                         names=["region", "rebuilding sector"],
@@ -1740,7 +1740,7 @@ class EventTracker:
             else:
                 self._reb_dem_house_distribution = _normalize_distribution(
                     distrib,
-                    affected=self.event.aff_regions,
+                    affected=self.event._aff_final_demands,
                     addressed_to=pd.MultiIndex.from_product(
                         [self.sim.model.regions, self.event.rebuilding_sectors.index],
                         names=["region", "rebuilding sector"],
