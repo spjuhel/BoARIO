@@ -15,8 +15,6 @@ from boario.utils.recovery_functions import *
 
 import boario
 
-boario.disable_console_logging()
-
 ##### UNIT TESTS
 
 
@@ -142,6 +140,7 @@ class TestARIOPsiModel:
 
     def test_mriot_neg_VA(self, test_mrio):
         test_mrio.x.iloc[0, 0] = 1
+        test_mrio.A = pymrio.calc_A(test_mrio.Z, test_mrio.x)
         with pytest.warns(
             UserWarning,
             match=re.compile(
@@ -714,6 +713,18 @@ class TestARIOPsiModel:
         np.testing.assert_array_equal(zeros, model.calc_matrix_stock_gap(goal))
         np.testing.assert_array_equal(goal * tau, model.calc_matrix_stock_gap(goal * 2))
 
-    def test_calc_orders(self, test_mrio):
+    def test_calc_orders_base_alt(self, test_mrio):
         model = ARIOBaseModel(test_mrio)
+        model.calc_orders()
+
+    def test_calc_orders_base_noalt(self, test_mrio):
+        model = ARIOBaseModel(test_mrio, order_type="noalt")
+        model.calc_orders()
+
+    def test_calc_orders_psi_alt(self, test_mrio):
+        model = ARIOPsiModel(test_mrio)
+        model.calc_orders()
+
+    def test_calc_orders_psi_noalt(self, test_mrio):
+        model = ARIOPsiModel(test_mrio, order_type="noalt")
         model.calc_orders()

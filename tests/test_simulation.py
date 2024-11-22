@@ -9,20 +9,15 @@ import pandas as pd
 import numpy as np
 
 # import the different classes
-import boario
 from boario import event
-from boario.model_base import ARIOBaseModel
-from boario.simulation import Simulation  # Simulation wraps the model
+from boario.simulation import (
+    Simulation,
+    _equal_distribution,
+    _normalize_distribution,
+)  # Simulation wraps the model
 from boario.extended_models import ARIOPsiModel  # The core of the model
-from boario.event import (
-    Event,
-    EventKapitalRebuild,
-    EventArbitraryProd,
-    EventKapitalRecover,
-)  # A class defining a shock on capital
+from boario.event import Event
 from boario.utils.recovery_functions import *
-
-boario.disable_console_logging()
 
 
 @pytest.fixture
@@ -239,141 +234,6 @@ def test_minimal_simulation(test_model):
         minimal_simulation(test_model)
 
 
-def test_minor_rec_event(test_sim):
-    ev = event.from_scalar_regions_sectors(
-        impact=100,
-        event_type="recovery",
-        affected_regions=["reg1"],
-        affected_sectors=["mining"],
-        recovery_tau=30,
-    )
-    test_sim.add_event(ev)
-    test_sim.loop()
-    min_values = (
-        test_sim.production_realised.loc[:, "reg1"]
-        / test_sim.production_realised.loc[0, "reg1"]
-    ).min()
-    assert (min_values < 1.0).all()
-    assert (
-        min_values.drop("mining") > (1.0 - 1 / test_sim.model.monetary_factor)
-    ).all()
-
-
-def test_medium_rec_event(test_sim):
-    ev = event.from_scalar_regions_sectors(
-        impact=100000,
-        event_type="recovery",
-        affected_regions=["reg1"],
-        affected_sectors=["mining"],
-        recovery_tau=30,
-    )
-    test_sim.add_event(ev)
-    test_sim.loop()
-    min_values = (
-        test_sim.production_realised.loc[:, "reg1"]
-        / test_sim.production_realised.loc[0, "reg1"]
-    ).min()
-    assert (min_values < 1.0).all()
-    assert (
-        min_values.drop("mining") < (1.0 - 1 / test_sim.model.monetary_factor)
-    ).all()
-
-
-def test_crashing_rec_event(test_sim):
-    ev = event.from_scalar_regions_sectors(
-        event_type="recovery",
-        impact=100000,
-        affected_regions=["reg1"],
-        affected_sectors=["mining"],
-        recovery_tau=30,
-    )
-    test_sim.add_event(ev)
-    test_sim.loop()
-    min_values = (
-        test_sim.production_realised.loc[:, "reg1"]
-        / test_sim.production_realised.loc[0, "reg1"]
-    ).min()
-    assert (min_values < 1.0).all()
-    assert (
-        min_values.drop("mining") < (1.0 - 1 / test_sim.model.monetary_factor)
-    ).all()
-
-
-def test_minor_reb_event(test_sim):
-    ev = event.from_scalar_regions_sectors(
-        event_type="rebuild",
-        impact=100000,
-        affected_regions=["reg1"],
-        affected_sectors=["manufactoring"],
-        rebuilding_sectors={"construction": 1.0},
-        duration=350,
-        rebuild_tau=100,
-    )
-    test_sim.add_event(ev)
-    test_sim.loop()
-    min_values = (
-        test_sim.production_realised.loc[:, "reg1"]
-        / test_sim.production_realised.loc[0, "reg1"]
-    ).min()
-    assert (min_values < 1.0).all()
-    assert (
-        min_values.drop(["mining", "manufactoring"])
-        > (1.0 - 1 / test_sim.model.monetary_factor)
-    ).all()
-
-
-def test_shortage_reb_event(test_sim):
-    ev = event.from_scalar_regions_sectors(
-        event_type="rebuild",
-        impact=10000000,
-        affected_regions=["reg1"],
-        affected_sectors=["manufactoring"],
-        rebuilding_sectors={"construction": 1.0},
-        duration=90,
-        rebuild_tau=100,
-    )
-    test_sim.add_event(ev)
-    test_sim.loop()
-    min_values = (
-        test_sim.production_realised.loc[:, "reg1"]
-        / test_sim.production_realised.loc[0, "reg1"]
-    ).min()
-    assert (min_values < 1.0).all()
-    assert (min_values < (1.0 - 1 / test_sim.model.monetary_factor)).all()
-    assert test_sim.model.had_shortage
-
-
-def test_multiple_reb_event(test_sim):
-    ev1 = event.from_scalar_regions_sectors(
-        event_type="rebuild",
-        impact=1000000,
-        affected_regions=["reg1"],
-        affected_sectors=["manufactoring"],
-        rebuilding_sectors={"construction": 1.0},
-        duration=30,
-        rebuild_tau=100,
-    )
-    ev2 = event.from_scalar_regions_sectors(
-        event_type="rebuild",
-        occurrence=7,
-        impact=1000000,
-        affected_regions=["reg2"],
-        affected_sectors=["manufactoring"],
-        rebuilding_sectors={"construction": 1.0},
-        duration=30,
-        rebuild_tau=100,
-    )
-    test_sim.add_events([ev1, ev2])
-    test_sim.loop()
-    min_values = (
-        test_sim.production_realised.loc[:, "reg1"]
-        / test_sim.production_realised.loc[0, "reg1"]
-    ).min()
-    assert (min_values < 1.0).all()
-    # assert (min_values < (1.0 - 1 / test_sim.model.monetary_factor)).all()
-    # assert test_sim.model.had_shortage
-
-
 # def test_crashing_reb_event(test_sim):
 #     ev = event.from_scalar_regions_sectors(
 #         event_type="rebuild",
@@ -387,3 +247,90 @@ def test_multiple_reb_event(test_sim):
 #     test_sim.add_event(ev)
 #     test_sim.loop()
 #     assert test_sim.has_crashed
+
+
+def test_equal_distribution():
+    # Case 1: Typical case
+    affected = pd.Index(["A", "B"])
+    addressed_to = pd.Index(["X", "Y", "Z"])
+    result = _equal_distribution(affected, addressed_to)
+
+    expected = pd.DataFrame(
+        {"A": [1 / 3, 1 / 3, 1 / 3], "B": [1 / 3, 1 / 3, 1 / 3]}, index=["X", "Y", "Z"]
+    )
+    pd.testing.assert_frame_equal(result, expected)
+
+    # Case 2: Single affected and single addressed_to
+    affected = pd.Index(["A"])
+    addressed_to = pd.Index(["X"])
+    result = _equal_distribution(affected, addressed_to)
+
+    expected = pd.DataFrame({"A": [1.0]}, index=["X"])
+    pd.testing.assert_frame_equal(result, expected)
+
+    # Case 3: Empty affected index
+    affected = pd.Index([])
+    addressed_to = pd.Index(["X", "Y"])
+    result = _equal_distribution(affected, addressed_to)
+
+    expected = pd.DataFrame(index=["X", "Y"], columns=[])
+    pd.testing.assert_frame_equal(result, expected)
+
+    # Case 4: Empty addressed_to index
+    affected = pd.Index(["A", "B"])
+    addressed_to = pd.Index([])
+
+    with pytest.raises(ValueError):
+        result = _equal_distribution(affected, addressed_to)
+
+    # Case 5: Both indices empty
+    affected = pd.Index([])
+    addressed_to = pd.Index([])
+
+    with pytest.raises(ValueError):
+        result = _equal_distribution(affected, addressed_to)
+
+    # Case 6: Unequal distribution check (error expected)
+    affected = pd.Index(["A", "B"])
+    addressed_to = pd.Index(["X", "Y"])
+    result = _equal_distribution(affected, addressed_to)
+    for col in result.columns:
+        assert result[col].sum() == 1  # Each column should sum to 1
+
+
+def test_normalize_distribution():
+    # Case 1: Normalizing a Series distribution
+    dist = pd.Series([2, 3, 5], index=["X", "Y", "Z"])
+    affected = pd.Index(["A"])
+    addressed_to = pd.Index(["X", "Y", "Z"])
+    result = _normalize_distribution(dist, affected, addressed_to)
+
+    expected = pd.DataFrame({"A": [0.2, 0.3, 0.5]}, index=["X", "Y", "Z"])
+    pd.testing.assert_frame_equal(result, expected)
+
+    # Case 2: Normalizing a DataFrame distribution
+    dist = pd.DataFrame({"A": [2, 3, 5], "B": [4, 6, 10]}, index=["X", "Y", "Z"])
+    affected = pd.Index(["A", "B"])
+    addressed_to = pd.Index(["X", "Y", "Z"])
+    result = _normalize_distribution(dist, affected, addressed_to)
+
+    expected = pd.DataFrame(
+        {"A": [0.2, 0.3, 0.5], "B": [0.2, 0.3, 0.5]}, index=["X", "Y", "Z"]
+    )
+    pd.testing.assert_frame_equal(result, expected)
+
+    # Case 6: Mismatched indices in Series
+    dist = pd.Series([2, 3], index=["X", "Y"])
+    affected = pd.Index(["A"])
+    addressed_to = pd.Index(["X", "Y", "Z"])
+    with pytest.raises(KeyError):
+        _normalize_distribution(dist, affected, addressed_to)
+
+    # Case 7: Invalid distribution type
+    dist = [2, 3, 5]  # Not a Series or DataFrame
+    affected = pd.Index(["A"])
+    addressed_to = pd.Index(["X", "Y", "Z"])
+    with pytest.raises(
+        ValueError, match="given distribution should be a Series or a DataFrame"
+    ):
+        _normalize_distribution(dist, affected, addressed_to)

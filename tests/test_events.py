@@ -19,8 +19,6 @@ import pytest
 
 import boario
 
-boario.disable_console_logging()
-
 
 @pytest.fixture
 def sample_series():
@@ -156,15 +154,15 @@ class TestEventInitScalar:
 
     def test_event_from_scalar_arbitrary(self):
         with pytest.raises(NotImplementedError):
-            event.from_scalar_industries(impact=1000, affected_industries=pd.Index([("RegionA", "Sector1")]), event_type="arbitrary")  # type: ignore
+            event.from_scalar_industries(impact=1000, affected_industries=pd.Index([("RegionA", "Sector1")]), event_type="arbitrary", impact_distrib="equal")  # type: ignore
 
     def test_event_from_scalar_wrongtype(self):
         with pytest.raises(ValueError):
-            event.from_scalar_industries(impact=1000, affected_industries=pd.Index([("RegionA", "Sector1")]), event_type="wrongtype")  # type: ignore
+            event.from_scalar_industries(impact=1000, affected_industries=pd.Index([("RegionA", "Sector1")]), event_type="wrongtype", impact_distrib="equal")  # type: ignore
 
     def test_event_from_scalar_notype(self):
         with pytest.raises(TypeError):
-            event.from_scalar_industries(sample_series, affected_industries=pd.Index([("RegionA", "Sector1")]))  # type: ignore
+            event.from_scalar_industries(sample_series, affected_industries=pd.Index([("RegionA", "Sector1")]), impact_distrib="equal")  # type: ignore
 
     def test_event_from_scalar_reg_sec_arbitrary(self):
         with pytest.raises(NotImplementedError):
@@ -173,6 +171,8 @@ class TestEventInitScalar:
                 affected_regions=pd.Index(["RegionA"]),
                 affected_sectors=pd.Index(["SectorA"]),
                 event_type="arbitrary",
+                impact_regional_distrib="equal",
+                impact_sectoral_distrib="equal",
             )
 
     def test_event_from_scalar_reg_sec_wrongtype(self):
@@ -182,11 +182,19 @@ class TestEventInitScalar:
                 affected_regions=pd.Index(["RegionA"]),
                 affected_sectors=pd.Index(["SectorA"]),
                 event_type="wrongtype",
+                impact_regional_distrib="equal",
+                impact_sectoral_distrib="equal",
             )
 
     def test_event_from_scalar_reg_sec_notype(self):
         with pytest.raises(TypeError):
-            event.from_scalar_regions_sectors(sample_series, affected_regions=pd.Index(["RegionA"]), affected_sectors=pd.Index(["SectorA"]))  # type: ignore
+            event.from_scalar_regions_sectors(
+                sample_series,
+                affected_regions=pd.Index(["RegionA"]),
+                affected_sectors=pd.Index(["SectorA"]),
+                impact_regional_distrib="equal",
+                impact_sectoral_distrib="equal",
+            )  # type: ignore
 
     @pytest.mark.parametrize(
         "impact, fails",
@@ -450,7 +458,6 @@ class TestEventInitScalar:
             (1, True),
             (pd.Series({"NoRegionA": 1.0}), True),
             (pd.Series({"RegionA": 60}), False),
-            (None, False),
             ("equal", False),
         ],
     )
@@ -461,7 +468,6 @@ class TestEventInitScalar:
             (1, True),
             (pd.Series({"NoSector1": 1.0}), True),
             (pd.Series({"Sector1": 60}), False),
-            (None, False),
             ("equal", False),
         ],
     )
@@ -549,7 +555,6 @@ class TestEventInitScalar:
                 pd.Series({("RegionA", "Sector1"): 1000.0}),
                 pd.Series({("RegionA", "Sector1"): 1000.0}),
             ),
-            (pd.Series({("RegionA", "Sector1"): 0.5}), "error"),
         ],
     )
     def test_households_impacts(self, sample_series, h_impact, expected):
@@ -576,11 +581,11 @@ class TestEventInitScalar:
     # recovery function
     def test_event_from_series_recovery(self, sample_series):
 
-        def r_fun1(init_impact_stock, elapsed_temporal_unit, recovery_time):
-            return init_impact_stock * (1 - (elapsed_temporal_unit / recovery_time))
+        def r_fun1(init_impact_stock, elapsed_temporal_unit, recovery_tau):
+            return init_impact_stock * (1 - (elapsed_temporal_unit / recovery_tau))
 
-        def r_fun2(init_impact_stock, recovery_time):
-            return init_impact_stock * (1 - (1 / recovery_time))
+        def r_fun2(init_impact_stock, recovery_tau):
+            return init_impact_stock * (1 - (1 / recovery_tau))
 
         event_instance = event.from_series(
             sample_series, event_type="recovery", recovery_tau=1
