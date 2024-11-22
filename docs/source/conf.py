@@ -44,6 +44,7 @@ extensions = [
     "sphinxcontrib.bibtex",
     "sphinx.ext.inheritance_diagram",
     "nbsphinx",
+    "sphinx_design",
     #    'autoapi.sphinx',
 ]
 

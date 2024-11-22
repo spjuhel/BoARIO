@@ -1,11 +1,11 @@
+.. _installation:
+
 ###############
 Installation
 ###############
 
-.. _installation:
-
-Install via pip
-==================
+Install from package
+======================
 
 There is a pip package available, which you can install with:
 

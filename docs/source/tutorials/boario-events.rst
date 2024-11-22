@@ -117,7 +117,7 @@ Suppose you want to represent an event impacting the "manufactoring" an "mining"
 Create a :class:`~boario.event.EventKapitalRecover`
 ---------------------------------------------------
 
-For this type of event you need to specify the characteristic time for recovery ``"recovery_time"``:
+For this type of event you need to specify the characteristic time for recovery ``"recovery_tau"``:
 let us use 30 days here.
 
 You can also choose a recovery function/curve between ``"linear"`` (by default), ``"concave"``
@@ -141,7 +141,7 @@ Finally for convenience you can give a name for the event.
 
           ev = EventKapitalRecover.from_series(
               impact=impact,
-              recovery_time=30,
+              recovery_tau=30,
               recovery_function="concave",
               occurrence=5,
               duration=7,
@@ -220,7 +220,7 @@ Otherwise, production capacity is restored instantaneously after the duration of
               occurrence=5,
               duration=7,
               recovery_function="linear",
-              recovery_time=5,
+              recovery_tau=5,
           )
 
 ================================
