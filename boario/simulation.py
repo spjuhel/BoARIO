@@ -1450,8 +1450,10 @@ def _equal_distribution(
     Y  0.333333  0.333333
     Z  0.333333  0.333333
     """
+    if addressed_to.empty:
+        raise ValueError("addressed_to index cannot be empty.")
     ret = pd.DataFrame(0.0, index=addressed_to, columns=affected)
-    ret.loc[affected, addressed_to] = 1 / len(addressed_to)
+    ret.loc[addressed_to, affected] = 1 / len(addressed_to)
     return ret
 
 
@@ -1495,10 +1497,13 @@ def _normalize_distribution(
     Z  0.5
     """
     ret = pd.DataFrame(0.0, index=addressed_to, columns=affected)
-    dist_sq = dist.squeeze()
+    if isinstance(dist, pd.DataFrame):
+        dist_sq = dist.squeeze()
+    else:
+        dist_sq = dist
     if isinstance(dist_sq, pd.Series):
-        ret.loc[addressed_to, :] = dist_sq.loc[addressed_to].transform(
-            lambda x: x / sum(x)
+        ret.loc[addressed_to, :] = (
+            dist_sq.loc[addressed_to].transform(lambda x: x / sum(x)).values[:, None]
         )
         return ret
     elif isinstance(dist_sq, pd.DataFrame):
