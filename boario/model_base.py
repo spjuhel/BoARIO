@@ -178,7 +178,7 @@ class ARIOBaseModel:
 
         if hasattr(source_mriot, "monetary_factor"):
             warnings.warn(
-                f"Custom monetary factor found in the mrio pickle file, continuing with this one ({getattr(source_mriot,'monetary_factor')})"
+                f"Custom monetary factor found in the IOSystem, continuing with this one ({getattr(source_mriot,'monetary_factor')})"
             )
             self.monetary_factor = getattr(source_mriot, "monetary_factor")
         else:
@@ -250,7 +250,7 @@ class ARIOBaseModel:
         if (value_added < 0).any().any():  # type: ignore
             tmp = (value_added[value_added < 0].dropna(axis=1)).columns  # type: ignore
             warnings.warn(
-                f"""Found negative values in the value added, will set to 0. Note that sectors with null value added are not impacted by capital destruction.
+                f"""Found negative values in the value added, will set to 0. Note that industries with null value added will have a null productive capital if it is defined from value added.
                 industries with negative VA: {tmp}
                 """
             )

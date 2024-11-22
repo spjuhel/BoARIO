@@ -1612,14 +1612,24 @@ class EventTracker:
         self._house_dmg_0: pd.Series | None = None
         self._house_dmg: pd.Series | None = None
 
+        impact = source_event.impact.copy()
         if isinstance(source_event, EventKapitalDestroyed):
-            self._indus_dmg_0 = _thin_to_wide(
-                source_event.impact.copy(), self.sim.model.industries
-            )
+            if source_event.event_monetary_factor != sim.model.monetary_factor:
+                impact = impact * (
+                    source_event.event_monetary_factor / sim.model.monetary_factor
+                )
+
+        if isinstance(source_event, EventKapitalDestroyed):
+            self._indus_dmg_0 = _thin_to_wide(impact, self.sim.model.industries)
             self._indus_dmg = self._indus_dmg_0.copy()
             if source_event.impact_households is not None:
+                impact_house = source_event.impact_households.copy()
+                if source_event.event_monetary_factor != sim.model.monetary_factor:
+                    impact_house = impact_house * (
+                        source_event.event_monetary_factor / sim.model.monetary_factor
+                    )
                 self._house_dmg_0 = _thin_to_wide(
-                    source_event.impact_households.copy(), self.sim.model.all_regions_fd
+                    impact_house, self.sim.model.all_regions_fd
                 )
                 self._house_dmg = self._house_dmg_0.copy()
 
@@ -1644,7 +1654,7 @@ class EventTracker:
                 self._init_distrib("house", house_rebuild_distribution)
                 self._rebuild_demand_house_0 = pd.DataFrame(
                     source_event.rebuilding_sectors.values[:, None]
-                    * source_event.impact_households.values,
+                    * impact_house.values,
                     index=source_event.rebuilding_sectors.index,
                     columns=source_event.impact_households.index,
                 )
