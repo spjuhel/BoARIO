@@ -4,8 +4,8 @@
 Getting started
 ===============
 
-Installation
-=============
+Quick installation
+====================
 
 .. code-block:: console
 

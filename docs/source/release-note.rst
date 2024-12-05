@@ -44,8 +44,15 @@ Renaming:
 
 Fixes:
 
-* Fix issues #113 #110 #104 #111 #95 #96
-* Probably fixes #130 (At least with series)
+* Definitely fixes:
+  - https://github.com/spjuhel/BoARIO/issues/113
+  - https://github.com/spjuhel/BoARIO/issues/110
+  - https://github.com/spjuhel/BoARIO/issues/104
+  - https://github.com/spjuhel/BoARIO/issues/111
+  - https://github.com/spjuhel/BoARIO/issues/95
+  - https://github.com/spjuhel/BoARIO/issues/96
+
+* Probably fixes https://github.com/spjuhel/BoARIO/issues/130 (At least with series)
 
 0.5.10 - JOSS v1 (06/2024)
 ---------------------------
