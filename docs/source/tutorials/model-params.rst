@@ -100,4 +100,4 @@ The number of ``temporal units`` to simulate can be set when instantiating the `
 
           sim = Simulation(model, n_temporal_units_to_sim=730)
 
-By default, simulation run for 365 `temporal units`, representing days.
+By default, a simulation runs for 365 `temporal units`, representing days.

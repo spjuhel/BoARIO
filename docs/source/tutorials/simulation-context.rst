@@ -86,6 +86,9 @@ It is also possible to record the inputs stocks, but this is disabled by default
           # Access the array
           sim.inputs_stocks
 
+.. hint::
+   These DataFrames can easily be saved using any of pandas writers. BoARIO also makes it possible to save the raw arrays (see below).
+
 .. _index_records:
 
 Saving indexes, parameters and events simulated

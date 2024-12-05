@@ -31,7 +31,7 @@ BoARIO has been published in the Journal of Open Source Software :cite:`2024a:ju
         +++
 
         .. button-ref:: getting-started
-            :ref-type: ref
+            :ref-type: doc
             :click-parent:
             :color: secondary
             :expand:
