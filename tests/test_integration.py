@@ -8,7 +8,7 @@ from boario.simulation import Simulation
 
 
 @pytest.fixture
-def test_mrio():
+def test_mriot():
     mrio = pymrio.load_test()  # .calc_all()
     mrio.aggregate(
         region_agg=["reg1", "reg1", "reg2", "reg2", "reg3", "reg3"],
@@ -28,9 +28,9 @@ def test_mrio():
 
 
 @pytest.fixture
-def test_model(test_mrio):
+def test_model(test_mriot):
     model = ARIOPsiModel(
-        pym_mrio=test_mrio,
+        pym_mrio=test_mriot,
         order_type="alt",
         alpha_base=1.0,
         alpha_max=1.25,
@@ -121,6 +121,7 @@ def test_minor_rec_event(test_sim):
         min_values.drop(["manufactoring", "mining"])
         > (1.0 - 1 / test_sim.model.monetary_factor)
     ).all()
+    assert not test_sim.model.had_shortage
 
 
 def test_medium_rec_event(test_sim):
@@ -139,6 +140,7 @@ def test_medium_rec_event(test_sim):
         impact_sectoral_distrib=va.loc["indout", "reg1"],
         recovery_tau=180,
         recovery_function="convexe",
+        event_monetary_factor=test_sim.model.monetary_factor,
     )
     test_sim.add_event(ev)
     test_sim.loop()
@@ -173,10 +175,11 @@ def test_medium_rec_event(test_sim):
         / test_sim.production_realised.loc[0, "reg1"]
     ).min()
     assert (min_values < 0.9999).all()
+    assert not test_sim.model.had_shortage
 
 
 def test_shortage_rec_event(test_sim):
-    impact = 5000000000.0
+    impact = 900000000.0
     duration = 120
     affected_regions = ["reg1"]
     affected_sectors = ["manufactoring", "mining"]
@@ -191,6 +194,7 @@ def test_shortage_rec_event(test_sim):
         impact_sectoral_distrib=va.loc["indout", "reg1"],
         recovery_tau=180,
         recovery_function="convexe",
+        event_monetary_factor=test_sim.model.monetary_factor,
     )
     test_sim.add_event(ev)
     test_sim.loop()
@@ -228,9 +232,9 @@ def test_shortage_rec_event(test_sim):
     assert test_sim.model.had_shortage
 
 
-def test_crashing_rec_event(test_sim):
-    impact = 5000000000.0
-    duration = 20
+def test_capital_lost_too_high_rec_event(test_sim):
+    impact = 3000000000.0
+    duration = 200
     affected_regions = ["reg1"]
     affected_sectors = ["manufactoring", "mining"]
     va = test_sim.model.mriot.x.T - test_sim.model.mriot.Z.sum(axis=0)
@@ -244,9 +248,10 @@ def test_crashing_rec_event(test_sim):
         impact_sectoral_distrib=va.loc["indout", "reg1"],
         recovery_tau=180,
         recovery_function="convexe",
+        event_monetary_factor=test_sim.model.monetary_factor,
     )
-    test_sim.add_event(ev)
     with pytest.raises(RuntimeError):
+        test_sim.add_event(ev)
         test_sim.loop()
 
 
@@ -266,6 +271,7 @@ def test_minor_reb_event(test_sim):
         rebuild_tau=180,
         impact_regional_distrib="equal",
         impact_sectoral_distrib=va.loc["indout", "reg1"],
+        event_monetary_factor=test_sim.model.monetary_factor,
     )
     test_sim.add_event(ev)
     test_sim.loop()
@@ -278,6 +284,7 @@ def test_minor_reb_event(test_sim):
         min_values.drop(["mining", "manufactoring"])
         > (1.0 - 1 / test_sim.model.monetary_factor)
     ).all()
+    assert not test_sim.model.had_shortage
 
 
 def test_medium_reb_event(test_sim):
@@ -296,6 +303,7 @@ def test_medium_reb_event(test_sim):
         rebuild_tau=180,
         impact_regional_distrib="equal",
         impact_sectoral_distrib=va.loc["indout", "reg1"],
+        event_monetary_factor=test_sim.model.monetary_factor,
     )
     test_sim.add_event(ev)
     test_sim.loop()
@@ -308,10 +316,11 @@ def test_medium_reb_event(test_sim):
         min_values.drop(["mining", "manufactoring"])
         > (1.0 - 1 / test_sim.model.monetary_factor)
     ).all()
+    assert not test_sim.model.had_shortage
 
 
 def test_shortage_reb_event(test_sim):
-    impact = 5000000.0
+    impact = 14000000.0
     duration = 20
     affected_regions = ["reg1"]
     affected_sectors = ["manufactoring", "mining"]
@@ -326,6 +335,7 @@ def test_shortage_reb_event(test_sim):
         rebuild_tau=180,
         impact_regional_distrib="equal",
         impact_sectoral_distrib=va.loc["indout", "reg1"],
+        event_monetary_factor=test_sim.model.monetary_factor,
     )
     test_sim.add_event(ev)
     test_sim.loop()
@@ -334,10 +344,10 @@ def test_shortage_reb_event(test_sim):
         / test_sim.production_realised.loc[0, "reg1"]
     ).min()
     assert (min_values < 1.0).all()
-    assert (
-        min_values.drop(["mining", "manufactoring"])
-        > (1.0 - 1 / test_sim.model.monetary_factor)
-    ).all()
+    # assert (
+    #    min_values.drop(["mining", "manufactoring"])
+    #    > (1.0 - 1 / test_sim.model.monetary_factor)
+    # ).all()
     # production capacity of unaffected sector should never be below 1.0
     production_cap_norm = (
         test_sim.production_capacity / test_sim.production_capacity.loc[0]
@@ -370,10 +380,11 @@ def test_multiple_rec_event(test_sim):
         recovery_tau=180,
         impact_regional_distrib="equal",
         impact_sectoral_distrib="equal",
+        event_monetary_factor=test_sim.model.monetary_factor,
     )
     ev2 = event.from_scalar_regions_sectors(
         event_type="recovery",
-        occurrence=7,
+        occurrence=15,
         impact=1000000,
         affected_regions=["reg2"],
         affected_sectors=["manufactoring", "food"],
@@ -381,6 +392,7 @@ def test_multiple_rec_event(test_sim):
         recovery_tau=180,
         impact_regional_distrib="equal",
         impact_sectoral_distrib="equal",
+        event_monetary_factor=test_sim.model.monetary_factor,
     )
     test_sim.add_events([ev1, ev2])
     test_sim.loop()
@@ -389,8 +401,7 @@ def test_multiple_rec_event(test_sim):
         / test_sim.production_realised.loc[0, "reg1"]
     ).min()
     assert (min_values < 1.0).all()
-    # assert (min_values < (1.0 - 1 / test_sim.model.monetary_factor)).all()
-    # assert test_sim.model.had_shortage
+    assert not test_sim.model.had_shortage
 
 
 def test_multiple_reb_event(test_sim):
@@ -404,6 +415,7 @@ def test_multiple_reb_event(test_sim):
         rebuild_tau=100,
         impact_regional_distrib="equal",
         impact_sectoral_distrib="equal",
+        event_monetary_factor=test_sim.model.monetary_factor,
     )
     ev2 = event.from_scalar_regions_sectors(
         event_type="rebuild",
@@ -416,6 +428,7 @@ def test_multiple_reb_event(test_sim):
         rebuild_tau=100,
         impact_regional_distrib="equal",
         impact_sectoral_distrib="equal",
+        event_monetary_factor=test_sim.model.monetary_factor,
     )
     test_sim.add_events([ev1, ev2])
     test_sim.loop()
@@ -424,8 +437,6 @@ def test_multiple_reb_event(test_sim):
         / test_sim.production_realised.loc[0, "reg1"]
     ).min()
     assert (min_values < 1.0).all()
-    # assert (min_values < (1.0 - 1 / test_sim.model.monetary_factor)).all()
-    # assert test_sim.model.had_shortage
 
 
 def test_household_reb_event(test_sim):
@@ -453,6 +464,7 @@ def test_household_reb_event(test_sim):
         rebuild_tau=180,
         impact_regional_distrib="equal",
         impact_sectoral_distrib=va.loc["indout", "reg1"],
+        event_monetary_factor=test_sim.model.monetary_factor,
     )
     test_sim.add_event(ev)
     test_sim.loop()

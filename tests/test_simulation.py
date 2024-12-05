@@ -21,7 +21,7 @@ from boario.utils.recovery_functions import *
 
 
 @pytest.fixture
-def test_mrio():
+def test_mriot():
     mrio = pymrio.load_test()  # .calc_all()
     mrio.aggregate(
         region_agg=["reg1", "reg1", "reg2", "reg2", "reg3", "reg3"],
@@ -41,8 +41,8 @@ def test_mrio():
 
 
 @pytest.fixture
-def test_model(test_mrio):
-    model = ARIOPsiModel(test_mrio)
+def test_model(test_mriot):
+    model = ARIOPsiModel(test_mriot)
     return model
 
 
