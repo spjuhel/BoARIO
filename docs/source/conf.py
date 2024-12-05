@@ -92,6 +92,7 @@ html_theme_options = {
         "navbar-icon-links",
         "theme-switcher",
     ],
+    "announcement": "BoARIO is mostly the work of one person! Helping the project by making suggestions or contribution is highly appreciated!",
     "secondary_sidebar_items": ["page-toc", "sourcelink"],
     "use_edit_page_button": True,
     "show_nav_level": 2,
