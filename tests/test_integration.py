@@ -71,6 +71,7 @@ def test_minor_rec_event(test_sim):
         impact_sectoral_distrib="equal",
         recovery_tau=180,
         recovery_function="linear",
+        event_monetary_factor=test_sim.model.monetary_factor,
     )
     test_sim.add_event(ev)
     test_sim.loop()
