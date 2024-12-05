@@ -1,8 +1,8 @@
 Release notes
 ================
 
-0.6.0 (11/2024)
-----------------
+0.6.0 (11/2024) - Grace Brewster Hopper
+-------------------------------------------
 
 This version is a major refactoring of multiple parts of BoARIO, which should makes it easier to use, as well as more efficient.
 
