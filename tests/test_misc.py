@@ -34,7 +34,7 @@ def test_divide_arrays_ignore():
 
 def test_temp_memmap_save():
     shape = (3, 3)
-    with tempfile.NamedTemporaryFile() as tmpfile:
+    with tempfile.NamedTemporaryFile(mode="w") as tmpfile:
         mmap = TempMemmap(
             filename=tmpfile.name, dtype=np.float64, shape=shape, save=True
         )
