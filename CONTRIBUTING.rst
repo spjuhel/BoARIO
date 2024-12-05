@@ -39,8 +39,8 @@ If you want to start working on a bug then please write short message on the iss
 Implement Features
 ==================
 
-Look through the Github issues for features or add your own request 
-using the Code feature request template `here <https://github.com/spjuhel/BoARIO/issues/new/choose>`_ 
+Look through the Github issues for features or add your own request
+using the Code feature request template `here <https://github.com/spjuhel/BoARIO/issues/new/choose>`_
 and assign yourself.
 
 Write Documentation

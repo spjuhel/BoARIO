@@ -159,7 +159,7 @@ This work was supported by the French Environment and Energy Management Agency
 Development
 ------------
 
-** Samuel Juhel (pro@sjuhel.org)
+ - Samuel Juhel (pro@sjuhel.org)
 
 Contributions
 ---------------

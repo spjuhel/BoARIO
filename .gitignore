@@ -9,6 +9,7 @@ pyrightconfig.json
 shortlicence
 src/docs/source/_build
 docs/pages
+docs/source/_autosummary/
 testing
 
 snakejob.*

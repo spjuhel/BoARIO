@@ -1,11 +1,11 @@
+.. _installation:
+
 ###############
 Installation
 ###############
 
-.. _installation:
-
-Install via pip
-==================
+Install from package
+======================
 
 There is a pip package available, which you can install with:
 
@@ -41,7 +41,7 @@ Note that you can install BoARIO directly from a branch of its GitHub repository
 Requirements
 ===============
 
-BoARIO is currently tested against python ``3.9, 3.10, 3.11``, on Linux, Windows and MacOs.
+BoARIO is currently tested against python ``3.10, 3.11, 3.12``, on Linux, Windows and MacOs.
 However be aware the testing suite is still imperfect at this point.
 
 Installing via pip or conda should install all the required dependencies.

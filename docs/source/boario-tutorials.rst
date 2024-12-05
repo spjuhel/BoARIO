@@ -23,3 +23,4 @@ If you encounter any problems or question with one of the tutorials or examples 
    tutorials/mriot-input
    tutorials/simulation-context
    tutorials/boario-events
+   tutorials/monetary-factors

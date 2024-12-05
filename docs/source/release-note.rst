@@ -1,6 +1,71 @@
 Release notes
 ================
 
+0.6.0 (11/2024) - Grace Brewster Hopper
+-------------------------------------------
+
+This version is a major refactoring of multiple parts of BoARIO, which should makes it easier to use, as well as more efficient.
+
+BoARIO now has a logo !
+
+Breaking changes:
+
+* Different event types are now instantiated via module level functions to simplify the entry point.
+* Dropped support for python 3.9
+* Including support for python 3.12
+
+Changes:
+
+* All demands within the model are now in a single numpy array ``_entire_demand`` for efficiency (memory notably). The different demands are accessed/set via properties that return the correct part of the ``_entire_demand`` array. This should greatly alleviate the memory requirements (multiple copies of arrays have been removed) and maybe also decrease computation requirements. Changes should be seamless from user point of view.
+* From that the ``distribute_production`` method was greatly simplified.
+* Added the ``EventTracker`` class to handle the tracking of events. Event objects are now mostly static (they contain only the initial shock of the event), tracking of their evolution during the simulation is now handled by the ``EventTracker`` class. This should also mostly be seamless from user perspective.
+* Warnings are now issued by the warnings modules instead of within the logger.
+* (Supposedly) improved efficiency with faster summing functions for matrices.
+* For convenience the MRIOT ``IOSystem`` is now an attribute of the model.
+* Arbitrary production decrease events are back and working!
+* The progress bar is now enabled when creating the ``Simulation`` object.
+* The input ``IOSystem`` used to instantiate the model is no longer sorted (The copy used within the model still is, but not the external object)
+* Adds a lot of integration tests, although more are still required.
+* Removed logger handlers altogether. A logger is still defined and used, but how to actually show/register the logs is now entirely up to the user.
+* Lots of new things in the documentation and docstrings.
+
+Renaming:
+
+- Within `ARIOBaseModel`
+    * `gdp_df` renamed to `gva_df` for consistency
+    * `k_stock` renamed to `productive_capital`
+    * `k_stock_to_VA_ratio` renamed to `capital_to_VA_ratio`
+    * `gdp_share_sector` renamed to `regional_production_share`
+    * `matrix_share_thresh` renamed to `matrix_share_thresh`
+    * `matrix_stock` renamed to `inputs_stock`
+    * `matrix_orders` renamed to `intermediate_demand`
+    * `total_demand` renamed to `entire_demand_tot`
+    * `recovery_time` renamed to `recovery_tau` (for consistency with `rebuild_tau`)
+
+Fixes:
+
+* Definitely fixes:
+  - https://github.com/spjuhel/BoARIO/issues/113
+  - https://github.com/spjuhel/BoARIO/issues/110
+  - https://github.com/spjuhel/BoARIO/issues/104
+  - https://github.com/spjuhel/BoARIO/issues/111
+  - https://github.com/spjuhel/BoARIO/issues/95
+  - https://github.com/spjuhel/BoARIO/issues/96
+
+* Probably fixes https://github.com/spjuhel/BoARIO/issues/130 (At least with series)
+
+0.5.10 - JOSS v1 (06/2024)
+---------------------------
+
+This release is associated with the JOSS publication of BoARIO.
+
+Changes:
+
+* Small changes to README and documentation for grammar by @potterzot in https://github.com/spjuhel/BoARIO/pull/119
+* JOSS Version 1 by @spjuhel in https://github.com/spjuhel/BoARIO/pull/124
+
+**Full Changelog**: https://github.com/spjuhel/BoARIO/compare/v0.5.9...v0.5.10
+
 0.5.9 (04/2024)
 ----------------
 

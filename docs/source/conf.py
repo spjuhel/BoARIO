@@ -44,7 +44,8 @@ extensions = [
     "sphinxcontrib.bibtex",
     "sphinx.ext.inheritance_diagram",
     "nbsphinx",
-#    'autoapi.sphinx',
+    "sphinx_design",
+    #    'autoapi.sphinx',
 ]
 
 numpydoc_show_class_members = False
@@ -61,16 +62,17 @@ autosummary_generate = ["boario-api-reference.rst"]
 
 # bibfile
 bibtex_bibfiles = ["refs.bib"]
-
+bibtex_reference_style = "author_year"
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["archive.py",
-                    "**.ipynb_checkpoints",
-                    ]
+exclude_patterns = [
+    "archive.py",
+    "**.ipynb_checkpoints",
+]
 
 # The master toctree document.
 master_doc = "index"
@@ -86,18 +88,25 @@ copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: 
 version = boario.__version__
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
-    "navbar_end": ["navbar-icon-links", "last-updated", "theme-switcher", "version-switcher"],
+    "navbar_end": [
+        "navbar-icon-links",
+        "theme-switcher",
+    ],
+    "announcement": "BoARIO is mostly the work of one person! Helping the project by making suggestions or contribution is highly appreciated!",
     "secondary_sidebar_items": ["page-toc", "sourcelink"],
     "use_edit_page_button": True,
     "show_nav_level": 2,
     "switcher": {
         "json_url": "https://spjuhel.github.io/BoARIO/develop/en/_static/switcher.json",
         "version_match": version,
-    }
+    },
+    "footer_start": ["version-switcher", "last-updated"],
 }
 
+html_logo = "_static/logo_boario_2.svg"
+
 html_context = {
-    "default_mode": "light",
+    "default_mode": "dark",
     "display_github": True,  # Integrate GitHub
     "github_user": "spjuhel",  # Username
     "github_repo": "BoARIO",  # Repo name
@@ -128,7 +137,7 @@ html_css_files = [
 ]
 
 autodoc_typehints = "none"
-#autodoc_typehints_description_target = ""
+# autodoc_typehints_description_target = ""
 add_module_names = False
 
 # Keep members order from source :
@@ -138,7 +147,7 @@ autodoc_member_order = "bysource"
 autoclass_content = "class"
 
 # autoapi config
-autoapi_modules = {"boario": {"output": "auto", "prune":True, "override":True}}
+autoapi_modules = {"boario": {"output": "auto", "prune": True, "override": True}}
 
 # mathjax config
 mathjax3_config = {
