@@ -113,7 +113,7 @@ class TestARIOPsiModel:
         )
         assert (
             str(record[1].message)
-            == "Custom monetary factor found in the mrio pickle file, continuing with this one (1)"
+            == "Custom monetary factor found in the IOSystem, continuing with this one (1)"
         )
         assert (
             str(record[2].message)
@@ -144,7 +144,7 @@ class TestARIOPsiModel:
         with pytest.warns(
             UserWarning,
             match=re.compile(
-                r"Found negative values in the value added, will set to 0. Note that sectors with null value added are not impacted by capital destruction",
+                r"Found negative values in the value added, will set to 0.",
                 re.MULTILINE,
             ),
         ):

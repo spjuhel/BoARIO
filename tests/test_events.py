@@ -574,6 +574,7 @@ class TestEventInitScalar:
                 households_impact=h_impact,
             )
             if not isinstance(expected, str):
+                expected.index.names = ["region", "category"]
                 pd.testing.assert_series_equal(event_instance.impact_households, expected)  # type: ignore
             elif expected == "None":
                 assert event_instance.impact_households is None
