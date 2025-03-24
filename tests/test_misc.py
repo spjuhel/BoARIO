@@ -20,7 +20,7 @@ def test_divide_arrays_ignore():
     a = np.array([1, 2, 3, 4])
     b = np.array([1, 0, 3, 0])
     result = _divide_arrays_ignore(a, b)
-    expected = np.array([1.0, np.inf, 1.0, np.inf])
+    expected = np.array([1.0, 0.0, 1.0, 0.0])
     assert np.array_equal(result, expected)
 
 

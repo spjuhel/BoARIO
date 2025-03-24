@@ -68,7 +68,7 @@ def _fast_sum(array: np.ndarray, axis: int) -> np.ndarray:
 def _divide_arrays_ignore(a, b):
     with np.errstate(divide="ignore", invalid="ignore"):
         ret = np.divide(a, b)
-        np.nan_to_num(ret)
+        np.nan_to_num(ret, copy=False, nan=0.0, posinf=0.0, neginf=0.0)
         return ret
 
 
