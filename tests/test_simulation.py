@@ -299,37 +299,119 @@ def test_equal_distribution():
 
 
 def test_normalize_distribution():
-    # Case 1: Normalizing a Series distribution
-    dist = pd.Series([2, 3, 5], index=["X", "Y", "Z"])
+    # Case 1: Normalizing a Series distribution with MultiIndex
+    dist = pd.Series(
+        [2, 3, 5, 4, 6, 8],
+        index=pd.MultiIndex.from_tuples(
+            [
+                ("R1", "S1"),
+                ("R1", "S2"),
+                ("R1", "S3"),
+                ("R2", "S1"),
+                ("R2", "S2"),
+                ("R2", "S3"),
+            ],
+            names=["region", "sector"],
+        ),
+    )
     affected = pd.Index(["A"])
-    addressed_to = pd.Index(["X", "Y", "Z"])
-    result = _normalize_distribution(dist, affected, addressed_to)
-
-    expected = pd.DataFrame({"A": [0.2, 0.3, 0.5]}, index=["X", "Y", "Z"])
-    pd.testing.assert_frame_equal(result, expected)
-
-    # Case 2: Normalizing a DataFrame distribution
-    dist = pd.DataFrame({"A": [2, 3, 5], "B": [4, 6, 10]}, index=["X", "Y", "Z"])
-    affected = pd.Index(["A", "B"])
-    addressed_to = pd.Index(["X", "Y", "Z"])
+    addressed_to = pd.MultiIndex.from_tuples(
+        [
+            ("R1", "S1"),
+            ("R1", "S2"),
+            ("R1", "S3"),
+            ("R2", "S1"),
+            ("R2", "S2"),
+            ("R2", "S3"),
+        ],
+        names=["region", "sector"],
+    )
     result = _normalize_distribution(dist, affected, addressed_to)
 
     expected = pd.DataFrame(
-        {"A": [0.2, 0.3, 0.5], "B": [0.2, 0.3, 0.5]}, index=["X", "Y", "Z"]
+        {"A": [2 / 6.0, 3 / 9.0, 5 / 13.0, 4 / 6.0, 6 / 9.0, 8 / 13.0]},
+        index=pd.MultiIndex.from_tuples(
+            [
+                ("R1", "S1"),
+                ("R1", "S2"),
+                ("R1", "S3"),
+                ("R2", "S1"),
+                ("R2", "S2"),
+                ("R2", "S3"),
+            ],
+            names=["region", "sector"],
+        ),
+    )
+    pd.testing.assert_frame_equal(result, expected)
+
+    # Case 2: Normalizing a DataFrame distribution with MultiIndex
+    dist = pd.DataFrame(
+        {"A": [2, 3, 5, 4, 6, 8], "B": [10, 15, 25, 20, 30, 40]},
+        index=pd.MultiIndex.from_tuples(
+            [
+                ("R1", "S1"),
+                ("R1", "S2"),
+                ("R1", "S3"),
+                ("R2", "S1"),
+                ("R2", "S2"),
+                ("R2", "S3"),
+            ],
+            names=["region", "sector"],
+        ),
+    )
+    affected = pd.Index(["A", "B"])
+    addressed_to = pd.MultiIndex.from_tuples(
+        [
+            ("R1", "S1"),
+            ("R1", "S2"),
+            ("R1", "S3"),
+            ("R2", "S1"),
+            ("R2", "S2"),
+            ("R2", "S3"),
+        ],
+        names=["region", "sector"],
+    )
+    result = _normalize_distribution(dist, affected, addressed_to)
+
+    expected = pd.DataFrame(
+        {
+            "A": [2 / 6.0, 3 / 9.0, 5 / 13.0, 4 / 6.0, 6 / 9.0, 8 / 13.0],
+            "B": [10 / 30.0, 15 / 45.0, 25 / 65.0, 20 / 30.0, 30 / 45.0, 40 / 65.0],
+        },
+        index=pd.MultiIndex.from_tuples(
+            [
+                ("R1", "S1"),
+                ("R1", "S2"),
+                ("R1", "S3"),
+                ("R2", "S1"),
+                ("R2", "S2"),
+                ("R2", "S3"),
+            ],
+            names=["region", "sector"],
+        ),
     )
     pd.testing.assert_frame_equal(result, expected)
 
     # Case 6: Mismatched indices in Series
-    dist = pd.Series([2, 3], index=["X", "Y"])
+    dist = pd.Series(
+        [2, 3],
+        index=pd.MultiIndex.from_tuples(
+            [("R1", "S1"), ("R1", "S2")], names=["region", "sector"]
+        ),
+    )
     affected = pd.Index(["A"])
-    addressed_to = pd.Index(["X", "Y", "Z"])
+    addressed_to = pd.MultiIndex.from_tuples(
+        [("R1", "S1"), ("R1", "S2"), ("R1", "S3")], names=["region", "sector"]
+    )
     with pytest.raises(KeyError):
         _normalize_distribution(dist, affected, addressed_to)
 
     # Case 7: Invalid distribution type
     dist = [2, 3, 5]  # Not a Series or DataFrame
     affected = pd.Index(["A"])
-    addressed_to = pd.Index(["X", "Y", "Z"])
+    addressed_to = pd.MultiIndex.from_tuples(
+        [("R1", "S1"), ("R1", "S2"), ("R1", "S3")], names=["region", "sector"]
+    )
     with pytest.raises(
         ValueError, match="given distribution should be a Series or a DataFrame"
     ):

@@ -1506,12 +1506,17 @@ def _normalize_distribution(
         dist_sq = dist
     if isinstance(dist_sq, pd.Series):
         ret.loc[addressed_to, :] = (
-            dist_sq.loc[addressed_to].transform(lambda x: x / sum(x)).values[:, None]
+            dist_sq.loc[addressed_to]
+            .groupby(level=1)
+            .transform(lambda x: x / sum(x))
+            .values[:, None]
         )
         return ret
     elif isinstance(dist_sq, pd.DataFrame):
-        ret.loc[addressed_to, affected] = dist_sq.loc[addressed_to, affected].transform(
-            lambda x: x / sum(x)
+        ret.loc[addressed_to, affected] = (
+            dist_sq.loc[addressed_to, affected]
+            .groupby(level=1)
+            .transform(lambda x: x / sum(x))
         )
         return ret
     else:
