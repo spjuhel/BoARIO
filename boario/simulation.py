@@ -912,6 +912,8 @@ class Simulation:
                             * (evnt_trck._rebuild_id + 1),
                         ] = evnt_trck.distributed_reb_dem_house_tau
 
+            if np.isnan(_rebuilding_demand).any():
+                raise ValueError("NaNs found when creating the rebuilding demand.")
             self.model.rebuild_demand = _rebuilding_demand
 
     def update_productive_capital_lost(self):
@@ -1508,16 +1510,20 @@ def _normalize_distribution(
         ret.loc[addressed_to, :] = (
             dist_sq.loc[addressed_to]
             .groupby(level=1)
-            .transform(lambda x: x / sum(x))
+            .transform(lambda x: x / sum(x) if sum(x) != 0 else 0)
             .values[:, None]
         )
+        if np.isnan(ret).any(axis=None):
+            raise ValueError("The distribution contains NaNs")
         return ret
     elif isinstance(dist_sq, pd.DataFrame):
         ret.loc[addressed_to, affected] = (
             dist_sq.loc[addressed_to, affected]
             .groupby(level=1)
-            .transform(lambda x: x / sum(x))
+            .transform(lambda x: x / sum(x) if sum(x) != 0 else 0)
         )
+        if np.isnan(ret).any(axis=None):
+            raise ValueError("The distribution contains NaNs")
         return ret
     else:
         raise ValueError("given distribution should be a Series or a DataFrame.")
