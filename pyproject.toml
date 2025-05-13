@@ -7,6 +7,14 @@ license = "GNU General Public License v3 or later (GPLv3+)"
 readme = "README.rst"
 
 [tool.setuptools_scm]
+version_scheme = "guess-next-dev"
+local_scheme = "node-and-date"
+
+[tool.setuptools.packages.find]
+where = ["."]  # list of folders that contain the packages (["."] by default)
+include = ["boario"]  # package names should match these glob patterns (["*"] by default)
+exclude = []  # exclude packages matching these glob patterns (empty by default)
+#namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
 
 [tool.poetry.dependencies]
 python=">=3.10,<4.0"
@@ -45,8 +53,8 @@ sphinx-design = "^0.6.1"
 setuptools-scm = "^8.3.1"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core","setuptools>=61", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
 
 [project]
 keywords = [
@@ -62,19 +70,19 @@ keywords = [
 ]
 name = "boario"
 dynamic = ["version"]
+#licence-files = ["LICENCE", "AUTHORS.md"]
 
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
-    "Topic :: Scientific/Engineering :: Mathematics",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
 ]
 
 [project.urls]
