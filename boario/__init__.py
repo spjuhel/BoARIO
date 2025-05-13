@@ -43,10 +43,10 @@ try:
 
     try:
         __git_branch__ = pygit2.Repository(__file__).head.name
-        logger.info("You are using boario from branch %s", __git_branch__)
+        logger.debug("You are using boario from branch %s", __git_branch__)
     except pygit2.GitError:
-        logger.info(
+        logger.debug(
             "Could not find git branch, this is normal if you installed boario from pip/conda."
         )
 except ModuleNotFoundError:
-    logger.info("Unable to tell git branch as pygit2 was not found.")
+    logger.debug("Unable to tell git branch as pygit2 was not found.")
