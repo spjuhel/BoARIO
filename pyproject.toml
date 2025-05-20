@@ -48,7 +48,7 @@ pydoclint = "^0.4.1"
 autoapi = "^2.0.1"
 sphinx-autodoc-typehints = "^2.0.0"
 numpydoc = "^1.7.0"
-pre-commit = "^3.7.1"
+pre-commit = ">=3.7.1,<5.0.0"
 sphinx-design = "^0.6.1"
 setuptools-scm = "^8.3.1"
 
