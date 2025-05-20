@@ -3784,21 +3784,22 @@ testing = ["covdefaults (>=2.3)", "coverage (>=7.6.12)", "defusedxml (>=0.7.1)",
 
 [[package]]
 name = "sphinx-automodapi"
-version = "0.18.0"
+version = "0.19.0"
 description = "Sphinx extension for auto-generating API documentation for entire modules"
 optional = false
 python-versions = ">=3.8"
 groups = ["dev"]
 files = [
-    {file = "sphinx_automodapi-0.18.0-py3-none-any.whl", hash = "sha256:022860385590768f52d4f6e19abb83b2574772d2721fb4050ecdb6e593a1a440"},
-    {file = "sphinx_automodapi-0.18.0.tar.gz", hash = "sha256:7bf9d9a2cb67a5389c51071cfd86674ca3892ca5d5943f95de4553d6f35dddae"},
+    {file = "sphinx_automodapi-0.19.0-py3-none-any.whl", hash = "sha256:728ff271b7b8e4f84a45e97fb5d8b35c647e2919949710fc3eb9523cb76ab838"},
+    {file = "sphinx_automodapi-0.19.0.tar.gz", hash = "sha256:c65d68269e276b440bfa5d0687b12413fd56685e9694ea266437f0f553c0413b"},
 ]
 
 [package.dependencies]
+packaging = "*"
 sphinx = ">=4"
 
 [package.extras]
-rtd = ["sphinx (<7)", "sphinx-rtd-theme"]
+rtd = ["sphinx-rtd-theme"]
 test = ["coverage", "cython", "pytest", "pytest-cov", "setuptools ; python_version >= \"3.12\""]
 
 [[package]]
@@ -4230,4 +4231,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "993441b2d9caf7af5bbd1e6e31278625b537156db043937db9fbe0bce33c4ff8"
+content-hash = "05556308a6ba43595e15515a4e5a706dede48d8ae8e0a15b6a6d5d050e919061"
