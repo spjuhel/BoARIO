@@ -204,8 +204,7 @@ Otherwise, production capacity is restored instantaneously after the duration of
 Defining events from a scalar
 ================================
 
-You can also define an event from a scalar impact
-(except for :class:`~boario.event.EventArbitraryProd`).
+You can also define an event from a scalar impact.
 This requires to define which industries are affected and
 how the impact is distributed among the industries.
 
@@ -236,25 +235,16 @@ Otherwise, there are multiple ways to setup a custom distribution:
    of per affected industry share of the impact (although in this case you should
    probably directly give the impact vector).
 2. Give a vector of the share per region, and the share per sector.
-3. Give a vector of the share per region, and specify ``"gdp"`` for the per sector
-   distribution. This will distribute each regional impact toward each affected sector
-   proportionally to their share of the regional GDP among the affected sectors.
-   For example: Suppose we look at the impact in region ``"reg2"``, and suppose
-   ``"manufactoring"`` and ``"mining"`` are both affected. Now suppose
-   ``"manufactoring"`` account for 40% of ``"reg2"``'s GDP and ``"mining"``
-   for 10%. The ``"manufactoring"`` sector will receive :math:`(40 * 100) / (40 + 10) = 80\%`
-   of the impact and ``"mining"`` the remaining :math:`(10 * 100) / (40 + 10) = 20\%`.
 
 .. note::
 
-  The GDP shares are estimated from the MRIO table used, based on the Value Added,
-  which itself is computed as the gross output minus the intermediate demand:
+  Users often use the GVA shares to distribute the impact, which can be computed as the gross output minus the intermediate demand:
 
   :math:`\textrm{GVA} = \iox - \ioz`
 
 .. warning::
 
-  You should not assume the default impact distribution setting is a good representation
+  You should not assume the default impact distribution (impact equaly distributed) setting is a good representation
   of the general case, as different regions and sectors are most probably differently
   impacted by an event. It is strongly advised to setup your own distribution in accordance
   with your study.

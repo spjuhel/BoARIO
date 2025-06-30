@@ -629,7 +629,6 @@ class Event(ABC):
         impact_sectoral_distrib : Optional[Union[str, npt.ArrayLike]], optional
             Either:
 
-            * ``\"gdp\"``, the impact is then distributed using the gross value added of each sector as a weight.
             * A vector of equal size to the list of sectors affected, stating the share of the impact each industry should receive. Defaults to None.
 
         occurrence : int, optional
