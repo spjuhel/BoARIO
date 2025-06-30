@@ -151,9 +151,11 @@ class TestEventInitSeries:
 
 
 class TestEventInitScalar:
-
     def test_event_from_scalar_arbitrary(self):
-        with pytest.raises(NotImplementedError):
+        event.from_scalar_industries(impact=0.1, affected_industries=pd.Index([("RegionA", "Sector1")]), event_type="arbitrary", impact_distrib="equal", recovery_tau=1)  # type: ignore
+
+    def test_event_from_scalar_arbitrary_verror(self):
+        with pytest.raises(ValueError):
             event.from_scalar_industries(impact=1000, affected_industries=pd.Index([("RegionA", "Sector1")]), event_type="arbitrary", impact_distrib="equal")  # type: ignore
 
     def test_event_from_scalar_wrongtype(self):
@@ -165,15 +167,15 @@ class TestEventInitScalar:
             event.from_scalar_industries(sample_series, affected_industries=pd.Index([("RegionA", "Sector1")]), impact_distrib="equal")  # type: ignore
 
     def test_event_from_scalar_reg_sec_arbitrary(self):
-        with pytest.raises(NotImplementedError):
-            event.from_scalar_regions_sectors(
-                impact=1000,
-                affected_regions=pd.Index(["RegionA"]),
-                affected_sectors=pd.Index(["SectorA"]),
-                event_type="arbitrary",
-                impact_regional_distrib="equal",
-                impact_sectoral_distrib="equal",
-            )
+        event.from_scalar_regions_sectors(
+            impact=0.1,
+            affected_regions=pd.Index(["RegionA"]),
+            affected_sectors=pd.Index(["SectorA"]),
+            event_type="arbitrary",
+            recovery_tau=1,
+            impact_regional_distrib="equal",
+            impact_sectoral_distrib="equal",
+        )
 
     def test_event_from_scalar_reg_sec_wrongtype(self):
         with pytest.raises(ValueError):
