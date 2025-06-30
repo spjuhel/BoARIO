@@ -76,6 +76,7 @@ class Simulation:
         "inputs_stocks",
         "limiting_inputs",
         "productive_capital_to_recover",
+        "value_added",
     ]
 
     __file_save_array_specs = {
@@ -88,6 +89,12 @@ class Simulation:
         "production_capacity": (
             "float64",
             "_production_cap_evolution",
+            "industries",
+            np.nan,
+        ),
+        "value_added": (
+            "float64",
+            "_value_added_evolution",
             "industries",
             np.nan,
         ),
@@ -209,6 +216,7 @@ class Simulation:
         self._io_demand_evolution = np.array([])
         self._rebuild_demand_evolution = np.array([])
         self._overproduction_evolution = np.array([])
+        self._value_added_evolution = np.array([])
         self._final_demand_unmet_evolution = np.array([])
         self._rebuild_production_evolution = np.array([])
         self._inputs_evolution = np.array([])
@@ -508,6 +516,10 @@ class Simulation:
                 "_io_demand_evolution" in self._vars_to_record
             ):
                 self._write_io_demand()
+            if ("_value_added_evolution" in self._files_to_record) or (
+                "_value_added_evolution" in self._vars_to_record
+            ):
+                self._write_value_added()
 
             # 1)
             constraints = self.model.calc_production(self.current_temporal_unit)
@@ -912,6 +924,8 @@ class Simulation:
                             * (evnt_trck._rebuild_id + 1),
                         ] = evnt_trck.distributed_reb_dem_house_tau
 
+            if np.isnan(_rebuilding_demand).any():
+                raise ValueError("NaNs found when creating the rebuilding demand.")
             self.model.rebuild_demand = _rebuilding_demand
 
     def update_productive_capital_lost(self):
@@ -1003,6 +1017,22 @@ class Simulation:
         """
         return pd.DataFrame(
             self._production_cap_evolution,
+            columns=self.model.industries,
+            copy=True,
+        ).rename_axis("step")
+
+    @property
+    def value_added(self) -> pd.DataFrame:
+        """Returns the evolution of the production capacity of each industry (region,sector) as a DataFrame.
+
+        Returns
+        -------
+            pd.DataFrame: A pandas DataFrame where the value is the production capacity, the columns are the industries
+            and the index is the step considered.
+
+        """
+        return pd.DataFrame(
+            self._value_added_evolution,
             columns=self.model.industries,
             copy=True,
         ).rename_axis("step")
@@ -1235,6 +1265,12 @@ class Simulation:
         """Saves the current production capacity vector to the memmap."""
         self._production_cap_evolution[self.current_temporal_unit] = (
             self.model.production_cap
+        )
+
+    def _write_value_added(self) -> None:
+        """Saves the current production capacity vector to the memmap."""
+        self._value_added_evolution[self.current_temporal_unit] = (
+            self.model.production - self.model.intermediate_demand_tot
         )
 
     def _write_io_demand(self) -> None:
@@ -1508,16 +1544,20 @@ def _normalize_distribution(
         ret.loc[addressed_to, :] = (
             dist_sq.loc[addressed_to]
             .groupby(level=1)
-            .transform(lambda x: x / sum(x))
+            .transform(lambda x: x / sum(x) if sum(x) != 0 else 0)
             .values[:, None]
         )
+        if np.isnan(ret).any(axis=None):
+            raise ValueError("The distribution contains NaNs")
         return ret
     elif isinstance(dist_sq, pd.DataFrame):
         ret.loc[addressed_to, affected] = (
             dist_sq.loc[addressed_to, affected]
             .groupby(level=1)
-            .transform(lambda x: x / sum(x))
+            .transform(lambda x: x / sum(x) if sum(x) != 0 else 0)
         )
+        if np.isnan(ret).any(axis=None):
+            raise ValueError("The distribution contains NaNs")
         return ret
     else:
         raise ValueError("given distribution should be a Series or a DataFrame.")

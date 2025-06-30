@@ -1,0 +1,3 @@
+# BoARIO authors
+
+* Samuel Juhel

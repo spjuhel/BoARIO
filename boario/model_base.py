@@ -1066,6 +1066,8 @@ class ARIOBaseModel:
                 raise RuntimeError(
                     "matrix_stock contains negative values, this should not happen"
                 )
+            if (np.isnan(self.inputs_stock)).any():
+                raise RuntimeError("matrix_stock contains NaNs, this should not happen")
 
         # 6. Compute final demand not met due to rationing
         final_demand_not_met = (

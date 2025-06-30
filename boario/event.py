@@ -287,7 +287,16 @@ def from_scalar_industries(
             recovery_function=recovery_function,
         )
     elif event_type == "arbitrary":
-        raise NotImplementedError("This method does not yet accept this type of event.")
+        return EventArbitraryProd._from_scalar_industries(
+            impact=impact,
+            affected_industries=affected_industries,
+            impact_distrib=impact_distrib,
+            occurrence=occurrence,
+            duration=duration,
+            name=name,
+            recovery_tau=recovery_tau,
+            recovery_function=recovery_function,
+        )
     else:
         raise ValueError(f"Wrong event type: {event_type}")
 
@@ -389,7 +398,18 @@ def from_scalar_regions_sectors(
             recovery_function=recovery_function,
         )
     elif event_type == "arbitrary":
-        raise NotImplementedError("This type of event is not implemented yet.")
+        return EventArbitraryProd._from_scalar_regions_sectors(
+            impact=impact,
+            affected_regions=affected_regions,
+            affected_sectors=affected_sectors,
+            impact_regional_distrib=impact_regional_distrib,
+            impact_sectoral_distrib=impact_sectoral_distrib,
+            occurrence=occurrence,
+            duration=duration,
+            name=name,
+            recovery_tau=recovery_tau,
+            recovery_function=recovery_function,
+        )
     else:
         raise ValueError(f"Wrong event type: {event_type}")
 
@@ -609,7 +629,6 @@ class Event(ABC):
         impact_sectoral_distrib : Optional[Union[str, npt.ArrayLike]], optional
             Either:
 
-            * ``\"gdp\"``, the impact is then distributed using the gross value added of each sector as a weight.
             * A vector of equal size to the list of sectors affected, stating the share of the impact each industry should receive. Defaults to None.
 
         occurrence : int, optional
