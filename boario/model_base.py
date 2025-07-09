@@ -353,6 +353,9 @@ class ARIOBaseModel:
         self.rebuild_prod = None
         r"""numpy.ndarray of float: Array of size :math:`n \times m` representing the remaining stock of rebuilding demand asked of each industry."""
 
+        self.final_demand_not_distributed = np.zeros(self.Y_0.shape)
+        r"""numpy.ndarray of float: Array of size :math:`n \times m` representing the final demand that could not be distributed at current step for each industry."""
+
         self.final_demand_not_met = np.zeros(self.Y_0.shape)
         r"""numpy.ndarray of float: Array of size :math:`n \times m` representing the final demand that could not be met at current step for each industry."""
 
@@ -1080,9 +1083,12 @@ class ARIOBaseModel:
                 ),
             ]
         )
-        final_demand_not_met = _fast_sum(final_demand_not_met, axis=1)
+        final_demand_not_dist = _fast_sum(final_demand_not_met, axis=1)
+        final_demand_not_met = _fast_sum(final_demand_not_met, axis=0)
         # avoid -0.0 (just in case)
         final_demand_not_met[final_demand_not_met == 0.0] = 0.0
+        final_demand_not_dist[final_demand_not_dist == 0.0] = 0.0
+        self.final_demand_not_distributed = final_demand_not_dist.copy()
         self.final_demand_not_met = final_demand_not_met.copy()
 
         # 7. Compute production delivered to rebuilding

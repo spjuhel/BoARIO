@@ -138,7 +138,11 @@ def test_initialize_simulation_with_valid_model_and_default_parameters(test_mode
     )
     assert sim._final_demand_unmet_evolution.shape == (
         sim.n_temporal_units_to_sim,
-        test_model.n_sectors * test_model.n_regions,
+        test_model.n_regions * test_model.n_fd_cat,
+    )
+    assert sim._final_demand_undist_evolution.shape == (
+        sim.n_temporal_units_to_sim,
+        test_model.n_regions * test_model.n_sectors,
     )
     assert sim._rebuild_production_evolution.shape == (
         sim.n_temporal_units_to_sim,

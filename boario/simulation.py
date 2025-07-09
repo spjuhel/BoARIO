@@ -72,6 +72,7 @@ class Simulation:
         "rebuild_demand",
         "overproduction",
         "final_demand_unmet",
+        "final_demand_undist",
         "rebuild_prod",
         "inputs_stocks",
         "limiting_inputs",
@@ -117,10 +118,16 @@ class Simulation:
             "industries",
             np.nan,
         ),
+        "final_demand_undist": (
+            "float64",
+            "_final_demand_undist_evolution",
+            "industries",
+            np.nan,
+        ),
         "final_demand_unmet": (
             "float64",
             "_final_demand_unmet_evolution",
-            "industries",
+            "finaldem",
             np.nan,
         ),
         "rebuild_prod": (
@@ -217,6 +224,7 @@ class Simulation:
         self._rebuild_demand_evolution = np.array([])
         self._overproduction_evolution = np.array([])
         self._value_added_evolution = np.array([])
+        self._final_demand_undist_evolution = np.array([])
         self._final_demand_unmet_evolution = np.array([])
         self._rebuild_production_evolution = np.array([])
         self._inputs_evolution = np.array([])
@@ -548,6 +556,10 @@ class Simulation:
             # 2)
             try:
                 self.model.distribute_production(self.scheme)
+                if ("_final_demand_undist_evolution" in self._files_to_record) or (
+                    "_final_demand_undist_evolution" in self._vars_to_record
+                ):
+                    self._write_final_demand_undist()
                 if ("_final_demand_unmet_evolution" in self._files_to_record) or (
                     "_final_demand_unmet_evolution" in self._vars_to_record
                 ):
@@ -851,7 +863,15 @@ class Simulation:
 
         if len(events_rebuilt_ids) > 0:
             events_rebuilt_ids = sorted(events_rebuilt_ids)
-            non_reb_events = sorted([ev for ev in self._event_tracking if ev._rebuild_id is not None and ev._rebuild_id not in events_rebuilt_ids], key=lambda x: x._rebuild_id)  # type: ignore # Because lsp cannot understand rebuild_id is not none here.
+            non_reb_events = sorted(
+                [
+                    ev
+                    for ev in self._event_tracking
+                    if ev._rebuild_id is not None
+                    and ev._rebuild_id not in events_rebuilt_ids
+                ],
+                key=lambda x: x._rebuild_id,
+            )  # type: ignore # Because lsp cannot understand rebuild_id is not none here.
             for ev_to_rm in events_rebuilt_ids:
                 for evnt_trck in non_reb_events:
                     if evnt_trck._rebuild_id > ev_to_rm:
@@ -1102,6 +1122,22 @@ class Simulation:
         ).rename_axis("step")
 
     @property
+    def final_demand_undist(self) -> pd.DataFrame:
+        """Returns the evolution of the final demand that could not be answered by industries as a DataFrame.
+
+        Returns
+        -------
+            pd.DataFrame: A pandas DataFrame where the value is the final demand not met, the columns are the industries
+            and the index is the step considered.
+
+        """
+        return pd.DataFrame(
+            self._final_demand_undist_evolution,
+            columns=self.model.industries,
+            copy=True,
+        ).rename_axis("step")
+
+    @property
     def final_demand_unmet(self) -> pd.DataFrame:
         """Returns the evolution of the final demand that could not be answered by industries as a DataFrame.
 
@@ -1113,7 +1149,7 @@ class Simulation:
         """
         return pd.DataFrame(
             self._final_demand_unmet_evolution,
-            columns=self.model.industries,
+            columns=self.model.all_regions_fd,
             copy=True,
         ).rename_axis("step")
 
@@ -1303,6 +1339,12 @@ class Simulation:
             self.model.final_demand_not_met
         )
 
+    def _write_final_demand_undist(self) -> None:
+        """Saves the unmet final demand (for this step) vector to the memmap."""
+        self._final_demand_undist_evolution[self.current_temporal_unit] = (
+            self.model.final_demand_not_distributed
+        )
+
     def _write_stocks(self) -> None:
         """Saves the current inputs stock matrix to the memmap."""
         self._inputs_evolution[self.current_temporal_unit] = self.model.inputs_stock
@@ -1343,6 +1385,11 @@ class Simulation:
                         self.n_temporal_units_to_sim,
                         self.model.n_sectors,
                         self.model.n_sectors * self.model.n_regions,
+                    )
+                elif shapev == "finaldem":
+                    shape = (
+                        self.n_temporal_units_to_sim,
+                        self.model.n_regions * self.model.n_fd_cat,
                     )
                 else:
                     raise RuntimeError(f"shapev {shapev} unrecognised")
