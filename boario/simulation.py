@@ -1306,11 +1306,11 @@ class Simulation:
     def _write_value_added(self) -> None:
         """Saves the current production capacity vector to the memmap."""
         self._value_added_evolution[self.current_temporal_unit] = (
-            self.model.production - self.model.intermediate_demand_tot
+            self.model.production - self.model.intermediate_demand.sum(axis=0)
         )
 
     def _write_io_demand(self) -> None:
-        """Saves the current (total per industry) intermediate demand vector to the memmap."""
+        """Saves the current (total per industry) intermediate demand (received from clients) vector to the memmap."""
         self._io_demand_evolution[self.current_temporal_unit] = (
             self.model.intermediate_demand_tot
         )
