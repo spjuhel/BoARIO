@@ -1084,13 +1084,17 @@ class ARIOBaseModel:
             ]
         )
         final_demand_not_dist = _fast_sum(final_demand_not_met, axis=1)
-        final_demand_not_met = _fast_sum(final_demand_not_met, axis=0)
+        final_demand_not_met = final_demand_not_met.reshape(
+            self.n_regions, self.n_sectors, self.n_regions, self.n_fd_cat
+        ).copy()
+        final_demand_not_met = final_demand_not_met.sum(axis=(0, 3)).flatten()
+
+        # final_demand_not_met = _fast_sum(final_demand_not_met, axis=0)
         # avoid -0.0 (just in case)
         final_demand_not_met[final_demand_not_met == 0.0] = 0.0
         final_demand_not_dist[final_demand_not_dist == 0.0] = 0.0
         self.final_demand_not_distributed = final_demand_not_dist.copy()
         self.final_demand_not_met = final_demand_not_met.copy()
-
         # 7. Compute production delivered to rebuilding
         if DEBUG_TRACE:
             logger.debug(f"distributed prod shape : {distributed_production.shape}")

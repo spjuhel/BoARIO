@@ -1149,7 +1149,7 @@ class Simulation:
         """
         return pd.DataFrame(
             self._final_demand_unmet_evolution,
-            columns=self.model.all_regions_fd,
+            columns=self.model.industries,
             copy=True,
         ).rename_axis("step")
 
@@ -1389,7 +1389,7 @@ class Simulation:
                 elif shapev == "finaldem":
                     shape = (
                         self.n_temporal_units_to_sim,
-                        self.model.n_regions * self.model.n_fd_cat,
+                        self.model.n_regions * self.model.n_sectors,
                     )
                 else:
                     raise RuntimeError(f"shapev {shapev} unrecognised")
