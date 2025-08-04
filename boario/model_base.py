@@ -533,7 +533,7 @@ class ARIOBaseModel:
                     self._productive_capital_lost, index=self.industries
                 ).loc[(self._productive_capital_lost > self.productive_capital)]
                 raise ValueError(
-                    f"Total capital lost for events is higher than productive capital for at least one industry:\nMax diff=P{failing.max()}\nLosses:\n{failing_lost}\nFailing K:\n{failing_k}"
+                    f"Total capital lost for events is higher than productive capital for at least one industry:\nMax diff=P{failing.min()}\nLosses:\n{failing_lost}\nFailing K:\n{failing_k}"
                 )
 
             tmp = np.zeros_like(self.productive_capital, dtype=float)
