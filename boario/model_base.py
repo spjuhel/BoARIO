@@ -269,7 +269,7 @@ class ARIOBaseModel:
             self.productive_capital = productive_capital_vector
             """numpy.ndarray of float: Array of size :math:`n \times m` representing the estimated stock of capital of each industry."""
 
-            if isinstance(self.productive_capital, pd.DataFrame):
+            if isinstance(self.productive_capital, (pd.DataFrame, pd.Series)):
                 self.productive_capital = (
                     self.productive_capital.squeeze().sort_index().to_numpy()
                 )
