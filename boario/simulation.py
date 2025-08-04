@@ -2223,7 +2223,7 @@ class EventTracker:
             self._prod_delta_from_arb = self._recovery_function_arb_delta(
                 self.sim.current_temporal_unit
                 - (self.event.occurrence + self.event.duration)
-            ).round(6)
+            ).round(precision)
             if not self._prod_delta_from_arb.any():
                 self._prod_delta_from_arb = None
         if (
