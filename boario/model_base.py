@@ -1092,7 +1092,7 @@ class ARIOBaseModel:
         )
         final_demand_not_dist = _fast_sum(final_demand_not_met, axis=1)
         final_demand_not_met = final_demand_not_met.reshape(
-            self.n_regions, self.n_regions, self.n_sectors, self.n_fd_cat
+            self.n_regions, self.n_sectors, self.n_regions, self.n_fd_cat
         ).copy()
         final_demand_not_met = final_demand_not_met.sum(axis=(0, 3)).T.flatten()
 
