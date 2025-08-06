@@ -55,6 +55,8 @@ from boario.utils.misc import CustomNumpyEncoder, TempMemmap, print_summary, siz
 
 __all__ = ["Simulation"]
 
+EVENT_ARBITRARY_PRECISION = 6
+
 
 class Simulation:
     """Defines a simulation object with a set of parameters and an IOSystem.
@@ -2223,7 +2225,7 @@ class EventTracker:
             self._prod_delta_from_arb = self._recovery_function_arb_delta(
                 self.sim.current_temporal_unit
                 - (self.event.occurrence + self.event.duration)
-            ).round(precision)
+            ).round(EVENT_ARBITRARY_PRECISION)
             if not self._prod_delta_from_arb.any():
                 self._prod_delta_from_arb = None
         if (
