@@ -29,7 +29,7 @@ def build_doc(version, language, tag):
 # a move dir method because we run multiple builds and bring the html folders to a
 # location which we then push to github pages
 def move_dir(src, dst):
-    subprocess.run(f"echo 'Moving from {src} to {dst}'")
+    subprocess.run(f"echo 'Moving from {src} to {dst}'", shell=True)
     subprocess.run(["mkdir", "-p", dst])
     subprocess.run("mv " + src + "* " + dst, shell=True)
 
