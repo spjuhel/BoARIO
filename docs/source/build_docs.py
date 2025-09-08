@@ -1,13 +1,16 @@
 import os
 import yaml
 import subprocess
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # a single build step, which keeps conf.py and versions.yaml at the main branch
 # in general we use environment variables to pass values to conf.py, see below
 # and runs the build as we did locally
 def build_doc(version, language, tag):
-    print(f"Will try to build for {(version, language, tag)}")
+    logger.info(f"Will try to build for {(version, language, tag)}")
     os.environ["current_version"] = version
     os.environ["SOURCEDIR"] = "source"
     os.environ["BUILDDIR"] = "build"
@@ -31,7 +34,7 @@ if __name__ == "__main__":
     os.environ["build_all_docs"] = str(True)
     os.environ["pages_root"] = "https://spjuhel.github.io/BoARIO"
     # manually the main branch build in the current supported languages
-    build_doc("latest", "en", "origin/main")
+    build_doc("latest", "en", "origin/develop")
     move_dir("./build/html/", "./pages/")
     # build_doc("latest", "de", "main")
     # move_dir("./_build/html/", "../pages/de/")
