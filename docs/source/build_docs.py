@@ -8,7 +8,8 @@ import subprocess
 # and runs the build as we did locally
 def build_doc(version, language, tag):
     subprocess.run(
-        f"echo 'Will try to build for {(version, language, tag)}'", shell=True
+        f"echo '================= Will try to build for {(version, language, tag)} ================'",
+        shell=True,
     )
     os.environ["current_version"] = version
     os.environ["SOURCEDIR"] = "source"
