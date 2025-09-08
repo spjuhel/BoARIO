@@ -97,7 +97,7 @@ html_theme_options = {
     "use_edit_page_button": True,
     "show_nav_level": 2,
     "switcher": {
-        "json_url": "https://spjuhel.github.io/BoARIO/develop/en/_static/switcher.json",
+        "json_url": "https://spjuhel.github.io/BoARIO/develop/_static/switcher.json",
         "version_match": version,
     },
     "footer_start": ["version-switcher", "last-updated"],

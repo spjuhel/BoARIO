@@ -20,7 +20,7 @@ def build_doc(version, language, tag):
     os.environ["SOURCEDIR"] = "source"
     os.environ["BUILDDIR"] = "build"
     os.environ["current_language"] = language
-    subprocess.run("git checkout " + tag, shell=True)
+    subprocess.run("git checkout --detached" + tag, shell=True)
     subprocess.run("git checkout develop -- ./source/conf.py", shell=True)
     subprocess.run("git checkout develop -- ./source/versions.yaml", shell=True)
     subprocess.run("make html", shell=True)
@@ -38,13 +38,6 @@ if __name__ == "__main__":
     # to separate a single local build from all builds we have a flag, see conf.py
     os.environ["build_all_docs"] = str(True)
     os.environ["pages_root"] = "https://spjuhel.github.io/BoARIO"
-    # manually the main branch build in the current supported languages
-    build_doc("stable", "en", "origin/main")
-    move_dir("./build/html/", "./pages/")
-    build_doc("latest", "en", "origin/develop")
-    move_dir("./build/html/", "./pages/develop")
-    # build_doc("latest", "de", "main")
-    # move_dir("./_build/html/", "../pages/de/")
 
     tags = subprocess.run(
         "git tag | grep -v 'v0.[1234].*' | grep -v 'v0.5.[01234567]'",
@@ -53,6 +46,15 @@ if __name__ == "__main__":
         universal_newlines=True,
     ).stdout.splitlines()
 
+    subprocess.run(f"echo 'Found following tags to build: {tags}'", shell=True)
+
+    # manually the main branch build in the current supported languages
+    build_doc("stable", "en", "origin/main")
+    move_dir("./build/html/", "./pages/")
+    build_doc("latest", "en", "origin/develop")
+    move_dir("./build/html/", "./pages/develop")
+    # build_doc("latest", "de", "main")
+    # move_dir("./_build/html/", "../pages/de/")
     for tag in tags:
         build_doc(tag[1:], "en", tag)
         move_dir("./build/html/", "./pages/" + tag[1:] + "/" + "en" + "/")
