@@ -3,6 +3,11 @@ import yaml
 import subprocess
 
 
+def bash_command(cmd):
+    sp = subprocess.Popen(["/bin/bash", "-c", cmd], stdout=subprocess.PIPE)
+    return sp.stdout.readlines()
+
+
 # a single build step, which keeps conf.py and versions.yaml at the main branch
 # in general we use environment variables to pass values to conf.py, see below
 # and runs the build as we did locally
@@ -41,13 +46,24 @@ if __name__ == "__main__":
     # build_doc("latest", "de", "main")
     # move_dir("./_build/html/", "../pages/de/")
 
-    # reading the yaml file
-    with open("./source/versions.yaml", "r") as yaml_file:
-        docs = yaml.safe_load(yaml_file)
+    tags = subprocess.run(
+        "git tag | grep -v 'v0.[1234].*' | grep -v 'v0.5.[01234567]'",
+        shell=True,
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
+    ).stdout.splitlines()
 
-        # and looping over all values to call our build with version, language and its tag
-    for version, details in docs.items():
-        tag = details.get("tag", version)
-        for language in details.get("languages", ["en"]):
-            build_doc(version, language, tag)
-            move_dir("./build/html/", "./pages/" + version + "/" + language + "/")
+    for tag in tags:
+        build_doc(tag[1:], "en", tag)
+        move_dir("./build/html/", "./pages/" + tag[1:] + "/" + "en" + "/")
+
+    # # reading the yaml file
+    # with open("./source/versions.yaml", "r") as yaml_file:
+    #     docs = yaml.safe_load(yaml_file)
+
+    #     # and looping over all values to call our build with version, language and its tag
+    # for version, details in docs.items():
+    #     tag = details.get("tag", version)
+    #     for language in details.get("languages", ["en"]):
+    #         build_doc(version, language, tag)
+    #         move_dir("./build/html/", "./pages/" + version + "/" + language + "/")
