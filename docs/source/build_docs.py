@@ -15,7 +15,7 @@ def build_doc(version, language, tag):
     os.environ["SOURCEDIR"] = "source"
     os.environ["BUILDDIR"] = "build"
     os.environ["current_language"] = language
-    subprocess.run("git checkout --detach " + tag, shell=True)
+    subprocess.run("git checkout -f --detach " + tag, shell=True)
     subprocess.run("git checkout develop -- ./source/conf.py", shell=True)
     subprocess.run("git checkout develop -- ./source/versions.yaml", shell=True)
     subprocess.run("make html", shell=True)
