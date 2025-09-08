@@ -7,7 +7,9 @@ import subprocess
 # in general we use environment variables to pass values to conf.py, see below
 # and runs the build as we did locally
 def build_doc(version, language, tag):
-    subprocess.run(f"echo 'Will try to build for '{(version, language, tag)}")
+    subprocess.run(
+        f"echo 'Will try to build for {(version, language, tag)}'", shell=True
+    )
     os.environ["current_version"] = version
     os.environ["SOURCEDIR"] = "source"
     os.environ["BUILDDIR"] = "build"
