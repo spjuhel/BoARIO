@@ -110,7 +110,7 @@ html_context = {
     "display_github": True,  # Integrate GitHub
     "github_user": "spjuhel",  # Username
     "github_repo": "BoARIO",  # Repo name
-    "github_version": "master",  # Version
+    "github_version": "main",  # Version
     "conf_py_path": "/source/",  # Path in the checkout to the docs root
 }
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -192,32 +192,3 @@ mathjax3_config = {
         },
     },
 }
-
-# build_all_docs = os.environ.get("build_all_docs")
-# pages_root = os.environ.get("pages_root", "")
-
-# if build_all_docs is not None:
-#   current_language = os.environ.get("current_language")
-#   current_version = os.environ.get("current_version")
-
-#   html_context = {
-#     'current_language' : current_language,
-#     'languages' : [],
-#     'current_version' : current_version,
-#     'versions' : [],
-#   }
-
-#   if (current_version == 'latest'):
-#     html_context['languages'].append(['en', pages_root])
-#     #html_context['languages'].append(['de', pages_root+'/de'])
-
-#   if (current_language == 'en'):
-#     html_context['versions'].append(['latest', pages_root])
-#   #if (current_language == 'de'):
-#   #  html_context['versions'].append(['latest', pages_root+'/de'])
-
-#   with open("versions.yaml", "r") as yaml_file:
-#     docs = yaml.safe_load(yaml_file)
-
-#   for version, details in docs.items():
-#     html_context['versions'].append([version, pages_root+'/'+version+'/'+current_language])
