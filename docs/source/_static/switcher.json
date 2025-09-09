@@ -3,7 +3,7 @@
         "name": "latest",
         "version": "latest",
         "url": "https://spjuhel.github.io/BoARIO/",
-	      "preferred": true
+        "preferred": true
     },
     {
         "name": "develop",
@@ -13,12 +13,12 @@
     {
         "name": "v0.6.0",
         "version": "v0.6.0",
-        "url": "https://spjuhel.github.io/BoARIO/v0.5.10/en",
+        "url": "https://spjuhel.github.io/BoARIO/v0.6.0/en"
     },
     {
         "name": "v0.5.10",
         "version": "v0.5.10",
-        "url": "https://spjuhel.github.io/BoARIO/v0.5.10/en",
+        "url": "https://spjuhel.github.io/BoARIO/v0.5.10/en"
     },
     {
         "name": "v0.5.9",
