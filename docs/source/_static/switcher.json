@@ -1,28 +1,33 @@
 [
     {
-        "name": "latest",
-        "version": "v0.6.0",
+        "name": "stable",
+        "version": "stable",
         "url": "https://spjuhel.github.io/BoARIO/",
-	      "preferred": true
+        "preferred": true
+    },
+    {
+        "name": "latest",
+        "version": "develop",
+        "url": "https://spjuhel.github.io/BoARIO/develop/"
+    },
+    {
+        "name": "v0.6.0",
+        "version": "v0.6.0",
+        "url": "https://spjuhel.github.io/BoARIO/0.6.0/en"
     },
     {
         "name": "v0.5.10",
         "version": "v0.5.10",
-        "url": "https://spjuhel.github.io/BoARIO/v0.5.10/en",
+        "url": "https://spjuhel.github.io/BoARIO/0.5.10/en"
     },
     {
         "name": "v0.5.9",
         "version": "v0.5.9",
-        "url": "https://spjuhel.github.io/BoARIO/v0.5.9/en"
+        "url": "https://spjuhel.github.io/BoARIO/0.5.9/en"
     },
     {
         "name": "v0.5.8",
         "version": "v0.5.8",
-        "url": "https://spjuhel.github.io/BoARIO/v0.5.8/en"
-    },
-    {
-        "name": "develop",
-        "version": "develop",
-        "url": "https://spjuhel.github.io/BoARIO/develop/en/"
+        "url": "https://spjuhel.github.io/BoARIO/0.5.8/en"
     }
 ]

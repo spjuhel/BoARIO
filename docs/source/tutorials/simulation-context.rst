@@ -35,17 +35,20 @@ By default, a simulation records the evolution of variables in numpy arrays, whi
 are accessible directly as attributes as long as the ``Simulation`` object exists.
 Optionally the records can also be set to memmaps instead, which are saved as files at the end of the simulation (note that these files are temporary by default).
 
-These records contain the variables values for each regions for each sector for each temporal unit and can also be accessed as formatted DataFrames, where each row represents a temporal unit and the columns represent all the possible (region,sector) tuples, i.e., industries, ordered in lexicographic order.
+These records contain the variables values for each region for each sector for each temporal unit and can also be accessed as formatted DataFrames, where each row represents a temporal unit and the columns represent all the possible (region, sector) tuples, i.e., industries, ordered in lexicographic order.
 
 Here is a commented list of the different variables accessible:
 
 .. code:: python
 
-        # The production actually realised at each step
+        # The (gross) production actually realised at each step
         sim.production_realised
 
         # The production capacity
         sim.production_capacity
+
+        # The Value Added at each step (as the gross production minus intermediary inputs)
+        sim.value_added
 
         # The share of realised production distributed to rebuilding
         sim.rebuild_prod
@@ -53,17 +56,20 @@ Here is a commented list of the different variables accessible:
         # The overproduction factor
         sim.overproduction
 
-        # The (total) intermediate demand (ie how much intermediate demand was addressed to sector i in region j)
+        # The (total) intermediate demand (i.e., how much intermediate demand was addressed to sector i in region j)
         sim.intermediate_demand
 
-        # The (total) final demand (note that the final demand is currently fix in the model)
+        # The (total) final demand (note that the final demand is currently fixed in the model)
         sim.final_demand
 
         # The (total) rebuild demand
         sim.rebuild_demand
 
-        # The amount of final demand that couldn't be satisfied
+        # The amount of final demand (per region (not distinguishing categories) and per final product) that could not be satisfied
         sim.final_demand_unmet
+
+        # The amount of final demand that could not be distributed
+        sim.final_demand_undist
 
         # The remaining amount of destroyed (ie not recovered/rebuilt) capital
         sim.productive_capital_to_recover

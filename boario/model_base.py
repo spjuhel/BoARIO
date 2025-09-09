@@ -269,7 +269,7 @@ class ARIOBaseModel:
             self.productive_capital = productive_capital_vector
             """numpy.ndarray of float: Array of size :math:`n \times m` representing the estimated stock of capital of each industry."""
 
-            if isinstance(self.productive_capital, pd.DataFrame):
+            if isinstance(self.productive_capital, (pd.DataFrame, pd.Series)):
                 self.productive_capital = (
                     self.productive_capital.squeeze().sort_index().to_numpy()
                 )
@@ -525,8 +525,15 @@ class ARIOBaseModel:
         self._productive_capital_lost = value
         if self._productive_capital_lost is not None:
             if (self._productive_capital_lost > self.productive_capital).any():
+                failing = self.productive_capital - self._productive_capital_lost
+                failing_k = pd.Series(
+                    self.productive_capital, index=self.industries
+                ).loc[(self._productive_capital_lost > self.productive_capital)]
+                failing_lost = pd.Series(
+                    self._productive_capital_lost, index=self.industries
+                ).loc[(self._productive_capital_lost > self.productive_capital)]
                 raise ValueError(
-                    "Total capital lost for events is higher than productive capital for at least one industry."
+                    f"Total capital lost for events is higher than productive capital for at least one industry:\nMax diff=P{failing.min()}\nLosses:\n{failing_lost}\nFailing K:\n{failing_k}"
                 )
 
             tmp = np.zeros_like(self.productive_capital, dtype=float)
@@ -1084,13 +1091,17 @@ class ARIOBaseModel:
             ]
         )
         final_demand_not_dist = _fast_sum(final_demand_not_met, axis=1)
-        final_demand_not_met = _fast_sum(final_demand_not_met, axis=0)
+        final_demand_not_met = final_demand_not_met.reshape(
+            self.n_regions, self.n_sectors, self.n_regions, self.n_fd_cat
+        ).copy()
+        final_demand_not_met = final_demand_not_met.sum(axis=(0, 3)).T.flatten()
+
+        # final_demand_not_met = _fast_sum(final_demand_not_met, axis=0)
         # avoid -0.0 (just in case)
         final_demand_not_met[final_demand_not_met == 0.0] = 0.0
         final_demand_not_dist[final_demand_not_dist == 0.0] = 0.0
         self.final_demand_not_distributed = final_demand_not_dist.copy()
         self.final_demand_not_met = final_demand_not_met.copy()
-
         # 7. Compute production delivered to rebuilding
         if DEBUG_TRACE:
             logger.debug(f"distributed prod shape : {distributed_production.shape}")

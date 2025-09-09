@@ -37,7 +37,11 @@ Disclaimer
 
 Indirect impact modeling is tied to a lot of uncertainties and complex dynamics.
 Any results produced with `BoARIO` should be interpreted with great care. Do not
-hesitate to contact the author when using the model !
+hesitate to contact the main author when using the model!
+
+Furthermore, this project is currently developed on the free time of its main contributor,
+without any financial supports. If you are interested in its further development and have funding
+capacity, please reach out!
 
 What is BoARIO ?
 =================
@@ -146,15 +150,15 @@ Credits
 Associated PhD project
 ------------------------
 
-This model is part of my PhD on the indirect impact of extreme events.
-This work was supported by the French Environment and Energy Management Agency
-(`ADEME`_).
+This model was developed during project founder's PhD on the indirect impact of extreme events (`Thesis available here`_).
+This PhD was supported by the French Environment and Energy Management Agency (`ADEME`_).
 
 .. image:: https://raw.githubusercontent.com/spjuhel/BoARIO/master/imgs/Logo_ADEME.svg?sanitize=true
            :width: 400
            :alt: ADEME Logo
 
 .. _`ADEME`: https://www.ademe.fr/
+.. _`Thesis available here`: https://theses.hal.science/tel-05045805
 
 Development
 ------------

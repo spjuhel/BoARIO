@@ -55,6 +55,8 @@ from boario.utils.misc import CustomNumpyEncoder, TempMemmap, print_summary, siz
 
 __all__ = ["Simulation"]
 
+EVENT_ARBITRARY_PRECISION = 6
+
 
 class Simulation:
     """Defines a simulation object with a set of parameters and an IOSystem.
@@ -1149,7 +1151,7 @@ class Simulation:
         """
         return pd.DataFrame(
             self._final_demand_unmet_evolution,
-            columns=self.model.all_regions_fd,
+            columns=self.model.industries,
             copy=True,
         ).rename_axis("step")
 
@@ -1306,11 +1308,11 @@ class Simulation:
     def _write_value_added(self) -> None:
         """Saves the current production capacity vector to the memmap."""
         self._value_added_evolution[self.current_temporal_unit] = (
-            self.model.production - self.model.intermediate_demand_tot
+            self.model.production - self.model.intermediate_demand.sum(axis=0)
         )
 
     def _write_io_demand(self) -> None:
-        """Saves the current (total per industry) intermediate demand vector to the memmap."""
+        """Saves the current (total per industry) intermediate demand (received from clients) vector to the memmap."""
         self._io_demand_evolution[self.current_temporal_unit] = (
             self.model.intermediate_demand_tot
         )
@@ -1389,7 +1391,7 @@ class Simulation:
                 elif shapev == "finaldem":
                     shape = (
                         self.n_temporal_units_to_sim,
-                        self.model.n_regions * self.model.n_fd_cat,
+                        self.model.n_regions * self.model.n_sectors,
                     )
                 else:
                     raise RuntimeError(f"shapev {shapev} unrecognised")
@@ -2223,7 +2225,7 @@ class EventTracker:
             self._prod_delta_from_arb = self._recovery_function_arb_delta(
                 self.sim.current_temporal_unit
                 - (self.event.occurrence + self.event.duration)
-            ).round(6)
+            ).round(EVENT_ARBITRARY_PRECISION)
             if not self._prod_delta_from_arb.any():
                 self._prod_delta_from_arb = None
         if (
