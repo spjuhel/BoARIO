@@ -3000,13 +3000,14 @@ windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pymrio"
-version = "0.5.4"
+version = "0.6.2"
 description = "A python module for automating input output calculations and generating reports"
 optional = false
-python-versions = ">=3.7.0"
+python-versions = ">=3.9.0"
 groups = ["main"]
 files = [
-    {file = "pymrio-0.5.4.tar.gz", hash = "sha256:57d316e17b55740c787b192134bc83f003220a15e0c3225c7253ad34cd0d3b74"},
+    {file = "pymrio-0.6.2-py3-none-any.whl", hash = "sha256:fc4e73ce3104c5cdb160772377add30bb91c8ea86146324557e9e4a6ef5e9cba"},
+    {file = "pymrio-0.6.2.tar.gz", hash = "sha256:a8a6549059ef179991c9a1aacce8d84d5626c585582a7ea744e4a14ac40bef0e"},
 ]
 
 [package.dependencies]
@@ -3015,10 +3016,15 @@ faker = ">=18.4.0"
 matplotlib = ">=2.0.0"
 numpy = ">=1.20"
 openpyxl = ">=3.0.6,<3.1.1"
-pandas = ">=1.5"
+pandas = ">=2.1"
 pyarrow = ">=11.0"
 requests = ">=2.18"
 xlrd = ">1.1.0"
+
+[package.extras]
+dev = ["country_converter (>=0.8.0)", "ipykernel", "ipython", "jupyterlab (==3.*)", "jupytext", "more-itertools", "nbsphinx", "pdbpp", "poethepoet", "pynvim", "sphinx (>=1.6.4)", "sphinx_rtd_theme (>=0.2.4)"]
+lint = ["black (>=22.3.0)", "isort (>=5.5.2)"]
+test = ["black", "coverage[toml]", "coveralls", "faker", "pytest (>=5.4.3)", "pytest-black", "pytest-cov (>=2.7.0)", "pytest-datadir", "pytest-mypy", "pytest-ruff (>=0.5)", "pytest-xdist[psutil]"]
 
 [[package]]
 name = "pyparsing"
