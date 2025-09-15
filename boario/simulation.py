@@ -1593,7 +1593,7 @@ def _normalize_distribution(
         ret.loc[addressed_to, :] = (
             dist_sq.loc[addressed_to]
             .groupby(level=1)
-            .transform(lambda x: x / sum(x) if sum(x) != 0 else 0)
+            .transform(lambda x: np.nan_to_num((x / sum(x))))
             .values[:, None]
         )
         if np.isnan(ret).any(axis=None):
@@ -1603,7 +1603,7 @@ def _normalize_distribution(
         ret.loc[addressed_to, affected] = (
             dist_sq.loc[addressed_to, affected]
             .groupby(level=1)
-            .transform(lambda x: x / sum(x) if sum(x) != 0 else 0)
+            .transform(lambda x: np.nan_to_num((x / sum(x))))
         )
         if np.isnan(ret).any(axis=None):
             raise ValueError("The distribution contains NaNs")
