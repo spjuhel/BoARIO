@@ -7,7 +7,7 @@
    viewBox="0 0 512.52508 147.67502"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
    sodipodi:docname="logo_boario_2.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -23,15 +23,17 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="1.0998546"
-     inkscape:cx="-33.64081"
-     inkscape:cy="345.95482"
-     inkscape:window-width="2560"
-     inkscape:window-height="1330"
+     inkscape:zoom="0.57905193"
+     inkscape:cx="932.55885"
+     inkscape:cy="104.48113"
+     inkscape:window-width="1920"
+     inkscape:window-height="1121"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g65231" />
+     inkscape:current-layer="g52070"
+     inkscape:showpageshadow="0"
+     inkscape:deskcolor="#d1d1d1" />
   <defs
      id="defs2">
     <clipPath
@@ -168,35 +170,35 @@
       </g>
       <text
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:88.1944px;line-height:1.25;font-family:'MesloLGLDZ Nerd Font';-inkscape-font-specification:'MesloLGLDZ Nerd Font Bold';fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:88.1944px;line-height:1.25;font-family:'Trebuchet MS';-inkscape-font-specification:'Trebuchet MS Bold';fill:#000000;fill-opacity:1;stroke-width:0.264583"
          x="183.62558"
          y="121.72102"
          id="text24094-7"><tspan
            sodipodi:role="line"
            id="tspan24092-7"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:88.1944px;font-family:'MesloLGLDZ Nerd Font';-inkscape-font-specification:'MesloLGLDZ Nerd Font Bold';fill:#000000;fill-opacity:1;stroke-width:0.264583"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:88.1944px;font-family:'Trebuchet MS';-inkscape-font-specification:'Trebuchet MS Bold';fill:#000000;fill-opacity:1;stroke-width:0.264583"
            x="183.62558"
            y="121.72102">BoARIO</tspan></text>
       <text
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:88.1944px;line-height:1.25;font-family:'MesloLGLDZ Nerd Font';-inkscape-font-specification:'MesloLGLDZ Nerd Font Bold';fill:#09ab2f;fill-opacity:1;stroke-width:0.264583"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:88.1944px;line-height:1.25;font-family:'Trebuchet MS';-inkscape-font-specification:'Trebuchet MS Bold';fill:#09ab2f;fill-opacity:1;stroke-width:0.264583"
          x="182.1985"
          y="120.06106"
          id="text24094-7-1"><tspan
            sodipodi:role="line"
            id="tspan24092-7-1"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:88.1944px;font-family:'MesloLGLDZ Nerd Font';-inkscape-font-specification:'MesloLGLDZ Nerd Font Bold';fill:#09ab2f;fill-opacity:1;stroke-width:0.264583"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:88.1944px;font-family:'Trebuchet MS';-inkscape-font-specification:'Trebuchet MS Bold';fill:#09ab2f;fill-opacity:1;stroke-width:0.264583"
            x="182.1985"
            y="120.06106">BoARIO</tspan></text>
       <text
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:88.1944px;line-height:1.25;font-family:'MesloLGLDZ Nerd Font';-inkscape-font-specification:'MesloLGLDZ Nerd Font Bold';fill:#6ada29;fill-opacity:1;stroke-width:0.264583"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:88.1944px;line-height:1.25;font-family:'Trebuchet MS';-inkscape-font-specification:'Trebuchet MS Bold';fill:#6ada29;fill-opacity:1;stroke-width:0.264583"
          x="182.22386"
          y="120.89941"
          id="text24094"><tspan
            sodipodi:role="line"
            id="tspan24092"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:88.1944px;font-family:'MesloLGLDZ Nerd Font';-inkscape-font-specification:'MesloLGLDZ Nerd Font Bold';fill:#6ada29;fill-opacity:1;stroke-width:0.264583"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:88.1944px;font-family:'Trebuchet MS';-inkscape-font-specification:'Trebuchet MS Bold';fill:#6ada29;fill-opacity:1;stroke-width:0.264583"
            x="182.22386"
            y="120.89941">BoARIO</tspan></text>
     </g>

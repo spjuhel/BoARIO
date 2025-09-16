@@ -1,9 +1,8 @@
+:html_theme.sidebar_secondary.remove: true
 :notoc:
 
 Welcome to BoARIO's documentation!
 ##################################
-
-**Date**: |today| **Version**: |version|
 
 **Useful links**:
 `Binary Installers <https://pypi.org/project/boario>`__ |
@@ -12,7 +11,7 @@ Welcome to BoARIO's documentation!
 
 BoARIO, is an open-source, GPL-3.0 licensed, python implementation project of the Adaptative Regional Input Output (ARIO) model (see :cite:t:`2008:hallegatte` and :cite:t:`2013:hallegatte`).
 
-Its objectives are to give an accessible and inter-operable implementation of ARIO, as well as tools to visualize and analyze simulation outputs and to evaluate the effects of many parameters of the model.
+Its objectives are to give an accessible and interoperable implementation of ARIO, as well as tools to visualize and analyze simulation outputs and to evaluate the effects of many parameters of the model.
 
 BoARIO has been published in the Journal of Open Source Software :cite:`2024a:juhel`.
 
