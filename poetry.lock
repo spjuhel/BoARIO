@@ -3933,14 +3933,14 @@ testing = ["covdefaults (>=2.3)", "coverage (>=7.6.10)", "defusedxml (>=0.7.1)",
 
 [[package]]
 name = "sphinx-automodapi"
-version = "0.19.0"
+version = "0.20.0"
 description = "Sphinx extension for auto-generating API documentation for entire modules"
 optional = false
 python-versions = ">=3.8"
 groups = ["dev"]
 files = [
-    {file = "sphinx_automodapi-0.19.0-py3-none-any.whl", hash = "sha256:728ff271b7b8e4f84a45e97fb5d8b35c647e2919949710fc3eb9523cb76ab838"},
-    {file = "sphinx_automodapi-0.19.0.tar.gz", hash = "sha256:c65d68269e276b440bfa5d0687b12413fd56685e9694ea266437f0f553c0413b"},
+    {file = "sphinx_automodapi-0.20.0-py3-none-any.whl", hash = "sha256:1d205d4f07c22b1024b270a0340b245b5f819bc4c625ca10db8c06e437cf5d5e"},
+    {file = "sphinx_automodapi-0.20.0.tar.gz", hash = "sha256:24cc97323f163aeefcefb9bdae9cd0a8ea7b699ece34feab116a2557a44949ac"},
 ]
 
 [package.dependencies]
@@ -4429,4 +4429,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "f7cde69a7ed8a9eed0355c7a48e0f58a125848c3619114b6dfa4dc79da046b4a"
+content-hash = "017d3e088f14f7aedff3907a1fa167ecada03abc09591c0b9918e0199648da50"
