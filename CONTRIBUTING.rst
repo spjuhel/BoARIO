@@ -76,7 +76,7 @@ To create a Pull Request you need to do these steps:
 2. Fork the repository.
 3. Clone your fork locally.
 4. Go to the created BoARIO folder with :code:`cd boario`.
-5. Create a new branch with :code:`git checkout -b <descriptive_branch_name>`.
+5. Create a new branch with :code:`git checkout -b <descriptive_branch_name> origin/<branch_name_you_wish_to_start_from (a priori "develop")>`.
 6. Make your changes to the code or documentation.
 7. Run :code:`git add .` to add all the changed files to the commit (to see what files will be added you can run :code:`git add . --dry-run`).
 8. To commit the added files use :code:`git commit`. (This will open a command line editor to write a commit message. These should have a descriptive 80 line header, followed by an empty line, and then a description of what you did and why. To use your command line text editor of choice use (for example) :code:`export GIT_EDITOR=vim` before running :code:`git commit`).
@@ -84,7 +84,7 @@ To create a Pull Request you need to do these steps:
 10. If you now go to the webpage for your Github copy of BoARIO you should see a link in the sidebar called "Create Pull Request".
 11. Now you need to choose your PR from the menu and click the "Create pull request" button. Be sure to change the pull request target branch to <descriptive_branch_name>!
 
-If you want to create more pull requests, first run :code:`git checkout main` and then start at step 5. with a new branch name.
+If you want to create more pull requests, first run :code:`git checkout develop` and then start at step 5. with a new branch name.
 
 Feel free to ask questions about this if you want to contribute to BoARIO :)
 

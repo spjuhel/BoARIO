@@ -1,6 +1,57 @@
 Release notes
 ================
 
+Note that release notes here are not always up-to-date, but try to be more descriptive.
+(For latest changelog see `GitHub releases <https://github.com/spjuhel/BoARIO/releases>`_)
+
+BoARIO is also still considered in `beta` (No real major 1.0.0 version yet),
+yet minor 0.+1.0 versions are reserved for important updates.
+
+0.7.0 (09/2025) - Annie Easley
+----------------------------------
+
+* Fix on final demand unmet tracking: The way to compute this attribute brought in `v0.6.4`
+  was incorrect.
+* Fix on value added tracking: Now sums intermediary input matrix over the correct axis.
+* Adds EVENT_ARBITRARY_PRECISION constant to replace hardcoded 6 value when rounding the factors of arbitrary production reduction in this type of event.
+* Improves error logs when losses are too high, to be more informative about which sectors are *"too impacted"*.
+* Minor updates to the documentations notably reflecting changes to final demand not met and value added tracking.
+
+
+0.6.4 (07/2025)
+-----------------
+
+Final demand not met was not properly computed. It was instead outputting the final demand that was
+not be distributed from the supplying industries.
+
+We kept this metric but renamed it correctly to `final_demand_undist` and added the right
+"Final demand not met" metric as the final demand that was not fulfilled for the point of view
+of supplied regions, distinguished by inputs (final products).
+
+**This new attribute was still incorrectly computed in this version (fixed in 0.7.0)**
+
+0.6.3 (06/2025)
+-----------------
+
+* Better authors list in autopopulated files
+* Puts git info logging in `debug` level
+* Makes `EventArbitraryProd` event type available
+* Adds value added tracking in simulation (computed as gross production minus intermediary inputs) **Note this feature had a bug in this version, corrected in v0.7.0**
+* Updates events creation documentation to reflect latest changes.
+
+0.6.2 (04/2025)
+-----------------
+
+Hot fix for rebuilding demand distribution: There was a bug in the way the rebuilding demand is distributed toward the rebuilding industries,
+as the distribution matrix was not grouped by sectors when computing shares. This is now fixed.
+
+0.6.1 (04/2025)
+-----------------
+
+Hot fix for _divide_array_ignore(): The function did not use `np.nan_to_num()` correctly,
+which produced NaNs in resulting arrays when computing the "market shares" with an intermediate demand
+having zeroes. This is now fixed.
+
 0.6.0 (11/2024) - Grace Brewster Hopper
 -------------------------------------------
 
