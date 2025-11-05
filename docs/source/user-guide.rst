@@ -12,3 +12,4 @@ hands-on tutorials on how to use the library to run simulations.
    boario-terminology
    boario-tutorials
    boario-math
+   boario-faq
