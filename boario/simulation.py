@@ -392,18 +392,14 @@ class Simulation:
                 self.n_temporal_units_simulated = self.current_temporal_unit
                 if step_res == 1:
                     self.has_crashed = True
-                    warnings.warn(
-                        f"""Economy seems to have crashed.
+                    warnings.warn(f"""Economy seems to have crashed.
                     - At step : {self.current_temporal_unit}
-                    """
-                    )
+                    """)
                     break
                 elif self._monotony_checker > 3:
-                    warnings.warn(
-                        f"""Economy seems to have found an equilibrium
+                    warnings.warn(f"""Economy seems to have found an equilibrium
                     - At step : {self.current_temporal_unit}
-                    """
-                    )
+                    """)
             bar.finish()
         else:
             for _ in run_range:
@@ -411,18 +407,14 @@ class Simulation:
                 self.n_temporal_units_simulated = self.current_temporal_unit
                 if step_res == 1:
                     self.has_crashed = True
-                    warnings.warn(
-                        f"""Economy or model seems to have crashed.
+                    warnings.warn(f"""Economy or model seems to have crashed.
                     - At step : {self.current_temporal_unit}
-                    """
-                    )
+                    """)
                     break
                 elif self._monotony_checker > 3:
-                    warnings.warn(
-                        f"""Economy seems to have found an equilibrium
+                    warnings.warn(f"""Economy seems to have found an equilibrium
                     - At step : {self.current_temporal_unit}
-                    """
-                    )
+                    """)
                     break
 
         if self._files_to_record:
