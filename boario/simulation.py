@@ -51,6 +51,7 @@ from boario.event import (
 
 from boario.extended_models import ARIOPsiModel
 from boario.model_base import ARIOBaseModel
+from boario.rationing import Proportional, RationingScheme, get_scheme
 from boario.utils.misc import CustomNumpyEncoder, TempMemmap, print_summary, sizeof_fmt
 
 __all__ = ["Simulation"]
@@ -161,6 +162,7 @@ class Simulation:
         boario_output_dir: str | pathlib.Path = tempfile.mkdtemp(prefix="boario"),
         results_dir_name: Optional[str] = None,
         show_progress: bool = False,
+        rationing_scheme: Optional[RationingScheme] = None,
     ) -> None:
         """A Simulation instance can be initialized with the following parameters:
 
@@ -190,8 +192,11 @@ class Simulation:
             The name of the folder where simulation results will be stored.
         show_progress: bool, default: False
             If True, shows a progress bar in the console during the simulation.
+        rationing_scheme: RationingScheme, optional
+            The rationing scheme to apply. See related documentation. Defaults to proportional rationing.
 
         """
+
         self.output_dir = pathlib.Path(boario_output_dir)
         """pathlib.Path, optional: Optional path to the directory where output are stored."""
         self.results_storage = (
@@ -269,7 +274,11 @@ class Simulation:
         self.n_temporal_units_simulated = 0
         self._n_checks = 0
         self._monotony_checker = 0
-        self.scheme = "proportional"
+        self.rationing_scheme = (
+            get_scheme(rationing_scheme)
+            if rationing_scheme is not None
+            else Proportional()
+        )
         self.has_crashed = False
         # RECORDS FILES
 
@@ -549,7 +558,7 @@ class Simulation:
 
             # 2)
             try:
-                self.model.distribute_production(self.scheme)
+                self.model.distribute_production(self.rationing_scheme)
                 if ("_final_demand_undist_evolution" in self._files_to_record) or (
                     "_final_demand_undist_evolution" in self._vars_to_record
                 ):

@@ -30,6 +30,8 @@ import pandas as pd
 import pymrio
 from pymrio.core.mriosystem import IOSystem
 
+from boario.rationing import RationingScheme
+
 from boario import DEBUG_TRACE, logger
 from boario.utils.misc import lexico_reindex, _fast_sum, _divide_arrays_ignore
 
@@ -979,7 +981,7 @@ class ARIOBaseModel:
 
     def distribute_production(
         self,
-        general_distribution_scheme: str = "proportional",
+        general_distribution_scheme: RationingScheme,
     ):
         r"""Production distribution module
 
@@ -1012,12 +1014,7 @@ class ARIOBaseModel:
             If an attempt to run an unimplemented distribution scheme is tried
 
         """
-
-        if general_distribution_scheme != "proportional":
-            raise NotImplementedError(
-                f"Scheme {general_distribution_scheme} is currently not implemented"
-            )
-
+        distributed_production = general_distribution_scheme(self)
         # list_of_demands = [self.matrix_orders, self.final_demand]
         # # 1. Calc demand from rebuilding requirements (with characteristic time rebuild_tau)
 
@@ -1031,30 +1028,6 @@ class ARIOBaseModel:
         # rationning_mask = np.tile(
         #     rationing_required[:, np.newaxis], (1, self.entire_demand.shape[1])
         # )
-        demand_shares = np.full(self.entire_demand.shape, 0.0)
-        tot_dem_summed = np.expand_dims(
-            np.sum(
-                self.entire_demand,
-                axis=1,
-                # where=rationning_mask
-            ),
-            1,
-        )
-        # Get demand share
-        np.divide(
-            self.entire_demand,
-            tot_dem_summed,
-            where=(tot_dem_summed != 0),
-            out=demand_shares,
-        )
-        distributed_production = np.zeros_like(self.entire_demand)
-        # 4. distribute production proportionally to demand
-        np.multiply(
-            demand_shares,
-            np.expand_dims(self.production, 1),
-            out=distributed_production,
-            # where=rationning_mask,
-        )
         intmd_distribution = distributed_production[
             :, : self.n_sectors * self.n_regions
         ]
