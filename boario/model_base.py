@@ -31,7 +31,7 @@ import pymrio
 from pymrio.core.mriosystem import IOSystem
 
 from boario import DEBUG_TRACE, logger
-from boario.utils.misc import lexico_reindex, _fast_sum, _divide_arrays_ignore
+from boario.utils.misc import as_3d, lexico_reindex, _fast_sum, _divide_arrays_ignore
 
 __all__ = [
     "ARIOBaseModel",
@@ -217,7 +217,7 @@ class ARIOBaseModel:
         # ####### INITIAL MRIO STATE (in step temporality) ###############
         self._matrix_id = np.eye(self.n_sectors)
         self._matrix_I_sum = np.tile(self._matrix_id, self.n_regions)
-        self.Z_0 = source_mriot.Z.to_numpy()  # type: ignore
+        self.Z_0 = np.ascontiguousarray(source_mriot.Z)
         r"""numpy.ndarray of float: 2-dim square matrix array :math:`\ioz` of size :math:`(n \times m, n \times m)` representing the daily intermediate (transaction) matrix (see :ref:`boario-math-init`)."""
 
         self.Z_C = self._matrix_I_sum @ self.Z_0
@@ -228,8 +228,8 @@ class ARIOBaseModel:
         )
         r"""numpy.ndarray of float: math:`\ioz` normalised by :math:`\ioz^{\sectorsset}`, i.e. representing for each input the share of the total ordered transiting from an industry to another (see :ref:`here <boario-math-z-agg>`)."""
 
-        self.Z_0 = source_mriot.Z.to_numpy() * self.steply_factor
-        self.Y_0 = source_mriot.Y.to_numpy()
+        self.Z_0 = np.ascontiguousarray(source_mriot.Z) * self.steply_factor
+        self.Y_0 = np.ascontiguousarray(source_mriot.Y)
         self.Y_C = self._matrix_I_sum @ self.Y_0
         r"""numpy.ndarray of float: 2-dim matrix array :math:`\ioy^{\sectorsset}` of size :math:`(n, m \times \text{number of final demand categories})` representing the final demand matrix aggregated by inputs (see :ref:`here <boario-math-z-agg>`)."""
 
@@ -238,7 +238,7 @@ class ARIOBaseModel:
         )
         r"""numpy.ndarray of float: math:`\ioy` normalised by :math:`\ioy^{\sectorsset}`, i.e. representing for each input the share of the total ordered transiting from an industry to final demand (see :ref:`here <boario-math-z-agg>`)."""
 
-        self.Y_0 = source_mriot.Y.to_numpy() * self.steply_factor
+        self.Y_0 = np.ascontiguousarray(source_mriot.Y) * self.steply_factor
         r"""numpy.ndarray of float: 2-dim array :math:`\ioy` of size :math:`(n \times m, m \times \text{number of final demand categories})` representing the daily final demand matrix."""
 
         self.X_0 = np.array(source_mriot.x.T).copy().flatten() * self.steply_factor
@@ -265,6 +265,15 @@ class ARIOBaseModel:
         self.tech_mat = (self._matrix_I_sum @ source_mriot.A).to_numpy()  # type: ignore #to_numpy is not superfluous !
         r"""numpy.ndarray of float: 2-dim array :math:`\ioa` of size :math:`(n \times m, n \times m)` representing the technical coefficients matrix."""
 
+        self.Z_0 = np.ascontiguousarray(self.Z_0)  # to_numpy() may be F-ordered
+        self.Z_distrib = np.ascontiguousarray(self.Z_distrib)
+        self._Z_0_3d = as_3d(self.Z_0, self.n_regions, self.n_sectors)
+        self._Z_distrib_3d = as_3d(self.Z_distrib, self.n_regions, self.n_sectors)
+        if (
+            self.Z_0 < 0
+        ).any():  # the cheaper negativity check below relies on Z_0 >= 0
+            warnings.warn("Z_0 has negative entries; negative-orders check is weaker.")
+
         if productive_capital_vector is not None:
             self.productive_capital = productive_capital_vector
             """numpy.ndarray of float: Array of size :math:`n \times m` representing the estimated stock of capital of each industry."""
@@ -282,19 +291,6 @@ class ARIOBaseModel:
             kratio_ordered = [kratio[k] for k in sorted(kratio.keys())]
             self.capital_to_VA_ratio = np.tile(np.array(kratio_ordered), self.n_regions)
             self.productive_capital = self.VA_0 * self.capital_to_VA_ratio
-
-        # Currently not used, and dubious definition
-        # if value_added.ndim > 1:
-        #     self.regional_production_share = (
-        #         self.VA_0
-        #         / value_added.sum(axis=0).groupby("region").transform("sum").to_numpy()
-        #     )
-        # else:
-        #     self.regional_production_share = (
-        #         self.VA_0 / value_added.groupby("region").transform("sum").to_numpy()
-        #     )
-        # self.regional_production_share = self.regional_production_share.flatten()
-        # r"""numpy.ndarray of float: Array of size :math:`n \times m` representing the estimated share of a sector in its regional economy."""
 
         self.threshold_not_input = (
             self.Z_C > np.tile(self.X_0, (self.n_sectors, 1)) * TECHNOLOGY_THRESHOLD
@@ -1159,42 +1155,47 @@ class ARIOBaseModel:
     def calc_orders(self) -> None:
         r"""Computes and sets the orders (intermediate demand) for the next step.
 
-        See :ref:`Order module <boario-math-orders>`
+        Orders are written in place into ``_entire_demand``. Region-wise sums use
+        ``(region, sector, buyer)`` views instead of ``_matrix_I_sum @ ...``.
 
         Raises
         ------
         RuntimeError
             If negative orders are found, which shouldn't happen.
         """
-
-        # total_demand = self.total_demand
-        production_opt = self.production_opt.copy()
-        matrix_stock_goal = np.tile(production_opt, (self.n_sectors, 1)) * self.tech_mat
-        # Check this !
+        m, n = self.n_regions, self.n_sectors
+        stock_goal = self.production_opt * self.tech_mat  # (n, N) by broadcasting
         with np.errstate(invalid="ignore"):
-            matrix_stock_goal *= self.inv_duration[:, np.newaxis]
-        if np.allclose(self.inputs_stock, matrix_stock_goal):
-            matrix_stock_gap = np.zeros(matrix_stock_goal.shape)
+            stock_goal *= self.inv_duration[:, np.newaxis]
+        if np.allclose(self.inputs_stock, stock_goal):
+            stock_gap = np.zeros_like(stock_goal)
         else:
-            matrix_stock_gap = self.calc_matrix_stock_gap(matrix_stock_goal)
-        matrix_stock_gap += (
-            np.tile(self.production, (self.n_sectors, 1)) * self.tech_mat
-        )
+            stock_gap = self.calc_matrix_stock_gap(stock_goal)
+        stock_gap += self.production * self.tech_mat
+
+        orders = as_3d(self._entire_demand[:, : self.n_industries], m, n)  # (m, n, N)
         if self.order_type == "alt":
-            prod_ratio = np.ones(shape=self.X_0.shape)
+            prod_ratio = np.ones(self.X_0.shape)
             np.divide(
                 self.production_cap, self.X_0, out=prod_ratio, where=self.X_0 != 0
             )
-            Z_prod = self.Z_0 * prod_ratio[:, np.newaxis]
-            Z_Cprod = np.tile(self._matrix_I_sum @ Z_prod, (self.n_regions, 1))
-            out = np.zeros(shape=Z_prod.shape)
-            np.divide(Z_prod, Z_Cprod, out=out, where=Z_Cprod != 0)
-            tmp = np.tile(matrix_stock_gap, (self.n_regions, 1)) * out
+            pr = prod_ratio.reshape(m, n)
+            # Z_C(prod)[s, j] = sum_r pr[r, s] * Z_0[r, s, j]  (was I_sum @ (Z_0 * pr))
+            z_c = np.einsum("rs,rsj->sj", pr, self._Z_0_3d)
+            ratio = np.zeros_like(z_c)
+            np.divide(stock_gap, z_c, out=ratio, where=z_c != 0)
+            # orders = Z_0 * pr * ratio, with Z_0 >= 0 and pr >= 0, so ratio >= 0 suffices
+            if (ratio < 0).any():
+                raise RuntimeError("Negative orders computed")
+            np.multiply(self._Z_0_3d, pr[:, :, np.newaxis], out=orders)
+            orders *= ratio  # broadcasts over regions
         else:
-            tmp = np.tile(matrix_stock_gap, (self.n_regions, 1)) * self.Z_distrib
-        if (tmp < 0).any():
-            raise RuntimeError("Negative orders computed")
-        self.intermediate_demand = tmp
+            if (stock_gap < 0).any():
+                raise RuntimeError("Negative orders computed")
+            np.multiply(self._Z_distrib_3d, stock_gap, out=orders)
+
+        self._intermediate_demand_tot = _fast_sum(self.intermediate_demand, axis=1)
+        self._entire_demand_tot = _fast_sum(self.entire_demand, axis=1)
 
     def calc_overproduction(self) -> None:
         r"""Computes and updates the overproduction vector.
