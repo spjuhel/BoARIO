@@ -18,7 +18,7 @@ jobs:
           enable-cache: true
       - name: Install the project dependencies
         run: uv sync --locked
-      - name: Run black
-        run: uv run black --check --verbose ./boario
+      - name: Run ruff
+        run: uv run ruff --check --verbose
       - name: Run the automated tests
         run: uv run pytest -v
