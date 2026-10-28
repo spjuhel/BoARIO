@@ -1,24 +1,22 @@
 from pathlib import Path
-import pytest
 
-# import pymrio for the test MRIO
-import pymrio
+import numpy as np
 
 # import pandas for the plot
 import pandas as pd
-import numpy as np
+
+# import pymrio for the test MRIO
+import pymrio
+import pytest
 
 # import the different classes
-from boario import event
+from boario.event import Event
+from boario.extended_models import ARIOPsiModel  # The core of the model
 from boario.simulation import (
     Simulation,
     _equal_distribution,
     _normalize_distribution,
 )  # Simulation wraps the model
-from boario.extended_models import ARIOPsiModel  # The core of the model
-from boario.event import Event
-from boario.utils.recovery_functions import *
-
 
 @pytest.fixture
 def test_mriot():
@@ -77,11 +75,11 @@ def test_initialize_simulation_with_valid_model_and_default_parameters(test_mode
     # Assert
     assert isinstance(sim, Simulation)
     assert sim.model == test_model
-    assert sim._save_events == False
-    assert sim._save_params == False
-    assert sim._save_index == False
+    assert not sim._save_events
+    assert not sim._save_params
+    assert not sim._save_index
     assert sim.all_events == []
-    assert sim._register_stocks == True
+    assert sim._register_stocks
     assert sim.n_temporal_units_to_sim == 365
     # assert sim._files_to_record == [
     #     "_production_evolution",
@@ -170,7 +168,7 @@ def test_initialize_simulation_with_valid_model_and_default_parameters(test_mode
     assert sim._n_checks == 0
     assert sim._monotony_checker == 0
     assert sim.scheme == "proportional"
-    assert sim.has_crashed == False
+    assert not sim.has_crashed
 
 
 # Tests that an error is raised when trying to add events to the simulation with invalid parameters.
@@ -189,7 +187,7 @@ def test_add_events_with_invalid_parameters(test_model):
 # Tests that an error is raised when trying to run the simulation loop with a negative number of temporal units to simulate.
 def test_run_simulation_loop_with_negative_number_of_temporal_units(test_model):
     with pytest.raises(ValueError):
-        sim = Simulation(test_model, n_temporal_units_to_sim=-1)
+        _ = Simulation(test_model, n_temporal_units_to_sim=-1)
 
 
 # Tests that the simulation results can be saved to memmaps and retrieved as pandas dataframes.

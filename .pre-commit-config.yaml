@@ -1,17 +1,17 @@
-# See https://pre-commit.com for more information
 default_language_version:
   python: python3
 
-# See https://pre-commit.com/hooks.html for more hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v6.0.0            # yours is v3.2.0; run `pre-commit autoupdate` to get the latest
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
 
-  # Using this mirror lets us use mypyc-compiled black, which is about 2x faster
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: '26.5.1'
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.3           # pin via `pre-commit autoupdate`
     hooks:
-      - id: black-jupyter
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format

@@ -95,18 +95,18 @@ class TempMemmap(np.memmap):
             )
             return self
         else:
-            ntf = tempfile.NamedTemporaryFile()
-            self = np.memmap.__new__(
-                subtype,
-                ntf,
-                dtype=dtype,
-                mode=mode,
-                offset=offset,
-                shape=shape,
-                order=order,
-            )
-            self._tmpfile = ntf
-            return self
+            with tempfile.NamedTemporaryFile() as ntf:
+                self = np.memmap.__new__(
+                    subtype,
+                    ntf,
+                    dtype=dtype,
+                    mode=mode,
+                    offset=offset,
+                    shape=shape,
+                    order=order,
+                )
+                self._tmpfile = ntf
+                return self
 
     def __del__(self):
         if hasattr(self, "_tmpfile") and self._tmpfile is not None:
@@ -123,7 +123,7 @@ class CustomNumpyEncoder(json.JSONEncoder):
         elif isinstance(obj, np.ndarray):
             return obj.tolist()
         else:
-            return super(CustomNumpyEncoder, self).default(obj)
+            return super().default(obj)
 
 
 def flatten(lst):

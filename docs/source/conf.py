@@ -12,13 +12,10 @@
 #
 import os
 import sys
-import re
-import yaml
 
 sys.path.insert(0, os.path.abspath("../../"))
 
 import boario
-
 
 # -- Project information -----------------------------------------------------
 

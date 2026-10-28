@@ -90,8 +90,7 @@ exclude = []  # exclude packages matching these glob patterns (empty by default)
 requires = ["poetry-core","setuptools>=61", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
-[tool.pyright]
-include = ["boario"]
+[tool.ruff]
 exclude = ["**/node_modules",
     "**/__pycache__",
     "src/",
@@ -103,16 +102,6 @@ exclude = ["**/node_modules",
     "tests/",
     "dist/"
 ]
-
-[tool.flake8]
-# Recommend matching the black line length (default 88),
-# rather than using the flake8 default of 79:
-max-line-length = 88
-extend-ignore = ['E501','E203']
-
-
-defineConstant = { DEBUG = true }
-stubPath = "boario/stubs"
 
 [tool.pytest.ini_options]
 addopts = "--cov=boario --cov-report html --cov-report json --cov-report lcov"

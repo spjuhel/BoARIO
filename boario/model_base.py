@@ -21,7 +21,6 @@ from __future__ import annotations
 import json
 import pathlib
 import typing
-from typing import Optional
 import warnings
 
 import numpy as np
@@ -31,12 +30,12 @@ import pymrio
 from pymrio.core.mriosystem import IOSystem
 
 from boario import DEBUG_TRACE, logger
-from boario.utils.misc import lexico_reindex, _fast_sum, _divide_arrays_ignore
+from boario.utils.misc import _divide_arrays_ignore, _fast_sum, lexico_reindex
 
 __all__ = [
-    "ARIOBaseModel",
     "INV_THRESHOLD",
     "VALUE_ADDED_NAMES",
+    "ARIOBaseModel",
     "VA_idx",
     "lexico_reindex",
 ]
@@ -147,24 +146,17 @@ class ARIOBaseModel:
         monetary_factor: int = 10**6,
         temporal_units_by_step: int = 1,
         iotable_year_to_temporal_unit_factor: int = 365,
-        infinite_inventories_sect: Optional[list] = None,
-        inventory_dict: Optional[dict[str, int]] = None,
-        productive_capital_vector: Optional[
-            pd.Series | npt.NDArray | pd.DataFrame
-        ] = None,
-        productive_capital_to_VA_dict: Optional[dict] = None,
+        infinite_inventories_sect: list | None = None,
+        inventory_dict: dict[str, int] | None = None,
+        productive_capital_vector: pd.Series | npt.NDArray | pd.DataFrame | None = None,
+        productive_capital_to_VA_dict: dict | None = None,
     ) -> None:
 
         logger.debug("Initiating new ARIOBaseModel instance")
         # ############### Parameters variables #######################
         try:
             logger.info(
-                "IO system metadata :\n\t{}\n\t{}\n\t{}\n\t{}".format(
-                    str(pym_mriot.meta.description),
-                    str(pym_mriot.meta.name),
-                    str(pym_mriot.meta.system),
-                    str(pym_mriot.meta.version),
-                )
+                f"IO system metadata :\n\t{pym_mriot.meta.description!s}\n\t{pym_mriot.meta.name!s}\n\t{pym_mriot.meta.system!s}\n\t{pym_mriot.meta.version!s}"
             )
         except AttributeError:
             warnings.warn(
@@ -178,9 +170,9 @@ class ARIOBaseModel:
 
         if hasattr(source_mriot, "monetary_factor"):
             warnings.warn(
-                f"Custom monetary factor found in the IOSystem, continuing with this one ({getattr(source_mriot,'monetary_factor')})"
+                f"Custom monetary factor found in the IOSystem, continuing with this one ({source_mriot.monetary_factor})"
             )
-            self.monetary_factor = getattr(source_mriot, "monetary_factor")
+            self.monetary_factor = source_mriot.monetary_factor
         else:
             self.monetary_factor = monetary_factor
         r"""int, default 10^6: Monetary unit factor (i.e. if the tables unit is 10^6 € instead of 1 €, it should be set to 10^6)."""
@@ -245,10 +237,8 @@ class ARIOBaseModel:
         r"""numpy.ndarray of float: Array :math:`\iox(0)` of size :math:`n \times m` representing the initial daily gross production."""
 
         value_added: pd.DataFrame = source_mriot.x.T - source_mriot.Z.sum(axis=0)  # type: ignore
-        # value_added = value_added.reindex(sorted(value_added.index), axis=0)
-        # value_added = value_added.reindex(sorted(value_added.columns), axis=1)
-        if (value_added < 0).any().any():  # type: ignore
-            tmp = (value_added[value_added < 0].dropna(axis=1)).columns  # type: ignore
+        if (value_added < 0).any().any():
+            tmp = (value_added[value_added < 0].dropna(axis=1)).columns
             warnings.warn(
                 f"""Found negative values in the value added, will set to 0. Note that industries with null value added will have a null productive capital if it is defined from value added.
                 industries with negative VA: {tmp}
@@ -456,19 +446,15 @@ class ARIOBaseModel:
         r"""int : The number :math:`m * n` of industries."""
 
         # try:
-        self.final_demand_cat = np.array(sorted(list(pym_mrio.get_Y_categories())))  # type: ignore
+        self.final_demand_cat = np.array(sorted(pym_mrio.get_Y_categories()))
         r"""numpy.ndarray of str: An array of the final demand categories of the model (``["Final demand"]`` if there is only one)"""
 
-        self.n_fd_cat = len(pym_mrio.get_Y_categories())  # type: ignore
+        self.n_fd_cat = len(pym_mrio.get_Y_categories())
         r"""int: The numbers of final demand categories."""
 
         self.all_regions_fd = pd.MultiIndex.from_product(
             [self.regions, self.final_demand_cat], names=["region", "category"]
         )
-        # Not required anymore?
-        # except (KeyError,IndexError):
-        #     self.n_fd_cat = 1
-        #     self.final_demand_cat = pd.Index(["Final demand"], name="category")
 
     ##### PRODUCTION CAPACITY CHANGES #####
     @property
@@ -578,11 +564,10 @@ class ARIOBaseModel:
 
     @prod_cap_delta_arbitrary.setter
     def prod_cap_delta_arbitrary(self, value: npt.NDArray | None):
-        if value is not None:
-            if value.shape != self.X_0.shape:
-                raise ValueError(
-                    f"Incorrect shape: {self.X_0.shape} expected, got {value.shape}"
-                )
+        if value is not None and value.shape != self.X_0.shape:
+            raise ValueError(
+                f"Incorrect shape: {self.X_0.shape} expected, got {value.shape}"
+            )
         self._prod_cap_delta_arbitrary = value
         self.update_prod_delta()
 
@@ -800,8 +785,7 @@ class ARIOBaseModel:
             :,
             (
                 self.n_regions * self.n_sectors + self.n_regions * self.n_fd_cat
-            ) : self.n_regions
-            * self.n_sectors
+            ) : self.n_regions * self.n_sectors
             + self.n_regions * self.n_fd_cat  # After intermediate and final demand
             +
             # up to
@@ -850,8 +834,9 @@ class ARIOBaseModel:
         if indus is not None:
             return indus[
                 :,
-                (self.n_regions * self.n_sectors)
-                * ev_id : (self.n_regions * self.n_sectors)
+                (self.n_regions * self.n_sectors) * ev_id : (
+                    self.n_regions * self.n_sectors
+                )
                 * (ev_id + 1),
             ]
         else:
@@ -862,8 +847,9 @@ class ARIOBaseModel:
         if house is not None:
             return house[
                 :,
-                (self.n_regions * self.n_fd_cat)
-                * ev_id : (self.n_regions * self.n_fd_cat)
+                (self.n_regions * self.n_fd_cat) * ev_id : (
+                    self.n_regions * self.n_fd_cat
+                )
                 * (ev_id + 1),
             ]
         else:
@@ -1084,8 +1070,7 @@ class ARIOBaseModel:
             self.final_demand
             - distributed_production[
                 :,
-                self.n_sectors
-                * self.n_regions : (
+                self.n_sectors * self.n_regions : (
                     self.n_sectors * self.n_regions + self.n_fd_cat * self.n_regions
                 ),
             ]
@@ -1135,17 +1120,13 @@ class ARIOBaseModel:
         """
         matrix_stock_gap = np.zeros(matrix_stock_goal.shape)
         if DEBUG_TRACE:
-            logger.debug("matrix_stock_goal: {}".format(matrix_stock_goal.shape))
-            logger.debug("matrix_stock: {}".format(self.inputs_stock.shape))
+            logger.debug(f"matrix_stock_goal: {matrix_stock_goal.shape}")
+            logger.debug(f"matrix_stock: {self.inputs_stock.shape}")
             logger.debug(
-                "matrix_stock_goal_finite: {}".format(
-                    matrix_stock_goal[np.isfinite(matrix_stock_goal)].shape
-                )
+                f"matrix_stock_goal_finite: {matrix_stock_goal[np.isfinite(matrix_stock_goal)].shape}"
             )
             logger.debug(
-                "matrix_stock_finite: {}".format(
-                    self.inputs_stock[np.isfinite(self.inputs_stock)].shape
-                )
+                f"matrix_stock_finite: {self.inputs_stock[np.isfinite(self.inputs_stock)].shape}"
             )
         matrix_stock_gap[np.isfinite(matrix_stock_goal)] = (
             matrix_stock_goal[np.isfinite(matrix_stock_goal)]

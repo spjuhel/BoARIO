@@ -16,15 +16,12 @@
 
 from __future__ import annotations
 
-from typing import Dict, Optional
-
 import numpy as np
 import pandas as pd
 from pymrio.core.mriosystem import IOSystem
 
 from boario import logger
-
-from boario.model_base import ARIOBaseModel, INV_THRESHOLD
+from boario.model_base import INV_THRESHOLD, ARIOBaseModel
 
 __all__ = ["ARIOPsiModel"]
 
@@ -43,14 +40,12 @@ class ARIOPsiModel(ARIOBaseModel):
         monetary_factor=10**6,
         temporal_units_by_step: int = 1,
         iotable_year_to_temporal_unit_factor: int = 365,
-        infinite_inventories_sect: Optional[list] = None,
-        inventory_dict: Optional[dict] = None,
-        productive_capital_vector: Optional[
-            pd.Series | np.ndarray | pd.DataFrame
-        ] = None,
-        productive_capital_to_VA_dict: Optional[dict] = None,
+        infinite_inventories_sect: list | None = None,
+        inventory_dict: dict | None = None,
+        productive_capital_vector: pd.Series | np.ndarray | pd.DataFrame | None = None,
+        productive_capital_to_VA_dict: dict | None = None,
         psi_param=0.80,
-        inventory_restoration_tau: int | Dict[str, int] = 60,
+        inventory_restoration_tau: int | dict[str, int] = 60,
     ) -> None:
         """An ARIO model with some additional features.
 
@@ -86,7 +81,7 @@ class ARIOPsiModel(ARIOBaseModel):
         elif isinstance(psi_param, int):
             self.psi = float(psi_param)
         else:
-            raise ValueError(
+            raise TypeError(
                 "'psi_param' parameter is neither a str rep of a float or a float"
             )
         if self.psi > 1.0:
@@ -111,14 +106,14 @@ class ARIOPsiModel(ARIOBaseModel):
                     """
                 )
 
-            for _, value in inventory_restoration_tau.items():
+            for value in inventory_restoration_tau.values():
                 if isinstance(value, float):
                     if not value.is_integer():
-                        raise ValueError(
+                        raise TypeError(
                             f"Invalid value: {value} ({type(value)}) in inventory_restoration_tau, values should be integer: {inventory_restoration_tau}"
                         )
                 elif not isinstance(value, int):
-                    raise ValueError(
+                    raise TypeError(
                         f"Invalid value: {value} ({type(value)}) in inventory_restoration_tau, values should be integer: {inventory_restoration_tau}"
                     )
 
@@ -131,7 +126,7 @@ class ARIOPsiModel(ARIOBaseModel):
                 for _, v in inventory_restoration_tau.items()
             ]
         else:
-            raise ValueError(
+            raise TypeError(
                 f"Invalid inventory_restoration_tau: expected dict or int got {type(inventory_restoration_tau)}"
             )
         self.restoration_tau = np.array(restoration_tau)

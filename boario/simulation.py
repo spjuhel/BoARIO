@@ -23,15 +23,17 @@ This module defines the Simulation object, which represent a BoARIO simulation e
 
 from __future__ import annotations
 
-from functools import cached_property, partial
 import json
 import logging
-import warnings
 import math
 import pathlib
 import tempfile
+import warnings
+from collections.abc import Callable
+from functools import cached_property, partial
 from pprint import pformat
-from typing import Callable, Literal, Optional, Union, overload
+from types import MappingProxyType
+from typing import Literal, overload
 
 import numpy as np
 import numpy.typing as npt
@@ -48,7 +50,6 @@ from boario.event import (
     RegionsList,
     SectorsList,
 )
-
 from boario.extended_models import ARIOPsiModel
 from boario.model_base import ARIOBaseModel
 from boario.utils.misc import CustomNumpyEncoder, TempMemmap, print_summary, sizeof_fmt
@@ -66,7 +67,7 @@ class Simulation:
     the model.
     """
 
-    __possible_records = [
+    __possible_records = (
         "production_realised",
         "production_capacity",
         "final_demand",
@@ -80,86 +81,93 @@ class Simulation:
         "limiting_inputs",
         "productive_capital_to_recover",
         "value_added",
-    ]
+    )
 
-    __file_save_array_specs = {
-        "production_realised": (
-            "float64",
-            "_production_evolution",
-            "industries",
-            np.nan,
-        ),
-        "production_capacity": (
-            "float64",
-            "_production_cap_evolution",
-            "industries",
-            np.nan,
-        ),
-        "value_added": (
-            "float64",
-            "_value_added_evolution",
-            "industries",
-            np.nan,
-        ),
-        "final_demand": ("float64", "_final_demand_evolution", "industries", np.nan),
-        "intermediate_demand": (
-            "float64",
-            "_io_demand_evolution",
-            "industries",
-            np.nan,
-        ),
-        "rebuild_demand": (
-            "float64",
-            "_rebuild_demand_evolution",
-            "industries",
-            np.nan,
-        ),
-        "overproduction": (
-            "float64",
-            "_overproduction_evolution",
-            "industries",
-            np.nan,
-        ),
-        "final_demand_undist": (
-            "float64",
-            "_final_demand_undist_evolution",
-            "industries",
-            np.nan,
-        ),
-        "final_demand_unmet": (
-            "float64",
-            "_final_demand_unmet_evolution",
-            "finaldem",
-            np.nan,
-        ),
-        "rebuild_prod": (
-            "float64",
-            "_rebuild_production_evolution",
-            "industries",
-            np.nan,
-        ),
-        "inputs_stocks": ("float64", "_inputs_evolution", "stocks", np.nan),
-        "limiting_inputs": ("byte", "_limiting_inputs_evolution", "stocks", -1),
-        "productive_capital_to_recover": (
-            "float64",
-            "_regional_sectoral_productive_capital_destroyed_evolution",
-            "industries",
-            np.nan,
-        ),
-    }
+    __file_save_array_specs = MappingProxyType(
+        {
+            "production_realised": (
+                "float64",
+                "_production_evolution",
+                "industries",
+                np.nan,
+            ),
+            "production_capacity": (
+                "float64",
+                "_production_cap_evolution",
+                "industries",
+                np.nan,
+            ),
+            "value_added": (
+                "float64",
+                "_value_added_evolution",
+                "industries",
+                np.nan,
+            ),
+            "final_demand": (
+                "float64",
+                "_final_demand_evolution",
+                "industries",
+                np.nan,
+            ),
+            "intermediate_demand": (
+                "float64",
+                "_io_demand_evolution",
+                "industries",
+                np.nan,
+            ),
+            "rebuild_demand": (
+                "float64",
+                "_rebuild_demand_evolution",
+                "industries",
+                np.nan,
+            ),
+            "overproduction": (
+                "float64",
+                "_overproduction_evolution",
+                "industries",
+                np.nan,
+            ),
+            "final_demand_undist": (
+                "float64",
+                "_final_demand_undist_evolution",
+                "industries",
+                np.nan,
+            ),
+            "final_demand_unmet": (
+                "float64",
+                "_final_demand_unmet_evolution",
+                "finaldem",
+                np.nan,
+            ),
+            "rebuild_prod": (
+                "float64",
+                "_rebuild_production_evolution",
+                "industries",
+                np.nan,
+            ),
+            "inputs_stocks": ("float64", "_inputs_evolution", "stocks", np.nan),
+            "limiting_inputs": ("byte", "_limiting_inputs_evolution", "stocks", -1),
+            "productive_capital_to_recover": (
+                "float64",
+                "_regional_sectoral_productive_capital_destroyed_evolution",
+                "industries",
+                np.nan,
+            ),
+        }
+    )
 
     def __init__(
         self,
-        model: Union[ARIOBaseModel, ARIOPsiModel],
+        model: ARIOBaseModel | ARIOPsiModel,
         register_stocks: bool = False,
         n_temporal_units_to_sim: int = 365,
-        events_list: Optional[list[Event]] = None,
+        events_list: list[Event] | None = None,
         save_events: bool = False,
         save_params: bool = False,
         save_index: bool = False,
-        save_records: list | str = [],
-        boario_output_dir: str | pathlib.Path = tempfile.mkdtemp(prefix="boario"),
-        results_dir_name: Optional[str] = None,
+        save_records: list | str | None = None,
+        boario_output_dir: str | pathlib.Path | None = None,
+        results_dir_name: str | None = None,
         show_progress: bool = False,
     ) -> None:
         """A Simulation instance can be initialized with the following parameters:
@@ -192,6 +200,10 @@ class Simulation:
             If True, shows a progress bar in the console during the simulation.
 
         """
+        if boario_output_dir is None:
+            boario_output_dir = tempfile.mkdtemp(prefix="boario")
+        if save_records is None:
+            save_records = []
         self.output_dir = pathlib.Path(boario_output_dir)
         """pathlib.Path, optional: Optional path to the directory where output are stored."""
         self.results_storage = (
@@ -236,9 +248,8 @@ class Simulation:
         if save_records != [] or save_events or save_params or save_index:
             self.output_dir.resolve().mkdir(parents=True, exist_ok=True)
 
-        if save_records != []:
-            if not self.results_storage.exists():
-                self.results_storage.mkdir()
+        if save_records != [] and not self.results_storage.exists():
+            self.results_storage.mkdir()
 
         self.model = model
         """Union[ARIOBaseModel, ARIOPsiModel] : The model to run the simulation with.
@@ -262,9 +273,9 @@ class Simulation:
         differs from 1 temporal_unit as `current_temporal_unit` is actually `step` * `n_temporal_units_by_step`."""
 
         self.equi = {
-            (int(0), int(0), "production"): "equi",
-            (int(0), int(0), "stocks"): "equi",
-            (int(0), int(0), "rebuilding"): "equi",
+            (0, 0, "production"): "equi",
+            (0, 0, "stocks"): "equi",
+            (0, 0, "rebuilding"): "equi",
         }
         self.n_temporal_units_simulated = 0
         self._n_checks = 0
@@ -448,8 +459,8 @@ class Simulation:
     def next_step(
         self,
         check_period: int = 182,
-        min_steps_check: Optional[int] = None,
-        min_failing_regions: Optional[int] = None,
+        min_steps_check: int | None = None,
+        min_failing_regions: int | None = None,
     ):
         """Advance the model to the next temporal step.
 
@@ -651,7 +662,7 @@ class Simulation:
             The event to add.
         """
         if not isinstance(ev, Event):
-            raise ValueError(f"Event expected, {type(ev)} received.")
+            raise TypeError(f"Event expected, {type(ev)} received.")
         self.event_compatibility(ev)
         self.all_events.append(ev)
         self._event_tracking.append(EventTracker(self, ev))
@@ -682,32 +693,31 @@ class Simulation:
             )
         if (impossible_regions := self.regions_compatible(ev.aff_regions)).size > 0:
             raise ValueError(
-                "Some affected sectors of the event are not in the model : {}".format(
-                    impossible_regions
-                )
+                f"Some affected sectors of the event are not in the model : {impossible_regions}"
             )
         if (impossible_sectors := self.sectors_compatible(ev.aff_sectors)).size > 0:
             raise ValueError(
-                "Some affected sectors of the event are not in the model : {}".format(
-                    impossible_sectors
-                )
+                f"Some affected sectors of the event are not in the model : {impossible_sectors}"
             )
-        if isinstance(ev, EventKapitalRebuild):
-            if (
+        if (
+            isinstance(ev, EventKapitalRebuild)
+            and (
                 impossible_sectors := self.sectors_compatible(
                     ev.rebuilding_sectors.index
                 )
-            ).size > 0:
-                raise ValueError(
-                    "Some affected sectors of the event are not in the model : {}".format(
-                        impossible_sectors
-                    )
-                )
-        if isinstance(ev, EventKapitalDestroyed):
-            if ev.event_monetary_factor != self.model.monetary_factor:
-                warnings.warn(
-                    f"Event monetary factors ({ev.event_monetary_factor}), differs from model monetary factor ({self.model.monetary_factor}). Will automatically adjust."
-                )
+            ).size
+            > 0
+        ):
+            raise ValueError(
+                f"Some affected sectors of the event are not in the model : {impossible_sectors}"
+            )
+        if (
+            isinstance(ev, EventKapitalDestroyed)
+            and ev.event_monetary_factor != self.model.monetary_factor
+        ):
+            warnings.warn(
+                f"Event monetary factors ({ev.event_monetary_factor}), differs from model monetary factor ({self.model.monetary_factor}). Will automatically adjust."
+            )
 
     def regions_compatible(self, regions: RegionsList):
         """Checks if given regions are all present in the simulation context.
@@ -753,63 +763,44 @@ class Simulation:
         """
         new_reb_event = False
         for event_tracker in self._event_tracking:
-            if event_tracker.status == "pending":
-                if (
-                    (self.current_temporal_unit - self.model.n_temporal_units_by_step)
-                    <= event_tracker.event.occurrence
-                    <= self.current_temporal_unit
-                ):
-                    logger.info(
-                        f"Temporal_Unit : {self.current_temporal_unit} ~ Shocking model with new event"
-                    )
-                    logger.info(
-                        f"Affected regions are : {event_tracker.event.aff_regions.to_list()}"
-                    )
-                    event_tracker._status = "happening"
+            if event_tracker.status == "pending" and (
+                (self.current_temporal_unit - self.model.n_temporal_units_by_step)
+                <= event_tracker.event.occurrence
+                <= self.current_temporal_unit
+            ):
+                logger.info(
+                    f"Temporal_Unit : {self.current_temporal_unit} ~ Shocking model with new event"
+                )
+                logger.info(
+                    f"Affected regions are : {event_tracker.event.aff_regions.to_list()}"
+                )
+                event_tracker._status = "happening"
         for event_tracker in self._event_tracking:
-            if event_tracker.status == "happening":
-                if self.current_temporal_unit >= (
-                    event_tracker.event.occurrence + event_tracker.event.duration
+            if event_tracker.status == "happening" and self.current_temporal_unit >= (
+                event_tracker.event.occurrence + event_tracker.event.duration
+            ):
+                if isinstance(event_tracker.event, EventKapitalRebuild):
+                    new_reb_event = True
+                    self.model._n_rebuilding_events += 1
+                    event_tracker._rebuild_id = self.model._n_rebuilding_events - 1
+                    event_tracker._status = "rebuilding"
+                    logger.info(
+                        f"Temporal_Unit : {self.current_temporal_unit} ~ Event named {event_tracker.event.name} that occurred at {event_tracker.event.occurrence} in {event_tracker.event.aff_regions.to_list()} for {event_tracker.impact_vector.sum()} damages has started rebuilding"
+                    )
+
+                elif isinstance(
+                    event_tracker.event, (EventKapitalRecover, EventArbitraryProd)
                 ):
-                    if isinstance(event_tracker.event, EventKapitalRebuild):
-                        new_reb_event = True
-                        self.model._n_rebuilding_events += 1
-                        event_tracker._rebuild_id = self.model._n_rebuilding_events - 1
-                        event_tracker._status = "rebuilding"
-                        logger.info(
-                            "Temporal_Unit : {} ~ Event named {} that occurred at {} in {} for {} damages has started rebuilding".format(
-                                self.current_temporal_unit,
-                                event_tracker.event.name,
-                                event_tracker.event.occurrence,
-                                event_tracker.event.aff_regions.to_list(),
-                                event_tracker.impact_vector.sum(),
-                            )
-                        )
+                    event_tracker._status = "recovering"
+                    logger.info(
+                        f"Temporal_Unit : {self.current_temporal_unit} ~ Event named {event_tracker.event.name} that occurred at {event_tracker.event.occurrence} in {event_tracker.event.aff_regions.to_list()} for {event_tracker.impact_vector.sum()} damages has started recovering"
+                    )
 
-                    elif isinstance(
-                        event_tracker.event, (EventKapitalRecover, EventArbitraryProd)
-                    ):
-                        event_tracker._status = "recovering"
-                        logger.info(
-                            "Temporal_Unit : {} ~ Event named {} that occurred at {} in {} for {} damages has started recovering".format(
-                                self.current_temporal_unit,
-                                event_tracker.event.name,
-                                event_tracker.event.occurrence,
-                                event_tracker.event.aff_regions.to_list(),
-                                event_tracker.impact_vector.sum(),
-                            )
-                        )
-
-                    else:
-                        event_tracker._status = "finished"
-                        logger.info(
-                            "Temporal_Unit : {} ~ Event named {} that occurred at {} in {} is now considered finished".format(
-                                self.current_temporal_unit,
-                                event_tracker.event.name,
-                                event_tracker.event.occurrence,
-                                event_tracker.event.aff_regions.to_list(),
-                            )
-                        )
+                else:
+                    event_tracker._status = "finished"
+                    logger.info(
+                        f"Temporal_Unit : {self.current_temporal_unit} ~ Event named {event_tracker.event.name} that occurred at {event_tracker.event.occurrence} in {event_tracker.event.aff_regions.to_list()} is now considered finished"
+                    )
 
         self.update_prod_cap_delta_tot()
         if new_reb_event:
@@ -901,7 +892,7 @@ class Simulation:
         """
 
         if not isinstance(self._event_tracking, list):
-            ValueError(
+            raise TypeError(
                 f"Setting tot_rebuild_demand can only be done with a list of events self._event_tracking, not a {type(self._event_tracking)}"
             )
         if "rebuilding" in [
@@ -1238,9 +1229,9 @@ class Simulation:
         self.n_temporal_units_simulated = 0
         self.has_crashed = False
         self.equi = {
-            (int(0), int(0), "production"): "equi",
-            (int(0), int(0), "stocks"): "equi",
-            (int(0), int(0), "rebuilding"): "equi",
+            (0, 0, "production"): "equi",
+            (0, 0, "stocks"): "equi",
+            (0, 0, "rebuilding"): "equi",
         }
         self._reset_records()
         self.model.reset_module()
@@ -1258,7 +1249,7 @@ class Simulation:
         self.currently_happening_events = []
         self.events_timings = set()
 
-    def write_index(self, index_file: Union[str, pathlib.Path]):
+    def write_index(self, index_file: str | pathlib.Path):
         """Writes the index of the dataframes used in the model in a json file.
 
         See :meth:`~boario.model_base.ARIOBaseModel.write_index` for a more detailed documentation.
@@ -1585,7 +1576,7 @@ def _normalize_distribution(
         ret.loc[addressed_to, :] = (
             dist_sq.loc[addressed_to]
             .groupby(level=1)
-            .transform(lambda x: np.nan_to_num((x / sum(x))))
+            .transform(lambda x: np.nan_to_num(x / sum(x)))
             .values[:, None]
         )
         if np.isnan(ret).any(axis=None):
@@ -1595,13 +1586,13 @@ def _normalize_distribution(
         ret.loc[addressed_to, affected] = (
             dist_sq.loc[addressed_to, affected]
             .groupby(level=1)
-            .transform(lambda x: np.nan_to_num((x / sum(x))))
+            .transform(lambda x: np.nan_to_num(x / sum(x)))
         )
         if np.isnan(ret).any(axis=None):
             raise ValueError("The distribution contains NaNs")
         return ret
     else:
-        raise ValueError("given distribution should be a Series or a DataFrame.")
+        raise TypeError("given distribution should be a Series or a DataFrame.")
 
 
 class EventTracker:
@@ -1671,13 +1662,9 @@ class EventTracker:
     ):
         self.sim: Simulation = sim
         self.event = source_event
-        self._status: (
-            Literal["pending"]
-            | Literal["happening"]
-            | Literal["recovering"]
-            | Literal["rebuilding"]
-            | Literal["finished"]
-        ) = "pending"
+        self._status: Literal[
+            "pending", "happening", "recovering", "rebuilding", "finished"
+        ] = "pending"
 
         self._prod_delta_from_arb_0: pd.Series | None = None
         self._prod_delta_from_arb: pd.Series | None = None
@@ -1699,11 +1686,13 @@ class EventTracker:
         self._house_dmg: pd.Series | None = None
 
         impact = source_event.impact.copy()
-        if isinstance(source_event, EventKapitalDestroyed):
-            if source_event.event_monetary_factor != sim.model.monetary_factor:
-                impact = impact * (
-                    source_event.event_monetary_factor / sim.model.monetary_factor
-                )
+        if (
+            isinstance(source_event, EventKapitalDestroyed)
+            and source_event.event_monetary_factor != sim.model.monetary_factor
+        ):
+            impact = impact * (
+                source_event.event_monetary_factor / sim.model.monetary_factor
+            )
 
         if isinstance(source_event, EventKapitalDestroyed):
             self._indus_dmg_0 = _thin_to_wide(impact, self.sim.model.industries)
@@ -1777,7 +1766,7 @@ class EventTracker:
 
     def _init_distrib(
         self,
-        dtype: Literal["indus"] | Literal["house"],
+        dtype: Literal["indus", "house"],
         distrib: pd.DataFrame | None | Literal["equal"],
     ):
         """
@@ -1949,13 +1938,7 @@ class EventTracker:
     @property
     def status(
         self,
-    ) -> (
-        Literal["pending"]
-        | Literal["happening"]
-        | Literal["recovering"]
-        | Literal["rebuilding"]
-        | Literal["finished"]
-    ):
+    ) -> Literal["pending", "happening", "recovering", "rebuilding", "finished"]:
         """
         Gets the current status of the event.
 
@@ -2088,7 +2071,7 @@ class EventTracker:
         if self._distributed_reb_dem_indus is None:
             raise ValueError("The rebuilding demand of this event does not exist.")
         if not isinstance(self.event, EventKapitalRebuild):
-            raise ValueError("The event is not a rebuilding event.")
+            raise TypeError("The event is not a rebuilding event.")
         self._distributed_reb_dem_indus -= reb_prod
         precision = int(math.log10(self.event.event_monetary_factor)) + 1
         self._distributed_reb_dem_indus = self._distributed_reb_dem_indus.round(
@@ -2167,7 +2150,7 @@ class EventTracker:
                 "The household rebuilding demand of this event does not exist."
             )
         if not isinstance(self.event, EventKapitalRebuild):
-            raise ValueError("The event is not a rebuilding event.")
+            raise TypeError("The event is not a rebuilding event.")
         self._distributed_reb_dem_house -= reb_prod
         precision = int(math.log10(self.event.event_monetary_factor)) + 1
         self._distributed_reb_dem_house = self._distributed_reb_dem_house.round(
@@ -2196,7 +2179,7 @@ class EventTracker:
             If the event is not a recoverable type (i.e., not a capital or production recovery event).
         """
         if not isinstance(self.event, (EventKapitalRecover, EventArbitraryProd)):
-            raise ValueError("The event is not a recoverable event.")
+            raise TypeError("The event is not a recoverable event.")
         if isinstance(self.event, EventKapitalRecover):
             precision = int(math.log10(self.event.event_monetary_factor)) + 1
             if self._indus_dmg is not None:
@@ -2271,9 +2254,7 @@ class EventTracker:
         )
         if impossible_regions.size > 0:
             raise ValueError(
-                "Some affected regions of the event are not in the model : {}".format(
-                    impossible_regions
-                )
+                f"Some affected regions of the event are not in the model : {impossible_regions}"
             )
         return np.searchsorted(self.sim.model.regions, self.event.aff_regions)
 
@@ -2311,7 +2292,7 @@ class EventTracker:
             If the event is not a rebuilding event or if some rebuilding sectors are not found in the model.
         """
         if not isinstance(self.event, EventKapitalRebuild):
-            raise ValueError(
+            raise TypeError(
                 "This event is not a rebuilding event and has no rebuilding sectors."
             )
         else:
@@ -2320,9 +2301,7 @@ class EventTracker:
             )
         if impossible_sectors.size > 0:
             raise ValueError(
-                "Some rebuilding sectors of the event are not in the model : {}".format(
-                    impossible_sectors
-                )
+                f"Some rebuilding sectors of the event are not in the model : {impossible_sectors}"
             )
         return np.searchsorted(self.sim.model.sectors, self.event.rebuilding_sectors)
 
