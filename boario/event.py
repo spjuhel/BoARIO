@@ -19,9 +19,11 @@ import inspect
 import math
 import warnings
 from abc import ABC, abstractmethod
-from typing import Callable, List, Literal, Optional, Tuple, Union, overload
+from collections.abc import Callable
+from typing import Literal, overload
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
 
@@ -35,26 +37,26 @@ from boario.utils.recovery_functions import (
 
 __all__ = [
     "Event",
-    "EventKapitalDestroyed",
     "EventArbitraryProd",
-    "EventKapitalRecover",
+    "EventKapitalDestroyed",
     "EventKapitalRebuild",
+    "EventKapitalRecover",
     "Impact",
     "IndustriesList",
-    "SectorsList",
     "RegionsList",
-    "from_series",
+    "SectorsList",
     "from_scalar_industries",
     "from_scalar_regions_sectors",
+    "from_series",
 ]
 
-VectorImpact = Union[list, dict, np.ndarray, pd.DataFrame, pd.Series]
+VectorImpact = list | dict | np.ndarray | pd.DataFrame | pd.Series
 ScalarImpact = int | float
-Impact = Union[VectorImpact, ScalarImpact]
-IndustriesList = Union[List[Tuple[str, str]], pd.MultiIndex]
-SectorsList = Union[List[str], pd.Index, str]
-RegionsList = Union[List[str], pd.Index, str]
-FinalCatList = Union[List[str], pd.Index, str]
+Impact = VectorImpact | ScalarImpact
+IndustriesList = list[tuple[str]] | pd.MultiIndex
+SectorsList = list[str] | pd.Index | str
+RegionsList = list[str] | pd.Index | str
+FinalCatList = list[str] | pd.Index | str
 
 REBUILDING_FINALDEMAND_CAT_REGEX = (
     r"(?i)(?=.*household)(?=.*final)(?!.*NPISH|profit).*|HFCE"
@@ -70,7 +72,7 @@ def from_series(
     event_type: Literal["recovery"],
     occurrence: int = 1,
     duration: int = 1,
-    name: Optional[str] = None,
+    name: str | None = None,
     event_monetary_factor: int | None = None,
     recovery_tau: int | None = None,
     recovery_function: str | None = "linear",
@@ -85,7 +87,7 @@ def from_series(
     event_type: Literal["rebuild"],
     occurrence: int = 1,
     duration: int = 1,
-    name: Optional[str] = None,
+    name: str | None = None,
     event_monetary_factor: int | None = None,
     households_impact: Impact | None = None,
     rebuild_tau: int | None = None,
@@ -101,7 +103,7 @@ def from_series(
     event_type: Literal["arbitrary"],
     occurrence: int = 1,
     duration: int = 1,
-    name: Optional[str] = None,
+    name: str | None = None,
     recovery_tau: int | None = None,
     recovery_function: str | None = "linear",
 ) -> EventArbitraryProd: ...
@@ -110,10 +112,10 @@ def from_series(
 def from_series(
     impact: pd.Series,
     *,
-    event_type: Literal["recovery"] | Literal["rebuild"] | Literal["arbitrary"],
+    event_type: Literal["recovery", "rebuild", "arbitrary"],
     occurrence: int = 1,
     duration: int = 1,
-    name: Optional[str] = None,
+    name: str | None = None,
     event_monetary_factor: int | None = None,
     recovery_tau: int | None = None,
     recovery_function: str | None = "linear",
@@ -206,14 +208,14 @@ def from_series(
 
 
 def from_scalar_industries(
-    impact: int | float,
+    impact: float,
     *,
     event_type: str,
     affected_industries: IndustriesList,
     impact_distrib: Literal["equal"] | pd.Series,
     occurrence: int = 1,
     duration: int = 1,
-    name: Optional[str] = None,
+    name: str | None = None,
     event_monetary_factor: int | None = None,
     recovery_tau: int | None = None,
     recovery_function: str | None = "linear",
@@ -302,7 +304,7 @@ def from_scalar_industries(
 
 
 def from_scalar_regions_sectors(
-    impact: int | float,
+    impact: float,
     *,
     event_type: str,
     affected_regions: RegionsList,
@@ -311,7 +313,7 @@ def from_scalar_regions_sectors(
     impact_sectoral_distrib: Literal["equal"] | pd.Series,
     occurrence: int = 1,
     duration: int = 1,
-    name: Optional[str] = None,
+    name: str | None = None,
     event_monetary_factor: int | None = None,
     recovery_tau: int | None = None,
     recovery_function: str | None = "linear",
@@ -438,8 +440,8 @@ class Event(ABC):
         *,
         impact: pd.Series,
         name: str | None = None,
-        occurrence: Optional[int] = None,
-        duration: Optional[int] = None,
+        occurrence: int | None = None,
+        duration: int | None = None,
     ) -> None:
         logger.info("Initializing new Event")
         self.name: str | None = name
@@ -466,9 +468,9 @@ class Event(ABC):
         cls,
         impact: pd.Series,
         *,
-        occurrence: Optional[int] = 1,
-        duration: Optional[int] = 1,
-        name: Optional[str] = None,
+        occurrence: int | None = 1,
+        duration: int | None = 1,
+        name: str | None = None,
         **kwargs,
     ) -> Event:
         if impact.size == 0:
@@ -479,7 +481,7 @@ class Event(ABC):
         if np.less_equal(impact, 0).any():
             if DEBUG_TRACE:
                 logger.debug(
-                    f"Impact has negative values:\n{impact}\n{impact[impact<0]}"
+                    f"Impact has negative values:\n{impact}\n{impact[impact < 0]}"
                 )
             raise ValueError("Impact has negative values")
         return cls(
@@ -497,9 +499,9 @@ class Event(ABC):
         *,
         affected_industries: IndustriesList,
         impact_distrib: Literal["equal"] | pd.Series = "equal",
-        occurrence: Optional[int] = 1,
-        duration: Optional[int] = 1,
-        name: Optional[str] = None,
+        occurrence: int | None = 1,
+        duration: int | None = 1,
+        name: str | None = None,
         **kwargs,
     ) -> Event:
         impact_vec = cls.distribute_impact_industries(
@@ -541,11 +543,11 @@ class Event(ABC):
     @classmethod
     def _distribute_impact(cls, impact_vec: pd.Series, distrib: pd.Series) -> pd.Series:
         if not isinstance(impact_vec, pd.Series):
-            raise ValueError(
+            raise TypeError(
                 f"Impact vector has to be a Series not a {type(impact_vec)}."
             )
         if impact_vec.size < 1:
-            raise ValueError(f"Impact vector cannot be null sized.")
+            raise ValueError("Impact vector cannot be null sized.")
         if not math.isclose(distrib.sum(), 1.0, rel_tol=10e-7):
             raise ValueError(
                 f"Impact distribution doesn't sum up to 1.0 (but {distrib.sum()})"
@@ -569,7 +571,7 @@ class Event(ABC):
         impact_sectoral_distrib: Literal["equal"] | pd.Series = "equal",
         occurrence: int = 1,
         duration: int = 1,
-        name: Optional[str] = None,
+        name: str | None = None,
         **kwargs,
     ) -> Event:
         affected_industries = cls._build_industries_idx(
@@ -606,11 +608,11 @@ class Event(ABC):
         *,
         regions: RegionsList,
         sectors: SectorsList,
-        impact_regional_distrib: Optional[npt.ArrayLike] = None,
-        impact_sectoral_distrib: Optional[Union[str, npt.ArrayLike]] = None,
+        impact_regional_distrib: npt.ArrayLike | None = None,
+        impact_sectoral_distrib: str | npt.ArrayLike | None = None,
         occurrence: int = 1,
         duration: int = 1,
-        name: Optional[str] = None,
+        name: str | None = None,
         **kwargs,
     ) -> Event:
         """Creates an Event from a scalar, a list of regions and a list of sectors affected.
@@ -626,7 +628,7 @@ class Event(ABC):
         impact_regional_distrib : Optional[npt.ArrayLike], optional
             A vector of equal size to the list of regions affected, stating the
             share of the impact each industry should receive. Defaults to None.
-        impact_sectoral_distrib : Optional[Union[str, npt.ArrayLike]], optional
+        impact_sectoral_distrib : Optional[str | npt.ArrayLike], optional
             Either:
 
             * A vector of equal size to the list of sectors affected, stating the share of the impact each industry should receive. Defaults to None.
@@ -652,7 +654,7 @@ class Event(ABC):
             An Event object or one of its subclass.
         """
         if not isinstance(impact, (int, float)):
-            raise ValueError("Impact is not scalar.")
+            raise TypeError("Impact is not scalar.")
 
         if impact <= 0:
             raise ValueError("Impact is null.")
@@ -697,7 +699,7 @@ class Event(ABC):
     @classmethod
     def _level_distrib(
         cls,
-        affected_idx: List[str] | pd.Index | pd.MultiIndex,
+        affected_idx: list[str] | pd.Index | pd.MultiIndex,
         distrib: Literal["equal"] | pd.Series,
     ):
         if isinstance(distrib, str) and distrib == "equal":
@@ -719,7 +721,7 @@ class Event(ABC):
 
     @classmethod
     def _distrib_equi_level(
-        cls, level_idx: List[str] | pd.Index | pd.MultiIndex
+        cls, level_idx: list[str] | pd.Index | pd.MultiIndex
     ) -> pd.Series:
         """Distribute an impact equally between all affected regions.
 
@@ -752,7 +754,7 @@ class Event(ABC):
         self._impact_df.sort_index(inplace=True)
         tmp_idx = self.impact.loc[self.impact > 0].index
         if not isinstance(tmp_idx, pd.MultiIndex):
-            raise ValueError("The impact series does not have a MultiIndex index.")
+            raise TypeError("The impact series does not have a MultiIndex index.")
         self._aff_industries: pd.MultiIndex = tmp_idx
         self._aff_regions = self._aff_industries.get_level_values("region").unique()
         self._aff_sectors = self._aff_industries.get_level_values("sector").unique()
@@ -855,14 +857,14 @@ class EventKapitalDestroyed(Event, ABC):
         self,
         *,
         impact: pd.Series,
-        households_impact: Optional[pd.Series] = None,
+        households_impact: pd.Series | None = None,
         name: str | None = None,
         occurrence: int = 1,
         duration: int = 1,
-        event_monetary_factor: Optional[int] = None,
+        event_monetary_factor: int | None = None,
     ) -> None:
         if event_monetary_factor is None:
-            logger.info(f"No event monetary factor given. Assuming it is 1.")
+            logger.info("No event monetary factor given. Assuming it is 1.")
             self.event_monetary_factor = 1
             r"""The monetary factor for the impact of the event (e.g. 10**6, 10**3, ...)"""
 
@@ -961,7 +963,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
         name: str | None = None,
         occurrence: int = 1,
         duration: int = 1,
-        event_monetary_factor: Optional[int] = None,
+        event_monetary_factor: int | None = None,
         rebuild_tau: int,
         rebuilding_sectors: dict[str, float] | pd.Series,
         rebuilding_factor: float = 1.0,
@@ -1003,7 +1005,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
     @rebuilding_sectors.setter
     def rebuilding_sectors(self, value: dict[str, float] | pd.Series):
         if value is None:
-            raise ValueError(f"Rebuilding sectors cannot be empty/none.")
+            raise ValueError("Rebuilding sectors cannot be empty/none.")
         if isinstance(value, dict):
             reb_sectors = pd.Series(value)
         else:
@@ -1013,7 +1015,7 @@ class EventKapitalRebuild(EventKapitalDestroyed):
                 "Rebuilding sectors should be given as ``dict[str, float] | pd.Series``."
             )
         if not np.isclose(reb_sectors.sum(), 1.0):
-            raise ValueError(f"Reconstruction shares among sectors do not sum up to 1.")
+            raise ValueError("Reconstruction shares among sectors do not sum up to 1.")
 
         self._rebuilding_sectors = reb_sectors
 
@@ -1036,7 +1038,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
         impact: pd.Series,
         recovery_tau: int,
         recovery_function: str = "linear",
-        households_impact: Optional[pd.Series] = None,
+        households_impact: pd.Series | None = None,
         name: str | None = None,
         occurrence: int = 1,
         duration: int = 1,
@@ -1083,7 +1085,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
                 fun = concave_recovery
             else:
                 raise NotImplementedError(
-                    "No implemented recovery function corresponding to {}".format(r_fun)
+                    f"No implemented recovery function corresponding to {r_fun}"
                 )
         elif callable(r_fun):
             r_fun_argsspec = inspect.getfullargspec(r_fun)
@@ -1109,7 +1111,7 @@ class EventKapitalRecover(EventKapitalDestroyed):
             fun = r_fun
 
         else:
-            raise ValueError("Given recovery function is not a str or callable")
+            raise TypeError("Given recovery function is not a str or callable")
 
         self._recovery_fun = fun
 
@@ -1157,9 +1159,7 @@ class EventArbitraryProd(Event):
         self._prod_cap_delta_arbitrary_0 = (
             self.impact.copy()
         )  # np.zeros(shape=len(self.possible_sectors))
-        self.prod_cap_delta_arbitrary = (
-            self.impact.copy()
-        )  # type: ignore # np.zeros(shape=len(self.possible_sectors))
+        self.prod_cap_delta_arbitrary = self.impact.copy()
         self.recovery_tau = recovery_tau
         r"""The characteristic recovery duration after the event is over"""
 
@@ -1210,7 +1210,7 @@ class EventArbitraryProd(Event):
                 fun = concave_recovery
             else:
                 raise NotImplementedError(
-                    "No implemented recovery function corresponding to {}".format(r_fun)
+                    f"No implemented recovery function corresponding to {r_fun}"
                 )
         elif callable(r_fun):
             r_fun_argsspec = inspect.getfullargspec(r_fun)
@@ -1235,6 +1235,6 @@ class EventArbitraryProd(Event):
             fun = r_fun
 
         else:
-            raise ValueError("Given recovery function is not a str or callable")
+            raise TypeError("Given recovery function is not a str or callable")
 
         self._recovery_fun = fun

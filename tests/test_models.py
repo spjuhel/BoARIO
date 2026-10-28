@@ -1,19 +1,12 @@
 import re
-from boario.extended_models import ARIOPsiModel
-
-from boario.model_base import INV_THRESHOLD, ARIOBaseModel
-from boario.utils.misc import lexico_reindex
-import pytest
-
-
-import pymrio
 
 import numpy as np
-import pandas as pd
+import pymrio
+import pytest
 
-from boario.utils.recovery_functions import *
-
-import boario
+from boario.extended_models import ARIOPsiModel
+from boario.model_base import INV_THRESHOLD, ARIOBaseModel
+from boario.utils.misc import lexico_reindex
 
 ##### UNIT TESTS
 
@@ -59,8 +52,8 @@ class TestARIOPsiModel:
         assert model.overprod_tau == 1 / 365
         assert model.overprod_base == 1.0
         assert model.order_type == "alt"
-        assert model.in_shortage == False
-        assert model.had_shortage == False
+        assert not model.in_shortage
+        assert not model.had_shortage
 
         assert isinstance(model.rebuild_tau, (int, np.integer))
         test_mriot = lexico_reindex(test_mriot)
@@ -89,7 +82,7 @@ class TestARIOPsiModel:
     # Tests creating an instance of the class with the `psi_param` parameter as an integer value.
     def test_init_psi_param_int_invalid(self, test_mriot):
         with pytest.raises(ValueError):
-            model = ARIOPsiModel(test_mriot, psi_param=80)
+            _ = ARIOPsiModel(test_mriot, psi_param=80)
 
     def test_init_psi_param_int_valid(self, test_mriot):
         model = ARIOPsiModel(test_mriot, psi_param=1)
@@ -172,7 +165,7 @@ class TestARIOPsiModel:
         kratio_ordered = [kratio[k] for k in sorted(kratio.keys())]
         tiled = np.tile(np.array(kratio_ordered), len(test_mriot.get_regions()))
         VA = (
-            ((test_mriot.x.T - test_mriot.Z.sum(axis=0)))
+            (test_mriot.x.T - test_mriot.Z.sum(axis=0))
             .squeeze()
             .sort_index()
             .to_numpy()

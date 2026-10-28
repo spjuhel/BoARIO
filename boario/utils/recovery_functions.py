@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 
 
@@ -95,7 +93,7 @@ def concave_recovery(
     init_impact_stock: np.ndarray,
     recovery_tau: int,
     steep_factor: float = 0.000001,
-    half_recovery_time: Optional[int] = None,
+    half_recovery_time: int | None = None,
 ):
     r"""Concave (s-shaped) Initial impact recovery function
 

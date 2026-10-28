@@ -1,5 +1,4 @@
 import os
-import yaml
 import subprocess
 
 
@@ -38,7 +37,7 @@ if __name__ == "__main__":
         "git tag | grep -v 'v0.[1234].*' | grep -v 'v0.5.[01234567]'",
         shell=True,
         stdout=subprocess.PIPE,
-        universal_newlines=True,
+        text=True,
     ).stdout.splitlines()
 
     subprocess.run(f"echo 'Found following tags to build: {tags}'", shell=True)

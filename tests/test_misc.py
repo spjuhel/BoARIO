@@ -1,19 +1,19 @@
-import tempfile
-import pytest
-import numpy as np
 import json
+
+import numpy as np
+import pandas as pd
+import pytest
+from pymrio import IOSystem
+
 from boario.utils.misc import (
-    _fast_sum,
-    _divide_arrays_ignore,
-    TempMemmap,
     CustomNumpyEncoder,
+    _divide_arrays_ignore,
+    _fast_sum,
     flatten,
     lexico_reindex,
-    sizeof_fmt,
     print_summary,
+    sizeof_fmt,
 )
-from pymrio import IOSystem
-import pandas as pd
 
 
 def test_divide_arrays_ignore():

@@ -1,23 +1,17 @@
+from contextlib import nullcontext as does_not_raise
+
+# import pandas for the plot
+import pandas as pd
+import pytest
+
+# import the different classes
+from boario import event
 from boario.utils.recovery_functions import (
     concave_recovery,
     convexe_recovery,
     convexe_recovery_scaled,
     linear_recovery,
 )
-import pytest
-
-from contextlib import nullcontext as does_not_raise
-
-# import pandas for the plot
-import pandas as pd
-
-# import the different classes
-import boario.event as event
-
-import pandas as pd
-import pytest
-
-import boario
 
 
 @pytest.fixture
@@ -32,7 +26,6 @@ def sample_series():
 
 
 class TestEventInitSeries:
-
     @pytest.mark.parametrize("ev_t", ["recovery", "rebuild"])
     def test_event_from_series_invalid(self, ev_t):
         with pytest.raises(ValueError):
@@ -152,19 +145,39 @@ class TestEventInitSeries:
 
 class TestEventInitScalar:
     def test_event_from_scalar_arbitrary(self):
-        event.from_scalar_industries(impact=0.1, affected_industries=pd.Index([("RegionA", "Sector1")]), event_type="arbitrary", impact_distrib="equal", recovery_tau=1)  # type: ignore
+        event.from_scalar_industries(
+            impact=0.1,
+            affected_industries=pd.Index([("RegionA", "Sector1")]),
+            event_type="arbitrary",
+            impact_distrib="equal",
+            recovery_tau=1,
+        )  # type: ignore
 
     def test_event_from_scalar_arbitrary_verror(self):
         with pytest.raises(ValueError):
-            event.from_scalar_industries(impact=1000, affected_industries=pd.Index([("RegionA", "Sector1")]), event_type="arbitrary", impact_distrib="equal")  # type: ignore
+            event.from_scalar_industries(
+                impact=1000,
+                affected_industries=pd.Index([("RegionA", "Sector1")]),
+                event_type="arbitrary",
+                impact_distrib="equal",
+            )  # type: ignore
 
     def test_event_from_scalar_wrongtype(self):
         with pytest.raises(ValueError):
-            event.from_scalar_industries(impact=1000, affected_industries=pd.Index([("RegionA", "Sector1")]), event_type="wrongtype", impact_distrib="equal")  # type: ignore
+            event.from_scalar_industries(
+                impact=1000,
+                affected_industries=pd.Index([("RegionA", "Sector1")]),
+                event_type="wrongtype",
+                impact_distrib="equal",
+            )  # type: ignore
 
     def test_event_from_scalar_notype(self):
         with pytest.raises(TypeError):
-            event.from_scalar_industries(sample_series, affected_industries=pd.Index([("RegionA", "Sector1")]), impact_distrib="equal")  # type: ignore
+            event.from_scalar_industries(
+                sample_series,
+                affected_industries=pd.Index([("RegionA", "Sector1")]),
+                impact_distrib="equal",
+            )  # type: ignore
 
     def test_event_from_scalar_reg_sec_arbitrary(self):
         event.from_scalar_regions_sectors(
@@ -577,7 +590,9 @@ class TestEventInitScalar:
             )
             if not isinstance(expected, str):
                 expected.index.names = ["region", "category"]
-                pd.testing.assert_series_equal(event_instance.impact_households, expected)  # type: ignore
+                pd.testing.assert_series_equal(
+                    event_instance.impact_households, expected
+                )  # type: ignore
             elif expected == "None":
                 assert event_instance.impact_households is None
 
