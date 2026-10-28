@@ -415,6 +415,6 @@ def test_normalize_distribution():
         [("R1", "S1"), ("R1", "S2"), ("R1", "S3")], names=["region", "sector"]
     )
     with pytest.raises(
-        ValueError, match="given distribution should be a Series or a DataFrame"
+        TypeError, match="given distribution should be a Series or a DataFrame"
     ):
         _normalize_distribution(dist, affected, addressed_to)

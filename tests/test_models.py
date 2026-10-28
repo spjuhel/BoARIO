@@ -207,7 +207,7 @@ class TestARIOPsiModel:
 
     def test_init_inventory_tau_dict(self, test_mriot):
         inventory_tau_dict = [10.0, 15.0, 13.0, 20.0]
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             model = ARIOPsiModel(
                 test_mriot,
                 inventory_restoration_tau=inventory_tau_dict,
@@ -232,7 +232,7 @@ class TestARIOPsiModel:
             "other": 50,
             "construction": 3,
         }
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             model = ARIOPsiModel(
                 test_mriot,
                 inventory_restoration_tau=inventory_tau_dict,
@@ -245,7 +245,7 @@ class TestARIOPsiModel:
             "other": 50,
             "construction": 3,
         }
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             model = ARIOPsiModel(
                 test_mriot,
                 inventory_restoration_tau=inventory_tau_dict,
