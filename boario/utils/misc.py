@@ -21,6 +21,7 @@ import textwrap
 from collections.abc import Iterable
 
 import numpy as np
+import numpy.typing as npt
 import pymrio
 
 
@@ -211,3 +212,31 @@ def print_summary(my_list):
         return textwrap.wrap(summary_string, width=80)
     else:
         return ""
+
+
+def as_3d(a: npt.NDArray, m: int, n: int) -> npt.NDArray:
+    """Reshape the first axis of a 2-D array to ``(m, n)`` without copying.
+
+    Parameters
+    ----------
+    a : numpy.ndarray
+        2-D array whose first axis has length ``m * n`` (region-major order).
+    m : int
+        Number of regions.
+    n : int
+        Number of sectors.
+
+    Returns
+    -------
+    numpy.ndarray
+        View of shape ``(m, n, a.shape[1])``.
+
+    Raises
+    ------
+    RuntimeError
+        If numpy would have to copy (incompatible memory layout).
+    """
+    v = a.reshape(m, n, a.shape[1])
+    if not np.may_share_memory(v, a):
+        raise RuntimeError("Reshape would copy; array layout is not compatible.")
+    return v

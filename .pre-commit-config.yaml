@@ -3,14 +3,14 @@ default_language_version:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0            # yours is v3.2.0; run `pre-commit autoupdate` to get the latest
+    rev: v6.0.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.3           # pin via `pre-commit autoupdate`
+    rev: v0.17.3
     hooks:
       - id: ruff-check
         args: [--fix]
