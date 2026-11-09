@@ -19,6 +19,6 @@ jobs:
       - name: Install the project dependencies
         run: uv sync --locked
       - name: Run ruff
-        run: uv run ruff --check --verbose
+        run: uv run ruff check
       - name: Run the automated tests
         run: uv run pytest -v

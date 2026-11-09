@@ -632,7 +632,7 @@ class TestEventInitScalar:
         event_instance.recovery_function = r_fun1
         assert event_instance.recovery_function == r_fun1
 
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             event_instance.recovery_function = 5  # type: ignore
 
     @pytest.mark.parametrize(
